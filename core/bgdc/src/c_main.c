@@ -580,7 +580,7 @@ void compile_constants() {
         if ( token.type != IDENTIFIER || token.code != identifier_equal ) compile_error( MSG_EXPECTED, "=" );
 
         res = compile_expresion( 1, 0, 0, 0 );
-        if ( !typedef_is_float( res.type ) && !typedef_is_string( res.type ) && !typedef_is_integer( res.type ) ) compile_error( MSG_INVALID_TYPE );
+        if ( !typedef_is_double( res.type ) && !typedef_is_float( res.type ) && !typedef_is_string( res.type ) && !typedef_is_integer( res.type ) ) compile_error( MSG_INVALID_TYPE );
 
         constants_add( code, res.type, typedef_base( res.type ) == TYPE_DOUBLE ? *( int64_t * ) &res.fvalue : res.value );
 

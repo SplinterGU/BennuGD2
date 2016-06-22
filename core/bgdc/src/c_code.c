@@ -40,7 +40,7 @@ int reduce_arrays = 1;
 /* Devuelve el codigo que hay que adjuntar a un mnemonico para producir   */
 /* una variante del mismo, adecuada al tipo de dato concreto              */
 
-int mntype( TYPEDEF type, int accept_structs ) {
+int64_t mntype( TYPEDEF type, int accept_structs ) {
     BASETYPE t;
 
     while ( typedef_is_array( type ) ) type = typedef_reduce( type );
@@ -153,7 +153,7 @@ CODEBLOCK * code;
 /* Comprueba que los parámetros de una expresion binaria sean datos */
 /* numéricos. Devuelve el tipo de operacion(MN_FLOAT o MN_QWORD)    */
 
-static int check_integer_type( expresion_result *exp ) {
+static int64_t check_integer_type( expresion_result *exp ) {
     if ( typedef_is_pointer( exp->type ) || typedef_base( exp->type ) == TYPE_CHAR ) {
 /*        codeblock_add(code, MN_POINTER2BOL, 0) ; */
         exp->type = typedef_new( TYPE_QWORD );
@@ -193,7 +193,7 @@ static int check_integer_type( expresion_result *exp ) {
     return 0;
 }
 
-static int check_integer_types( expresion_result *left, expresion_result *right ) {
+static int64_t check_integer_types( expresion_result *left, expresion_result *right ) {
     if ( typedef_is_pointer( left->type ) || typedef_base( left->type ) == TYPE_CHAR ) {
 /*        codeblock_add(code, MN_POINTER2BOL, 1) ; */
         left->type = typedef_new( TYPE_QWORD );
@@ -242,19 +242,20 @@ static int check_integer_types( expresion_result *left, expresion_result *right 
     return 0;
 }
 
-static int check_numeric_types( expresion_result *left, expresion_result *right ) {
-
+static int64_t check_numeric_types( expresion_result *left, expresion_result *right ) {
     if ( typedef_is_double( left->type ) ) {
         if ( typedef_is_double( right->type ) ) return MN_DOUBLE;
 
         if ( typedef_is_float( right->type ) ) {
             codeblock_add( code, MN_FLOAT2DOUBLE, 0 );
+            left->type = typedef_new( TYPE_DOUBLE );
             right->fvalue = ( double )right->value;
             return MN_DOUBLE;
         }
 
         if ( typedef_is_integer( right->type ) ) {
             codeblock_add( code, MN_INT2DOUBLE | mntype( right->type, 0 ), 0 );
+            left->type = typedef_new( TYPE_DOUBLE );
             right->fvalue = ( double )right->value;
             return MN_DOUBLE;
         }
@@ -265,34 +266,38 @@ static int check_numeric_types( expresion_result *left, expresion_result *right 
 
         if ( typedef_is_double( right->type ) ) {
             codeblock_add( code, MN_DOUBLE2FLOAT, 0 );
+            left->type = typedef_new( TYPE_FLOAT );
             right->fvalue = ( float )right->value;
             return MN_FLOAT;
         }
 
         if ( typedef_is_integer( right->type ) ) {
             codeblock_add( code, MN_INT2FLOAT | mntype( right->type, 0 ), 0 );
+            left->type = typedef_new( TYPE_FLOAT );
             right->fvalue = ( float )right->value;
             return MN_FLOAT;
         }
     }
 
     if ( typedef_is_integer( left->type ) || typedef_is_pointer( left->type ) ) {
-        if ( typedef_is_integer( right->type ) || typedef_is_pointer( right->type ) ) {
-            if ( typedef_base( left->type ) <= typedef_base( right->type ) ) return mntype( left->type, 0 );
-//            if ( typedef_base( left->type ) < typedef_base( right->type ) ) return mntype( left->type, 0 );
-            return mntype( right->type, 0 );
+        if ( typedef_is_double( right->type ) ) {
+            codeblock_add( code, MN_INT2DOUBLE, 1 );
+            left->type = typedef_new( TYPE_DOUBLE );
+            left->fvalue = ( double )left->value;
+            return MN_DOUBLE;
         }
 
         if ( typedef_is_float( right->type ) ) {
             codeblock_add( code, MN_INT2FLOAT, 1 );
+            left->type = typedef_new( TYPE_FLOAT );
             left->fvalue = ( float )left->value;
             return MN_FLOAT;
         }
 
-        if ( typedef_is_double( right->type ) ) {
-            codeblock_add( code, MN_INT2DOUBLE, 1 );
-            left->fvalue = ( float )left->value;
-            return MN_FLOAT;
+        if ( typedef_is_integer( right->type ) || typedef_is_pointer( right->type ) ) {
+            if ( typedef_base( left->type ) <= typedef_base( right->type ) ) return mntype( left->type, 0 );
+//            if ( typedef_base( left->type ) < typedef_base( right->type ) ) return mntype( left->type, 0 );
+            return mntype( right->type, 0 );
         }
     }
 
@@ -323,7 +328,7 @@ static int check_numeric_types( expresion_result *left, expresion_result *right 
 /* Comprueba que los parámetros de una expresion binaria sean cadenas
  * o datos numéricos. Devuelve MN_STRING o el tipo de dato numérico */
 
-static int check_numeric_or_string_types( expresion_result * left, expresion_result * right ) {
+static int64_t check_numeric_or_string_types( expresion_result * left, expresion_result * right ) {
     if ( typedef_is_array( left->type ) && left->type.chunk[1].type == TYPE_CHAR && typedef_is_string( right->type ) ) {
         left->type = typedef_new( TYPE_STRING );
         left->lvalue = 0;
@@ -853,8 +858,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                 }
                 */
                 if ( typedef_is_struct( res.type ) ) {
-                    int size = res.type.varspace->count * sizeof( DCB_TYPEDEF );
-                    int nvar;
+                    int size = res.type.varspace->count * sizeof( DCB_TYPEDEF ), nvar;
 
                     segment_alloc( globaldata, size );
                     codeblock_add( code, MN_GLOBAL, globaldata->current );
@@ -1543,7 +1547,7 @@ expresion_result compile_value() {
             return res;
 
         case    FLOAT:
-            codeblock_add( code, MN_PUSH, *( int * )&token.value );
+            codeblock_add( code, MN_PUSH, *( int64_t * )&token.value );
             res.value      = 0;
             res.lvalue     = 0;
             res.asignation = 0;
@@ -1849,7 +1853,7 @@ expresion_result compile_factor() {
 /* Paso 7 */
 expresion_result compile_operand() {
     expresion_result left = compile_factor(), right, res;
-    int op, t;
+    int64_t op, t;
 
     for (;;) {
         token_next();
@@ -1993,7 +1997,7 @@ expresion_result compile_operation() {
         /* Suma/resta de valores numéricos */
 
         if ( token.type == IDENTIFIER && ( token.code == identifier_plus || token.code == identifier_minus ) ) { /* "+" or "-" */
-            op = token.code == identifier_plus ? MN_ADD : MN_SUB;
+            op = ( token.code == identifier_plus ) ? MN_ADD : MN_SUB;
             if ( left.lvalue ) codeblock_add( code, mntype( left.type, 0 ) | MN_PTR, 0 );
             right = compile_operand();
 
@@ -2048,11 +2052,11 @@ expresion_result compile_operation() {
             if ( t == MN_DOUBLE || t == MN_FLOAT ) {
                 res.value  = 0.0;
                 res.type   = typedef_new( ( t == MN_DOUBLE ) ? TYPE_DOUBLE : TYPE_FLOAT );
-                res.fvalue = op == MN_ADD ? left.fvalue + right.fvalue : left.fvalue - right.fvalue;
+                res.fvalue = ( op == MN_ADD ) ? left.fvalue + right.fvalue : left.fvalue - right.fvalue;
             } else {
                 res.fvalue = 0.0;
                 res.type   = left.type /*typedef_new( TYPE_INT64 )*/;
-                res.value  = op == MN_ADD ? left.value + right.value : left.value - right.value;
+                res.value  = ( op == MN_ADD ) ? left.value + right.value : left.value - right.value;
             }
 
             left = res;
@@ -2069,7 +2073,7 @@ expresion_result compile_operation() {
 expresion_result compile_rotation() {
     expresion_result left = compile_operation(), right, res;
     BASETYPE t;
-    int op;
+    int64_t op;
 
     for (;;) {
         token_next();
@@ -2107,7 +2111,7 @@ expresion_result compile_rotation() {
 /* Paso 4 */
 expresion_result compile_comparison_1() {
     expresion_result left = compile_rotation(), right, res;
-    int op, t;
+    int64_t op, t;
 
     for (;;) {
         token_next();
@@ -2180,7 +2184,7 @@ expresion_result compile_comparison_1() {
 
 expresion_result compile_comparison_2() {
     expresion_result left = compile_comparison_1(), right, res;
-    int op, t;
+    int64_t op, t;
 
     for (;;) {
         token_next();
@@ -2520,8 +2524,7 @@ expresion_result compile_ternarycond() {
 /* Paso 1 */
 expresion_result compile_subexpresion() {
     expresion_result base = compile_ternarycond(), right, res;
-    int64_t op;
-    int type;
+    int64_t op, type;
 
     token_next();
     if ( token.type == IDENTIFIER ) {
@@ -2931,10 +2934,16 @@ expresion_result compile_expresion( int need_constant, int need_lvalue, int disc
 
     if ( res.constant ) {
         if ( code ) codeblock_setpos( code, pos );
-        if ( typedef_is_double( res.type ) )                codeblock_add( code, MN_PUSH, *( int64_t * )&res.fvalue );
-        if ( typedef_is_float( res.type ) )                 codeblock_add( code, MN_PUSH, *( int32_t * )&res.fvalue );
-        else if ( typedef_base( res.type ) == TYPE_STRING ) codeblock_add( code, MN_PUSH | MN_STRING, res.value );
-        else                                                codeblock_add( code, MN_PUSH, res.value );
+        if ( typedef_is_double( res.type ) ) {
+            codeblock_add( code, MN_PUSH, *( int64_t * )&res.fvalue );
+        } else if ( typedef_is_float( res.type ) ) {
+            float f = ( float ) res.fvalue;
+            codeblock_add( code, MN_PUSH, *( int32_t * )&f );
+        } else if ( typedef_base( res.type ) == TYPE_STRING ) {
+            codeblock_add( code, MN_PUSH | MN_STRING, res.value );
+        } else {
+            codeblock_add( code, MN_PUSH, res.value );
+        }
     }
 
     if ( need_lvalue && !res.lvalue ) compile_error( MSG_VARIABLE_REQUIRED );
@@ -3505,8 +3514,7 @@ void compile_block( PROCDEF * p ) {
                 int64_t inc = 1;
                 CODEBLOCK_POS var_pos;
                 CODEBLOCK_POS var_end;
-                int is_unsigned = 0;
-                int is_float = 0;
+                int is_unsigned = 0, is_float = 0;
                 BASETYPE res_type = TYPE_UNDEFINED;
 
                 et1 = codeblock_label_add( code, -1 );

@@ -97,7 +97,10 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
             }
             base = res.value;
             if ( *t == TYPE_DOUBLE ) base = *( int64_t * ) &res.fvalue;
-            if ( *t == TYPE_FLOAT ) base = *( int32_t * ) &res.fvalue;
+            if ( *t == TYPE_FLOAT ) {
+                float f = ( float ) res.fvalue;
+                base = *( int32_t * ) &f;
+            }
 
             token_next();
             if ( token.type == IDENTIFIER && token.code == identifier_dup ) {
@@ -277,7 +280,8 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub ) {
                 if ( !res.constant ) compile_error( MSG_CONSTANT_EXP );
                 t = typedef_base( next_type );
                 if ( t == TYPE_FLOAT ) {
-                    segment_add_as( data, *( int32_t * ) &res.fvalue, t );
+                    float f = ( float ) res.fvalue;
+                    segment_add_as( data, *( int32_t * ) &f, t );
                 } else if ( t == TYPE_DOUBLE ) {
                     segment_add_as( data, *( int64_t * ) &res.fvalue, t );
                 } else {
@@ -747,7 +751,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             if ( basetype == TYPE_DOUBLE ) {
                 segment_add_as( data, *( int64_t * ) &res.fvalue, basetype );
             } else if ( basetype == TYPE_FLOAT ) {
-                segment_add_as( data, *( int32_t * ) &res.fvalue, basetype );
+                float f = ( float ) res.fvalue;
+                segment_add_as( data, *( int32_t * ) &f, basetype );
             } else {
                 if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
                 segment_add_as( data, res.value, basetype );
