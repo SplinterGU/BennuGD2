@@ -142,19 +142,18 @@ void _string_ptoa( char *t, void * ptr )  {
 void _string_ntoa( char *p, uint64_t n ) {
     char * i = p;
 
-    p += 10;
-    if (( long ) n < 0 ) {
+    p += 20; // Max int64 digits - 1
+    if ( ( int64_t ) n < 0 ) {
         * i++ = '-';
-        p++;
-        n = ( unsigned long )( -( long )n );
+        n = ( uint64_t ) (- ( int64_t ) n );
     }
 
     * p = '\0';
     do {
-        * --p = '0' + ( n % 10 );
-    } while ( n /= 10 );
+        * --p = '0' + ( n % 10LL );
+    } while ( n /= 10LL );
 
-    if ( p > i ) while (( *i++ = *p++ ) );
+    if ( p > i ) while (( *i++ = *p++ ));
 }
 
 /* --------------------------------------------------------------------------- */
@@ -162,12 +161,12 @@ void _string_ntoa( char *p, uint64_t n ) {
 void _string_utoa( char *p, uint64_t n ) {
     char * i = p;
 
-    p += 10;
+    p += 20; // Max int64 digits - 1
 
     * p = '\0';
     do {
-        * --p = '0' + ( n % 10 );
-    } while ( n /= 10 );
+        * --p = '0' + ( n % 10LL );
+    } while ( n /= 10LL );
 
     if ( p > i ) while (( *i++ = *p++ ) );
 }
@@ -551,7 +550,7 @@ int64_t string_ptoa( void * n ) {
 /****************************************************************************/
 
 int64_t string_ftoa( double n ) {
-    char * str = ( char * ) malloc( 64 ), * ptr = str;
+    char * str = ( char * ) malloc( 384 ), * ptr = str;
     int64_t id;
 
     assert( str ) ;
@@ -585,7 +584,7 @@ int64_t string_itoa( int64_t n ) {
     char * str;
     int64_t id;
 
-    str = ( char * ) malloc( 64 );
+    str = ( char * ) malloc( 22 );
     assert( str ) ;
 
     _string_ntoa( str, n );
@@ -607,7 +606,7 @@ int64_t string_uitoa( uint64_t n ) {
     char * str;
     int64_t id;
 
-    str = ( char * ) malloc( 64 );
+    str = ( char * ) malloc( 22 );
     assert( str ) ;
 
     _string_utoa( str, n );

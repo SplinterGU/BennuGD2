@@ -913,7 +913,7 @@ void compile_process() {
 
                 proc->privars->vars[proc->privars->count].type   = typedef_new( TYPE_INT64 );
                 proc->privars->vars[proc->privars->count].offset = proc->pridata->current;
-                proc->privars->vars[proc->privars->count].code   = token.code;
+                proc->privars->vars[proc->privars->count].code   = -1; // for runtime search the right var
 
                 proc->privars->count++;
 
@@ -942,7 +942,7 @@ void compile_process() {
 
                     proc->privars->vars[proc->privars->count].type   = typedef_new( TYPE_INT64 );
                     proc->privars->vars[proc->privars->count].offset = proc->pridata->current;
-                    proc->privars->vars[proc->privars->count].code   = token.code;
+                    proc->privars->vars[proc->privars->count].code   = -1; // for runtime search the right var
 
                     proc->privars->count++;
 

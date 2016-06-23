@@ -324,7 +324,7 @@ static int64_t check_numeric_types( expresion_result *left, expresion_result *ri
     compile_error( MSG_INCOMP_TYPES );
     return 0;
 }
-// Done!
+
 /* Comprueba que los parámetros de una expresion binaria sean cadenas
  * o datos numéricos. Devuelve MN_STRING o el tipo de dato numérico */
 
@@ -1091,7 +1091,7 @@ int compile_paramlist( BASETYPE * types, const char * paramtypes ) {
  *
  */
 
-expresion_result compile_cast() { // Done!
+expresion_result compile_cast() {
     TYPEDEF  type;
     BASETYPE basetype = TYPE_INT64;
     int      tokens = 0, signed_prefix = 0, unsigned_prefix = 0;
@@ -1250,6 +1250,15 @@ expresion_result compile_cast() { // Done!
             }
             codeblock_add( code, MN_INT2DOUBLE, 0 );
             res.type = type;
+        } else if ( typedef_is_float( res.type ) ) {
+            /* ( pointer ) <float> */
+            if ( res.lvalue ) {
+                codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
+                res.lvalue = 0;
+            }
+            codeblock_add( code, MN_FLOAT2DOUBLE, 0 );
+            res.type = type;
+            return res;
         } else {
             compile_error( MSG_CONVERSION );
         }
@@ -1263,6 +1272,15 @@ expresion_result compile_cast() { // Done!
             }
             codeblock_add( code, MN_INT2FLOAT, 0 );
             res.type = type;
+        } else if ( typedef_is_double( res.type ) ) {
+            /* ( pointer ) <double> */
+            if ( res.lvalue ) {
+                codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
+                res.lvalue = 0;
+            }
+            codeblock_add( code, MN_DOUBLE2FLOAT, 0 );
+            res.type = type;
+            return res;
         } else {
             compile_error( MSG_CONVERSION );
         }
@@ -1411,8 +1429,9 @@ expresion_result compile_cast() { // Done!
             compile_error( MSG_CONVERSION );
     } else if ( typedef_is_struct( type ) ) {
         res.type = type;
-    } else
+    } else {
         compile_error( MSG_CONVERSION );
+    }
 
     return res;
 }

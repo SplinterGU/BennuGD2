@@ -1051,17 +1051,16 @@ void token_next() {
         /* Numbers */
 
         if ( ISNUM( *source_ptr ) ) {
-            const char * ptr;
-            unsigned char ch;
+            unsigned char ch, *ptr; //, dbl_buf[384];
             double num = 0.0, dec;
-            int base = 10;
+            int64_t base = 10;
 
             /* Hex/Bin/Octal numbers with the h/b/o sufix */
             if ( *source_ptr == '0' && *(source_ptr+1) == 'x' ) {
                 base = 16;
                 source_ptr += 2;
             } else {
-                ptr = source_ptr;
+                ptr = ( unsigned char * ) source_ptr;
                 while ( ISNUM( *ptr ) || ( *ptr >= 'a' && *ptr <= 'f' ) || ( *ptr >= 'A' && *ptr <= 'F' ) ) ptr++;
 
                 if ( *ptr != 'h' && *ptr != 'H' && *ptr != 'o' && *ptr != 'O' && ( ptr[-1] == 'b' || ptr[-1] == 'B' ) ) ptr--;
@@ -1073,18 +1072,21 @@ void token_next() {
 
             token.code = 0LL; /* for ints values */
 
+//            ptr = dbl_buf;
+
             /* Calculate the number value */
 
             while ( ISNUM( *source_ptr ) || ( base > 10 && ISALNUM( *source_ptr ) ) ) {
-                if ( base == 2 && *source_ptr != '0' && *source_ptr != '1' ) break;
-                if ( base == 8 && ( *source_ptr < '0' || *source_ptr > '7' ) ) break;
-                if ( base == 10 && !ISNUM( *source_ptr ) ) break;
                 ch = TOUPPER( *source_ptr );
-                if ( base == 16 && !ISNUM( *source_ptr ) && ( ch < 'A' || ch > 'F' ) ) break;
+                if ( base == 2 && ch != '0' && ch != '1' ) break;
+                if ( base == 8 && ( ch < '0' || ch > '7' ) ) break;
+                if ( base == 10 && !ISNUM( ch ) ) break;
+                if ( base == 16 && !ISNUM( ch ) && ( ch < 'A' || ch > 'F' ) ) break;
 
-                if ( ISNUM( *source_ptr ) ) {
-                    num = num * base + ( *source_ptr - '0' );
-                    token.code = token.code * base + ( *source_ptr - '0' );
+                if ( ISNUM( ch ) ) {
+                    num = num * base + ( ch - '0' );
+                    token.code = token.code * base + ( ch - '0' );
+//                    *ptr++ = ch; // hack double
                     source_ptr++;
                     continue;
                 }
@@ -1095,26 +1097,31 @@ void token_next() {
                     continue;
                 }
             }
+
             token.type = NUMBER;
             token.value = num;
 
             /* We have the integer part now - convert to int/float */
 
             if ( *source_ptr == '.' && base == 10 ) {
+//                *ptr++ = '.';
                 source_ptr++;
                 if ( !ISNUM( *source_ptr ) ) {
                     source_ptr--;
                 } else {
                     dec = 0.1;
                     while ( ISNUM( *source_ptr ) ) {
+//                        *ptr++ = *source_ptr;
                         num = num + dec * ( *source_ptr++ - '0' );
                         dec /= 10.0;
                     }
+                    *ptr = '\0';
                     token.type  = FLOAT;
                     token.value = num;
+//                    token.value = atof(dbl_buf); // hack double precision
+//                    printf( "%lf\n%lf\n%lf\n", num, token.value);
                 }
             }
-
             /* Skip the base sufix */
 
             if ( base == 16 && ( *source_ptr == 'h' || *source_ptr == 'H' ) ) source_ptr++;

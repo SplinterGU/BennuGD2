@@ -94,7 +94,7 @@ int64_t gr_text_height_no_margin( int64_t fontid, const unsigned char * text );
  */
 
 static const char * get_text( TEXT * text ) {
-    static char buffer[64];
+    static char buffer[384];
 
     switch ( text->on ) {
         case TEXT_TEXT:
@@ -120,19 +120,13 @@ static const char * get_text( TEXT * text ) {
             return buffer;
 
         case TEXT_DOUBLE: {
-                char * aux;
-                sprintf( buffer, "%lf", *( double * )text->var );
-                aux = buffer + 1; // We know that buffer contain at least 2 chars, skip first
-                while ( *( aux + 1 ) ) aux++; // We can test for pointer + 1 because we know that buffer contain at least 2 chars
+                char * aux = buffer + ( sprintf( buffer, "%lf", *( double * )text->var ) - 1 );
                 while ( *aux == '0' && *( aux - 1 ) != '.' ) *aux-- = '\0';
                 return buffer;
             }
 
         case TEXT_FLOAT: {
-                char * aux;
-                sprintf( buffer, "%f", *( float * )text->var );
-                aux = buffer + 1; // We know that buffer contain at least 2 chars, skip first
-                while ( *( aux + 1 ) ) aux++; // We can test for pointer + 1 because we know that buffer contain at least 2 chars
+                char * aux = buffer + ( sprintf( buffer, "%f", *( float * )text->var ) - 1 );
                 while ( *aux == '0' && *( aux - 1 ) != '.' ) *aux-- = '\0';
                 return buffer;
             }
