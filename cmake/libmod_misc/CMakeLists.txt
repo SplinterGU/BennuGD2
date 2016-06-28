@@ -8,7 +8,7 @@ find_package(SDL2 2.0.4 REQUIRED)
 
 add_definitions(-DTARGET_LINUX)
 
-include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm/include ../../modules/libmod_misc)
+include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm ../../modules/libmod_misc)
 
 file(GLOB SOURCES_LIBMOD_MISC
      "../../modules/libmod_misc/*.c"

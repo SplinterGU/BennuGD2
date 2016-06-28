@@ -7,10 +7,10 @@ find_package(OpenSSL REQUIRED)
 
 add_definitions(-D__BGDRTM__ -DVERSION="2.0.0" -DTARGET_LINUX)
 
-include_directories(../../core/include ../../core/bgdrtm/include)
+include_directories(../../core/include ../../core/bgdrtm)
 
 file(GLOB SOURCES_BGDRTM
-    "../../core/bgdrtm/src/*.c"
+    "../../core/bgdrtm/*.c"
     "../../core/common/*.c"
     )
 

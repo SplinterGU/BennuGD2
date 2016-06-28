@@ -7,10 +7,10 @@ find_package(OpenSSL REQUIRED)
 
 add_definitions(-D__BGDI__ -DVERSION="2.0.0")
 
-include_directories(../../core/include ../../core/bgdi/include ../../core/bgdrtm/include)
+include_directories(../../core/include ../../core/bgdi ../../core/bgdrtm)
 
 file(GLOB SOURCES
-     "../../core/bgdi/src/*.c"
+     "../../core/bgdi/*.c"
      )
 
 link_directories(../build/bin)

@@ -8,7 +8,7 @@ find_package(SDL2 2.0.4 REQUIRED)
 
 add_definitions(-DTARGET_LINUX -D__LIBBGINPUT)
 
-include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm/include ../../modules/libbginput ../../modules/libbggfx)
+include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm ../../modules/libbginput ../../modules/libbggfx)
 
 file(GLOB SOURCES_LIBBGLOAD
      "../../modules/libbginput/*.c"

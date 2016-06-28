@@ -8,7 +8,7 @@ find_package(SDL2 2.0.4 REQUIRED)
 
 add_definitions(-DTARGET_LINUX -D__LIBBGFGX)
 
-include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm/include ../../modules/libbggfx)
+include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm ../../modules/libbggfx)
 
 file(GLOB SOURCES_LIBBGGFX
      "../../modules/libbggfx/*.c"

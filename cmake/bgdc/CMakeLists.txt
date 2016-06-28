@@ -7,10 +7,10 @@ find_package(OpenSSL REQUIRED)
 
 add_definitions(-D__BGDC__ -DVERSION="2.0.0")
 
-include_directories(../../core/include ../../core/bgdc/include)
+include_directories(../../core/include ../../core/bgdc)
 
 file(GLOB SOURCES
-     "../../core/bgdc/src/*.c"
+     "../../core/bgdc/*.c"
      "../../core/common/*.c"
      )
 

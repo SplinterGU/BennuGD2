@@ -15,9 +15,12 @@ cmake ..
 make $*
 cd -
 
-echo "### Copying files to bin folder ###"
+if [ "$1" != "clean" ];
+then
+    echo "### Copying files to bin folder ###"
 
-cp cmake/build/bin/* bin/$TARGET
+    cp cmake/build/bin/* bin/$TARGET
+fi
 
 echo "### Build done! ###"
 

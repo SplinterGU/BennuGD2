@@ -9,7 +9,7 @@ find_package(SDL2_mixer REQUIRED)
 
 add_definitions(-DTARGET_LINUX)
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm/include ../../modules/libmod_sound ../../modules/libbgload)
+include_directories(${SDL2_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libmod_sound ../../modules/libbgload)
 
 file(GLOB SOURCES_LIBMOD_SOUND
      "../../modules/libmod_sound/*.c"

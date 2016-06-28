@@ -8,7 +8,7 @@ find_package(SDL2 2.0.4 REQUIRED)
 
 add_definitions(-DTARGET_LINUX)
 
-include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm/include ../../modules/libsdlhandler)
+include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm ../../modules/libsdlhandler)
 
 file(GLOB SOURCES_LIBSDLHANDLER
      "../../modules/libsdlhandler/*.c"

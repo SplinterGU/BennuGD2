@@ -9,7 +9,7 @@ find_package(SDL2_image REQUIRED)
 
 add_definitions(-DTARGET_LINUX)
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} ../../core/include ../../core/bgdrtm/include ../../modules/libbggfx ../../modules/libmod_gfx ../../modules/libbgload)
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} ../../core/include ../../core/bgdrtm ../../modules/libbggfx ../../modules/libmod_gfx ../../modules/libbgload)
 
 file(GLOB SOURCES_LIBMOD_GFX
      "../../modules/libmod_gfx/*.c"
