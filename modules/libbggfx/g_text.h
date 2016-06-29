@@ -45,9 +45,9 @@
 
 #define TEXT_TEXT           1
 #define TEXT_STRING         2
-#define TEXT_INT64          3
+#define TEXT_INT            3
 #define TEXT_QWORD          4
-#define TEXT_INT            5
+#define TEXT_INT32          5
 #define TEXT_DWORD          6
 #define TEXT_SHORT          7
 #define TEXT_WORD           8

@@ -52,7 +52,7 @@ static int compare_qword( const uint64_t * a, const uint64_t * b ) {
     return *( uint64_t * )(( uint8_t * )a + keyoffset ) - *( uint64_t * )(( uint8_t * )b + keyoffset );
 }
 
-static int compare_int( const int32_t * a, const int32_t * b ) {
+static int compare_int32( const int32_t * a, const int32_t * b ) {
     return *( int32_t * )(( uint8_t * )a + keyoffset ) - *( int32_t * )(( uint8_t * )b + keyoffset );
 }
 
@@ -172,14 +172,14 @@ static int dcb_typedef_size( const DCB_TYPEDEF * type ) {
     }
     switch ( type->BaseType[i] ) {
         case TYPE_QWORD:
-        case TYPE_INT64:
+        case TYPE_INT:
         case TYPE_DOUBLE:
         case TYPE_STRING:
         case TYPE_POINTER:
             return 8 * count;
 
         case TYPE_DWORD:
-        case TYPE_INT:
+        case TYPE_INT32:
         case TYPE_FLOAT:
             return 4 * count;
 
@@ -244,7 +244,7 @@ static int sort_variables( void * data, int key_offset, int key_type, int elemen
             compare = ( int ( * )( const void*, const void* ) ) compare_qword;
             break;
 
-        case TYPE_INT64:
+        case TYPE_INT:
             compare = ( int ( * )( const void*, const void* ) ) compare_int64;
             break;
 
@@ -252,8 +252,8 @@ static int sort_variables( void * data, int key_offset, int key_type, int elemen
             compare = ( int ( * )( const void*, const void* ) ) compare_dword;
             break;
 
-        case TYPE_INT:
-            compare = ( int ( * )( const void*, const void* ) ) compare_int;
+        case TYPE_INT32:
+            compare = ( int ( * )( const void*, const void* ) ) compare_int32;
             break;
 
         case TYPE_WORD:

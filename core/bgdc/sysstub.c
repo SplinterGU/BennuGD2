@@ -105,8 +105,7 @@ int64_t sysproc_add( char * name, char * paramtypes, int type, void * func ) {
      * in sysproc_get. We should add the new process to the list, but this
      * is a very rare possibility and we're lazy */
 
-    if ( sysproc_list != NULL )
-    {
+    if ( sysproc_list != NULL ) {
         free( sysproc_list );
         sysproc_list = NULL;
         sysproc_maxid = 0;
@@ -221,4 +220,16 @@ char * sysproc_name( int64_t code ) {
         s++ ;
     }
     return 0 ;
+}
+
+/* ---------------------------------------------------------------------- */
+
+SYSPROC * sysproc_by_name( int64_t code ) {
+    SYSPROC * s = sysprocs ;
+
+    while ( s->name ) {
+        if ( s->id == code ) return s ;
+        s++ ;
+    }
+    return NULL ;
 }

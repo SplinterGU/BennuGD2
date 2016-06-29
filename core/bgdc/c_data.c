@@ -361,7 +361,7 @@ static void set_type( TYPEDEF * t, BASETYPE type ) {
  *
  */
 
-int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** collision, int alignment, int duplicateignore ) {
+int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin ) {
     int i, j,
         total_count, last_count = 0,
         base_offset = data->current,
@@ -426,7 +426,14 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             proc = NULL;
 
             continue;
-        } else if ( token.code == identifier_end ) {
+        } else if ( !block_without_begin && token.code == identifier_end ) {
+            break;
+        } else if ( !is_identifier_datatype( token.code ) &&
+                    ( token.code < reserved_words ||
+                      sysproc_by_name( token.code ) != NULL
+                    )
+                  ) {
+            token_back();
             break;
         }
 
@@ -443,11 +450,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         /* Tipos de datos básicos */
 
         if ( token.code == identifier_qword ) {
-            basetype = signed_prefix ? TYPE_INT64 : TYPE_QWORD;
+            basetype = signed_prefix ? TYPE_INT : TYPE_QWORD;
             signed_prefix = unsigned_prefix = 0;
             token_next();
         } else if ( token.code == identifier_dword ) {
-            basetype = signed_prefix ? TYPE_INT : TYPE_DWORD;
+            basetype = signed_prefix ? TYPE_INT32 : TYPE_DWORD;
             signed_prefix = unsigned_prefix = 0;
             token_next();
         } else if ( token.code == identifier_word ) {
@@ -459,11 +466,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             signed_prefix = unsigned_prefix = 0;
             token_next();
         } else if ( token.code == identifier_int64 ) {
-            basetype = unsigned_prefix ? TYPE_QWORD : TYPE_INT64;
+            basetype = unsigned_prefix ? TYPE_QWORD : TYPE_INT;
             signed_prefix = unsigned_prefix = 0;
             token_next();
-        } else if ( token.code == identifier_int ) {
-            basetype = unsigned_prefix ? TYPE_DWORD : TYPE_INT;
+        } else if ( token.code == identifier_int32 ) {
+            basetype = unsigned_prefix ? TYPE_DWORD : TYPE_INT32;
             signed_prefix = unsigned_prefix = 0;
             token_next();
         } else if ( token.code == identifier_short ) {
@@ -484,7 +491,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             token_next();
         } else {
             if ( !proc && ( proc = procdef_search( token.code ) ) ) { /* Variables tipo proceso, Splinter */
-                basetype = TYPE_INT64;
+                basetype = TYPE_INT;
                 token_next();
             } else {
                 if ( token.type == IDENTIFIER && token.code >= reserved_words && !segment_by_name( token.code ) ) {
@@ -492,7 +499,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                     token_next();
                     if ( token.type == IDENTIFIER && token.code >= reserved_words ) {
                         proc = procdef_new( procdef_getid(), code );
-                        basetype = TYPE_INT64;
+                        basetype = TYPE_INT;
                     } else {
                         token_back();
                     }
@@ -502,7 +509,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
 
         if ( signed_prefix || unsigned_prefix ) compile_error( MSG_INVALID_TYPE );
         if ( basetype != TYPE_STRUCT ) type = typedef_new( basetype );
-        if ( basetype == TYPE_UNDEFINED ) type = typedef_new( TYPE_INT64 );
 
         /* Tipos de datos definidos por el usuario */
         if ( basetype != TYPE_STRUCT && ( segm = segment_by_name( token.code ) ) ) {
@@ -517,7 +523,10 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             type.depth = 1;
             token_next();
             segm = 0;
+            basetype = TYPE_STRUCT;
         }
+
+        if ( basetype == TYPE_UNDEFINED ) compile_error( MSG_DATA_TYPE_REQUIRED ); // type = typedef_new( TYPE_INT ); // Data Type Required
 
         basetypeb = basetype;
         typeb = type;
@@ -599,7 +608,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             type.chunk[0].count = 1;
             count = 1;
             while ( token.type == IDENTIFIER && token.code == identifier_leftb ) {
-                res = compile_expresion( 1, 0, 0, TYPE_INT64 );
+                res = compile_expresion( 1, 0, 0, TYPE_INT );
                 if ( !typedef_is_integer( res.type ) ) compile_error( MSG_INTEGER_REQUIRED );
                 count *= res.value + 1;
                 type = typedef_enlarge( type );
@@ -625,7 +634,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
             varspace_init( members );
 
-            size = compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore );
+            size = compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0 );
 
             type.varspace = members;
 
@@ -719,7 +728,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 token_back();
             } else {
                 if ( basetype == TYPE_UNDEFINED ) {
-                    basetype = TYPE_INT64;
+                    basetype = TYPE_INT;
                     set_type( &type, basetype );
                 }
 
@@ -759,7 +768,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
         } else if ( !segm ) { /* Asigna valores por defecto (0) */
             if ( basetype == TYPE_UNDEFINED ) {
-                basetype = TYPE_INT64;
+                basetype = TYPE_INT;
                 set_type( &type, basetype );
             }
 

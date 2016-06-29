@@ -187,14 +187,14 @@ static int64_t tsize( DCB_TYPEDEF orig ) {
             return orig.Count[0] * tsize( treduce( orig ) );
 
         case TYPE_QWORD:
-        case TYPE_INT64:
+        case TYPE_INT:
         case TYPE_DOUBLE:
         case TYPE_POINTER:
         case TYPE_STRING:
             return 8;
 
         case TYPE_DWORD:
-        case TYPE_INT:
+        case TYPE_INT32:
         case TYPE_FLOAT:
             return 4;
 

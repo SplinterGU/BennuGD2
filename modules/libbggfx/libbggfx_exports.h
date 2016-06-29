@@ -112,69 +112,69 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
 
 char * __bgdexport( libbggfx, globals_def ) =
     /* Video */
-    "graph_mode=0;\n"
-    "full_screen=0;\n"
-    "scale_resolution=-1;\n"
-    "scale_resolution_aspectratio=0;\n"
+    "INT graph_mode=0;\n"
+    "INT full_screen=0;\n"
+    "INT scale_resolution=-1;\n"
+    "INT scale_resolution_aspectratio=0;\n"
 
     /* Frame */
-    "fps;\n"
-    "speed_gauge=0;\n"
-    "double frame_time=0;\n"
+    "INT fps;\n"
+    "INT speed_gauge=0;\n"
+    "DOUBLE frame_time=0;\n"
 
     /* Fade */
-    "fading;\n"
+    "INT fading;\n"
 
     /* wm */
-    "exit_status=0;\n"                /* SDL_QUIT status */
-    "window_status=1;\n"              /* MINIMIZED:0 VISIBLE:1 */
-    "focus_status=1;\n"               /* FOCUS status */
-    "mouse_status=1;\n"               /* MOUSE status (INSIDE WINDOW:1) */
+    "INT exit_status=0;\n"                /* SDL_QUIT status */
+    "INT window_status=1;\n"              /* MINIMIZED:0 VISIBLE:1 */
+    "INT focus_status=1;\n"               /* FOCUS status */
+    "INT mouse_status=1;\n"               /* MOUSE status (INSIDE WINDOW:1) */
 
     /* text */
-    "text_z=-256;\n"
-    "text_flags;\n"
-    "byte text_alpha=255;\n"
-    "byte text_color_r=255;\n"
-    "byte text_color_g=255;\n"
-    "byte text_color_b=255;\n"
+    "INT text_z=-256;\n"
+    "INT text_flags;\n"
+    "BYTE text_alpha=255;\n"
+    "BYTE text_color_r=255;\n"
+    "BYTE text_color_g=255;\n"
+    "BYTE text_color_b=255;\n"
 
     /* backgound */
-    "background_file=0;\n"
-    "background_graph=0;\n"
-    "byte background_color_r=255;\n"
-    "byte background_color_g=255;\n"
-    "byte background_color_b=255;\n"
-    "background_flags=0;\n"
-    "background_angle=0;\n"
-    "background_size=100;\n"
-    "background_size_x=100;\n"
-    "background_size_y=100;\n"
+    "INT background_file=0;\n"
+    "INT background_graph=0;\n"
+    "BYTE background_color_r=255;\n"
+    "BYTE background_color_g=255;\n"
+    "BYTE background_color_b=255;\n"
+    "INT background_flags=0;\n"
+    "INT background_angle=0;\n"
+    "INT background_size=100;\n"
+    "INT background_size_x=100;\n"
+    "INT background_size_y=100;\n"
 
     /* scroll */
     "STRUCT scroll[9]\n"
-        "x0;\n"
-        "y0;\n"
-        "x1;\n"
-        "y1;\n"
-        "z = 512;\n"
-        "camera;\n"
-        "ratio = 200;\n"
-        "speed;\n"
-        "region1 = -1;\n"
-        "region2 = -1;\n"
-        "flags1;\n"
-        "flags2;\n"
-        "follow = -1;\n"
-        "byte alpha = 255;\n"
-        "byte color_r = 255;\n"
-        "byte color_g = 255;\n"
-        "byte color_b = 255;\n"
-        "byte alpha2 = 255;\n"
-        "byte color_r2 = 255;\n"
-        "byte color_g2 = 255;\n"
-        "byte color_b2 = 255;\n"
-        "reserved[7];\n"
+        "INT x0;\n"
+        "INT y0;\n"
+        "INT x1;\n"
+        "INT y1;\n"
+        "INT z = 512;\n"
+        "INT camera;\n"
+        "INT ratio = 200;\n"
+        "INT speed;\n"
+        "INT region1 = -1;\n"
+        "INT region2 = -1;\n"
+        "INT flags1;\n"
+        "INT flags2;\n"
+        "INT follow = -1;\n"
+        "BYTE alpha = 255;\n"
+        "BYTE color_r = 255;\n"
+        "BYTE color_g = 255;\n"
+        "BYTE color_b = 255;\n"
+        "BYTE alpha2 = 255;\n"
+        "BYTE color_r2 = 255;\n"
+        "BYTE color_g2 = 255;\n"
+        "BYTE color_b2 = 255;\n"
+        "INT reserved[7];\n"
     "END\n"
     ;
 
@@ -184,42 +184,42 @@ char * __bgdexport( libbggfx, locals_def ) =
 
     /* Render/Scroll */
 
-    "ctype;\n"
-    "cnumber;\n"
+    "INT ctype;\n"
+    "INT cnumber;\n"
 
     /* Render */
 
-    "x;\n"
-    "y;\n"
-    "z;\n"
-    "file;\n"
-    "graph;\n"
-    "size=100;\n"
-    "angle;\n"
-    "flags;\n"
-    "region;\n"
-    "resolution;\n"
-    "size_x=100;\n"
-    "size_y=100;\n"
-    "pointer xgraph;\n"
+    "INT x;\n"
+    "INT y;\n"
+    "INT z;\n"
+    "INT file;\n"
+    "INT graph;\n"
+    "INT size=100;\n"
+    "INT angle;\n"
+    "INT flags;\n"
+    "INT region;\n"
+    "INT resolution;\n"
+    "INT size_x=100;\n"
+    "INT size_y=100;\n"
+    "INT POINTER xgraph;\n"
 
-    "render_file=0;\n"
-    "render_graph=0;\n"
+    "INT render_file=0;\n"
+    "INT render_graph=0;\n"
 
-    "clip_x=0;\n"
-    "clip_y=0;\n"
-    "clip_w=0;\n"
-    "clip_h=0;\n"
+    "INT clip_x=0;\n"
+    "INT clip_y=0;\n"
+    "INT clip_w=0;\n"
+    "INT clip_h=0;\n"
 
-    "byte alpha=255;\n"
-    "byte color_r=255;\n"
-    "byte color_g=255;\n"
-    "byte color_b=255;\n"
+    "BYTE alpha=255;\n"
+    "BYTE color_r=255;\n"
+    "BYTE color_g=255;\n"
+    "BYTE color_b=255;\n"
 
     "STRUCT _render_reserved_\n"
-        "object_id=0;\n"
-        "graph_ptr=0;\n"
-        "xgraph_flags;\n"
+        "INT object_id=0;\n"
+        "INT graph_ptr=0;\n"
+        "INT xgraph_flags;\n"
     "END\n"
     ;
 

@@ -110,14 +110,14 @@ void segment_alloc(segment * n, int64_t count) {
 int64_t segment_add_as(segment * n, int64_t value, BASETYPE t) {
 	switch (t) {
         case TYPE_QWORD:
-		case TYPE_INT64:
+		case TYPE_INT:
 		case TYPE_DOUBLE:
 		case TYPE_STRING:
 		case TYPE_POINTER:
 			return segment_add_qword(n, (int64_t)value);
 
 		case TYPE_DWORD:
-		case TYPE_INT:
+		case TYPE_INT32:
 		case TYPE_FLOAT:
 			return segment_add_dword(n, (int32_t)value);
 

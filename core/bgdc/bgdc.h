@@ -121,14 +121,17 @@ typedef struct _sysproc {
     struct _sysproc * next;
 } SYSPROC;
 
+extern void sysproc_init();
 extern int64_t sysproc_add(char * name, char * paramtypes, int type, void * func);
 extern SYSPROC *  sysproc_get(int64_t id);
 extern SYSPROC ** sysproc_getall(int64_t id);
 extern char * sysproc_name(int64_t code);
-extern void sysproc_init();
+extern SYSPROC * sysproc_by_name( int64_t code );
 
 extern void compile_warning( int, const char *fmt, ... );
 extern void compile_error( const char *fmt, ... );
+
+extern int is_identifier_datatype( int64_t code );
 
 /* Constantes */
 

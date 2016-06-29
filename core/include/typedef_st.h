@@ -32,36 +32,36 @@
 /* Data types */
 
 typedef enum {
-	TYPE_UNDEFINED = 0,
+    TYPE_UNDEFINED = 0,
 
-    TYPE_INT64      , // 1   64 bits - NUMERIC - INTEGER
+    TYPE_INT        , // 1   64 bits - NUMERIC - INTEGER
     TYPE_QWORD      , // 2   64 bits - NUMERIC - INTEGER - UNSIGNED
-    TYPE_INT        , // 3   32 bits - NUMERIC - INTEGER
-	TYPE_DWORD      , // 4   32 bits - NUMERIC - INTEGER - UNSIGNED
-	TYPE_SHORT	    , // 5   16 bits - NUMERIC - INTEGER
-	TYPE_WORD	    , // 6   16 bits - NUMERIC - INTEGER - UNSIGNED
-	TYPE_SBYTE	    , // 7    8 bits - NUMERIC - INTEGER
-	TYPE_BYTE	    , // 8    8 bits - NUMERIC - INTEGER - UNSIGNED
-	TYPE_CHAR       , // 9    8 bits - NUMERIC
-	TYPE_FLOAT	    , // 10  32 bits - NUMERIC
+    TYPE_INT32      , // 3   32 bits - NUMERIC - INTEGER
+    TYPE_DWORD      , // 4   32 bits - NUMERIC - INTEGER - UNSIGNED
+    TYPE_SHORT	    , // 5   16 bits - NUMERIC - INTEGER
+    TYPE_WORD	    , // 6   16 bits - NUMERIC - INTEGER - UNSIGNED
+    TYPE_SBYTE	    , // 7    8 bits - NUMERIC - INTEGER
+    TYPE_BYTE	    , // 8    8 bits - NUMERIC - INTEGER - UNSIGNED
+    TYPE_CHAR       , // 9    8 bits - NUMERIC
+    TYPE_FLOAT	    , // 10  32 bits - NUMERIC
     TYPE_DOUBLE     , // 11  64 bits - NUMERIC
-	TYPE_STRING     , // 12  variant
-	TYPE_ARRAY	    , // 13  variant
-	TYPE_STRUCT	    , // 14  variant
-	TYPE_POINTER    , // 15  32/64 bits
+    TYPE_STRING     , // 12  variant
+    TYPE_ARRAY	    , // 13  variant
+    TYPE_STRUCT	    , // 14  variant
+    TYPE_POINTER    , // 15  32/64 bits
 } BASETYPE ;
 
 typedef struct _typechunk {
-	BASETYPE   type ;
-	int        count ;	/* for type == TYPE_ARRAY */
+    BASETYPE   type ;
+    int        count ;	/* for type == TYPE_ARRAY */
 } TYPECHUNK ;
 
 #define MAX_TYPECHUNKS 8
 
 typedef struct _typedef {
-	TYPECHUNK          chunk[MAX_TYPECHUNKS] ;
-	int                depth ;
-	struct _varspace * varspace ;
+    TYPECHUNK          chunk[MAX_TYPECHUNKS] ;
+    int                depth ;
+    struct _varspace * varspace ;
 } TYPEDEF ;
 
 #define typedef_is_numeric(t)   ((t).chunk[0].type < TYPE_STRING)

@@ -50,14 +50,14 @@ void describe_type( int type ) {
         case TYPE_QWORD:
             printf( "QWORD" );
             break;
-        case TYPE_INT64:
-            printf( "INT64" );
+        case TYPE_INT:
+            printf( "INT" );
             break;
         case TYPE_DWORD:
             printf( "DWORD" );
             break;
-        case TYPE_INT:
-            printf( "INT" );
+        case TYPE_INT32:
+            printf( "INT32" );
             break;
         case TYPE_SHORT:
             printf( "SHORT" );
@@ -109,12 +109,12 @@ int describe_func( char * name, char * paramtypes, int64_t type, void * func ) {
     param = 0;
     while ( paramtypes && paramtypes[param] ) {
         switch ( paramtypes[param] ) {
-            case 'Q':
-                printf( "INT64" );
+            case 'I':
+                printf( "INT" );
                 break;
 
-            case 'I':
-                printf( "INTEGER" );
+            case 'i':
+                printf( "INT32" );
                 break;
 
             case 'B':

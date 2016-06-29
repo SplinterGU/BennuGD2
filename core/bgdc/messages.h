@@ -150,4 +150,6 @@
 #define MSG_ON_PARAM_ERR                        "ERROR/EXIT expected"
 #define MSG_GOTO_EXP                            "GOTO/JMP expected"
 
+#define MSG_DATA_TYPE_REQUIRED                  "Data type required"
+
 #endif

@@ -37,53 +37,53 @@
 
 DLSYSFUNCS  __bgdexport( libmod_input, functions_exports )[] = {
 
-    FUNC( "KEY"                 , "Q"       , TYPE_INT64    , libmod_input_key                          ),
+    FUNC( "KEY"                 , "I"       , TYPE_INT    , libmod_input_key                          ),
 
-    FUNC( "JOY_AXES"            , ""        , TYPE_INT64    , libmod_input_joy_axes                     ),
-    FUNC( "JOY_AXES"            , "Q"       , TYPE_INT64    , libmod_input_joy_axes_specific            ),
-    FUNC( "JOY_NUMAXES"         , ""        , TYPE_INT64    , libmod_input_joy_axes                     ),
-    FUNC( "JOY_NUMAXES"         , "Q"       , TYPE_INT64    , libmod_input_joy_axes_specific            ),
-    FUNC( "JOY_GETAXIS"         , "Q"       , TYPE_INT64    , libmod_input_joy_get_position             ),
-    FUNC( "JOY_GETAXIS"         , "QQ"      , TYPE_INT64    , libmod_input_joy_get_position_specific    ),
+    FUNC( "JOY_AXES"            , ""        , TYPE_INT    , libmod_input_joy_axes                     ),
+    FUNC( "JOY_AXES"            , "I"       , TYPE_INT    , libmod_input_joy_axes_specific            ),
+    FUNC( "JOY_NUMAXES"         , ""        , TYPE_INT    , libmod_input_joy_axes                     ),
+    FUNC( "JOY_NUMAXES"         , "I"       , TYPE_INT    , libmod_input_joy_axes_specific            ),
+    FUNC( "JOY_GETAXIS"         , "I"       , TYPE_INT    , libmod_input_joy_get_position             ),
+    FUNC( "JOY_GETAXIS"         , "II"      , TYPE_INT    , libmod_input_joy_get_position_specific    ),
 
-    FUNC( "JOY_BUTTONS"         , ""        , TYPE_INT64    , libmod_input_joy_buttons                  ),
-    FUNC( "JOY_BUTTONS"         , "Q"       , TYPE_INT64    , libmod_input_joy_buttons_specific         ),
+    FUNC( "JOY_BUTTONS"         , ""        , TYPE_INT    , libmod_input_joy_buttons                  ),
+    FUNC( "JOY_BUTTONS"         , "I"       , TYPE_INT    , libmod_input_joy_buttons_specific         ),
 
-    FUNC( "JOY_NAME"            , "Q"       , TYPE_STRING   , libmod_input_joy_name                     ),
+    FUNC( "JOY_NAME"            , "I"       , TYPE_STRING   , libmod_input_joy_name                     ),
 
-    FUNC( "JOY_NUMBUTTONS"      , ""        , TYPE_INT64    , libmod_input_joy_buttons                  ),
-    FUNC( "JOY_NUMBUTTONS"      , "Q"       , TYPE_INT64    , libmod_input_joy_buttons_specific         ),
+    FUNC( "JOY_NUMBUTTONS"      , ""        , TYPE_INT    , libmod_input_joy_buttons                  ),
+    FUNC( "JOY_NUMBUTTONS"      , "I"       , TYPE_INT    , libmod_input_joy_buttons_specific         ),
 
-    FUNC( "JOY_NUMBER"          , ""        , TYPE_INT64    , libmod_input_joy_num                      ),
-    FUNC( "JOY_NUMJOYSTICKS"    , ""        , TYPE_INT64    , libmod_input_joy_num                      ),
+    FUNC( "JOY_NUMBER"          , ""        , TYPE_INT    , libmod_input_joy_num                      ),
+    FUNC( "JOY_NUMJOYSTICKS"    , ""        , TYPE_INT    , libmod_input_joy_num                      ),
 
-    FUNC( "JOY_SELECT"          , "Q"       , TYPE_INT64    , libmod_input_joy_select                   ),
+    FUNC( "JOY_SELECT"          , "I"       , TYPE_INT    , libmod_input_joy_select                   ),
 
-    FUNC( "JOY_GETBUTTON"       , "Q"       , TYPE_INT64    , libmod_input_joy_get_button               ),
-    FUNC( "JOY_GETBUTTON"       , "QQ"      , TYPE_INT64    , libmod_input_joy_get_button_specific      ),
-    FUNC( "JOY_GETPOSITION"     , "Q"       , TYPE_INT64    , libmod_input_joy_get_position             ),
-    FUNC( "JOY_GETPOSITION"     , "QQ"      , TYPE_INT64    , libmod_input_joy_get_position_specific    ),
+    FUNC( "JOY_GETBUTTON"       , "I"       , TYPE_INT    , libmod_input_joy_get_button               ),
+    FUNC( "JOY_GETBUTTON"       , "II"      , TYPE_INT    , libmod_input_joy_get_button_specific      ),
+    FUNC( "JOY_GETPOSITION"     , "I"       , TYPE_INT    , libmod_input_joy_get_position             ),
+    FUNC( "JOY_GETPOSITION"     , "II"      , TYPE_INT    , libmod_input_joy_get_position_specific    ),
 
-    FUNC( "JOY_NUMHATS"         , ""        , TYPE_INT64    , libmod_input_joy_hats                     ),
-    FUNC( "JOY_NUMHATS"         , "Q"       , TYPE_INT64    , libmod_input_joy_hats_specific            ),   /* Added by Sandman */
-    FUNC( "JOY_NUMBALLS"        , ""        , TYPE_INT64    , libmod_input_joy_balls                    ),
-    FUNC( "JOY_NUMBALLS"        , "Q"       , TYPE_INT64    , libmod_input_joy_balls_specific           ),   /* Added by Sandman */
-    FUNC( "JOY_GETHAT"          , "Q"       , TYPE_INT64    , libmod_input_joy_get_hat                  ),
-    FUNC( "JOY_GETHAT"          , "QQ"      , TYPE_INT64    , libmod_input_joy_get_hat_specific         ),   /* Added by Sandman */
-    FUNC( "JOY_GETBALL"         , "QPP"     , TYPE_INT64    , libmod_input_joy_get_ball                 ),
-    FUNC( "JOY_GETBALL"         , "QQPP"    , TYPE_INT64    , libmod_input_joy_get_ball_specific        ),   /* Added by Sandman */
+    FUNC( "JOY_NUMHATS"         , ""        , TYPE_INT    , libmod_input_joy_hats                     ),
+    FUNC( "JOY_NUMHATS"         , "I"       , TYPE_INT    , libmod_input_joy_hats_specific            ),   /* Added by Sandman */
+    FUNC( "JOY_NUMBALLS"        , ""        , TYPE_INT    , libmod_input_joy_balls                    ),
+    FUNC( "JOY_NUMBALLS"        , "I"       , TYPE_INT    , libmod_input_joy_balls_specific           ),   /* Added by Sandman */
+    FUNC( "JOY_GETHAT"          , "I"       , TYPE_INT    , libmod_input_joy_get_hat                  ),
+    FUNC( "JOY_GETHAT"          , "II"      , TYPE_INT    , libmod_input_joy_get_hat_specific         ),   /* Added by Sandman */
+    FUNC( "JOY_GETBALL"         , "IPP"     , TYPE_INT    , libmod_input_joy_get_ball                 ),
+    FUNC( "JOY_GETBALL"         , "IIPP"    , TYPE_INT    , libmod_input_joy_get_ball_specific        ),   /* Added by Sandman */
 
-    FUNC( "JOY_GETACCEL"        , "PPP"     , TYPE_INT64    , libmod_input_joy_get_accel                ),
-    FUNC( "JOY_GETACCEL"        , "QPPP"    , TYPE_INT64    , libmod_input_joy_get_accel_specific       ),
+    FUNC( "JOY_GETACCEL"        , "PPP"     , TYPE_INT    , libmod_input_joy_get_accel                ),
+    FUNC( "JOY_GETACCEL"        , "IPPP"    , TYPE_INT    , libmod_input_joy_get_accel_specific       ),
 
     /* Compatibility */
 
-    FUNC( "NUMBER_JOY"          , ""        , TYPE_INT64    , libmod_input_joy_num                      ),
-    FUNC( "SELECT_JOY"          , "Q"       , TYPE_INT64    , libmod_input_joy_select                   ),
-    FUNC( "GET_JOY_BUTTON"      , "Q"       , TYPE_INT64    , libmod_input_joy_get_button               ),
-    FUNC( "GET_JOY_BUTTON"      , "QQ"      , TYPE_INT64    , libmod_input_joy_get_button_specific      ),
-    FUNC( "GET_JOY_POSITION"    , "Q"       , TYPE_INT64    , libmod_input_joy_get_position             ),
-    FUNC( "GET_JOY_POSITION"    , "QQ"      , TYPE_INT64    , libmod_input_joy_get_position_specific    ),
+    FUNC( "NUMBER_JOY"          , ""        , TYPE_INT    , libmod_input_joy_num                      ),
+    FUNC( "SELECT_JOY"          , "I"       , TYPE_INT    , libmod_input_joy_select                   ),
+    FUNC( "GET_JOY_BUTTON"      , "I"       , TYPE_INT    , libmod_input_joy_get_button               ),
+    FUNC( "GET_JOY_BUTTON"      , "II"      , TYPE_INT    , libmod_input_joy_get_button_specific      ),
+    FUNC( "GET_JOY_POSITION"    , "I"       , TYPE_INT    , libmod_input_joy_get_position             ),
+    FUNC( "GET_JOY_POSITION"    , "II"      , TYPE_INT    , libmod_input_joy_get_position_specific    ),
 
     FUNC( 0                     , 0         , 0             , 0                                         )
 };

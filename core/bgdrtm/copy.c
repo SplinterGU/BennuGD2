@@ -141,7 +141,7 @@ static int copytype( void * dst, void * src, DCB_TYPEDEF * var )
         switch ( var->BaseType[n] )
         {
             case TYPE_FLOAT:
-            case TYPE_INT:
+            case TYPE_INT32:
             case TYPE_DWORD:
             case TYPE_POINTER:
                 memcpy( dst, src, 4 * count );

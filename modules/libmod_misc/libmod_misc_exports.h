@@ -106,10 +106,10 @@ char * __bgdexport( libmod_misc, globals_def ) =
     "STRUCT fileinfo\n"
         "STRING path;\n"
         "STRING name;\n"
-        "directory;\n"
-        "hidden;\n"
-        "readonly;\n"
-        "size;\n"
+        "INT directory;\n"
+        "INT hidden;\n"
+        "INT readonly;\n"
+        "INT size;\n"
         "STRING created;\n"
         "STRING modified;\n"
         "STRING accessed;\n"
@@ -118,17 +118,17 @@ char * __bgdexport( libmod_misc, globals_def ) =
 
     "STRING regex_reg[15];\n"
 
-    "timer[9];\n"
+    "INT timer[9];\n"
     ;
 
 /* ----------------------------------------------------------------- */
 
 char * __bgdexport( libmod_misc, locals_def ) =
     "STRUCT __proccess_reserved\n"
-        "int64 type_scan;\n"
-        "int64 id_scan;\n"
-        "int64 context;\n"
-        "qword signal_action;\n"
+        "INT type_scan;\n"
+        "INT id_scan;\n"
+        "INT context;\n"
+        "QWORD signal_action;\n"
     "END\n"
     ;
 
@@ -138,12 +138,12 @@ char * __bgdexport( libmod_misc, locals_def ) =
 DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
 {
     /* Crypt */
-    FUNC( "CRYPT_NEW"       , "QP"      , TYPE_POINTER      , libmod_misc_crypt_new              ),
+    FUNC( "CRYPT_NEW"       , "IP"      , TYPE_POINTER      , libmod_misc_crypt_new              ),
     FUNC( "CRYPT_DEL"       , "P"       , TYPE_QWORD        , libmod_misc_crypt_del              ),
-    FUNC( "CRYPT_ENCRYPT"   , "PPPQ"    , TYPE_QWORD        , libmod_misc_crypt_encrypt          ),
-    FUNC( "CRYPT_DECRYPT"   , "PPPQ"    , TYPE_QWORD        , libmod_misc_crypt_decrypt          ),
-    FUNC( "CRYPT_ENCRYPT"   , "QPPPQ"   , TYPE_QWORD        , libmod_misc_crypt_encrypt2         ),
-    FUNC( "CRYPT_DECRYPT"   , "QPPPQ"   , TYPE_QWORD        , libmod_misc_crypt_decrypt2         ),
+    FUNC( "CRYPT_ENCRYPT"   , "PPPI"    , TYPE_QWORD        , libmod_misc_crypt_encrypt          ),
+    FUNC( "CRYPT_DECRYPT"   , "PPPI"    , TYPE_QWORD        , libmod_misc_crypt_decrypt          ),
+    FUNC( "CRYPT_ENCRYPT"   , "IPPPI"   , TYPE_QWORD        , libmod_misc_crypt_encrypt2         ),
+    FUNC( "CRYPT_DECRYPT"   , "IPPPI"   , TYPE_QWORD        , libmod_misc_crypt_decrypt2         ),
 
     /* Directories */
     FUNC( "CD"              , ""        , TYPE_STRING       , libmod_misc_dir_cd                 ),
@@ -155,8 +155,8 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "RM"              , "S"       , TYPE_QWORD        , libmod_misc_dir_rm                 ),
 
     FUNC( "DIROPEN"         , "S"       , TYPE_QWORD        , libmod_misc_dir_open               ),
-    FUNC( "DIRCLOSE"        , "Q"       , TYPE_QWORD        , libmod_misc_dir_close              ),
-    FUNC( "DIRREAD"         , "Q"       , TYPE_STRING       , libmod_misc_dir_read               ),
+    FUNC( "DIRCLOSE"        , "I"       , TYPE_QWORD        , libmod_misc_dir_close              ),
+    FUNC( "DIRREAD"         , "I"       , TYPE_STRING       , libmod_misc_dir_read               ),
 
     /* Files */
     FUNC( "SAVE"            , "SV++"    , TYPE_QWORD        , libmod_misc_file_save              ),
@@ -164,21 +164,21 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
 
     FUNC( "FILE"            , "S"       , TYPE_STRING       , libmod_misc_file_file              ),
 
-    FUNC( "FOPEN"           , "SQ"      , TYPE_QWORD        , libmod_misc_file_fopen             ),
-    FUNC( "FCLOSE"          , "Q"       , TYPE_QWORD        , libmod_misc_file_fclose            ),
-    FUNC( "FREAD"           , "QV++"    , TYPE_QWORD        , libmod_misc_file_fread             ),
-    FUNC( "FREAD"           , "PQQ"     , TYPE_QWORD        , libmod_misc_file_freadC            ),
-    FUNC( "FWRITE"          , "QV++"    , TYPE_QWORD        , libmod_misc_file_fwrite            ),
-    FUNC( "FWRITE"          , "PQQ"     , TYPE_QWORD        , libmod_misc_file_fwriteC           ),
-    FUNC( "FSEEK"           , "QQQ"     , TYPE_QWORD        , libmod_misc_file_fseek             ),
-    FUNC( "FREWIND"         , "Q"       , TYPE_UNDEFINED    , libmod_misc_file_frewind           ),
-    FUNC( "FTELL"           , "Q"       , TYPE_QWORD        , libmod_misc_file_ftell             ),
-    FUNC( "FFLUSH"          , "Q"       , TYPE_QWORD        , libmod_misc_file_fflush            ),
-    FUNC( "FPUTS"           , "QS"      , TYPE_QWORD        , libmod_misc_file_fputs             ),
-    FUNC( "FGETS"           , "Q"       , TYPE_STRING       , libmod_misc_file_fgets             ),
-    FUNC( "FEOF"            , "Q"       , TYPE_QWORD        , libmod_misc_file_feof              ),
+    FUNC( "FOPEN"           , "SI"      , TYPE_QWORD        , libmod_misc_file_fopen             ),
+    FUNC( "FCLOSE"          , "I"       , TYPE_QWORD        , libmod_misc_file_fclose            ),
+    FUNC( "FREAD"           , "IV++"    , TYPE_QWORD        , libmod_misc_file_fread             ),
+    FUNC( "FREAD"           , "PII"     , TYPE_QWORD        , libmod_misc_file_freadC            ),
+    FUNC( "FWRITE"          , "IV++"    , TYPE_QWORD        , libmod_misc_file_fwrite            ),
+    FUNC( "FWRITE"          , "PII"     , TYPE_QWORD        , libmod_misc_file_fwriteC           ),
+    FUNC( "FSEEK"           , "III"     , TYPE_QWORD        , libmod_misc_file_fseek             ),
+    FUNC( "FREWIND"         , "I"       , TYPE_UNDEFINED    , libmod_misc_file_frewind           ),
+    FUNC( "FTELL"           , "I"       , TYPE_QWORD        , libmod_misc_file_ftell             ),
+    FUNC( "FFLUSH"          , "I"       , TYPE_QWORD        , libmod_misc_file_fflush            ),
+    FUNC( "FPUTS"           , "IS"      , TYPE_QWORD        , libmod_misc_file_fputs             ),
+    FUNC( "FGETS"           , "I"       , TYPE_STRING       , libmod_misc_file_fgets             ),
+    FUNC( "FEOF"            , "I"       , TYPE_QWORD        , libmod_misc_file_feof              ),
 
-    FUNC( "FLENGTH"         , "Q"       , TYPE_QWORD        , libmod_misc_file_filelength        ),
+    FUNC( "FLENGTH"         , "I"       , TYPE_QWORD        , libmod_misc_file_filelength        ),
     FUNC( "FEXISTS"         , "S"       , TYPE_QWORD        , libmod_misc_file_exists            ) ,
     FUNC( "FREMOVE"         , "S"       , TYPE_QWORD        , libmod_misc_file_remove            ) ,
     FUNC( "FMOVE"           , "SS"      , TYPE_QWORD        , libmod_misc_file_move              ) ,
@@ -186,7 +186,7 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     /* Math */
     FUNC( "ABS"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_abs               ),
     FUNC( "POW"             , "DD"      , TYPE_DOUBLE       , libmod_misc_math_pow               ),
-    FUNC( "SQRT"            , "D"       , TYPE_DOUBLE       , libmod_misc_math_sqrt              ),
+    FUNC( "SIRT"            , "D"       , TYPE_DOUBLE       , libmod_misc_math_sqrt              ),
 
     FUNC( "COS"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_cos               ),
     FUNC( "SIN"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_sin               ),
@@ -200,73 +200,73 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "ISNAN"           , "D"       , TYPE_QWORD        , libmod_misc_math_isnan             ),
     FUNC( "FINITE"          , "D"       , TYPE_QWORD        , libmod_misc_math_finite            ),
 
-    FUNC( "FGET_ANGLE"      , "QQQQ"    , TYPE_QWORD        , libmod_misc_math_fget_angle        ),
-    FUNC( "FGET_DIST"       , "QQQQ"    , TYPE_QWORD        , libmod_misc_math_fget_dist         ),
-    FUNC( "NEAR_ANGLE"      , "QQQ"     , TYPE_QWORD        , libmod_misc_math_near_angle        ),
-    FUNC( "GET_DISTX"       , "QQ"      , TYPE_QWORD        , libmod_misc_math_get_distx         ),
-    FUNC( "GET_DISTY"       , "QQ"      , TYPE_QWORD        , libmod_misc_math_get_disty         ),
+    FUNC( "FGET_ANGLE"      , "IIII"    , TYPE_QWORD        , libmod_misc_math_fget_angle        ),
+    FUNC( "FGET_DIST"       , "IIII"    , TYPE_QWORD        , libmod_misc_math_fget_dist         ),
+    FUNC( "NEAR_ANGLE"      , "III"     , TYPE_QWORD        , libmod_misc_math_near_angle        ),
+    FUNC( "GET_DISTX"       , "II"      , TYPE_QWORD        , libmod_misc_math_get_distx         ),
+    FUNC( "GET_DISTY"       , "II"      , TYPE_QWORD        , libmod_misc_math_get_disty         ),
 
     /* Mem */
-    FUNC( "MEM_CALLOC"      , "QQ"      , TYPE_POINTER      , libmod_misc_mem_calloc             ),
-    FUNC( "MEM_ALLOC"       , "Q"       , TYPE_POINTER      , libmod_misc_mem_alloc              ),
+    FUNC( "MEM_CALLOC"      , "II"      , TYPE_POINTER      , libmod_misc_mem_calloc             ),
+    FUNC( "MEM_ALLOC"       , "I"       , TYPE_POINTER      , libmod_misc_mem_alloc              ),
     FUNC( "MEM_FREE"        , "P"       , TYPE_QWORD        , libmod_misc_mem_free               ),
-    FUNC( "MEM_REALLOC"     , "PQ"      , TYPE_POINTER      , libmod_misc_mem_realloc            ),
-    FUNC( "MEM_CMP"         , "PPQ"     , TYPE_QWORD        , libmod_misc_mem_memcmp             ),
-    FUNC( "MEM_SET"         , "PBQ"     , TYPE_QWORD        , libmod_misc_mem_memset             ),
-    FUNC( "MEM_SETW"        , "PWQ"     , TYPE_QWORD        , libmod_misc_mem_memsetw            ),
-    FUNC( "MEM_SETI"        , "PQQ"     , TYPE_QWORD        , libmod_misc_mem_memseti            ),
-    FUNC( "MEM_COPY"        , "PPQ"     , TYPE_QWORD        , libmod_misc_mem_memcopy            ),
-    FUNC( "MEM_MOVE"        , "PPQ"     , TYPE_QWORD        , libmod_misc_mem_memmove            ),
+    FUNC( "MEM_REALLOC"     , "PI"      , TYPE_POINTER      , libmod_misc_mem_realloc            ),
+    FUNC( "MEM_CMP"         , "PPI"     , TYPE_QWORD        , libmod_misc_mem_memcmp             ),
+    FUNC( "MEM_SET"         , "PBI"     , TYPE_QWORD        , libmod_misc_mem_memset             ),
+    FUNC( "MEM_SETW"        , "PWI"     , TYPE_QWORD        , libmod_misc_mem_memsetw            ),
+    FUNC( "MEM_SETI"        , "PII"     , TYPE_QWORD        , libmod_misc_mem_memseti            ),
+    FUNC( "MEM_COPY"        , "PPI"     , TYPE_QWORD        , libmod_misc_mem_memcopy            ),
+    FUNC( "MEM_MOVE"        , "PPI"     , TYPE_QWORD        , libmod_misc_mem_memmove            ),
 
     FUNC( "MEM_AVAILABLE"   , ""        , TYPE_QWORD        , libmod_misc_mem_memory_free        ),
     FUNC( "MEM_TOTAL"       , ""        , TYPE_QWORD        , libmod_misc_mem_memory_total       ),
 
-    FUNC( "CALLOC"          , "QQ"      , TYPE_POINTER      , libmod_misc_mem_calloc             ),
-    FUNC( "ALLOC"           , "Q"       , TYPE_POINTER      , libmod_misc_mem_alloc              ),
+    FUNC( "CALLOC"          , "II"      , TYPE_POINTER      , libmod_misc_mem_calloc             ),
+    FUNC( "ALLOC"           , "I"       , TYPE_POINTER      , libmod_misc_mem_alloc              ),
     FUNC( "FREE"            , "P"       , TYPE_QWORD        , libmod_misc_mem_free               ),
-    FUNC( "REALLOC"         , "PQ"      , TYPE_POINTER      , libmod_misc_mem_realloc            ),
-    FUNC( "MEMCMP"          , "PPQ"     , TYPE_QWORD        , libmod_misc_mem_memcmp             ),
-    FUNC( "MEMSET"          , "PBQ"     , TYPE_QWORD        , libmod_misc_mem_memset             ),
-    FUNC( "MEMSETQ"         , "PQQ"     , TYPE_QWORD        , libmod_misc_mem_memsetq            ),
-    FUNC( "MEMSETW"         , "PWQ"     , TYPE_QWORD        , libmod_misc_mem_memsetw            ),
-    FUNC( "MEMSETI"         , "PIQ"     , TYPE_QWORD        , libmod_misc_mem_memseti            ),
-    FUNC( "MEMCOPY"         , "PPQ"     , TYPE_QWORD        , libmod_misc_mem_memcopy            ),
-    FUNC( "MEMMOVE"         , "PPQ"     , TYPE_QWORD        , libmod_misc_mem_memmove            ),
+    FUNC( "REALLOC"         , "PI"      , TYPE_POINTER      , libmod_misc_mem_realloc            ),
+    FUNC( "MEMCMP"          , "PPI"     , TYPE_QWORD        , libmod_misc_mem_memcmp             ),
+    FUNC( "MEMSET"          , "PBI"     , TYPE_QWORD        , libmod_misc_mem_memset             ),
+    FUNC( "MEMSETI"         , "PII"     , TYPE_QWORD        , libmod_misc_mem_memsetq            ),
+    FUNC( "MEMSETW"         , "PWI"     , TYPE_QWORD        , libmod_misc_mem_memsetw            ),
+    FUNC( "MEMSETI"         , "PiI"     , TYPE_QWORD        , libmod_misc_mem_memseti            ),
+    FUNC( "MEMCOPY"         , "PPI"     , TYPE_QWORD        , libmod_misc_mem_memcopy            ),
+    FUNC( "MEMMOVE"         , "PPI"     , TYPE_QWORD        , libmod_misc_mem_memmove            ),
 
     FUNC( "MEMORY_FREE"     , ""        , TYPE_QWORD        , libmod_misc_mem_memory_free        ),
     FUNC( "MEMORY_TOTAL"    , ""        , TYPE_QWORD        , libmod_misc_mem_memory_total       ),
 
     /* Signals & Processes */
-    FUNC( "GET_ID"          , "Q"       , TYPE_QWORD        , libmod_misc_proc_get_id            ),
-    FUNC( "GET_STATUS"      , "Q"       , TYPE_QWORD        , libmod_misc_proc_get_status        ),
-    FUNC( "SIGNAL"          , "QQ"      , TYPE_QWORD        , libmod_misc_proc_signal            ),
-    FUNC( "SIGNAL_ACTION"   , "QQ"      , TYPE_QWORD        , libmod_misc_proc_signal_action     ),
-    FUNC( "SIGNAL_ACTION"   , "QQQ"     , TYPE_QWORD        , libmod_misc_proc_signal_action3    ),
+    FUNC( "GET_ID"          , "I"       , TYPE_QWORD        , libmod_misc_proc_get_id            ),
+    FUNC( "GET_STATUS"      , "I"       , TYPE_QWORD        , libmod_misc_proc_get_status        ),
+    FUNC( "SIGNAL"          , "II"      , TYPE_QWORD        , libmod_misc_proc_signal            ),
+    FUNC( "SIGNAL_ACTION"   , "II"      , TYPE_QWORD        , libmod_misc_proc_signal_action     ),
+    FUNC( "SIGNAL_ACTION"   , "III"     , TYPE_QWORD        , libmod_misc_proc_signal_action3    ),
     FUNC( "LET_ME_ALONE"    , ""        , TYPE_QWORD        , libmod_misc_proc_let_me_alone      ),
-    FUNC( "EXIT"            , "SQ"      , TYPE_QWORD        , libmod_misc_proc_exit              ),
+    FUNC( "EXIT"            , "SI"      , TYPE_QWORD        , libmod_misc_proc_exit              ),
     FUNC( "EXIT"            , "S"       , TYPE_QWORD        , libmod_misc_proc_exit_1            ),
     FUNC( "EXIT"            , ""        , TYPE_QWORD        , libmod_misc_proc_exit_0            ),
-    FUNC( "EXISTS"          , "Q"       , TYPE_QWORD        , libmod_misc_proc_running           ),
+    FUNC( "EXISTS"          , "I"       , TYPE_QWORD        , libmod_misc_proc_running           ),
 
-    FUNC( "RAND_SEED"       , "Q"       , TYPE_QWORD        , libmod_misc_rand_seed              ),
-    FUNC( "RAND"            , "QQ"      , TYPE_QWORD        , libmod_misc_rand_std               ),
+    FUNC( "RAND_SEED"       , "I"       , TYPE_QWORD        , libmod_misc_rand_seed              ),
+    FUNC( "RAND"            , "II"      , TYPE_QWORD        , libmod_misc_rand_std               ),
 
     /* Regex */
     FUNC( "REGEX"           , "SS"      , TYPE_QWORD        , libmod_misc_regex_regex            ),
     FUNC( "REGEX_REPLACE"   , "SSS"     , TYPE_STRING       , libmod_misc_regex_regex_replace    ),
-    FUNC( "SPLIT"           , "SSPQ"    , TYPE_QWORD        , libmod_misc_regex_split            ),
-    FUNC( "JOIN"            , "SPQ"     , TYPE_STRING       , libmod_misc_regex_join             ),
+    FUNC( "SPLIT"           , "SSPI"    , TYPE_QWORD        , libmod_misc_regex_split            ),
+    FUNC( "JOIN"            , "SPI"     , TYPE_STRING       , libmod_misc_regex_join             ),
 
     FUNC( "SAY"             , "S"       , TYPE_UNDEFINED    , libmod_misc_say_say                ),
     FUNC( "SAY_FAST"        , "S"       , TYPE_UNDEFINED    , libmod_misc_say_say_fast           ),
 
     /* Sort */
-    FUNC( "QSORT"           , "PQQQBB"  , TYPE_QWORD        , libmod_misc_sort_quicksort         ),
+    FUNC( "ISORT"           , "PIIIBB"  , TYPE_QWORD        , libmod_misc_sort_quicksort         ),
 
     FUNC( "KSORT"           , "V++V++"  , TYPE_QWORD        , libmod_misc_sort_ksort             ),
-    FUNC( "KSORT"           , "V++V++Q" , TYPE_QWORD        , libmod_misc_sort_ksort_n           ),
+    FUNC( "KSORT"           , "V++V++I" , TYPE_QWORD        , libmod_misc_sort_ksort_n           ),
 
-    FUNC( "SORT"            , "V++Q"    , TYPE_QWORD        , libmod_misc_sort_sort_n            ),
+    FUNC( "SORT"            , "V++I"    , TYPE_QWORD        , libmod_misc_sort_sort_n            ),
     FUNC( "SORT"            , "V++"     , TYPE_QWORD        , libmod_misc_sort_sort              ),
 
     /* Strings */
@@ -275,31 +275,31 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "UCASE"           , "S"       , TYPE_STRING       , libmod_misc_string_strupper        ),
     FUNC( "LCASE"           , "S"       , TYPE_STRING       , libmod_misc_string_strlower        ),
     FUNC( "STRCASECMP"      , "SS"      , TYPE_QWORD        , libmod_misc_string_strcasecmp      ),
-    FUNC( "SUBSTR"          , "SQQ"     , TYPE_STRING       , libmod_misc_string_substr          ),
-    FUNC( "SUBSTR"          , "SQ"      , TYPE_STRING       , libmod_misc_string_substr2         ),
+    FUNC( "SUBSTR"          , "SII"     , TYPE_STRING       , libmod_misc_string_substr          ),
+    FUNC( "SUBSTR"          , "SI"      , TYPE_STRING       , libmod_misc_string_substr2         ),
     FUNC( "FIND"            , "SS"      , TYPE_QWORD        , libmod_misc_string_strfind         ),
-    FUNC( "FIND"            , "SSQ"     , TYPE_QWORD        , libmod_misc_string_strfindSSI      ),
-    FUNC( "LPAD"            , "SQ"      , TYPE_STRING       , libmod_misc_string_lpad            ),
-    FUNC( "RPAD"            , "SQ"      , TYPE_STRING       , libmod_misc_string_rpad            ),
-    FUNC( "ITOA"            , "Q"       , TYPE_STRING       , libmod_misc_string_itos            ),
+    FUNC( "FIND"            , "SSI"     , TYPE_QWORD        , libmod_misc_string_strfindSSI      ),
+    FUNC( "LPAD"            , "SI"      , TYPE_STRING       , libmod_misc_string_lpad            ),
+    FUNC( "RPAD"            , "SI"      , TYPE_STRING       , libmod_misc_string_rpad            ),
+    FUNC( "ITOA"            , "I"       , TYPE_STRING       , libmod_misc_string_itos            ),
     FUNC( "FTOA"            , "D"       , TYPE_STRING       , libmod_misc_string_ftos            ),
     FUNC( "ATOI"            , "S"       , TYPE_QWORD        , libmod_misc_string_stoi            ),
     FUNC( "ATOF"            , "S"       , TYPE_DOUBLE       , libmod_misc_string_stof            ),
     FUNC( "ASC"             , "S"       , TYPE_BYTE         , libmod_misc_string_asc             ),
-    FUNC( "CHR"             , "Q"       , TYPE_STRING       , libmod_misc_string_chr             ),
+    FUNC( "CHR"             , "I"       , TYPE_STRING       , libmod_misc_string_chr             ),
     FUNC( "TRIM"            , "S"       , TYPE_STRING       , libmod_misc_string_trim            ),
     FUNC( "STRREV"          , "S"       , TYPE_STRING       , libmod_misc_string_strrev          ),
-    FUNC( "FORMAT"          , "Q"       , TYPE_STRING       , libmod_misc_string_formatI         ),
+    FUNC( "FORMAT"          , "I"       , TYPE_STRING       , libmod_misc_string_formatI         ),
     FUNC( "FORMAT"          , "D"       , TYPE_STRING       , libmod_misc_string_formatF         ),
-    FUNC( "FORMAT"          , "DQ"      , TYPE_STRING       , libmod_misc_string_formatFI        ),
+    FUNC( "FORMAT"          , "DI"      , TYPE_STRING       , libmod_misc_string_formatFI        ),
 
     FUNC( "GETENV"          , "S"       , TYPE_STRING       , libmod_misc_sys_getenv             ),
-    FUNC( "EXEC"            , "QSQP"    , TYPE_QWORD        , libmod_misc_sys_exec               ),
+    FUNC( "EXEC"            , "ISIP"    , TYPE_QWORD        , libmod_misc_sys_exec               ),
 
     /* Date/Time & Timers */
     FUNC( "GET_TIMER"       , ""        , TYPE_QWORD        , libmod_misc_get_timer              ),
     FUNC( "TIME"            , ""        , TYPE_QWORD        , libmod_misc_time                   ),
-    FUNC( "FTIME"           , "SQ"      , TYPE_STRING       , libmod_misc_ftime                  ),
+    FUNC( "FTIME"           , "SI"      , TYPE_STRING       , libmod_misc_ftime                  ),
 
     FUNC( 0                 , 0         , 0                , 0                                   )
 };

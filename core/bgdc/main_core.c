@@ -70,14 +70,17 @@ static struct {
     { "OS_ANDROID"              , TYPE_QWORD,   OS_ANDROID          },
     { "OS_IOS"                  , TYPE_QWORD,   OS_IOS              },
 
-    { "MIN_INT64"               , TYPE_INT64,   INT64_MIN           },
-    { "MAX_INT64"               , TYPE_INT64,   INT64_MAX           },
-    { "MIN_LONG"                , TYPE_INT64,   INT64_MIN           },
-    { "MAX_LONG"                , TYPE_INT64,   INT64_MAX           },
+    { "MIN_INT"                 , TYPE_INT,     INT64_MIN           },
+    { "MAX_INT"                 , TYPE_INT,     INT64_MAX           },
+
+    { "MIN_INT64"               , TYPE_INT,     INT64_MIN           },
+    { "MAX_INT64"               , TYPE_INT,     INT64_MAX           },
+    { "MIN_LONG"                , TYPE_INT,     INT64_MIN           },
+    { "MAX_LONG"                , TYPE_INT,     INT64_MAX           },
     { "MAX_QWORD"               , TYPE_QWORD,   UINT64_MAX          },
 
-    { "MIN_INT"                 , TYPE_INT  ,   INT32_MIN           },
-    { "MAX_INT"                 , TYPE_INT  ,   INT32_MAX           },
+    { "MIN_INT32"               , TYPE_INT32,   INT32_MIN           },
+    { "MAX_INT32"               , TYPE_INT32,   INT32_MAX           },
     { "MAX_DWORD"               , TYPE_DWORD,   UINT32_MAX          },
 
     { "MIN_SHORT"               , TYPE_SHORT,   INT16_MIN           },
@@ -96,25 +99,25 @@ static struct {
 };
 
 static char * globals_def =
-    "argc;\n"
+    "int argc;\n"
     "string argv[32];\n"
-    "os_id = -1;\n";
+    "int os_id = -1;\n";
 
 static char * locals_def =
-    "id;\n"
+    "int id;\n"
     "STRUCT reserved\n"
-        "process_type;\n"
-        "frame_percent;\n"
-        "status = STATUS_RUNNING;\n"
-        "saved_status = STATUS_RUNNING;\n"
-        "saved_priority;\n"
+        "int process_type;\n"
+        "int frame_percent;\n"
+        "int status = STATUS_RUNNING;\n"
+        "int saved_status = STATUS_RUNNING;\n"
+        "int saved_priority;\n"
     "END\n"
 
-    "father;\n"
-    "son;\n"
-    "smallbro;\n"
-    "bigbro;\n"
-    "priority;\n";
+    "int father;\n"
+    "int son;\n"
+    "int smallbro;\n"
+    "int bigbro;\n"
+    "int priority;\n";
 
 void core_init() {
     int i = 0;
@@ -127,8 +130,8 @@ void core_init() {
     }
 
     token_init( globals_def, -1 );
-    compile_varspace( &global, globaldata, 1, 1, 0, NULL, DEFAULT_ALIGNMENT, 0 );
+    compile_varspace( &global, globaldata, 1, 1, 0, NULL, DEFAULT_ALIGNMENT, 0, 0 );
 
     token_init( locals_def, -1 );
-    compile_varspace( &local, localdata, 1, 1, 0, NULL, DEFAULT_ALIGNMENT, 0 );
+    compile_varspace( &local, localdata, 1, 1, 0, NULL, DEFAULT_ALIGNMENT, 0, 0 );
 }

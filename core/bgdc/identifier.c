@@ -188,7 +188,7 @@ int64_t identifier_next_code() {
 int identifier_is_basic_type(int64_t id) {
 	return (
         id == identifier_int64 ||
-		id == identifier_int ||
+		id == identifier_int32 ||
 		id == identifier_short ||
 		id == identifier_char ||
         id == identifier_qword ||

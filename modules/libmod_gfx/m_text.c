@@ -145,12 +145,12 @@ static int __libmod_gfx_text_write_var( int withz, INSTANCE * my, int64_t * para
             t = TEXT_SHORT;
             break;
 
-        case TYPE_INT:
-            t = TEXT_INT;
+        case TYPE_INT32:
+            t = TEXT_INT32;
             break;
 
-        case TYPE_INT64:
-            t = TEXT_INT64;
+        case TYPE_INT:
+            t = TEXT_INT;
             break;
 
         case TYPE_POINTER:
@@ -198,21 +198,6 @@ int64_t libmod_gfx_text_write_string2( INSTANCE * my, int64_t * params ) {
  *  Same as libmod_gfx_text_write_var, but param[5] not given and always set to VAR_INT64
  */
 
-int64_t libmod_gfx_text_write_int64( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], TEXT_INT64 );
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_text_write_int642( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], TEXT_INT64 );
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  Same as libmod_gfx_text_write_var, but param[5] not given and always set to VAR_INT
- */
-
 int64_t libmod_gfx_text_write_int( INSTANCE * my, int64_t * params ) {
     return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], TEXT_INT );
 }
@@ -221,6 +206,21 @@ int64_t libmod_gfx_text_write_int( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_text_write_int2( INSTANCE * my, int64_t * params ) {
     return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], TEXT_INT );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  Same as libmod_gfx_text_write_var, but param[5] not given and always set to VAR_INT
+ */
+
+int64_t libmod_gfx_text_write_int32( INSTANCE * my, int64_t * params ) {
+    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], TEXT_INT32 );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_text_write_int322( INSTANCE * my, int64_t * params ) {
+    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], TEXT_INT32 );
 }
 
 /* --------------------------------------------------------------------------- */

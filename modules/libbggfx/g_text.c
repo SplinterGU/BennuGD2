@@ -103,7 +103,7 @@ static const char * get_text( TEXT * text ) {
         case TEXT_STRING:
             return string_get( *( int64_t * )text->var );
 
-        case TEXT_INT64:
+        case TEXT_INT:
             _string_ntoa( buffer, *( int64_t * )text->var );
             return buffer;
 
@@ -111,7 +111,7 @@ static const char * get_text( TEXT * text ) {
             _string_utoa( buffer, *( int64_t * )text->var );
             return buffer;
 
-        case TEXT_INT:
+        case TEXT_INT32:
             _string_ntoa( buffer, *( int32_t * )text->var );
             return buffer;
 

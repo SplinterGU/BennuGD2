@@ -68,16 +68,16 @@ TYPEDEF typedef_pointer( TYPEDEF base ) {
 
 void typedef_describe( char * buffer, TYPEDEF t ) {
     switch ( t.chunk[0].type ) {
-        case TYPE_INT64:
-            strcpy( buffer, "INT64" );
+        case TYPE_INT:
+            strcpy( buffer, "INT" );
             return;
 
         case TYPE_QWORD:
             strcpy( buffer, "QWORD" );
             return;
 
-        case TYPE_INT:
-            strcpy( buffer, "INT" );
+        case TYPE_INT32:
+            strcpy( buffer, "INT32" );
             return;
 
         case TYPE_DWORD:
@@ -150,12 +150,12 @@ int typedef_subsize( TYPEDEF t, int c ) {
             return 2;
 
         case TYPE_DWORD:
-        case TYPE_INT:
+        case TYPE_INT32:
         case TYPE_FLOAT:
             return 4;
 
         case TYPE_QWORD:
-        case TYPE_INT64:
+        case TYPE_INT:
         case TYPE_DOUBLE:
         case TYPE_STRING:
         case TYPE_POINTER:

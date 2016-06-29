@@ -194,7 +194,7 @@ int savetype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
         switch ( var->BaseType[n] )
         {
             case TYPE_FLOAT:
-            case TYPE_INT:
+            case TYPE_INT32:
             case TYPE_DWORD:
             case TYPE_POINTER:
                 result += file_writeUint32A( fp, data, count ) * sizeof( uint32_t );
@@ -286,7 +286,7 @@ int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
         {
                 /* Not sure about float types */
             case TYPE_FLOAT:
-            case TYPE_INT:
+            case TYPE_INT32:
             case TYPE_DWORD:
             case TYPE_POINTER:
                 result += file_readUint32A( fp, data, count ) * sizeof( uint32_t );

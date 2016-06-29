@@ -48,9 +48,9 @@ int64_t mntype( TYPEDEF type, int accept_structs ) {
     t = typedef_base( type );
     switch (t) {
         case TYPE_QWORD     : return MN_QWORD | MN_UNSIGNED;
-        case TYPE_INT64     : return MN_QWORD;
+        case TYPE_INT     : return MN_QWORD;
         case TYPE_DWORD     : return MN_DWORD | MN_UNSIGNED;
-        case TYPE_INT       : return MN_DWORD;
+        case TYPE_INT32     : return MN_DWORD;
         case TYPE_WORD      : return MN_WORD | MN_UNSIGNED;
         case TYPE_SHORT     : return MN_WORD;
         case TYPE_BYTE      : return MN_BYTE | MN_UNSIGNED;
@@ -76,16 +76,16 @@ int64_t mntype( TYPEDEF type, int accept_structs ) {
 
 void basetype_describe( char * buffer, BASETYPE t ) {
     switch ( t ) {
-        case TYPE_INT64:
-            sprintf( buffer, "INT64" );
+        case TYPE_INT:
+            sprintf( buffer, "INT" );
             return;
 
         case TYPE_QWORD:
             sprintf( buffer, "QWORD" );
             return;
 
-        case TYPE_INT:
-            sprintf( buffer, "INT" );
+        case TYPE_INT32:
+            sprintf( buffer, "INT32" );
             return;
 
         case TYPE_DWORD:
@@ -162,7 +162,7 @@ static int64_t check_integer_type( expresion_result *exp ) {
     if ( typedef_is_integer( exp->type ) ) {
         BASETYPE t = typedef_base( exp->type );
         switch (t) {
-            case TYPE_INT       :
+            case TYPE_INT32     :
             case TYPE_DWORD     :
             case TYPE_FLOAT     :
                 return MN_DWORD;
@@ -177,7 +177,7 @@ static int64_t check_integer_type( expresion_result *exp ) {
                 return MN_BYTE;
 
             case TYPE_UNDEFINED :
-            case TYPE_INT64     :
+            case TYPE_INT     :
             case TYPE_QWORD     :
             case TYPE_DOUBLE    :
             case TYPE_STRING    :
@@ -209,7 +209,7 @@ static int64_t check_integer_types( expresion_result *left, expresion_result *ri
             if ( typedef_base( left->type ) == typedef_base( right->type ) ) {
                 BASETYPE t = typedef_base( left->type );
                 switch (t) {
-                    case TYPE_INT       :
+                    case TYPE_INT32     :
                     case TYPE_DWORD     :
                     case TYPE_FLOAT     :
                         return MN_DWORD;
@@ -224,7 +224,7 @@ static int64_t check_integer_types( expresion_result *left, expresion_result *ri
                         return MN_BYTE;
 
                     case TYPE_UNDEFINED :
-                    case TYPE_INT64     :
+                    case TYPE_INT     :
                     case TYPE_QWORD     :
                     case TYPE_DOUBLE    :
                     case TYPE_STRING    :
@@ -541,7 +541,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     else if ( token.code == identifier_double )   base = 8;
     else if ( token.code == identifier_string )   base = 8;
     else if ( token.code == identifier_dword )    base = 4;
-    else if ( token.code == identifier_int )      base = 4;
+    else if ( token.code == identifier_int32 )      base = 4;
     else if ( token.code == identifier_float )    base = 4;
     else if ( token.code == identifier_short )    base = 2;
     else if ( token.code == identifier_word )     base = 2;
@@ -696,11 +696,11 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
 
     if ( token.type == IDENTIFIER && token.code == identifier_point ) { /* "." */
         if ( typedef_is_pointer( type ) ) type = typedef_reduce( type );
-        if ( !typedef_is_struct( type ) && typedef_base( type ) != TYPE_QWORD && typedef_base( type ) != TYPE_INT64 ) { /* Soporte de process type para publicas */
+        if ( !typedef_is_struct( type ) && typedef_base( type ) != TYPE_QWORD && typedef_base( type ) != TYPE_INT ) { /* Soporte de process type para publicas */
            compile_error( MSG_STRUCT_REQUIRED );
         }
 
-        if ( typedef_is_struct( type ) || typedef_is_pointer( type ) || typedef_base( type ) == TYPE_QWORD || typedef_base( type ) == TYPE_INT64 ) {
+        if ( typedef_is_struct( type ) || typedef_is_pointer( type ) || typedef_base( type ) == TYPE_QWORD || typedef_base( type ) == TYPE_INT ) {
             return compile_sizeof( typedef_members( type ), content_size, content_type, parent_count );
         }
 
@@ -882,10 +882,10 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                 }
             } else {
                 switch ( validtypes[0] ) {
-                    case 'Q':
+                    case 'I':
                         type = TYPE_QWORD;
                         break;
-                    case 'I':
+                    case 'i':
                         type = TYPE_DWORD;
                         break;
                     case 'W':
@@ -925,27 +925,28 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
             switch ( typedef_base( res.type ) ) {
                 case TYPE_QWORD:
                 case TYPE_DWORD:
-                case TYPE_SHORT:
-                case TYPE_BYTE:
-                case TYPE_SBYTE:
                 case TYPE_WORD:
+                case TYPE_BYTE:
                 case TYPE_INT:
+                case TYPE_INT32:
+                case TYPE_SHORT:
+                case TYPE_SBYTE:
                     strdelchars( validtypes, "SPDF" );
                     break;
                 case TYPE_DOUBLE:
-                    if ( strchr( validtypes, 'D' ) ) strdelchars( validtypes, "QIWBSPF" );
+                    if ( strchr( validtypes, 'D' ) ) strdelchars( validtypes, "IiWBSPF" );
                     else                             strdelchars( validtypes, "SP" );
                     break;
                 case TYPE_FLOAT:
-                    if ( strchr( validtypes, 'F' ) ) strdelchars( validtypes, "QIWBSPD" );
+                    if ( strchr( validtypes, 'F' ) ) strdelchars( validtypes, "IiWBSPD" );
                     else                             strdelchars( validtypes, "SP" );
                     break;
                 case TYPE_STRING:
-                    if ( strchr( validtypes, 'S' ) ) strdelchars( validtypes, "QIWBPDF" );
+                    if ( strchr( validtypes, 'S' ) ) strdelchars( validtypes, "IiWBPDF" );
                     else                             strdelchars( validtypes, "P" );
                     break;
                 case TYPE_POINTER:
-                    strdelchars( validtypes, "QIWBSDF" );
+                    strdelchars( validtypes, "IiWBSDF" );
                     break;
                 default:
                     break;
@@ -968,10 +969,10 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
             /* Convert the result to the appropiate type, if needed */
 
             switch ( validtypes[0] ) {
-                case 'Q':
+                case 'I':
                     type = TYPE_QWORD;
                     break;
-                case 'I':
+                case 'i':
                     type = TYPE_DWORD;
                     break;
                 case 'W':
@@ -1032,10 +1033,10 @@ int compile_paramlist( BASETYPE * types, const char * paramtypes ) {
         type = types ? *types : TYPE_UNDEFINED;
         if ( paramtypes ) {
             switch ( *paramtypes++ ) {
-                case 'Q':
+                case 'I':
                     type = TYPE_QWORD;
                     break;
-                case 'I':
+                case 'i':
                     type = TYPE_DWORD;
                     break;
                 case 'W':
@@ -1093,7 +1094,7 @@ int compile_paramlist( BASETYPE * types, const char * paramtypes ) {
 
 expresion_result compile_cast() {
     TYPEDEF  type;
-    BASETYPE basetype = TYPE_INT64;
+    BASETYPE basetype = TYPE_INT;
     int      tokens = 0, signed_prefix = 0, unsigned_prefix = 0;
 
     expresion_result res;
@@ -1118,12 +1119,12 @@ expresion_result compile_cast() {
 
     if ( token.type == IDENTIFIER ) {
         if ( token.code == identifier_qword ) {
-            basetype = signed_prefix ? TYPE_INT64 : TYPE_QWORD;
+            basetype = signed_prefix ? TYPE_INT : TYPE_QWORD;
             signed_prefix = unsigned_prefix = 0;
             tokens++;
             token_next();
         } else if ( token.code == identifier_dword ) {
-            basetype = signed_prefix ? TYPE_INT : TYPE_DWORD;
+            basetype = signed_prefix ? TYPE_INT32 : TYPE_DWORD;
             signed_prefix = unsigned_prefix = 0;
             tokens++;
             token_next();
@@ -1138,12 +1139,12 @@ expresion_result compile_cast() {
             tokens++;
             token_next();
         } else if ( token.code == identifier_int64 ) {
-            basetype = unsigned_prefix ? TYPE_QWORD : TYPE_INT64;
+            basetype = unsigned_prefix ? TYPE_QWORD : TYPE_INT;
             signed_prefix = unsigned_prefix = 0;
             tokens++;
             token_next();
-        } else if ( token.code == identifier_int ) {
-            basetype = unsigned_prefix ? TYPE_DWORD : TYPE_INT;
+        } else if ( token.code == identifier_int32 ) {
+            basetype = unsigned_prefix ? TYPE_DWORD : TYPE_INT32;
             signed_prefix = unsigned_prefix = 0;
             tokens++;
             token_next();
@@ -1180,7 +1181,7 @@ expresion_result compile_cast() {
     if ( tokens == 0 ) {
         TYPEDEF * typep = typedef_by_name( token.code );
         if ( typep == NULL ) {
-/*            type = typedef_new(TYPE_INT64); */
+/*            type = typedef_new(TYPE_INT); */
             compile_error( MSG_INVALID_TYPE );
         }
         type = *typep;
@@ -1208,7 +1209,7 @@ expresion_result compile_cast() {
 
     if ( typedef_is_pointer( type ) ) {
         /* Conversion of pointer to pointer of another type */
-        if ( typedef_is_pointer( res.type ) || typedef_base( res.type ) == TYPE_INT64 || typedef_base( res.type ) == TYPE_QWORD ) {
+        if ( typedef_is_pointer( res.type ) || typedef_base( res.type ) == TYPE_INT || typedef_base( res.type ) == TYPE_QWORD ) {
             /* ( pointer ) <pointer|int64|qword> */
             res.type = type;
             return res;
@@ -1292,7 +1293,7 @@ expresion_result compile_cast() {
                 res.lvalue = 0;
             }
             /* codeblock_add(code, MN_STR2INT, 0);
-            res.type = typedef_new(TYPE_INT64); */
+            res.type = typedef_new(TYPE_INT); */
             codeblock_add( code, MN_STR2CHR, 0 );
             res.type = typedef_new( TYPE_CHAR );
         } else if ( typedef_is_array( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) { // <<<< crash!!!
@@ -1312,7 +1313,7 @@ expresion_result compile_cast() {
                 res.lvalue = 0;
             }
             codeblock_add( code, MN_DOUBLE2INT, 0 );
-            res.type = typedef_new( TYPE_INT64 );
+            res.type = typedef_new( TYPE_INT );
         } else if ( typedef_is_float( res.type ) ) {
             /* ( any integer ) <float> */
             if ( res.lvalue ) {
@@ -1320,7 +1321,7 @@ expresion_result compile_cast() {
                 res.lvalue = 0;
             }
             codeblock_add( code, MN_FLOAT2INT, 0 );
-            res.type = typedef_new( TYPE_INT64 );
+            res.type = typedef_new( TYPE_INT );
         } else if ( typedef_is_string( res.type ) ) {
             /* ( any integer ) <string> */
             if ( res.lvalue ) {
@@ -1328,12 +1329,12 @@ expresion_result compile_cast() {
                 res.lvalue = 0;
             }
             codeblock_add( code, MN_STR2INT, 0 );
-            res.type = typedef_new( TYPE_INT64 );
+            res.type = typedef_new( TYPE_INT );
         } else if ( typedef_is_array( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) { // <<<< crash!!!
             /* ( any integer ) <char[]> */
             codeblock_add( code, MN_A2STR, 0 );
             codeblock_add( code, MN_STR2INT, 0 );
-            res.type = typedef_new( TYPE_INT64 );
+            res.type = typedef_new( TYPE_INT );
         } else if ( typedef_is_integer( res.type ) || typedef_is_pointer( res.type ) || typedef_base( res.type ) == TYPE_CHAR ) {
             /* ( any integer ) <any integer|pointer|char> */ // <<<< bad convertion from char
             if ( res.lvalue ) {
@@ -1360,13 +1361,13 @@ expresion_result compile_cast() {
                         break;
 
                 case    TYPE_DWORD:
-                case    TYPE_INT:
+                case    TYPE_INT32:
                         codeblock_add( code, MN_INT2DWORD, 0 );
                         res.type = type;
                         break;
 
                 case    TYPE_UNDEFINED:
-                case    TYPE_INT64:
+                case    TYPE_INT:
                 case    TYPE_QWORD:
                 case    TYPE_FLOAT:
                 case    TYPE_DOUBLE:
@@ -1479,7 +1480,7 @@ expresion_result compile_value() {
                 res.constant   = 1;
                 res.asignation = 0;
                 res.call       = 0;
-                res.type       = typedef_new( TYPE_INT64 );
+                res.type       = typedef_new( TYPE_INT );
                 return res;
             }
 
@@ -1492,7 +1493,7 @@ expresion_result compile_value() {
             res.constant   = 0;
             res.asignation = 0;
             res.call       = 0;
-            res.type       = typedef_new( TYPE_INT64 );
+            res.type       = typedef_new( TYPE_INT );
             return res;
         }
 
@@ -1562,7 +1563,7 @@ expresion_result compile_value() {
             res.constant   = 1;
             res.call       = 0;
             res.value      = token.code;
-            res.type       = typedef_new( TYPE_INT64 );
+            res.type       = typedef_new( TYPE_INT );
             return res;
 
         case    FLOAT:
@@ -1798,7 +1799,7 @@ expresion_result compile_factor() {
                     part = compile_sublvalue( v, v->vars[0].offset, NULL );
                 } else {
                     VARSPACE * v = typedef_members( part.type );
-                    if ( typedef_base( part.type ) != TYPE_QWORD && typedef_base( part.type ) != TYPE_INT64 ) compile_error( MSG_INTEGER_REQUIRED );
+                    if ( typedef_base( part.type ) != TYPE_QWORD && typedef_base( part.type ) != TYPE_INT ) compile_error( MSG_INTEGER_REQUIRED );
                     if ( part.lvalue ) codeblock_add( code, mntype( part.type, 0 ) | MN_PTR, 0 );
 
                     part = compile_sublvalue( &local, 0, v ) ; /* referenciada REMOTA por proceso (Splinter) */
@@ -1892,7 +1893,7 @@ expresion_result compile_operand() {
                 res.value  = 0;
                 res.fvalue = left.fvalue * right.fvalue;
             } else {
-                res.type   = typedef_new( TYPE_INT64 );
+                res.type   = typedef_new( TYPE_INT );
                 res.value  = left.value * right.value;
                 res.fvalue = 0.0;
             }
@@ -1931,7 +1932,11 @@ expresion_result compile_operand() {
                     break;
 
                 case    MN_QWORD:
-                    res.type = typedef_new( TYPE_INT64 );
+                    res.type = typedef_new( TYPE_INT );
+                    break;
+
+                case    MN_DWORD:
+                    res.type = typedef_new( TYPE_INT32 );
                     break;
 
                 case    MN_BYTE:
@@ -1953,7 +1958,7 @@ expresion_result compile_operand() {
                 } else {
                     if ( right.value == 0 ) compile_error( MSG_DIVIDE_BY_ZERO );
                     res.value = op == MN_MOD ? left.value % right.value : left.value / right.value;
-                    res.type = typedef_new( TYPE_INT64 );
+                    res.type = typedef_new( TYPE_INT );
                     res.fvalue = 0.0;
                 }
             }
@@ -2074,7 +2079,7 @@ expresion_result compile_operation() {
                 res.fvalue = ( op == MN_ADD ) ? left.fvalue + right.fvalue : left.fvalue - right.fvalue;
             } else {
                 res.fvalue = 0.0;
-                res.type   = left.type /*typedef_new( TYPE_INT64 )*/;
+                res.type   = left.type /*typedef_new( TYPE_INT )*/;
                 res.value  = ( op == MN_ADD ) ? left.value + right.value : left.value - right.value;
             }
 
@@ -2174,14 +2179,14 @@ expresion_result compile_comparison_1() {
             } else if ( op == identifier_gte ) { /* ">=" or "=>" */
                 codeblock_add( code, t | MN_GTE | is_unsigned, 0 );
                 if ( left.constant && right.constant ) {
-                    if ( t == MN_DWORD )                        res.value = left.value >= right.value;
+                    if ( t == MN_QWORD )                        res.value = left.value >= right.value;
                     else if ( t == MN_FLOAT || t == MN_DOUBLE ) res.value = ( left.fvalue >= right.fvalue );
                     else                                        res.value = strcmp( string_get( left.value ), string_get( right.value ) ) >= 0;
                 }
             } else if ( op == identifier_lte ) { /* "<=" or "=<" */
                 codeblock_add( code, t | MN_LTE | is_unsigned, 0 );
                 if ( left.constant && right.constant ) {
-                    if ( t == MN_DWORD )                        res.value = left.value <= right.value;
+                    if ( t == MN_QWORD )                        res.value = left.value <= right.value;
                     else if ( t == MN_FLOAT || t == MN_DOUBLE ) res.value = ( left.fvalue <= right.fvalue );
                     else                                        res.value = strcmp( string_get( left.value ), string_get( right.value ) ) <= 0;
                 }
@@ -2190,7 +2195,7 @@ expresion_result compile_comparison_1() {
             res.asignation = 0;
             res.call       = 0;
             res.constant   = ( right.constant && left.constant );
-            res.type       = typedef_new( TYPE_INT64 );
+            res.type       = typedef_new( TYPE_INT );
             left = res;
             continue;
         }
@@ -2247,8 +2252,7 @@ expresion_result compile_comparison_2() {
             res.asignation = 0;
             res.call       = 0;
             res.constant   = ( right.constant && left.constant );
-            res.type       = typedef_new( TYPE_INT64 );
-
+            res.type       = typedef_new( TYPE_INT );
             left = res;
             continue;
         }
@@ -2349,6 +2353,7 @@ expresion_result compile_bitwise_or() {
         token_back();
         break;
     }
+
     return left;
 }
 
@@ -2379,7 +2384,7 @@ expresion_result compile_logical_and() {
             res.call       = 0;
             res.constant   = ( right.constant && left.constant );
             res.value      = ( left.value && right.value );
-            res.type       = typedef_new( TYPE_INT64 );
+            res.type       = typedef_new( TYPE_INT );
 
             left = res;
             continue;
@@ -2411,7 +2416,7 @@ expresion_result compile_logical_xor() {
             res.call       = 0;
             res.constant   = ( right.constant && left.constant );
             res.value      = (( left.value != 0 ) ^( right.value != 0 ) );
-            res.type       = typedef_new( TYPE_INT64 );
+            res.type       = typedef_new( TYPE_INT );
 
             left = res;
             continue;
@@ -2458,7 +2463,7 @@ expresion_result compile_logical_or() {
             res.call       = 0;
             res.constant   = ( right.constant && left.constant );
             res.value      = ( left.value || right.value );
-            res.type       = typedef_new( TYPE_INT64 );
+            res.type       = typedef_new( TYPE_INT );
 
             left = res;
             continue;
@@ -2467,6 +2472,7 @@ expresion_result compile_logical_or() {
         token_back();
         break;
     }
+
     return left;
 }
 
@@ -2576,7 +2582,7 @@ expresion_result compile_subexpresion() {
 
                 right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
 
-                if ( ( typedef_base( right.type ) == TYPE_QWORD || typedef_base( right.type ) == TYPE_INT64 ) &&
+                if ( ( typedef_base( right.type ) == TYPE_QWORD || typedef_base( right.type ) == TYPE_INT ) &&
                      right.constant && right.value == 0 ) {
                     right.type = base.type;
                 }
@@ -3026,7 +3032,7 @@ expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
         if ( res.constant ) {
             char buffer[32];
             switch ( res.type.chunk[0].type ) {
-                case TYPE_INT64:
+                case TYPE_INT:
                     sprintf( buffer, "%" PRId64, res.value );
                     break;
 
@@ -3034,7 +3040,7 @@ expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
                     sprintf( buffer, "%" PRIu64, res.value );
                     break;
 
-                case TYPE_INT:
+                case TYPE_INT32:
                     sprintf( buffer, "%d", ( int32_t )res.value );
                     break;
 
@@ -3092,9 +3098,9 @@ expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
                 break;
 
             case TYPE_QWORD:
-            case TYPE_INT64:
-            case TYPE_DWORD:
             case TYPE_INT:
+            case TYPE_DWORD:
+            case TYPE_INT32:
             case TYPE_WORD:
             case TYPE_SHORT:
             case TYPE_BYTE:
@@ -3201,6 +3207,15 @@ void compile_block( PROCDEF * p ) {
         token_next();
         if ( token.type == NOTOKEN ) break;
 
+        if ( is_identifier_datatype( token.code ) ) {
+            token_back();
+            /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+            /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
+            VARSPACE * v[] = {&local, p->pubvars, NULL};
+            compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1 );
+            continue;
+        }
+
         if ( token.type == IDENTIFIER ) {
             if ( token.code == identifier_end    || /* "END" */
                  token.code == identifier_until  ||  /* "UNTIL" */
@@ -3235,7 +3250,7 @@ void compile_block( PROCDEF * p ) {
             }
 
             if ( token.code == identifier_frame || token.code == identifier_yield ) { /* "FRAME or YIELD " */
-                if ( proc->type != TYPE_INT64 && proc->type != TYPE_QWORD )
+                if ( proc->type != TYPE_INT && proc->type != TYPE_QWORD )
                     if ( !( proc->flags & PROC_FUNCTION ) ) compile_error( MSG_FRAME_REQUIRES_INT );
 
                 if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
@@ -3430,8 +3445,8 @@ void compile_block( PROCDEF * p ) {
                     codeblock_add( code, MN_A2STR, 0 );
                     switch_type = TYPE_STRING;
                 } else if ( typedef_is_integer( switch_exp.type ) ) {
-                    switch_exp = convert_result_type( switch_exp, TYPE_INT64 );
-                    switch_type = TYPE_INT64;
+                    switch_exp = convert_result_type( switch_exp, TYPE_INT );
+                    switch_type = TYPE_INT;
                 }
                 token_next();
 
