@@ -431,7 +431,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         } else if ( !is_identifier_datatype( token.code ) &&
                     ( token.code < reserved_words ||
                       sysproc_by_name( token.code ) != NULL
-                    )
+                  )
+                  && token.code != identifier_pointer // check this JJP
+                  && token.code != identifier_multiply // check this JJP
                   ) {
             token_back();
             break;
@@ -517,16 +519,15 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             token_next();
         }
 
+        if ( basetype == TYPE_UNDEFINED && token.code != identifier_struct ) compile_error( MSG_DATA_TYPE_REQUIRED ); // type = typedef_new( TYPE_INT ); // Data Type Required
+
         if ( token.type == IDENTIFIER && token.code == identifier_struct ) {
             type.chunk[0].type = TYPE_STRUCT;
             type.chunk[0].count = 1;
             type.depth = 1;
             token_next();
             segm = 0;
-            basetype = TYPE_STRUCT;
         }
-
-        if ( basetype == TYPE_UNDEFINED ) compile_error( MSG_DATA_TYPE_REQUIRED ); // type = typedef_new( TYPE_INT ); // Data Type Required
 
         basetypeb = basetype;
         typeb = type;

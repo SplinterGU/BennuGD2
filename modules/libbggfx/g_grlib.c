@@ -94,7 +94,7 @@ int64_t grlib_newid() {
 
     libs_allocated += 256;
     libs_bmp = ( uint64_t * ) realloc( libs_bmp, sizeof( uint64_t ) * ( libs_allocated >> 6 ) );
-    memset( &libs_bmp[( libs_last >> 6 )], 0, 64 );  /* 256 >> 6 = 8 * sizeof ( uint64_t ) = 8 * 8 = 64 */
+    memset( &libs_bmp[( libs_last >> 6 )], 0, sizeof( uint64_t ) * ( libs_allocated >> 6 ) );
 
     libs = ( GRLIB ** ) realloc( libs, sizeof( GRLIB * ) * libs_allocated );
     memset( &libs[ libs_last ], 0, sizeof( GRLIB * ) * 256 );

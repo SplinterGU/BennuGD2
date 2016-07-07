@@ -286,7 +286,6 @@ int is_identifier_datatype( int64_t code ) {
         code == identifier_string    ||
         code == identifier_float     ||
         code == identifier_struct    ||
-        code == identifier_type      ||
         code == identifier_bool
        );
 }
@@ -378,6 +377,7 @@ void compile_type() {
 
     /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
     compile_varspace( v, s, 0, 1, 0, NULL, 0, 0, 0 );
+
     if ( token.code != identifier_end ) compile_error( MSG_NO_END );
 }
 

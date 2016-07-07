@@ -246,9 +246,9 @@ int64_t bitmap_next_code() {
     // 256 new maps available for alloc
 
     map_code_allocated += 256;
-    map_code_bmp = ( uint64_t * ) realloc( map_code_bmp, sizeof( uint64_t ) * ( map_code_allocated >> 5 ) );
+    map_code_bmp = ( uint64_t * ) realloc( map_code_bmp, sizeof( uint64_t ) * ( map_code_allocated >> 6 ) );
 
-    memset( &map_code_bmp[( map_code_last >> 6 )], 0, 64 );  /* 256 >> 6 = 8 * sizeof ( uint64_t ) = 8 * 8 = 64 */
+    memset( &map_code_bmp[( map_code_last >> 6 )], 0, sizeof( uint64_t ) * ( map_code_allocated >> 6 ) );
 
     // Devuelvo map_code_last e incremento en 1, ya que ahora tengo BLOCK_INCR mas que antes
     bit_set( map_code_bmp, map_code_last );
