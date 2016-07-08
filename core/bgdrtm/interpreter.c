@@ -69,7 +69,7 @@ static int stack_dump( INSTANCE * r ) {
     register int i = 0;
 
     while ( ptr < r->stack_ptr ) {
-        if ( i == 5 ) {
+        if ( i == 2 ) {
             i = 0;
             printf( "\n" );
         }
@@ -246,7 +246,7 @@ int64_t instance_go( INSTANCE * r ) {
         /* debug output */
         if ( debug > 0 ) {
             if ( debug > 2 ) {
-                int c = 45 - stack_dump( r ) * 9;
+                int c = 34 - stack_dump( r ) * 17;
                 if ( debug > 1 ) printf( "%*.*s[%4" PRIu64 "] ", c, c, "", ( ptr - r->code ) );
             }
             else if ( debug > 1 ) printf( "[%4" PRIu64 "] ", ( ptr - r->code ) );
@@ -318,7 +318,7 @@ int64_t instance_go( INSTANCE * r ) {
                 assert ( i );
 
                 for ( n = 0; n < proc->params; n++ )
-                    PRIDWORD( i, sizeof( uint64_t ) * n ) = r->stack_ptr[-proc->params+n];
+                    PRIQWORD( i, sizeof( uint64_t ) * n ) = r->stack_ptr[-proc->params+n];
 
                 r->stack_ptr -= proc->params;
 
@@ -672,7 +672,7 @@ int64_t instance_go( INSTANCE * r ) {
                     fprintf( stderr, "ERROR: Runtime error in %s(%" PRId64 ") - Process %" PRId64 " not active\n", r->proc->name, LOCQWORD( r, PROCESS_ID ), r->stack_ptr[-1] );
                     exit( 0 );
                 }
-                r->stack_ptr[-1] = PUBDWORD( i, ptr[1] );
+                r->stack_ptr[-1] = PUBQWORD( i, ptr[1] );
                 string_use( r->stack_ptr[-1] );
                 ptr += 2;
                 break;
@@ -969,19 +969,20 @@ int64_t instance_go( INSTANCE * r ) {
 
             case MN_INT2DWORD:
             case MN_INT2DWORD | MN_UNSIGNED:
-                *( uint64_t * )&( r->stack_ptr[-ptr[1] - 1] ) = * ( uint32_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( uint32_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( uint32_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2WORD:
             case MN_INT2WORD | MN_UNSIGNED:
-                *( uint64_t * )&( r->stack_ptr[-ptr[1] - 1] ) = * ( uint16_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( uint16_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( uint16_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2BYTE:
             case MN_INT2BYTE | MN_UNSIGNED:
-                *( uint64_t * )&( r->stack_ptr[-ptr[1] - 1] ) = * ( uint8_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+//                *( uint8_t * )&( r->stack_ptr[-ptr[1] - 1] ) = r->stack_ptr[-ptr[1] - 1];
+                *( uint8_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( uint8_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
@@ -1636,7 +1637,7 @@ int64_t instance_go( INSTANCE * r ) {
                 break;
 
             case MN_POINTER2STR:
-                r->stack_ptr[-ptr[1] - 1] = string_ptoa( *( void ** ) & r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = string_ptoa( ( void * ) ( r->stack_ptr[-ptr[1] - 1] ) );
                 string_use( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;

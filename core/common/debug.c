@@ -237,16 +237,17 @@ void mnemonic_dump( int64_t i, int64_t param ) {
 //                    printf( "UNSIGNED " );
 //                    break;
 
+/*
                 case MN_QWORD:
                     printf( "INT64    " );
                     break;
-
+*/
                 case MN_QWORD | MN_UNSIGNED:
                     printf( "QWORD    " );
                     break;
 
                 case MN_DWORD:
-                    printf( "INT      " );
+                    printf( "INT32    " );
                     break;
 
                 case MN_DWORD | MN_UNSIGNED:

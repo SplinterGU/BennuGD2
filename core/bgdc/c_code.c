@@ -48,7 +48,7 @@ int64_t mntype( TYPEDEF type, int accept_structs ) {
     t = typedef_base( type );
     switch (t) {
         case TYPE_QWORD     : return MN_QWORD | MN_UNSIGNED;
-        case TYPE_INT     : return MN_QWORD;
+        case TYPE_INT       : return MN_QWORD;
         case TYPE_DWORD     : return MN_DWORD | MN_UNSIGNED;
         case TYPE_INT32     : return MN_DWORD;
         case TYPE_WORD      : return MN_WORD | MN_UNSIGNED;
@@ -177,7 +177,7 @@ static int64_t check_integer_type( expresion_result *exp ) {
                 return MN_BYTE;
 
             case TYPE_UNDEFINED :
-            case TYPE_INT     :
+            case TYPE_INT       :
             case TYPE_QWORD     :
             case TYPE_DOUBLE    :
             case TYPE_STRING    :
@@ -224,7 +224,7 @@ static int64_t check_integer_types( expresion_result *left, expresion_result *ri
                         return MN_BYTE;
 
                     case TYPE_UNDEFINED :
-                    case TYPE_INT     :
+                    case TYPE_INT       :
                     case TYPE_QWORD     :
                     case TYPE_DOUBLE    :
                     case TYPE_STRING    :
@@ -2603,7 +2603,7 @@ expresion_result compile_subexpresion() {
                 right.type = typedef_pointer( pointer_type );
                 if ( typedef_base( typedef_reduce( right.type ) ) != typedef_base( pointer_type ) ) compile_error( MSG_TYPES_NOT_THE_SAME );
 
-                codeblock_add( code, MN_DWORD | MN_LET, 0 );
+                codeblock_add( code, MN_QWORD | MN_LET, 0 );
 
                 res.lvalue     = 1;
                 res.asignation = 1;
@@ -3030,7 +3030,7 @@ expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
     } else if ( t == TYPE_STRING && typedef_is_integer( res.type ) ) {
         codeblock_add( code, MN_INT2STR | mntype( res.type, 0 ), 0 );
         if ( res.constant ) {
-            char buffer[32];
+            char buffer[128];
             switch ( res.type.chunk[0].type ) {
                 case TYPE_INT:
                     sprintf( buffer, "%" PRId64, res.value );

@@ -42,7 +42,7 @@
 
 /* Mask */
 
-#define MN_MASK         0x7F
+#define MN_MASK         0xFF
 
 /* Data type */
 
