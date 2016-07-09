@@ -856,7 +856,7 @@ int64_t string_strip( int64_t code ) {
  */
 
 int64_t string_format( double number, int dec, char point, char thousands ) {
-    char * str = malloc( 128 );
+    char * str = malloc( 384 );
     char * s = str, * t, * p = NULL;
     int c, neg;
     int64_t id;

@@ -3151,14 +3151,14 @@ expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
                 } else if ( typedef_is_double( res.type ) ) {
                     codeblock_add( code, MN_DOUBLE2STR, 0 );
                     if ( res.constant ) {
-                        char buffer[128];
+                        char buffer[384];
                         sprintf( buffer, "%f", res.fvalue );
                         res.value = string_new( buffer );
                     }
                 } else if ( typedef_is_float( res.type ) ) {
                     codeblock_add( code, MN_FLOAT2STR, 0 );
                     if ( res.constant ) {
-                        char buffer[128];
+                        char buffer[384];
                         sprintf( buffer, "%f", res.fvalue );
                         res.value = string_new( buffer );
                     }
