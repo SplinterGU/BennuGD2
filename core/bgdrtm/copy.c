@@ -44,7 +44,7 @@
 #include "xstrings.h"
 #include "bgdrtm.h"
 
-static int copytype( void * dst, void * src, DCB_TYPEDEF * var );
+static int64_t copytype( void * dst, void * src, DCB_TYPEDEF * var );
 
 /*
  *  FUNCTION : copyvars
@@ -63,12 +63,10 @@ static int copytype( void * dst, void * src, DCB_TYPEDEF * var );
  *
  */
 
-int copyvars( void * dst, void * src, DCB_VAR * var, int nvars ) {
-    int result = 0;
-    int partial;
+int64_t copyvars( void * dst, void * src, DCB_VAR * var, int nvars ) {
+    int64_t result = 0, partial;
 
-    for ( ; nvars > 0; nvars--, var++ )
-    {
+    for ( ; nvars > 0; nvars--, var++ ) {
         partial = copytype( dst, src, &var->Type );
         src = (( uint8_t* )src ) + partial;
         dst = (( uint8_t* )dst ) + partial;
@@ -94,18 +92,14 @@ int copyvars( void * dst, void * src, DCB_VAR * var, int nvars ) {
  *
  */
 
-int copytypes( void * dst, void * src, DCB_TYPEDEF * var, int64_t nvars, int64_t reps ) {
-    int result = 0;
-    int partial;
+int64_t copytypes( void * dst, void * src, DCB_TYPEDEF * var, int64_t nvars, int64_t reps ) {
+    int64_t result = 0, partial, _nvars = nvars;
     DCB_TYPEDEF * _var = var;
-    int _nvars = nvars ;
 
-    for ( ; reps > 0; reps-- )
-    {
+    for ( ; reps > 0; reps-- ) {
         var = _var;
         nvars = _nvars;
-        for ( ; nvars > 0; nvars--, var++ )
-        {
+        for ( ; nvars > 0; nvars--, var++ ) {
             partial = copytype( dst, src, var );
             result += partial;
             src = (( uint8_t* )src ) + partial;
@@ -130,27 +124,28 @@ int copytypes( void * dst, void * src, DCB_TYPEDEF * var, int64_t nvars, int64_t
  *
  */
 
-static int copytype( void * dst, void * src, DCB_TYPEDEF * var )
-{
-    int count  = 1;
-    int result = 0;
-    int n      = 0;
+static int64_t copytype( void * dst, void * src, DCB_TYPEDEF * var ) {
+    int64_t count = 1, result = 0, n = 0;
 
-    for ( ;; )
-    {
-        switch ( var->BaseType[n] )
-        {
+    for ( ;; ) {
+        switch ( var->BaseType[n] ) {
+            case TYPE_DOUBLE:
+            case TYPE_INT:
+            case TYPE_QWORD:
+            case TYPE_POINTER:
+                memcpy( dst, src, sizeof( int64_t ) * count );
+                return sizeof( int64_t ) * count;
+
             case TYPE_FLOAT:
             case TYPE_INT32:
             case TYPE_DWORD:
-            case TYPE_POINTER:
-                memcpy( dst, src, 4 * count );
-                return 4 * count;
+                memcpy( dst, src, sizeof( int32_t ) * count );
+                return sizeof( int32_t ) * count;
 
             case TYPE_WORD:
             case TYPE_SHORT:
-                memcpy( dst, src, 2 * count );
-                return 2 * count;
+                memcpy( dst, src, sizeof( int16_t ) * count );
+                return sizeof( int16_t ) * count;
 
             case TYPE_BYTE:
             case TYPE_SBYTE:
@@ -159,14 +154,13 @@ static int copytype( void * dst, void * src, DCB_TYPEDEF * var )
                 return count;
 
             case TYPE_STRING:
-                while ( count-- )
-                {
-                    string_discard( *( int * )dst );
-                    string_use( *( int * )src );
-                    *(( int * )dst ) = *(( int * )src );
-                    dst = (( int * )dst ) + 1;
-                    src = (( int * )src ) + 1;
-                    result += 4;
+                while ( count-- ) {
+                    string_discard( *( int64_t * )dst );
+                    string_use( *( int64_t * )src );
+                    *(( int64_t * )dst ) = *(( int64_t * )src );
+                    dst = (( int64_t * )dst ) + 1;
+                    src = (( int64_t * )src ) + 1;
+                    result += sizeof( int64_t );
                 }
                 return result;
 
@@ -176,8 +170,7 @@ static int copytype( void * dst, void * src, DCB_TYPEDEF * var )
                 continue;
 
             case TYPE_STRUCT:
-                for ( ; count ; count-- )
-                {
+                for ( ; count; count-- ) {
                     int partial = copyvars( dst, src, dcb.varspace_vars[var->Members], dcb.varspace[var->Members].NVars );
                     src = (( uint8_t* )src ) + partial;
                     dst = (( uint8_t* )dst ) + partial;

@@ -54,13 +54,10 @@
  *
  */
 
-int loadvars( file * fp, void * data, DCB_VAR * var, int nvars, int dcbformat )
-{
-    int result = 0;
-    int partial;
+int64_t loadvars( file * fp, void * data, DCB_VAR * var, int64_t nvars, int64_t dcbformat ) {
+    int64_t result = 0, partial;
 
-    for ( ; nvars > 0; nvars--, var++ )
-    {
+    for ( ; nvars > 0; nvars--, var++ ) {
         partial = loadtype( fp, data, &var->Type, dcbformat );
         data = ( uint8_t* )data + partial;
         result += partial;
@@ -86,13 +83,10 @@ int loadvars( file * fp, void * data, DCB_VAR * var, int nvars, int dcbformat )
  *
  */
 
-int loadtypes( file * fp, void * data, DCB_TYPEDEF * var, int nvars, int dcbformat )
-{
-    int result = 0;
-    int partial;
+int64_t loadtypes( file * fp, void * data, DCB_TYPEDEF * var, int64_t nvars, int64_t dcbformat ) {
+    int64_t result = 0, partial;
 
-    for ( ; nvars > 0; nvars--, var++ )
-    {
+    for ( ; nvars > 0; nvars--, var++ ) {
         partial = loadtype( fp, data, var, dcbformat );
         data = (( uint8_t* )data ) + partial;
         result += partial;
@@ -117,13 +111,10 @@ int loadtypes( file * fp, void * data, DCB_TYPEDEF * var, int nvars, int dcbform
  *
  */
 
-int savevars( file * fp, void * data, DCB_VAR * var, int nvars, int dcbformat )
-{
-    int result = 0;
-    int partial;
+int64_t savevars( file * fp, void * data, DCB_VAR * var, int64_t nvars, int64_t dcbformat ) {
+    int64_t result = 0, partial;
 
-    for ( ; nvars > 0; nvars--, var++ )
-    {
+    for ( ; nvars > 0; nvars--, var++ ) {
         partial = savetype( fp, data, &var->Type, dcbformat );
         data = (( uint8_t* ) data ) + partial;
         result += partial;
@@ -149,13 +140,10 @@ int savevars( file * fp, void * data, DCB_VAR * var, int nvars, int dcbformat )
  *
  */
 
-int savetypes( file * fp, void * data, DCB_TYPEDEF * var, int nvars, int dcbformat )
-{
-    int result = 0;
-    int partial;
+int64_t savetypes( file * fp, void * data, DCB_TYPEDEF * var, int64_t nvars, int64_t dcbformat ) {
+    int64_t result = 0, partial;
 
-    for ( ; nvars > 0; nvars--, var++ )
-    {
+    for ( ; nvars > 0; nvars--, var++ ) {
         partial = savetype( fp, data, var, dcbformat );
         result += partial;
         data = (( uint8_t* )data ) + partial;
@@ -180,23 +168,23 @@ int savetypes( file * fp, void * data, DCB_TYPEDEF * var, int nvars, int dcbform
  *
  */
 
-int savetype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
-{
-    int n = 0;
-    int count = 1;
-    int result = 0;
+int64_t savetype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat ) {
+    int64_t n = 0, count = 1, result = 0, partial;
     const char * str;
-    int32_t len;
-    int partial;
+    int64_t len;
 
-    for ( ;; )
-    {
-        switch ( var->BaseType[n] )
-        {
+    for ( ;; ) {
+        switch ( var->BaseType[n] ) {
+            case TYPE_DOUBLE:
+            case TYPE_INT:
+            case TYPE_QWORD:
+            case TYPE_POINTER:
+                result += file_writeUint64A( fp, data, count ) * sizeof( uint64_t );
+                break;
+
             case TYPE_FLOAT:
             case TYPE_INT32:
             case TYPE_DWORD:
-            case TYPE_POINTER:
                 result += file_writeUint32A( fp, data, count ) * sizeof( uint32_t );
                 break;
 
@@ -212,20 +200,16 @@ int savetype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
                 break;
 
             case TYPE_STRING:
-                if ( dcbformat )
-                {
-                    result += file_writeUint32A( fp, data, count ) * sizeof( uint32_t );
-                }
-                else
-                {
-                    for ( ; count ; count-- )
-                    {
-                        str = string_get( *( uint32_t * )data );
+                if ( dcbformat ) {
+                    result += file_writeUint64A( fp, data, count ) * sizeof( uint64_t );
+                } else {
+                    for ( ; count; count-- ) {
+                        str = string_get( *( uint64_t * )data );
                         len = strlen( str );
-                        file_writeUint32( fp, (uint32_t *)&len );
+                        file_writeUint64( fp, (uint64_t *)&len );
                         file_write( fp, ( void* )str, len );
-                        data = ( uint8_t* )data + sizeof( uint32_t );
-                        result += sizeof( uint32_t );
+                        data = ( uint8_t* )data + sizeof( uint64_t );
+                        result += sizeof( uint64_t );
                     }
                 }
                 break;
@@ -236,8 +220,7 @@ int savetype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
                 continue;
 
             case TYPE_STRUCT:
-                for ( ; count ; count-- )
-                {
+                for ( ; count; count-- ) {
                     partial = savevars( fp, data, dcb.varspace_vars[var->Members], dcb.varspace[var->Members].NVars, dcbformat );
                     data = (( uint8_t* )data ) + partial;
                     result += partial;
@@ -271,24 +254,24 @@ int savetype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
  *
  */
 
-int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
-{
-    int n = 0;
-    int count = 1;
-    int result = 0;
+int64_t loadtype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat ) {
+    int64_t n = 0, count = 1, result = 0, len, partial;
     char * str;
-    int len;
-    int partial;
 
-    for ( ;; )
-    {
-        switch ( var->BaseType[n] )
-        {
-                /* Not sure about float types */
+    for ( ;; ) {
+        switch ( var->BaseType[n] ) {
+            /* Not sure about float types */
+            case TYPE_DOUBLE:
+            case TYPE_INT:
+            case TYPE_QWORD:
+            case TYPE_POINTER:
+                result += file_readUint64A( fp, data, count ) * sizeof( uint64_t );
+                break;
+
+            /* Not sure about float types */
             case TYPE_FLOAT:
             case TYPE_INT32:
             case TYPE_DWORD:
-            case TYPE_POINTER:
                 result += file_readUint32A( fp, data, count ) * sizeof( uint32_t );
                 break;
 
@@ -304,30 +287,25 @@ int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
                 break;
 
             case TYPE_STRING:
-                if ( dcbformat )
-                {
-                    result += file_readUint32A( fp, data, count ) * sizeof( uint32_t );
-                }
-                else
-                {
-                    for ( ; count ; count-- )
-                    {
-                        string_discard( *( uint32_t* )data );
-                        file_readUint32( fp, (uint32_t *)&len );
+                if ( dcbformat ) {
+                    result += file_readUint64A( fp, data, count ) * sizeof( uint64_t );
+                } else {
+                    for ( ; count; count-- ) {
+                        string_discard( *( uint64_t* )data );
+                        file_readUint64( fp, (uint64_t *)&len );
                         str = malloc( len + 1 );
-                        if ( !str )
-                        {
+                        if ( !str ) {
                             fprintf( stderr, "loadtype: out of memory\n" ) ;
                             return -1;
                         }
 
                         if ( len > 0 ) file_read( fp, str, len );
                         str[len] = 0;
-                        *( uint32_t* )data = string_new( str );
-                        string_use( *( uint32_t* )data );
+                        *( uint64_t* )data = string_new( str );
+                        string_use( *( uint64_t* )data );
                         free( str );
-                        data = ( uint8_t* )data + sizeof( uint32_t );
-                        result += sizeof( uint32_t );
+                        data = ( uint8_t* )data + sizeof( uint64_t );
+                        result += sizeof( uint64_t );
                     }
                 }
                 break;
@@ -338,8 +316,7 @@ int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
                 continue;
 
             case TYPE_STRUCT:
-                for ( ; count ; count-- )
-                {
+                for ( ; count; count-- ) {
                     partial = loadvars( fp, data, dcb.varspace_vars[var->Members], dcb.varspace[var->Members].NVars, dcbformat );
                     result += partial;
                     data = ( uint8_t* )data + partial;

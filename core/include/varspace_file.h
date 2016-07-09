@@ -34,9 +34,9 @@
     #include "dcb.h"
     #include "files.h"
 
-    int savetype (file * fp, void * data, DCB_TYPEDEF * var, int dcbformat);
-    int loadtype (file * fp, void * data, DCB_TYPEDEF * var, int dcbformat);
-    int savetypes( file * fp, void * data, DCB_TYPEDEF * var, int nvars, int dcbformat );
-    int loadtypes( file * fp, void * data, DCB_TYPEDEF * var, int nvars, int dcbformat );
+    int64_t savetype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat);
+    int64_t loadtype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat);
+    int64_t savetypes( file * fp, void * data, DCB_TYPEDEF * var, int64_t nvars, int64_t dcbformat );
+    int64_t loadtypes( file * fp, void * data, DCB_TYPEDEF * var, int64_t nvars, int64_t dcbformat );
 
 #endif

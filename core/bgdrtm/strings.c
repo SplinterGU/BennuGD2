@@ -211,8 +211,7 @@ static void string_alloc( int count ) {
 /* More space is allocated as needed.                                       */
 /****************************************************************************/
 
-void string_init()
-{
+void string_init() {
     string_alloc( BLOCK_INCR );
 
     /* Create an empty string with ID 0 */
