@@ -147,8 +147,8 @@ void basetype_describe( char * buffer, BASETYPE t ) {
 /* funciones de compilado que generan codigo efectivo.                    */
 /* ---------------------------------------------------------------------- */
 
-PROCDEF * proc;
-CODEBLOCK * code;
+PROCDEF * proc = NULL;
+CODEBLOCK * code = NULL;
 
 /* Comprueba que los parámetros de una expresion binaria sean datos */
 /* numéricos. Devuelve el tipo de operacion(MN_FLOAT o MN_QWORD)    */
@@ -844,6 +844,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
         }
 
         if ( strlen( validtypes ) == 1 ) {
+
             /* Same type for any function variant */
 
             if ( validtypes[0] == 'V' ) {
@@ -909,7 +910,6 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                     default:
                         compile_error( MSG_INVALID_PARAMT );
                 }
-
                 res = compile_expresion( 0, 0, 0, ( BASETYPE ) type );
                 if ( res.lvalue ) codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
             }
@@ -1619,6 +1619,10 @@ expresion_result compile_value() {
         SYSPROC ** sysproc_list = sysproc_getall( id );
 
         if ( sysproc_list ) {
+            if ( !code ) {
+                token_back();
+                compile_error( MSG_INVALID_INITIALIZER );
+            }
             sysproc = compile_bestproc( sysproc_list );
             free( sysproc_list );
 
@@ -1877,6 +1881,7 @@ expresion_result compile_operand() {
 
     for (;;) {
         token_next();
+
         if ( token.type == IDENTIFIER && token.code == identifier_multiply ) { /* "*" */
             if ( left.lvalue ) codeblock_add( code, mntype( left.type, 0 ) | MN_PTR, 0 );
 
@@ -1966,7 +1971,6 @@ expresion_result compile_operand() {
             left = res;
             continue;
         }
-
         token_back();
         break;
     }
@@ -2582,8 +2586,7 @@ expresion_result compile_subexpresion() {
 
                 right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
 
-                if ( ( typedef_base( right.type ) == TYPE_QWORD || typedef_base( right.type ) == TYPE_INT ) &&
-                     right.constant && right.value == 0 ) {
+                if ( ( typedef_base( right.type ) == TYPE_QWORD || typedef_base( right.type ) == TYPE_INT ) && right.constant && right.value == 0 ) {
                     right.type = base.type;
                 }
 
@@ -2925,7 +2928,6 @@ expresion_result compile_expresion( int need_constant, int need_lvalue, int disc
     CODEBLOCK_POS pos;
 
     if ( code ) pos = codeblock_pos( code );
-
     res = compile_subexpresion();
 
     /* Interpreta una estructura tal cual como un puntero a la misma */
@@ -3851,12 +3853,9 @@ void compile_block( PROCDEF * p ) {
         /* Asignation */
 
         res = compile_subexpresion();
-        if ( !res.asignation && !res.call )
-            compile_error( MSG_INVALID_SENTENCE );
-        if ( typedef_is_string( res.type ) && !res.lvalue )
-            codeblock_add( code, MN_POP | MN_STRING, 0 );
-        else
-            codeblock_add( code, MN_POP, 0 );
+        if ( !res.asignation && !res.call ) compile_error( MSG_INVALID_SENTENCE );
+        if ( typedef_is_string( res.type ) && !res.lvalue ) codeblock_add( code, MN_POP | MN_STRING, 0 );
+        else                                                codeblock_add( code, MN_POP, 0 );
 
         if ( compile_sentence_end() ) break;
     }

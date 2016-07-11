@@ -152,4 +152,6 @@
 
 #define MSG_DATA_TYPE_REQUIRED                  "Data type required"
 
+#define MSG_INVALID_INITIALIZER                 "Initializer element is not constant"
+
 #endif

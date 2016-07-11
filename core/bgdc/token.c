@@ -1051,7 +1051,7 @@ void token_next() {
         /* Numbers */
 
         if ( ISNUM( *source_ptr ) ) {
-            unsigned char ch, *ptr; //, dbl_buf[384];
+            unsigned char ch, *ptr;
             double num = 0.0, dec;
             int64_t base = 10;
 
@@ -1072,8 +1072,6 @@ void token_next() {
 
             token.code = 0LL; /* for ints values */
 
-//            ptr = dbl_buf;
-
             /* Calculate the number value */
 
             while ( ISNUM( *source_ptr ) || ( base > 10 && ISALNUM( *source_ptr ) ) ) {
@@ -1086,7 +1084,6 @@ void token_next() {
                 if ( ISNUM( ch ) ) {
                     num = num * base + ( ch - '0' );
                     token.code = token.code * base + ( ch - '0' );
-//                    *ptr++ = ch; // hack double
                     source_ptr++;
                     continue;
                 }
@@ -1104,22 +1101,17 @@ void token_next() {
             /* We have the integer part now - convert to int/float */
 
             if ( *source_ptr == '.' && base == 10 ) {
-//                *ptr++ = '.';
                 source_ptr++;
                 if ( !ISNUM( *source_ptr ) ) {
                     source_ptr--;
                 } else {
                     dec = 0.1;
                     while ( ISNUM( *source_ptr ) ) {
-//                        *ptr++ = *source_ptr;
                         num = num + dec * ( *source_ptr++ - '0' );
                         dec /= 10.0;
                     }
-                    *ptr = '\0';
                     token.type  = FLOAT;
                     token.value = num;
-//                    token.value = atof(dbl_buf); // hack double precision
-//                    printf( "%lf\n%lf\n%lf\n", num, token.value);
                 }
             }
             /* Skip the base sufix */
