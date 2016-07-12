@@ -80,6 +80,8 @@ extern expresion_result compile_subexpresion();
 extern expresion_result compile_expresion(int need_constant, int need_lvalue, int discart_code, BASETYPE t);
 extern expresion_result convert_result_type(expresion_result res, BASETYPE t);
 
+extern void compile_process();
+
 /* C�digos de identificadores y palabras reservadas */
 
 extern int64_t
@@ -115,9 +117,10 @@ extern int64_t
     identifier_word,        identifier_byte,        identifier_string,
     identifier_float,       identifier_include,     identifier_type,
     identifier_import,      identifier_elseif,      identifier_question,
-    identifier_function,    identifier_int32,         identifier_short,
+    identifier_function,    identifier_int32,       identifier_short,
     identifier_char,        identifier_unsigned,    identifier_signed,
-    identifier_int64,       identifier_qword,       identifier_double
+    identifier_int64,       identifier_qword,       identifier_double,
+    identifier_bool
     ;
 
 extern int64_t reserved_words ;  /* N�mero de palabras reservadas */

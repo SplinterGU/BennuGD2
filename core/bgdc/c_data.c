@@ -401,6 +401,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         }
 
         token_next();
+        tok_pos tokp = token_pos();
 
         /* Se salta comas y puntos y coma */
 
@@ -416,6 +417,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
 
             continue;
         } else if ( token.code == identifier_semicolon ) {
+            if ( block_without_begin ) break;
+
             basetype = TYPE_UNDEFINED;
             set_type( &type, TYPE_UNDEFINED );
 
@@ -428,10 +431,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             continue;
         } else if ( !block_without_begin && token.code == identifier_end ) {
             break;
-        } else if ( !is_identifier_datatype( token.code ) &&
-                    ( token.code < reserved_words ||
-                      sysproc_by_name( token.code ) != NULL
-                  )
+        } else if ( !( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) &&
+                    ( token.code < reserved_words || sysproc_by_name( token.code ) != NULL )
                   && token.code != identifier_pointer // check this JJP
                   && token.code != identifier_multiply // check this JJP
                   ) {
@@ -517,6 +518,22 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             basetype = TYPE_STRUCT;
             type = * typedef_by_name( token.code );
             token_next();
+        }
+
+        if ( block_without_begin ) {
+            if ( basetype == TYPE_UNDEFINED && varspace_search( n, token.code ) ) { // end
+                token_set_pos( tokp );
+                break;
+            }
+
+            token_next();
+            if ( token.code == identifier_leftp ) { // process without type
+                token_set_pos( tokp );
+
+                compile_process();
+                break;
+            }
+            token_back();
         }
 
         if ( basetype == TYPE_UNDEFINED && token.code != identifier_struct ) compile_error( MSG_DATA_TYPE_REQUIRED ); // type = typedef_new( TYPE_INT ); // Data Type Required

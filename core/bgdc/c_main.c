@@ -270,27 +270,6 @@ void compile_init() {
 
 }
 
-int is_identifier_datatype( int64_t code ) {
-    return (
-        code == identifier_qword     ||
-        code == identifier_int64     ||
-        code == identifier_double    ||
-        code == identifier_dword     ||
-        code == identifier_word      ||
-        code == identifier_byte      ||
-        code == identifier_int32     ||
-        code == identifier_short     ||
-        code == identifier_char      ||
-        code == identifier_unsigned  ||
-        code == identifier_signed    ||
-        code == identifier_string    ||
-        code == identifier_float     ||
-        code == identifier_struct    ||
-        code == identifier_bool
-       );
-}
-
-
 /* ---------------------------------------------------------------------- */
 
 void compile_error( const char *fmt, ... ) {
@@ -587,7 +566,9 @@ void compile_constants() {
              token.code == identifier_public ||
              token.code == identifier_private ||
              token.code == identifier_global ||
-             is_identifier_datatype( token.code )
+             identifier_is_basic_type( token.code ) ||
+             token.code == identifier_struct ||
+             procdef_search( token.code )
           )
         {
             token_back();
@@ -1102,7 +1083,11 @@ void compile_program() {
             /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
             VARSPACE * v[] = { &global, NULL };
             compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0 );
-        } else if ( token.type == IDENTIFIER && ( token.code == identifier_global || ( block_var = is_identifier_datatype( token.code ) ) ) ) {
+        } else if ( token.type == IDENTIFIER && (
+                        token.code == identifier_global ||
+                        ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) )
+                     )
+                  ) {
             /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
             VARSPACE * v[] = { &local, NULL };
             if ( block_var ) token_back();
@@ -1128,12 +1113,17 @@ void compile_program() {
             codeblock_add( &mainproc->code, MN_END, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_type ) { /* Tipo de dato definido por el usuario */
             compile_type();
-        } else if ( token.type == IDENTIFIER && ( token.code == identifier_process || token.code == identifier_function || token.code == identifier_declare || identifier_is_basic_type( token.type ) ) ) {
+        } else if ( token.type == IDENTIFIER &&
+                        ( token.code == identifier_process  ||
+                          token.code == identifier_function ||
+                          token.code == identifier_declare  ||
+                          identifier_is_basic_type( token.type )
+                        )
+                   ) {
             compile_process() ; /* Definici�n de proceso */
-        }
-        else if ( segment_by_name( token.code ) )
+        } else if ( segment_by_name( token.code ) ) {
             compile_process();
-        else
+        } else
             break;
     }
 

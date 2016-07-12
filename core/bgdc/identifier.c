@@ -187,19 +187,21 @@ int64_t identifier_next_code() {
 
 int identifier_is_basic_type(int64_t id) {
 	return (
-        id == identifier_int64 ||
-		id == identifier_int32 ||
-		id == identifier_short ||
-		id == identifier_char ||
-        id == identifier_qword ||
-		id == identifier_dword ||
-		id == identifier_word ||
-		id == identifier_byte ||
-		id == identifier_signed ||
-		id == identifier_unsigned ||
-        id == identifier_double ||
-		id == identifier_float ||
-		id == identifier_string
+        id == identifier_int64 		||
+		id == identifier_int32 		||
+		id == identifier_short 		||
+		id == identifier_char 		||
+        id == identifier_qword 		||
+		id == identifier_dword 		||
+		id == identifier_word 		||
+		id == identifier_byte 		||
+		id == identifier_signed 	||
+		id == identifier_unsigned 	||
+        id == identifier_double 	||
+		id == identifier_float 		||
+		id == identifier_string		||
+        id == identifier_bool
+        //|| id == identifier_struct
 		);
 }
 

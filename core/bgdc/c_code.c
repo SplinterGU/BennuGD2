@@ -3209,17 +3209,21 @@ void compile_block( PROCDEF * p ) {
         token_next();
         if ( token.type == NOTOKEN ) break;
 
-        if ( is_identifier_datatype( token.code ) ) {
-            token_back();
-            /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+        if ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || token.code == identifier_private || procdef_search( token.code ) ) {
+            if ( token.code != identifier_private ) token_back();
             /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
             VARSPACE * v[] = {&local, p->pubvars, NULL};
             compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1 );
             continue;
+        } else if (( !proc->declared ) && ( token.code == identifier_local || token.code == identifier_public ) ) {
+            /* Ahora las declaraciones locales, son solo locales al proceso, pero visibles desde todo proceso */
+            /* Se permite declarar local/publica una variable que haya sido declarada global, es una variable propia, no es la global */
+            VARSPACE * v[] = {&local, p->privars, NULL};
+            compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1 );
         }
 
         if ( token.type == IDENTIFIER ) {
-            if ( token.code == identifier_end    || /* "END" */
+            if ( token.code == identifier_end    ||  /* "END" */
                  token.code == identifier_until  ||  /* "UNTIL" */
                  token.code == identifier_else   ||  /* "ELSE" */
                  token.code == identifier_elseif )   /* "ELSEIF" */
