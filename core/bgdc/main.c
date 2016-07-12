@@ -203,7 +203,7 @@ int main( int argc, char *argv[] ) {
                     if ( argv[i][j + 1] >= '0' && argv[i][j + 1] <= '9' ) {
                         debug = atoi( &argv[i][j + 1] );
                     } else {
-                        debug = 1;
+                        debug++;
                     }
                 }
 

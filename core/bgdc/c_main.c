@@ -1086,8 +1086,7 @@ void compile_program() {
         } else if ( token.type == IDENTIFIER && (
                         token.code == identifier_global ||
                         ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) )
-                     )
-                  ) {
+                     ) ) {
             /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
             VARSPACE * v[] = { &local, NULL };
             if ( block_var ) token_back();
@@ -1127,12 +1126,12 @@ void compile_program() {
             break;
     }
 
-    if ( global.count && debug ) {
+    if ( global.count && debug > 1 ) {
         printf( "\n---- Global variables\n\n" );
         varspace_dump( &global, 0 );
     }
 
-    if ( local.count && debug ) {
+    if ( local.count && debug > 1 ) {
         printf( "\n---- Local variables\n\n" );
         varspace_dump( &local, 0 );
         /* segment_dump (localdata) ; */
@@ -1142,11 +1141,11 @@ void compile_program() {
 
     program_postprocess();
 
-    if ( debug ) program_dumpprocesses();
+    if ( debug > 1 ) program_dumpprocesses();
 
     if ( !libmode && !mainproc->defined ) compile_error( MSG_NO_MAIN );
 
-    if ( debug ) {
+    if ( debug > 2 ) {
         identifier_dump();
         string_dump( NULL );
     }

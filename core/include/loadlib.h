@@ -206,27 +206,29 @@ static void * dlibaddr( void * _handle, const char * symbol ) {
 static void * _dlibaddr( void * _handle, const char * symbol ) {
     dlibhandle * handle = ( dlibhandle * ) _handle;
     char * ptr, * f;
-    char * sym = (char*)malloc( strlen( handle->fname ) + strlen( symbol ) + 2 );
+    char * sym = (char*)malloc( strlen( handle->fname ) + strlen( symbol ) + 2 + 3 );
     if ( !sym ) {
         __dliberr = "Can't load symbol." ;
         return NULL;
     }
 
-    strcpy( sym, handle->fname );
-    ptr = ( char * ) sym; f = NULL;
+    strcpy( sym, "lib" );
+    strcpy( &sym[3], handle->fname );
+    ptr = ( char * ) &sym[3]; f = NULL;
     while ( *ptr ) {
         if ( *ptr == '.' ) f = ptr ;
         ptr++;
     }
 
     if ( f ) *f = '\0';
-    strcat( sym, "_" ); strcat( sym, symbol );
+    strcat( &sym[3], "_" ); strcat( &sym[3], symbol );
 
-    {
-        void * addr = dlibaddr( handle, sym );
-        free( sym );
-        return addr;
-    }
+    void * addr = dlibaddr( handle, &sym[3] );
+
+    if ( !addr ) addr = dlibaddr( handle, sym );
+
+    free( sym );
+    return addr;
 }
 
 /* --------------------------------------------------------------------------- */

@@ -60,7 +60,7 @@ void codeblock_postprocess(CODEBLOCK * code) {
 	PROCDEF * proc, * my = procdef_search_by_codeblock( code );
 
 	while(ptr < code->data + code->current) {
-		if ( !libmode &&( *ptr == MN_CALL || *ptr == MN_PROC || *ptr == MN_TYPE )) {
+		if ( !libmode && ( *ptr == MN_CALL || *ptr == MN_PROC || *ptr == MN_TYPE ) ) {
 			proc = procdef_search(ptr[1]);
 			if (!proc || !proc->defined) {
 				token.type = IDENTIFIER;
