@@ -401,7 +401,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         }
 
         token_next();
-
         tok_pos tokp = token_pos();
 
         /* Se salta comas y puntos y coma */
@@ -528,14 +527,16 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
         }
 
-        tok_pos tokp1 = token_pos();
-        token_next();
-        if ( token.code == identifier_leftp ) { // process without type
-            token_set_pos( tokp );
-            compile_process();
-            break;
-        }
-        token_set_pos( tokp1 );
+//        if ( !block_without_begin ) {
+            tok_pos tokp1 = token_pos();
+            token_next();
+            if ( token.code == identifier_leftp ) { // process without type
+                token_set_pos( tokp );
+                compile_process();
+                break;
+            }
+            token_set_pos( tokp1 );
+//        }
 
         if ( basetype == TYPE_UNDEFINED && token.code != identifier_struct ) compile_error( MSG_DATA_TYPE_REQUIRED ); // type = typedef_new( TYPE_INT ); // Data Type Required
 

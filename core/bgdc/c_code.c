@@ -3199,8 +3199,9 @@ int compile_sentence_end() {
 extern int dcb_options;
 
 void compile_block( PROCDEF * p ) {
-    int loop, last_loop, et1, et2, codelabel;
+    int loop, last_loop, et1, et2, codelabel, is_process;
     expresion_result res, from, to;
+    PROCDEF * ps;
 
     proc = p;
     code = &p->code;
@@ -3209,12 +3210,23 @@ void compile_block( PROCDEF * p ) {
         token_next();
         if ( token.type == NOTOKEN ) break;
 
-        if ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || token.code == identifier_private || procdef_search( token.code ) ) {
-            if ( token.code != identifier_private ) token_back();
-            /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
-            VARSPACE * v[] = {&local, p->pubvars, NULL};
-            compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1 );
-            continue;
+        tok_pos tokp = token_pos();
+
+        if ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || token.code == identifier_private || ( ps = procdef_search( token.code ) ) ) {
+            is_process = 0;
+            if ( ps ) {
+                token_next();
+                if ( token.code == identifier_leftp ) is_process = 1; // is a process
+            }
+            token_set_pos( tokp );
+
+            if ( !is_process ) {
+                token_back();
+                /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
+                VARSPACE * v[] = {&local, p->pubvars, NULL};
+                compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1 );
+                continue;
+            }
         } else if (( !proc->declared ) && ( token.code == identifier_local || token.code == identifier_public ) ) {
             /* Ahora las declaraciones locales, son solo locales al proceso, pero visibles desde todo proceso */
             /* Se permite declarar local/publica una variable que haya sido declarada global, es una variable propia, no es la global */

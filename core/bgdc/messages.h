@@ -79,7 +79,6 @@
 #define MSG_CONSTANT_NAME_EXP                   "Constant name expected"
 #define MSG_INVALID_IDENTIFIER                  "Invalid identifier"
 #define MSG_EXPECTED                            "\"%s\" expected"
-#define MSG_PROCNAME_EXP                        "Procedure name expected"
 #define MSG_INVALID_PARAM                       "Parameter name invalid"
 #define MSG_INVALID_PARAMT                      "Parameter type invalid"
 #define MSG_TOO_MANY_PARAMS                     "Too many parameters in a definition"

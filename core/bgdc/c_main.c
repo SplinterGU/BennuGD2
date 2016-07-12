@@ -651,7 +651,7 @@ void compile_process() {
 
     /* Check if the process name is valid */
 
-    if ( token.type != IDENTIFIER || token.code < reserved_words ) compile_error( MSG_PROCNAME_EXP );
+    if ( token.type != IDENTIFIER || token.code < reserved_words ) compile_error( MSG_PROCESS_NAME_EXP );
 
     code = token.code;
 
