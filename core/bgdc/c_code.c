@@ -541,7 +541,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     else if ( token.code == identifier_double )   base = 8;
     else if ( token.code == identifier_string )   base = 8;
     else if ( token.code == identifier_dword )    base = 4;
-    else if ( token.code == identifier_int32 )      base = 4;
+    else if ( token.code == identifier_int32 )    base = 4;
     else if ( token.code == identifier_float )    base = 4;
     else if ( token.code == identifier_short )    base = 2;
     else if ( token.code == identifier_word )     base = 2;
@@ -570,7 +570,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
         token_back();
     }
 
-    if ( !base /*check_datatype*/ ) compile_error( MSG_INVALID_TYPE );
+// commented by no sizeof(array)   if ( !base /*check_datatype*/ ) compile_error( MSG_INVALID_TYPE );
 
     /* Expressions datatypes */
 
