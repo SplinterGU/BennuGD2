@@ -1,7 +1,7 @@
 /*
  *  Copyright (C) 2006-2016 SplinterGU (Fenix/BennuGD)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
- *  Copyright (C) 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
+ *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
  *  This file is part of Bennu Game Development
  *
@@ -149,14 +149,14 @@ void init_c_type ()
     set_c_lower  ((const unsigned char *)"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
                   (const unsigned char *)"abcdefghijklmnopqrstuvwxyz") ;
 #ifdef RESPETAR_ACENTOS
-    set_c_upper  ((const unsigned char *)"Ã¡Ã©íóúñçàèìòùäëïöÃ¼ıâêîôûæãåõ",
+    set_c_upper  ((const unsigned char *)"áéíóúñçàèìòùäëïöüıâêîôûæãåõ",
                   (const unsigned char *)"ÁÉÍÓÚÑÇÀÈÌÒÙÄËÏÖÜİÂÊÎÔÛÆÃÅÕ") ;
     set_c_lower  ((const unsigned char *)"ÁÉÍÓÚÑÇÀÈÌÒÙÄËÏÖÜİÂÊÎÔÛÆÃÅÕ",
-                  (const unsigned char *)"Ã¡Ã©íóúñçàèìòùäëïöÃ¼ıâêîôûæãåõ") ;
+                  (const unsigned char *)"áéíóúñçàèìòùäëïöüıâêîôûæãåõ") ;
 #else
-    set_c_upper  ((const unsigned char *)"Ã¡Ã©íóúñÑçÇàèìòùäëïöÃ¼ıâêîôûæãåõÁÉÍÓÚ",
+    set_c_upper  ((const unsigned char *)"áéíóúñÑçÇàèìòùäëïöüıâêîôûæãåõÁÉÍÓÚ",
                   (const unsigned char *)"AEIOUNNCCAEIOUAEIOUYAEIOUÆAAOAEIOU") ;
-    set_c_lower  ((const unsigned char *)"Ã¡Ã©íóúñÑçÇàèìòùäëïöÃ¼ıâêîôûæãåõÁÉÍÓÚ",
+    set_c_lower  ((const unsigned char *)"áéíóúñÑçÇàèìòùäëïöüıâêîôûæãåõÁÉÍÓÚ",
                   (const unsigned char *)"aeiounnccaeiouaeiouyaeiouÆaaoaeiou") ;
 #endif
 
@@ -170,8 +170,7 @@ void init_c_type ()
 
     set_c_range ('A', 'Z', CTYPE_ALPHA) ;
     set_c_range ('a', 'z', CTYPE_ALPHA) ;
-    set_c_from  ((const unsigned char *)"Ã¡Ã©íóúÁÉÍÓÚñÑçÇàèìòùÀÈÌÒÙäëïöÃ¼ÄËÏÖÜÿıâêîôûÂÊÎÔÛ"
-                 "æÆãåğõªºÃÅĞÕØ", CTYPE_ALPHA) ;
+    set_c_from  ((const unsigned char *)"áéíóúÁÉÍÓÚñÑçÇàèìòùÀÈÌÒÙäëïöüÄËÏÖÜÿıâêîôûÂÊÎÔÛæÆãåğõªºÃÅĞÕØ", CTYPE_ALPHA) ;
 
     set_c_as    (CTYPE_ALPHA, CTYPE_WORDCHAR) ;
     set_c_from  ((const unsigned char *)"_",         CTYPE_WORDCHAR) ;
