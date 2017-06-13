@@ -722,7 +722,7 @@ void codeblock_adjust(CODEBLOCK * code) {
             ptr[1] = stringid[ptr[1]];
         }
 
-        if ( (*ptr & MN_MASK) == MN_GLOBAL) {
+        if ( (*ptr & MN_MASK) == MN_GLOBAL || (*ptr & MN_MASK) == MN_GET_GLOBAL ) {
             ptr[1] = get_new_off( ptr[1], glovaroffs, dcb.data.NGloVars );
         }
 
