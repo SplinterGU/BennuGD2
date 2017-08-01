@@ -924,49 +924,24 @@ void compile_process() {
 
                 segment_add_qword( proc->pridata, 0 );
             } else {
-                var = varspace_search( &global, token.code );
+                var = varspace_search( proc->privars, token.code );
                 if ( var ) {
-                    /* El parámetro es en realidad un global */
-                    if ( type_implicit ) {
-                        type = typedef_base( var->type );
-                        ctype = var->type;
-                    }
-
-                    if ( typedef_base( var->type ) != type ) compile_error( MSG_INVALID_PARAMT );
-
-                    codeblock_add( &proc->code, MN_GLOBAL, var->offset );
-                    codeblock_add( &proc->code, MN_PRIVATE, proc->pridata->current );
-                    codeblock_add( &proc->code, MN_PTR, 0 );
-
-                    if ( typedef_base( var->type ) == TYPE_STRING ) codeblock_add( &proc->code, MN_LET | MN_STRING, 0 );
-                    else codeblock_add( &proc->code, MN_LET, 0 );
-
-                    codeblock_add( &proc->code, MN_POP, 0 );
-
-                    if ( proc->privars->reserved == proc->privars->count ) varspace_alloc( proc->privars, 16 );
-
-                    proc->privars->vars[proc->privars->count].type   = typedef_new( TYPE_INT );
-                    proc->privars->vars[proc->privars->count].offset = proc->pridata->current;
-                    proc->privars->vars[proc->privars->count].code   = -1; // for runtime search the right var
-
-                    proc->privars->count++;
-
-                    segment_add_qword( proc->pridata, 0 );
-                } else {
-                    /* Crear la variable privada */
-                    if ( proc->privars->reserved == proc->privars->count ) varspace_alloc( proc->privars, 16 );
-
-                    if ( type == TYPE_STRING ) varspace_varstring( proc->privars, proc->pridata->current );
-
-                    proc->privars->vars[proc->privars->count].type   = ctype;
-                    proc->privars->vars[proc->privars->count].offset = proc->pridata->current;
-                    proc->privars->vars[proc->privars->count].code   = token.code;
-                    if ( external_proc ) proc->privars->vars[proc->privars->count].type.varspace = external_proc->pubvars;
-
-                    proc->privars->count++;
-
-                    segment_add_qword( proc->pridata, 0 );
+                    compile_error(MSG_VARIABLE_REDECLARE);
                 }
+
+                /* Crear la variable privada */
+                if ( proc->privars->reserved == proc->privars->count ) varspace_alloc( proc->privars, 16 );
+
+                if ( type == TYPE_STRING ) varspace_varstring( proc->privars, proc->pridata->current );
+
+                proc->privars->vars[proc->privars->count].type   = ctype;
+                proc->privars->vars[proc->privars->count].offset = proc->pridata->current;
+                proc->privars->vars[proc->privars->count].code   = token.code;
+                if ( external_proc ) proc->privars->vars[proc->privars->count].type.varspace = external_proc->pubvars;
+
+                proc->privars->count++;
+
+                segment_add_qword( proc->pridata, 0 );
             }
         } else {
             if ( proc->paramtype[params] != type || proc->paramname[params] != token.code ) compile_error( MSG_PROTO_ERROR );
