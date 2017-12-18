@@ -499,6 +499,7 @@ void preprocessor_expand( DEFINE * def ) {
                     allocated += (( part + 256 ) & ~127 );
                     text = ( char * )realloc( text, allocated );
                 }
+                text[size++] = ' ';
                 memcpy( text + size, begin, part );
                 size += part;
             } else {
