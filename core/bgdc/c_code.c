@@ -2528,6 +2528,7 @@ expresion_result compile_ternarycond() {
             if ( token.type != IDENTIFIER || token.code != identifier_colon ) compile_error( MSG_EXPECTED, ":" ); /* ":" */
 
             res = compile_expresion( 0, 0, 0, right.type.chunk[0].type );
+            codeblock_add( code, MN_NOP, 0 );
             codeblock_label_set( code, et2, code->current );
         }
 

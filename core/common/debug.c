@@ -185,6 +185,8 @@ struct {
     { "REMOTE_PUBLIC"               , MN_REMOTE_PUBLIC          , 1 },
     { "GET_REMOTE_PUBLIC"           , MN_GET_REMOTE_PUBLIC      , 1 },
 
+    { "NOP"                         , MN_NOP                    , 0 },
+
     { ""                            , MN_SENTENCE               , 1 },
 
     { 0                             , -1                        , 0 }

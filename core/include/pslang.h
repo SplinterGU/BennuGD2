@@ -243,6 +243,10 @@
 #define MN_REMOTE_PUBLIC        (0x7C | MN_1_PARAMS)     /* Direccionamiento */
 #define MN_GET_REMOTE_PUBLIC    (0x7D | MN_1_PARAMS)     /* Acceso a variables */
 
+/* No operation */
+
+#define MN_NOP                  (0x7E | MN_0_PARAMS)
+
 /* Debug */
 
 #define MN_SENTENCE             (0x7F | MN_1_PARAMS)

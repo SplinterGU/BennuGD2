@@ -255,6 +255,12 @@ int64_t instance_go( INSTANCE * r ) {
         }
 
         switch ( *ptr ) {
+
+            /* No operation */
+            case MN_NOP:
+                ptr++;
+                break;
+
             /* Stack manipulation */
 
             case MN_DUP:
