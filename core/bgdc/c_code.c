@@ -1385,6 +1385,7 @@ expresion_result compile_cast() {
         if ( typedef_is_array( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) {
             codeblock_add( code, MN_A2STR, 0 );
             res.type = typedef_new( TYPE_STRING );
+            res.lvalue = 0;
         } else if ( typedef_is_pointer( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) {
             /* ( string ) <char pointer> */
             if ( res.lvalue ) {
