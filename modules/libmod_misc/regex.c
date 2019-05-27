@@ -28,6 +28,8 @@
 
 #undef DEBUG
 
+#define STDC_HEADERS 1
+
 /* AIX requires this to be the first thing in the file. */
 
 #if defined(_MSC_VER)

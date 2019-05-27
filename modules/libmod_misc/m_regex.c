@@ -69,7 +69,7 @@ int64_t libmod_misc_regex_regex (INSTANCE * my, int64_t * params) {
     pb.buffer = malloc(4096);
     pb.allocated = 4096;
     pb.fastmap = malloc(256);
-    pb.regs_allocated = 16;
+    pb.regs_allocated = REGS_FIXED;
     re.num_regs = 16;
     re.start = start;
     re.end = end;
@@ -152,7 +152,7 @@ int64_t libmod_misc_regex_regex_replace (INSTANCE * my, int64_t * params) {
     pb.fastmap = malloc(256);
     pb.translate = NULL;
     pb.fastmap_accurate = 0;
-    pb.regs_allocated = 16;
+    pb.regs_allocated = REGS_FIXED;
     re.start = start;
     re.end = end;
 
@@ -289,7 +289,7 @@ int64_t libmod_misc_regex_split (INSTANCE * my, int64_t * params) {
     pb.buffer = malloc(4096);
     pb.allocated = 4096;
     pb.fastmap = malloc(256);
-    pb.regs_allocated = 16;
+    pb.regs_allocated = REGS_FIXED;
     re.num_regs = 16;
     re.start = start;
     re.end = end;
