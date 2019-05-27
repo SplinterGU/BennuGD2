@@ -54,10 +54,10 @@ extern double fixtof( fixed x );
 extern fixed itofix( int64_t x );
 extern int64_t fixtoi( fixed x );
 extern int64_t fixceil( fixed x );
-extern fixed fcos( int64_t x );
-extern fixed fsin( int64_t x );
-extern fixed fmul( int64_t x, int64_t y );
-extern fixed fdiv( int64_t x, int64_t y );
+extern fixed fixcos( int64_t x );
+extern fixed fixsin( int64_t x );
+extern fixed fixmul( int64_t x, int64_t y );
+extern fixed fixdiv( int64_t x, int64_t y );
 extern void init_cos_tables();
 
 #endif

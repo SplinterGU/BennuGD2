@@ -86,7 +86,7 @@ int64_t fixceil( fixed x ) {
 
 /* --------------------------------------------------------------------------- */
 
-fixed fcos( int64_t x ) {
+fixed fixcos( int64_t x ) {
     if ( x < 0 ) x = -x ;
     if ( x > 360000 ) x %= 360000 ;
     if ( x > 270000 ) return cos_table[360000 - x] ;
@@ -97,8 +97,8 @@ fixed fcos( int64_t x ) {
 
 /* --------------------------------------------------------------------------- */
 
-fixed fsin( int64_t x ) {
-    if ( x < 0 ) return -fsin( -x ) ;
+fixed fixsin( int64_t x ) {
+    if ( x < 0 ) return -fixsin( -x ) ;
     if ( x > 360000 ) x %= 360000 ;
     if ( x > 270000 ) return -cos_table[x - 270000] ;
     if ( x > 180000 ) return -cos_table[270000 - x] ;
@@ -108,13 +108,13 @@ fixed fsin( int64_t x ) {
 
 /* --------------------------------------------------------------------------- */
 
-fixed fmul( int64_t x, int64_t y ) {
+fixed fixmul( int64_t x, int64_t y ) {
     return ftofix( fixtof( x ) * fixtof( y ) ) ;
 }
 
 /* --------------------------------------------------------------------------- */
 
-fixed fdiv( int64_t x, int64_t y ) {
+fixed fixdiv( int64_t x, int64_t y ) {
     return ftofix( fixtof( x ) / fixtof( y ) ) ;
 }
 

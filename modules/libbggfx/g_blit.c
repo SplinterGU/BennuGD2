@@ -385,8 +385,8 @@ static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen
 
     /* Rotate the coordinates */
 
-    double cos_angle = fixtof( fcos( angle ) );
-    double sin_angle = fixtof( fsin( angle ) );
+    double cos_angle = fixtof( fixcos( angle ) );
+    double sin_angle = fixtof( fixsin( angle ) );
 
     /* Top-left, top-right, bottom-left, bottom-right */
 

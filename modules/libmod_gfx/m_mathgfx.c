@@ -48,8 +48,8 @@
 
 int64_t libmod_gfx_advance( INSTANCE * my, int64_t * params ) {
     int64_t angle = LOCINT64( libmod_gfx, my, ANGLE ) ;
-    LOCINT64( libmod_gfx, my, COORDX ) += fixtoi( fmul( fcos( angle ), itofix( params[0] ) ) ) ;
-    LOCINT64( libmod_gfx, my, COORDY ) -= fixtoi( fmul( fsin( angle ), itofix( params[0] ) ) ) ;
+    LOCINT64( libmod_gfx, my, COORDX ) += fixtoi( fixmul( fixcos( angle ), itofix( params[0] ) ) ) ;
+    LOCINT64( libmod_gfx, my, COORDY ) -= fixtoi( fixmul( fixsin( angle ), itofix( params[0] ) ) ) ;
     return 1 ;
 }
 
@@ -57,8 +57,8 @@ int64_t libmod_gfx_advance( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_xadvance( INSTANCE * my, int64_t * params ) {
     int64_t angle = params[0] ;
-    LOCINT64( libmod_gfx, my, COORDX ) += fixtoi( fmul( fcos( angle ), itofix( params[1] ) ) ) ;
-    LOCINT64( libmod_gfx, my, COORDY ) -= fixtoi( fmul( fsin( angle ), itofix( params[1] ) ) ) ;
+    LOCINT64( libmod_gfx, my, COORDX ) += fixtoi( fixmul( fixcos( angle ), itofix( params[1] ) ) ) ;
+    LOCINT64( libmod_gfx, my, COORDY ) -= fixtoi( fixmul( fixsin( angle ), itofix( params[1] ) ) ) ;
     return 1 ;
 }
 
