@@ -135,6 +135,7 @@ enum {
 #include "g_pixel.h"
 #include "g_fade.h"
 #include "g_scroll.h"
+#include "g_draw.h"
 
 /* --------------------------------------------------------------------------- */
 

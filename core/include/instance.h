@@ -65,6 +65,8 @@ extern int instance_exists( INSTANCE * i ) ;
 extern INSTANCE * instance_next_by_priority();
 extern void instance_dirty( INSTANCE * i ) ;
 
+extern void instance_reset_iterator_by_priority() ;
+
 /* Las siguientes funciones son el punto de entrada del intérprete */
 
 extern int64_t instance_go( INSTANCE * r ) ;

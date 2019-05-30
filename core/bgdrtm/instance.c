@@ -49,8 +49,7 @@
 
 #define INSTANCE_MIN_PRIORITY       -32768
 #define INSTANCE_MAX_PRIORITY       32767
-#define INSTANCE_NORMALIZE_PRIORITY 32768
-
+#define INSTANCE_NORMALIZE_PRIORITY 32768 // used for get an array index from 0 to 65535
 /* ---------------------------------------------------------------------- */
 /* M�dulo de gesti�n de instancias, con las funciones de incializaci�n y  */
 /* destrucci�n, duplicado, etc.                                           */
@@ -71,7 +70,7 @@ INSTANCE * first_instance = NULL;
 /* Priority lists */
 
 static INSTANCE * iterator_by_priority  = NULL;
-static int64_t    iterator_pos          = HASH_SIZE;
+static int64_t    iterator_pos          = INSTANCE_MAX_PRIORITY;
 
 static int64_t instance_maxid =  FIRST_INSTANCE_ID;
 
@@ -659,12 +658,10 @@ INSTANCE * instance_next_by_priority() {
     if ( !iterator_by_priority ) {
         if ( !hashed_by_priority ) return NULL;
 
-        if ( iterator_pos < ( instance_min_actual_prio + INSTANCE_NORMALIZE_PRIORITY ) ||
-             iterator_pos > ( instance_max_actual_prio + INSTANCE_NORMALIZE_PRIORITY )
-           )
-            iterator_pos = instance_max_actual_prio + INSTANCE_NORMALIZE_PRIORITY + 1;
+        if ( iterator_pos < instance_min_actual_prio || iterator_pos > instance_max_actual_prio )
+            iterator_pos = instance_max_actual_prio + 1;
 
-        while ( --iterator_pos >= ( instance_min_actual_prio + INSTANCE_NORMALIZE_PRIORITY ) && !( iterator_by_priority = hashed_by_priority[iterator_pos] ) );
+        while ( --iterator_pos >= instance_min_actual_prio && !( iterator_by_priority = hashed_by_priority[ iterator_pos + INSTANCE_NORMALIZE_PRIORITY ] ) );
     }
 
     return ( r );
@@ -713,6 +710,12 @@ INSTANCE * instance_get_by_type( uint64_t type, INSTANCE ** context ) {
 
     /* Here only if hashed_by_type[HASH( type )] is NULL */
     return ( *context = NULL ); /* return is null, then end scan */
+}
+
+/* ---------------------------------------------------------------------- */
+
+void instance_reset_iterator_by_priority() {
+    iterator_by_priority = hashed_by_priority[ ( iterator_pos = instance_max_actual_prio ) + INSTANCE_NORMALIZE_PRIORITY ];
 }
 
 /* ---------------------------------------------------------------------- */

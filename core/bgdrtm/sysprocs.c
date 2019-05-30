@@ -393,7 +393,7 @@ void sysproc_init() {
 
     int64_t         maxcode = 0;
 
-    char soname[ __MAX_PATH ], fullsoname[ __MAX_PATH ], **spath;
+    char soname[ __MAX_PATH ], fullsoname[ __MAX_PATH + 2 ], **spath;
 
 #if defined( WIN32 )
 #define DLLEXT      ".dll"
@@ -420,7 +420,7 @@ void sysproc_init() {
 
         spath = dlsearchpath;
         while( !library && spath && *spath ) {
-            sprintf( fullsoname, "%s%s/%s", appexepath, *spath, filename );
+            snprintf( fullsoname, sizeof( fullsoname ), "%s%s/%s", appexepath, *spath, filename );
             library  = dlibopen( fullsoname );
             spath++;
         }

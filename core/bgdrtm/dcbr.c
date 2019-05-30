@@ -161,7 +161,7 @@ int dcb_load( const char * filename ) {
         exit( 1 );
     }
 
-    return dcb_load_from( fp, ( char * ) filename, 0 );
+    return dcb_load_from( fp, filename, 0 );
 }
 
 /* ---------------------------------------------------------------------- */
@@ -183,7 +183,7 @@ DCB_VAR * read_and_arrange_varspace( file * fp, int count ) {
 
 /* ---------------------------------------------------------------------- */
 
-int dcb_load_from( file * fp, char * filename, int offset ) {
+int dcb_load_from( file * fp, const char * filename, int offset ) {
     unsigned int n;
     uint64_t size;
 

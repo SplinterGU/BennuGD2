@@ -47,20 +47,20 @@
 /* Interpreter's main module                                              */
 /* ---------------------------------------------------------------------- */
 
-int64_t debug_mode = 0;
-
 int64_t exit_value = 0;
 int64_t must_exit = 0;
 
-int64_t force_debug = 0;
-int64_t debug_next = 0;
+int64_t frame_completed = 0;
+
+int64_t debugger_show_console = 0;          // debuggin
+int64_t debugger_trace = 0;                 // 1 single sentence
+int64_t debugger_step = 0;                  // execute 1 sentence or 1 procedure or 1 function as an unit
+// int64_t debugger_step_out = 0;           // execute until return or exit procedure or function
+// int64_t debugger_goto_next_instance = 0; // break on next instance
+// int64_t debugger_next_frame = 0;         // run until next frame is complete
 
 int64_t trace_sentence = -1;
 INSTANCE * trace_instance = NULL;
-
-/* ---------------------------------------------------------------------- */
-
-static INSTANCE * last_instance_run = NULL;
 
 /* ---------------------------------------------------------------------- */
 
@@ -84,105 +84,79 @@ static int stack_dump( INSTANCE * r ) {
 
 int64_t instance_go_all() {
     INSTANCE * i = NULL;
-    int64_t i_count = 0, n;
-    int64_t status;
+    int64_t n, status, i_count;
 
     must_exit = 0;
 
     while ( first_instance ) {
-        if ( debug_mode ) {
-            /* Hook */
-            if ( handler_hook_count )
-                for ( n = 0; n < handler_hook_count; n++ )
-                    handler_hook_list[n].hook();
-            /* Hook */
-            if ( must_exit ) break;
+        frame_completed = 0;
 
-        } else {
-            if ( last_instance_run ) {
-                if ( instance_exists( last_instance_run ) ) {
-                    i = last_instance_run;
-                } else {
-                    last_instance_run = NULL;
-                    i = instance_next_by_priority();
-                }
-            } else {
-                i = instance_next_by_priority();
-                i_count = 0;
-            }
+        // Reset iterator by priority
+        instance_reset_iterator_by_priority(); // Don't must be neccessary
+        i = instance_next_by_priority();
 
-            while ( i ) {
+        i_count = 0;
+        while ( i ) {
+            if ( LOCINT64( i, FRAME_PERCENT ) < 100 ) {
                 status = LOCQWORD( i, STATUS );
-                /* If instance is KILLED or DEAD or return from some debug command, then execute it again.
-                   No exec_hook is executed.
-                 */
-                if ( status == STATUS_KILLED || status == STATUS_DEAD || last_instance_run ) {
-                    /* Run instance */
-                } else if ( status == STATUS_RUNNING && LOCINT64( i, FRAME_PERCENT ) < 100 ) {
+                if ( status == STATUS_RUNNING ) {
                     /* Run instance */
                     /* Hook */
                     if ( process_exec_hook_count )
                         for ( n = 0; n < process_exec_hook_count; n++ )
                             process_exec_hook_list[n]( i );
                     /* Hook */
-                } else {
+                } else if ( status != STATUS_KILLED && status != STATUS_DEAD ) { /* STATUS_SLEEPING OR STATUS_FROZEN OR STATUS_WAITING_MASK */
                     i = instance_next_by_priority();
-                    last_instance_run = NULL;
                     continue;
                 }
-
-                i_count++;
-
-                last_instance_run = NULL;
+                /* If instance is KILLED or DEAD, run instance without exec_hook executed. */
 
                 instance_go( i );
 
-                if ( force_debug ) {
-                    debug_mode = 1;
-                    last_instance_run  = trace_instance;
-                    break;
-                }
+                i_count++;
 
-                if ( must_exit ) break;
+                if ( must_exit ) goto instance_go_all_exit;
 
-                i = instance_next_by_priority();
             }
 
-            if ( must_exit ) break;
+            i = instance_next_by_priority();
+        }
 
-            /* If frame is complete, then update internal vars and execute main hooks. */
+        /* If frame is complete, then update internal vars and execute main hooks. */
 
-            if ( !i_count && !force_debug ) {
-                /* Honors the signal-changed status of the process and
-                 * saves so it is used in this loop the next frame
-                 */
+        if ( !i_count ) {
+            frame_completed = 1;
+            /* Honors the signal-changed status of the process and
+             * saves so it is used in this loop the next frame
+             */
+            i = first_instance;
+            while ( i ) {
+                status = LOCQWORD( i, SAVED_STATUS ) = LOCQWORD( i, STATUS );
+                // if status == STATUS_KILLED or STATUS_DEAD then the process still lives
+                if ( status == STATUS_DEAD || status == STATUS_KILLED || status == STATUS_RUNNING ) LOCINT64( i, FRAME_PERCENT ) -= 100;
 
-                i = first_instance;
-                while ( i ) {
-                    status = LOCQWORD( i, STATUS );
-                    if ( status == STATUS_RUNNING ) LOCINT64( i, FRAME_PERCENT ) -= 100;
-                    LOCQWORD( i, SAVED_STATUS ) = status;
-
-                    if ( LOCINT64( i, SAVED_PRIORITY ) != LOCINT64( i, PRIORITY ) ) {
-                         LOCINT64( i, SAVED_PRIORITY ) = LOCINT64( i, PRIORITY );
-                        instance_dirty( i );
-                    }
-
-                    i = i->next;
+                if ( i->last_priority != LOCINT64( i, PRIORITY ) ) {
+                    instance_dirty( i );
+                    LOCINT64( i, SAVED_PRIORITY ) = LOCINT64( i, PRIORITY );
                 }
 
-                if ( !first_instance ) break;
-
-                /* Hook */
-                if ( handler_hook_count )
-                    for ( n = 0; n < handler_hook_count; n++ )
-                        handler_hook_list[n].hook();
-                /* Hook */
-
-                continue;
+                i = i->next;
             }
+
+            if ( !first_instance ) break;
+
+            /* Hook */
+            if ( handler_hook_count )
+                for ( n = 0; n < handler_hook_count; n++ )
+                    handler_hook_list[n].hook();
+            /* Hook */
+
+            continue;
         }
     }
+
+instance_go_all_exit:
 
     return exit_value;
 
@@ -205,6 +179,8 @@ int64_t instance_go( INSTANCE * r ) {
 
     int64_t child_is_alive = 0;
 
+    int64_t debugger_step_pending = 0; // local to instance
+
     /* ------------------------------------------------------------------------------- */
     /* Restore if exit by debug                                                        */
 
@@ -216,14 +192,20 @@ int64_t instance_go( INSTANCE * r ) {
               );
     }
 
+    /* Start process or return from frame */
     /* Hook */
     if ( instance_pre_execute_hook_count )
         for ( n = 0; n < instance_pre_execute_hook_count; n++ )
             instance_pre_execute_hook_list[n]( r );
     /* Hook */
 
-    if (( r->proc->breakpoint || r->breakpoint ) && trace_instance != r ) debug_next = 1;
+    // breakpoint on entry
+    if ( r->proc->breakpoint || r->breakpoint ) {
+        debugger_show_console = 1; // *** call debugger when info is available
+        debugger_trace = 1;
+    }
 
+main_loop_instance_go:
     trace_sentence = -1;
 
     while ( !must_exit ) {
@@ -235,12 +217,14 @@ int64_t instance_go( INSTANCE * r ) {
             goto break_all;
         }
 
-        if ( debug_next && trace_sentence != -1 ) {
-            force_debug = 1;
-            debug_next = 0;
-            r->codeptr = ptr;
-            return_value = LOCQWORD( r, PROCESS_ID );
-            break;
+        if ( trace_sentence != -1 ) {
+             while( debugger_show_console ) {
+                /* Hook */
+                if ( handler_hook_count )
+                    for ( n = 0; n < handler_hook_count; n++ )
+                        handler_hook_list[n].hook();
+                /* Hook */
+            }
         }
 
         /* debug output */
@@ -332,6 +316,11 @@ int64_t instance_go( INSTANCE * r ) {
                 LOCQWORD( r, STATUS ) |= STATUS_WAITING_MASK;
                 i->called_by   = r;
 
+                if ( debugger_step ) {
+                    debugger_step_pending = 1;
+                    debugger_step = 0;
+                }
+
                 /* Run the process/function */
                 if ( *ptr == MN_CALL ) {
                     r->stack[0] |= STACK_RETURN_VALUE;
@@ -340,6 +329,11 @@ int64_t instance_go( INSTANCE * r ) {
                 } else {
                     r->stack[0] &= ~STACK_RETURN_VALUE;
                     instance_go( i );
+                }
+
+                if ( debugger_step_pending ) {
+                    debugger_step_pending = 0;
+                    debugger_step = 1;
                 }
 
                 child_is_alive = instance_exists( i );
@@ -367,10 +361,6 @@ int64_t instance_go( INSTANCE * r ) {
                     if ( ptr[-2] == MN_CALL )   r->stack[0] |= STACK_RETURN_VALUE;
                     else                        r->stack[0] &= ~STACK_RETURN_VALUE;
 
-                    if ( debug_next && trace_sentence != -1 ) {
-                        force_debug = 1;
-                        debug_next = 0;
-                    }
                     return 0;
                 }
 
@@ -2512,7 +2502,8 @@ int64_t instance_go( INSTANCE * r ) {
             case MN_DEBUG:
                 if ( dcb.data.NSourceFiles ) {
                     if ( debug > 0 ) printf( "\n::: DEBUG from %s(%" PRId64 ")\n", r->proc->name, LOCQWORD( r, PROCESS_ID ) );
-                    debug_next = 1;
+                    trace_sentence = -1;
+                    debugger_show_console = 1;
                 }
                 ptr++;
                 break;
@@ -2521,6 +2512,11 @@ int64_t instance_go( INSTANCE * r ) {
                 trace_sentence     = ptr[1];
                 trace_instance     = r;
                 ptr += 2;
+                if ( debugger_trace || debugger_step ) {
+                    debugger_trace = 0;
+                    debugger_step = 0;
+                    debugger_show_console = 1;
+                }
                 break;
 
             default:
@@ -2561,8 +2557,10 @@ break_all:
         if (( LOCQWORD( r, STATUS ) & ~STATUS_WAITING_MASK ) != STATUS_DEAD && r->exitcode ) {
             LOCQWORD( r, STATUS ) = STATUS_DEAD;
             r->codeptr = r->code + r->exitcode;
-            instance_go( r );
-            if ( !instance_exists( r ) ) r = NULL;
+            ptr = r->codeptr;
+            goto main_loop_instance_go;
+//            instance_go( r );
+//            if ( !instance_exists( r ) ) r = NULL;
         } else {
             instance_destroy( r );
             r = NULL;
@@ -2576,11 +2574,6 @@ break_all:
     }
     /* Hook */
     if ( r && LOCQWORD( r, STATUS ) != STATUS_KILLED && r->first_run ) r->first_run = 0;
-
-    if ( debug_next && trace_sentence != -1 ) {
-        force_debug = 1;
-        debug_next = 0;
-    }
 
     return return_value;
 }

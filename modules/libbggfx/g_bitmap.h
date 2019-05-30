@@ -45,6 +45,7 @@
 /* --------------------------------------------------------------------------- */
 
 typedef SDL_Point CPOINT;
+
 typedef struct _bitmap {
     int64_t         code;           /* Identifier of the graphic (in the graphic library) */
     char            name[ 64 ];     /* Name of the graphic */

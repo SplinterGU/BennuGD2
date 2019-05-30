@@ -141,6 +141,7 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
     return count;
 }
 
+/*
 static BASETYPE get_basetype( VARSPACE * v ) {
     TYPEDEF t;
     BASETYPE type = TYPE_UNDEFINED, newtype;
@@ -166,7 +167,7 @@ static BASETYPE get_basetype( VARSPACE * v ) {
     }
     return type;
 }
-
+*/
 /*
  *  FUNCTION : compile_struct_data
  *
@@ -365,7 +366,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
     int i, j,
         total_count, last_count = 0,
         base_offset = data->current,
-        total_length, size, count,
+        total_length, count,
         unsigned_prefix = 0, signed_prefix = 0;
     int64_t code;
     expresion_result res;
@@ -654,7 +655,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
             varspace_init( members );
 
-            size = compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0 );
+            ( void ) compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0 );
 
             type.varspace = members;
 

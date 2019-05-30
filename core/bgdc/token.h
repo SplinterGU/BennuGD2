@@ -59,7 +59,7 @@ typedef struct _tok_pos {
         struct _token   token_prev;
         int             line_count;
         int             current_file;
-        char            *source_ptr;
+        const char      *source_ptr;
     } tok_pos;
 
 extern void token_init( const char * source, int file );

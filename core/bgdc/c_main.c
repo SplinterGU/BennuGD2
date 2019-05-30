@@ -390,7 +390,7 @@ static void import_module( const char * filename ) {
     char        ** modules_dependency = NULL;
     char        ** types_def = NULL;
 
-    char        soname[ __MAX_PATH ], fullsoname[ __MAX_PATH ], **spath;
+    char        soname[ __MAX_PATH ], fullsoname[ __MAX_PATH + 2 ], **spath;
     char        * ptr;
     char        ** pex;
 
@@ -434,7 +434,7 @@ static void import_module( const char * filename ) {
 
     spath = dlsearchpath;
     while( !library && spath && *spath ) {
-        sprintf( fullsoname, "%s%s/%s", appexepath, *spath, filename );
+        snprintf( fullsoname, sizeof( fullsoname ), "%s%s/%s", appexepath, *spath, filename );
         library  = dlibopen( fullsoname );
         spath++;
     }

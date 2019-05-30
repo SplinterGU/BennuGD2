@@ -61,23 +61,27 @@ extern char *appexefullpath;
 extern int64_t debug;          /* 1 if running in debug mode                    */
 
 /* Trace */
-extern int64_t debug_mode;
-
 extern int64_t exit_value;
 extern int64_t must_exit;
 
-extern int64_t force_debug;
-extern int64_t debug_next;
+extern int64_t frame_completed;
 
 extern int64_t trace_sentence;
 extern INSTANCE * trace_instance;
+
+extern int64_t debugger_show_console;        // debuggin
+extern int64_t debugger_trace;               // 1 single sentence
+extern int64_t debugger_step;                // execute 1 sentence or 1 procedure or 1 function as an unit
+// extern int64_t debugger_step_out;            // execute until return or exit procedure or function
+// extern int64_t debugger_goto_next_instance;  // break on next instance
+// extern int64_t debugger_next_frame;          // run until next frame is complete
 
 /* --------------------------------------------------------------------------- */
 
 extern int strncmpi( char * str1, char * str2, int sz );
 
 extern int dcb_load( const char * filename );
-extern int dcb_load_from( file * fp, char * dcbname, int offset );
+extern int dcb_load_from( file * fp, const char * dcbname, int offset );
 
 extern char * getid_name( int64_t code );
 

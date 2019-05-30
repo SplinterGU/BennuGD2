@@ -100,6 +100,10 @@ static void * dlibopen( const char * fname ) {
     void * hnd = dlopen( fname, RTLD_NOW | RTLD_GLOBAL );
 #endif
 
+    // Avoid unused warning in compiller
+    (void) &dliberror;
+    (void) &dlibclose;
+
     if ( !hnd ) {
         f = ( char * ) fname + strlen( fname );
         while ( f > fname && f[-1] != '\\' && f[-1] != '/' ) f-- ;

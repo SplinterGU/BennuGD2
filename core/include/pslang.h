@@ -237,11 +237,11 @@
 
 /* Locals */
 
-#define MN_PUBLIC               (0x7A | MN_1_PARAMS)     /* Direccionamiento */
-#define MN_GET_PUBLIC           (0x7B | MN_1_PARAMS)     /* Acceso a variables */
+#define MN_PUBLIC               (0x7A | MN_1_PARAMS)
+#define MN_GET_PUBLIC           (0x7B | MN_1_PARAMS)
 
-#define MN_REMOTE_PUBLIC        (0x7C | MN_1_PARAMS)     /* Direccionamiento */
-#define MN_GET_REMOTE_PUBLIC    (0x7D | MN_1_PARAMS)     /* Acceso a variables */
+#define MN_REMOTE_PUBLIC        (0x7C | MN_1_PARAMS)
+#define MN_GET_REMOTE_PUBLIC    (0x7D | MN_1_PARAMS)
 
 /* No operation */
 

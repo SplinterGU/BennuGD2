@@ -72,10 +72,9 @@ static int embedded    = 0;  /* 1 only if this is a stub with an embedded DCB */
  */
 
 int main( int argc, char *argv[] ) {
-    char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0, *ext ;
+    char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0;
     int i, j, ret = -1;
     file * fp = NULL;
-    INSTANCE * mainproc_running;
     dcb_signature dcb_signature;
 
     /* disable stdout buffering */
@@ -269,7 +268,7 @@ fflush(stdout);
             }
         }
     } else {
-        dcb_load_from( fp, dcbname, dcb_signature.dcb_offset );
+        dcb_load_from( fp, ( const char * ) dcbname, dcb_signature.dcb_offset );
     }
 
     /* If the dcb is not in debug mode */
@@ -291,7 +290,7 @@ fflush(stdout);
     bgdrtm_entry( argc, argv );
 
     if ( mainproc ) {
-        mainproc_running = instance_new( mainproc, NULL ) ;
+        ( void ) instance_new( mainproc, NULL ) ;
         ret = instance_go_all() ;
     }
 

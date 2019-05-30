@@ -41,6 +41,85 @@
 
 /* --------------------------------------------------------------------------- */
 /*
+ *  FUNCTION : gr_prepare_renderer
+ *
+ *  Setup common parameters for render a object
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      flags           Flags
+ *      blend_mode      Ouput SDL_BlendMode
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMode * blend_mode ) {
+
+    if ( dest ) {
+        if ( !dest->surface ) {
+            uint32_t rmask, gmask, bmask, amask;
+            getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
+            dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
+            if ( !dest->surface ) return 1;
+
+            SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
+        }
+
+        if ( !dest->texture ) {
+            dest->texture = SDL_CreateTexture( gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, dest->width, dest->height );
+            if ( !dest->texture ) {
+                printf ("error creando textura RW [%s]\n", SDL_GetError() );
+                return 1;
+            }
+
+            if ( SDL_MUSTLOCK( dest->surface ) ) {
+                SDL_LockSurface( dest->surface );
+                SDL_UpdateTexture( dest->texture, NULL, dest->surface->pixels, dest->surface->pitch );
+                SDL_UnlockSurface( dest->surface );
+            } else {
+                SDL_UpdateTexture( dest->texture, NULL, dest->surface->pixels, dest->surface->pitch );
+            }
+
+            dest->type = BITMAP_TEXTURE_TARGET;
+        }
+        else if ( dest->type != BITMAP_TEXTURE_TARGET ) return 1;
+    }
+
+         if ( flags & B_NOCOLORKEY )    * blend_mode = SDL_BLENDMODE_NONE;  //Disable blending on texture
+    else if ( flags & B_ABLEND     )    * blend_mode = SDL_BLENDMODE_ADD;   //Additive blending on texture
+    else if ( flags & B_MBLEND     )    * blend_mode = SDL_BLENDMODE_MOD;   //Modulate blending on texture
+    else                                * blend_mode = SDL_BLENDMODE_BLEND; //Enable blending on texture
+
+    SDL_Rect rect;
+
+    if ( clip ) {
+        rect.x = clip->x;
+        rect.y = clip->y;
+        rect.w = clip->x2 - clip->x;
+        rect.h = clip->y2 - clip->y;
+    } else {
+        rect.x = 0;
+        rect.y = 0;
+        if ( dest ) {
+            rect.w = dest->width;
+            rect.h = dest->height;
+        } else {
+            rect.w = scr_width;
+            rect.h = scr_height;
+        }
+    }
+
+    if ( dest ) SDL_SetRenderTarget( gRenderer, dest->texture );
+    SDL_RenderSetClipRect( gRenderer, &rect );
+
+    return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
  *  FUNCTION : gr_blit
  *
  *  Draw a rotated and/or scaled bitmap
@@ -195,43 +274,12 @@ void gr_blit(
         gr->type = BITMAP_TEXTURE_STATIC;
     }
 
-    if ( dest ) {
-        if ( !dest->surface ) {
-            uint32_t rmask, gmask, bmask, amask;
-            getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
-            dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
-            if ( !dest->surface ) return;
+    SDL_BlendMode blend_mode;
 
-            SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
-        }
-
-        if ( !dest->texture ) {
-            dest->texture = SDL_CreateTexture( gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, dest->width, dest->height );
-            if ( !dest->texture ) {
-                printf ("error creando textura RW [%s]\n", SDL_GetError() );
-                return;
-            }
-
-            if (SDL_MUSTLOCK(dest->surface)) {
-                SDL_LockSurface(dest->surface);
-                SDL_UpdateTexture(dest->texture, NULL, dest->surface->pixels, dest->surface->pitch);
-                SDL_UnlockSurface(dest->surface);
-            } else {
-                SDL_UpdateTexture(dest->texture, NULL, dest->surface->pixels, dest->surface->pitch);
-            }
-
-            dest->type = BITMAP_TEXTURE_TARGET;
-        }
-        else if ( dest->type != BITMAP_TEXTURE_TARGET ) return;
-    }
+    if ( gr_prepare_renderer( dest, clip, flags, &blend_mode ) ) return;
 
     SDL_Point center;
     int64_t w = 0, h = 0;
-    int blend_mode = SDL_BLENDMODE_BLEND; //Enable blending on texture
-
-         if ( flags & B_NOCOLORKEY )    blend_mode = SDL_BLENDMODE_NONE;    //Disable blending on texture
-    else if ( flags & B_ABLEND     )    blend_mode = SDL_BLENDMODE_ADD;     //Additive blending on texture
-    else if ( flags & B_MBLEND     )    blend_mode = SDL_BLENDMODE_MOD;     //Modulate blending on texture
 
     if ( gr_clip ) {
         w = gr_clip->w;
@@ -242,28 +290,6 @@ void gr_blit(
     }
 
     SDL_RendererFlip flip = ( ( flags & B_HMIRROR ) ? SDL_FLIP_HORIZONTAL : 0 ) | ( ( flags & B_VMIRROR ) ? SDL_FLIP_VERTICAL : 0 );
-
-    SDL_Rect rect;
-
-    if ( clip ) {
-        rect.x = clip->x;
-        rect.y = clip->y;
-        rect.w = clip->x2 - clip->x;
-        rect.h = clip->y2 - clip->y;
-    } else {
-        rect.x = 0;
-        rect.y = 0;
-        if ( dest ) {
-            rect.w = dest->width;
-            rect.h = dest->height;
-        } else {
-            rect.w = scr_width;
-            rect.h = scr_height;
-        }
-    }
-
-    if ( dest ) SDL_SetRenderTarget( gRenderer, dest->texture );
-    SDL_RenderSetClipRect( gRenderer, &rect );
 
     SDL_Rect dstrect;
     double centerx, centery,
