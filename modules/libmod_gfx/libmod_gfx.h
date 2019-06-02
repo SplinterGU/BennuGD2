@@ -50,6 +50,7 @@
 #include "m_scroll.h"
 #include "m_text.h"
 #include "m_wm.h"
+#include "m_draw.h"
 
 /* --------------------------------------------------------------------------- */
 

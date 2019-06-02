@@ -66,10 +66,10 @@ PROCDEF * procdef_new( int64_t typeid, int64_t id ) {
     proc->pridata = segment_new();
     proc->privars = varspace_new();
 
-    /* (2006/11/19 23:15 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+    /* (2006/11/19 23:15 GMT-03:00, Splinter - splintergu@gmail.com) */
     proc->pubdata = segment_new();
     proc->pubvars = varspace_new();
-    /* (2006/11/19 23:15 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+    /* (2006/11/19 23:15 GMT-03:00, Splinter - splintergu@gmail.com) */
 
     proc->params            = -1;
     proc->defined           = 0;
@@ -123,7 +123,7 @@ void procdef_destroy (PROCDEF * proc) {
     varspace_destroy( proc->privars );
     segment_destroy( proc->pridata );
 
-    /* (2006/11/20 01:09 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+    /* (2006/11/20 01:09 GMT-03:00, Splinter - splintergu@gmail.com) */
     varspace_destroy( proc->pubvars );
     segment_destroy( proc->pubdata );
 

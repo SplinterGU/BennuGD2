@@ -351,7 +351,7 @@ static void set_type( TYPEDEF * t, BASETYPE type ) {
  *                      or not (STRUCT case)
  *      copies          Number of data copies (if the STRUCT is part of an array)
  *      collision       Check this varspace array for name collisions (NULL = end of array),
- *                      if nonzero (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com)
+ *                      if nonzero (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com)
  *      alignment       Byte size for member alignment. Empty data will be added
  *                      to the varspace if its size is not multiple of this value.
  *
@@ -603,11 +603,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 compile_error( MSG_VARIABLE_REDECLARE );
         }
 
-        /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+        /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
         if ( collision )
             for ( i = 0; collision[i];i++ )
                 if ( varspace_search( collision[i], token.code ) ) compile_error( MSG_VARIABLE_REDECLARE );
-        /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+        /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
 
         if ( constants_search( token.code ) ) compile_error( MSG_CONSTANT_REDECLARED_AS_VARIABLE );
 

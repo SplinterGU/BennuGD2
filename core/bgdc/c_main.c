@@ -354,7 +354,7 @@ void compile_type() {
     typedef_name( t, code );
     segment_name( s, code );
 
-    /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+    /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
     compile_varspace( v, s, 0, 1, 0, NULL, 0, 0, 0 );
 
     if ( token.code != identifier_end ) compile_error( MSG_NO_END );
@@ -997,13 +997,13 @@ void compile_process() {
             token.code == identifier_private ) )
     {
         if (( !proc->declared ) && ( token.code == identifier_local || token.code == identifier_public ) ) {
-            /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+            /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             /* Ahora las declaraciones locales, son solo locales al proceso, pero visibles desde todo proceso */
             /* Se permite declarar local/publica una variable que haya sido declarada global, es una variable propia, no es la global */
             VARSPACE * v[] = {&local, proc->privars, NULL};
             compile_varspace( proc->pubvars, proc->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0 );
         } else if ( token.code == identifier_private ) {
-            /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+            /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
             VARSPACE * v[] = {&local, proc->pubvars, NULL};
             compile_varspace( proc->privars, proc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0 );
@@ -1055,19 +1055,19 @@ void compile_program() {
              if ( token.type == IDENTIFIER && token.code == identifier_import ) compile_import();
         else if ( token.type == IDENTIFIER && token.code == identifier_const ) compile_constants();
         else if ( token.type == IDENTIFIER && token.code == identifier_local ) {
-            /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+            /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             VARSPACE * v[] = { &global, NULL };
             compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0 );
         } else if ( token.type == IDENTIFIER && (
                         token.code == identifier_global ||
                         ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) )
                      ) ) {
-            /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+            /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             VARSPACE * v[] = { &local, NULL };
             if ( block_var ) token_back();
             compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, block_var != 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_private ) {
-            /* (2006/11/19 19:34 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+            /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             VARSPACE * v[] = { &local, &global, NULL };
             compile_varspace( mainproc->privars, mainproc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_begin ) {

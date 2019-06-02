@@ -3214,7 +3214,7 @@ void compile_block( PROCDEF * p ) {
 
         tok_pos tokp = token_pos();
 
-        if ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || token.code == identifier_private || ( ps = procdef_search( token.code ) ) ) {
+        if ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || token.code == identifier_private || typedef_by_name( token.code ) || ( ps = procdef_search( token.code ) ) ) {
             is_process = 0;
             if ( ps ) {
                 token_next();

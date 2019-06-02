@@ -174,8 +174,8 @@ int64_t libmod_gfx_list_modes( INSTANCE * my, int64_t * params ) {
     /* Get available fullscreen/hardware modes */
     modes = SDL_ListModes( params[0] ? &vfmt : NULL, sdl_flags );
 
-    if ( modes == ( SDL_Rect ** )0 ) return 0; /* No video modes available for this criteria */
-    if ( modes == ( SDL_Rect ** ) - 1 ) return -1; /* Any video mode for this criteria */
+    if ( modes == ( SDL_Rect ** ) 0 ) return 0; /* No video modes available for this criteria */
+    if ( modes == ( SDL_Rect ** ) -1 ) return -1; /* Any video mode for this criteria */
 
     n = 0;
     for ( i = 0; modes[i]; ++i ) ++n ;

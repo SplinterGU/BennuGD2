@@ -54,10 +54,10 @@ typedef struct _procdef {
     VARSPACE    * privars;
     segment     * pridata;
 
-    /* (2006/11/19 23:15 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+    /* (2006/11/19 23:15 GMT-03:00, Splinter - splintergu@gmail.com) */
     VARSPACE    * pubvars;
     segment     * pubdata;
-    /* (2006/11/19 23:15 GMT-03:00, Splinter - jj_arg@yahoo.com) */
+    /* (2006/11/19 23:15 GMT-03:00, Splinter - splintergu@gmail.com) */
 
     int64_t     typeid;
     int64_t     identifier;

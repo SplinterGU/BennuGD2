@@ -45,7 +45,7 @@
 
 /* WARNING!!!!
    This table must be sorted by element Code !!!! Don't unsort it !!!
-   2006/11/09    Splinter (jj_arg@yahoo.com)
+   2006/11/09    Splinter (splintergu@gmail.com)
 */
 
 #ifdef SYSPROCS_ONLY_DECLARE

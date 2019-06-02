@@ -96,6 +96,22 @@ char * __bgdexport( libmod_gfx, locals_def ) =
     "END\n"
     ;
 
+
+char * __bgdexport( libmod_gfx, types_def ) =
+    /* m_draw */
+    "TYPE GFX_POINT\n"
+        "INT32 x;\n"
+        "INT32 y;\n"
+    "END\n"
+
+    "TYPE GFX_RECT\n"
+        "INT32 x;\n"
+        "INT32 y;\n"
+        "INT32 w;\n"
+        "INT32 h;\n"
+    "END\n"
+    ;
+
 /* ---------------------------------------------------------------------------" */
 
 DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
@@ -245,6 +261,29 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 //    FUNC( "BDF_LOAD"            , "SP"              , TYPE_QWORD      , libmod_gfx_bgload_bdf           ),
     FUNC( "GLYPH_GET"           , "II"              , TYPE_QWORD      , libmod_gfx_get_glyph            ),
     FUNC( "GLYPH_SET"           , "IIII"            , TYPE_QWORD      , libmod_gfx_set_glyph            ),
+
+    /* Draw */
+
+    FUNC( "DRAWING_COLOR"       , "I"               , TYPE_QWORD       , libmod_gfx_draw_drawing_color  ),
+    FUNC( "DRAWING_RGBA"        , "BBBB"            , TYPE_QWORD       , libmod_gfx_draw_drawing_rgba   ),
+    FUNC( "DRAWING_Z"           , "I"               , TYPE_QWORD       , libmod_gfx_draw_drawing_z      ),
+    FUNC( "DRAWING_MAP"         , "II"              , TYPE_QWORD       , libmod_gfx_draw_drawing_map    ),
+    FUNC( "DELETE_DRAW"         , "I"               , TYPE_QWORD       , libmod_gfx_draw_delete_drawing ),
+    FUNC( "MOVE_DRAW"           , "III"             , TYPE_QWORD       , libmod_gfx_draw_move_drawing   ),
+    FUNC( "DRAW_DELETE"         , "I"               , TYPE_QWORD       , libmod_gfx_draw_delete_drawing ),
+    FUNC( "DRAW_MOVE"           , "III"             , TYPE_QWORD       , libmod_gfx_draw_move_drawing   ),
+    FUNC( "DRAW_POINT"          , "II"              , TYPE_QWORD       , libmod_gfx_draw_point          ),
+    FUNC( "DRAW_POINTS"         , "IP"              , TYPE_QWORD       , libmod_gfx_draw_points         ),
+    FUNC( "DRAW_LINE"           , "IIII"            , TYPE_QWORD       , libmod_gfx_draw_line           ),
+    FUNC( "DRAW_LINES"          , "IP"              , TYPE_QWORD       , libmod_gfx_draw_lines          ),
+    FUNC( "DRAW_BOX"            , "IIII"            , TYPE_QWORD       , libmod_gfx_draw_box            ),
+    FUNC( "DRAW_BOXES"          , "IP"              , TYPE_QWORD       , libmod_gfx_draw_boxes          ),
+    FUNC( "DRAW_RECT"           , "IIII"            , TYPE_QWORD       , libmod_gfx_draw_rect           ),
+    FUNC( "DRAW_RECTS"          , "IP"              , TYPE_QWORD       , libmod_gfx_draw_rects          ),
+    FUNC( "DRAW_CIRCLE"         , "III"             , TYPE_QWORD       , libmod_gfx_draw_circle         ),
+    FUNC( "DRAW_FCIRCLE"        , "III"             , TYPE_QWORD       , libmod_gfx_draw_fcircle        ),
+    FUNC( "DRAW_CURVE"          , "IIIIIIIII"       , TYPE_QWORD       , libmod_gfx_draw_bezier         ),
+
 #if 0
     /* pathfind */
     FUNC( "PATH_FIND"           , "IIIIIII"         , TYPE_QWORD      , libmod_gfx_path_find            ),

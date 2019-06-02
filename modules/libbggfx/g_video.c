@@ -231,7 +231,7 @@ int gr_set_mode( int width, int height, int depth ) {
         if ( full_screen )  sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
         if ( grab_input ) sdl_flags |= SDL_WINDOW_INPUT_GRABBED;
 
-        gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, renderer_width, renderer_height, sdl_flags );
+        gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
         if( gWindow == NULL ) return -1;
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
     } else {
