@@ -38,7 +38,12 @@
 
 extern int64_t libmod_gfx_draw_drawing_color( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_drawing_rgba( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_rgba_id( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_blend_mode( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_blend_mode_id( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_drawing_z( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_z_id( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_drawing_map( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_delete_drawing( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_move_drawing( INSTANCE * my, int64_t * params );

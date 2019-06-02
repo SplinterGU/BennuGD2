@@ -132,7 +132,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "INT mouse_status=1;\n"               /* MOUSE status (INSIDE WINDOW:1) */
 
     /* text */
-    "INT text_z=-256;\n"
+    "INT text_z=-512;\n"
     "INT text_flags;\n"
     "BYTE text_alpha=255;\n"
     "BYTE text_color_r=255;\n"

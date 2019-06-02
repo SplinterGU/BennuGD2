@@ -1,5 +1,20 @@
 #!/bin/sh
 
+for i in "$@"
+do
+    case $i in
+        debug)
+            DEBUG="-DCMAKE_BUILD_TYPE=Debug"
+            ;;
+        clean)
+            CLEAN=1
+            ;;
+        *)
+            # unknown option
+            ;;
+    esac
+done
+
 TARGET=linux-gnu
 
 export PKG_CONFIG_PATH
@@ -10,12 +25,12 @@ mkdir -p bin/$TARGET 2>/dev/null
 
 echo "### Building BennuGD ###"
 
-cd cmake/build
+cd cmake/build $DEBUG
 cmake ..
 make $*
 cd -
 
-if [ "$1" != "clean" ];
+if [ "$CLEAN" != "1" ];
 then
     echo "### Copying files to bin folder ###"
 

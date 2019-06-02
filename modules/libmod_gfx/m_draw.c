@@ -103,7 +103,7 @@ typedef struct _drawing_object {
 static DRAWING_OBJECT * drawing_objects = NULL;
 
 static GRAPH * drawing_graph = NULL;
-static int64_t drawing_z = -32768 ;
+static int64_t drawing_z = -256 ;
 
 /* --------------------------------------------------------------------------- */
 
@@ -129,6 +129,8 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * bbox, int64_t * z
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) what;
 
     * drawme = 1;
+
+    * z = dr->z;
 
     if ( !bbox ) return 1;
 
@@ -326,6 +328,7 @@ static int64_t _libmod_gfx_draw_object_new( DRAWING_OBJECT * dr, int64_t z ) {
     dr->color_b = drawing_color_b;
     dr->color_a = drawing_color_a;
     dr->blend_mode = drawing_blend_mode;
+    dr->z = drawing_z;
 
     dr->preallocated = 0;
 
@@ -477,9 +480,7 @@ static SDL_PixelFormat * pixformat = NULL;
 
 int64_t libmod_gfx_draw_drawing_color( INSTANCE * my, int64_t * params ) {
     if ( !pixformat ) pixformat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
-
     SDL_GetRGBA( params[0], pixformat, &drawing_color_r, &drawing_color_g, &drawing_color_b, &drawing_color_a ) ;
-
     return 1 ;
 }
 
@@ -490,14 +491,57 @@ int64_t libmod_gfx_draw_drawing_rgba( INSTANCE * my, int64_t * params ) {
     drawing_color_g = params[1];
     drawing_color_b = params[2];
     drawing_color_a = params[3];
-
     return 1 ;
 }
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params ) {
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    if ( !pixformat ) pixformat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
+    SDL_GetRGBA( params[1], pixformat, &dr->color_r, &dr->color_g, &dr->color_b, &dr->color_a ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_drawing_rgba_id( INSTANCE * my, int64_t * params ) {
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    dr->color_r = params[1];
+    dr->color_g = params[2];
+    dr->color_b = params[3];
+    dr->color_a = params[4];
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_drawing_blend_mode( INSTANCE * my, int64_t * params ) {
+    drawing_blend_mode = params[0];
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_drawing_blend_mode_id( INSTANCE * my, int64_t * params ) {
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    dr->blend_mode = params[1];
+    return 1 ;
+}
+
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_draw_drawing_z( INSTANCE * my, int64_t * params ) {
     drawing_z = params[ 0 ];
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_drawing_z_id( INSTANCE * my, int64_t * params ) {
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    dr->z = params[1];
     return 1 ;
 }
 

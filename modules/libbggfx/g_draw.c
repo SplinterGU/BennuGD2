@@ -347,9 +347,16 @@ void draw_circle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, 
             else df += dse, de += 2, dse += 4, cy-- ;
         } while ( cx <= cy ) ;
 
+        if ( cache ) {
+            * cache = points;
+            if ( cache_size ) * cache_size = count;
+            free_on_exit = 0;
+        }
+
     } else {
         points = ( SDL_Point * ) * cache;
         count = * cache_size;
+        free_on_exit = 0;
     }
 
     draw_points( dest, clip, count, points );
@@ -430,9 +437,16 @@ void draw_fcircle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r,
         }
         while ( cx <= cy ) ;
 
+        if ( cache ) {
+            * cache = points;
+            if ( cache_size ) * cache_size = count;
+            free_on_exit = 0;
+        }
+
     } else {
         points = ( SDL_Point * ) * cache;
         count = * cache_size;
+        free_on_exit = 0;
     }
 
     draw_lines( dest, clip, count, points );
@@ -533,6 +547,7 @@ void draw_bezier( GRAPH * dest, REGION * clip, int64_t x1, int64_t y1, int64_t x
     } else {
         points = ( SDL_Point * ) * cache;
         count = * cache_size;
+        free_on_exit = 0;
     }
 
     draw_lines( dest, clip, count, points );
