@@ -17,7 +17,7 @@
  *     claim that you wrote the original software. If you use this software
  *     in a product, an acknowledgment in the product documentation would be
  *     appreciated but is not required.
- *
+ *, 0
  *     2. Altered source versions must be plainly marked as such, and must not be
  *     misrepresented as being the original software.
  *
@@ -206,7 +206,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     /* Maps */
     FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIII"      , TYPE_QWORD      , libmod_gfx_map_block_copy       ),
     FUNC( "MAP_PUT"             , "IIIIII"          , TYPE_QWORD      , libmod_gfx_map_put              ),
-    FUNC( "MAP_XPUT"            , "IIIIIIIIIIIBBBB" , TYPE_QWORD      , libmod_gfx_map_xput             ),
+    FUNC( "MAP_XPUT"            , "IIIIIIIIIIBBBB"  , TYPE_QWORD      , libmod_gfx_map_xput             ),
     FUNC( "MAP_NEW"             , "II"              , TYPE_QWORD      , libmod_gfx_new_map              ),
     FUNC( "MAP_NEW"             , "III"             , TYPE_QWORD      , libmod_gfx_new_map_extend       ),
     FUNC( "MAP_CLEAR"           , "II"              , TYPE_QWORD      , libmod_gfx_map_clear            ),
