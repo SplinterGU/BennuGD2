@@ -65,11 +65,11 @@ int64_t debug = 0;  /* 1 if running in debug mode      */
 /* --------------------------------------------------------------------------- */
 
 /* os versions */
-#ifdef _WIN32
+#ifdef _WIN32 // _WIN64
 #define _OS_ID          OS_WIN32
 #endif
 
-#ifdef TARGET_LINUX
+#ifdef __linux__
 #define _OS_ID          OS_LINUX
 #endif
 
@@ -77,7 +77,17 @@ int64_t debug = 0;  /* 1 if running in debug mode      */
 #define _OS_ID          OS_BEOS
 #endif
 
-#ifdef TARGET_MAC
+
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#if TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR
+    // define something for simulator
+#elif TARGET_OS_IPHONE
+    // define something for iphone
+#else
+    #define TARGET_OS_OSX 1
+    // define something for OSX
+#endif
 #define _OS_ID          OS_MACOS
 #endif
 

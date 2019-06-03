@@ -93,57 +93,6 @@ texture_formats is an array of SDL_PixelFormatEnum values representing the avail
 
 /* --------------------------------------------------------------------------- */
 
-#ifdef _WIN32
-/* Based allegro */
-
-LPDIRECTDRAW2 directdraw = NULL;
-DDCAPS ddcaps;
-
-HRESULT WINAPI( *_DirectDrawCreate )( GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter );
-
-/* --------------------------------------------------------------------------- */
-
-int init_dx( void ) {
-    HINSTANCE handle;
-    LPDIRECTDRAW directdraw1;
-    HRESULT hr;
-    LPVOID temp;
-
-    handle = LoadLibrary( "DDRAW.DLL" );
-    if ( handle == NULL ) return -1;
-
-    _DirectDrawCreate = GetProcAddress( handle, "DirectDrawCreate" );
-
-    hr = _DirectDrawCreate( NULL, &directdraw1, NULL );
-    if ( FAILED( hr ) ) return -1;
-
-    hr = IDirectDraw_QueryInterface( directdraw1, &IID_IDirectDraw2, &directdraw );
-    if ( FAILED( hr ) ) return -1;
-
-    IDirectDraw_Release( directdraw1 );
-
-    hr = IDirectDraw2_SetCooperativeLevel( directdraw, NULL, DDSCL_NORMAL );
-    if ( FAILED( hr ) ) return -1;
-
-    /* get capabilities */
-    ddcaps.dwSize = sizeof( ddcaps );
-    hr = IDirectDraw2_GetCaps( directdraw, &ddcaps, NULL );
-    if ( FAILED( hr ) ) return -1;
-
-    return 0;
-}
-#endif
-
-/* --------------------------------------------------------------------------- */
-
-void gr_wait_vsync() {
-#ifdef _WIN32
-    if ( directdraw ) IDirectDraw2_WaitForVerticalBlank( directdraw, DDWAITVB_BLOCKBEGIN, NULL );
-#endif
-}
-
-/* --------------------------------------------------------------------------- */
-
 int gr_set_icon( GRAPH * map ) {
 //    SDL_SetWindowIcon(SDL_Window* window, SDL_Surface* icon);
     return 1;
@@ -252,6 +201,14 @@ int gr_set_mode( int width, int height, int depth ) {
         printf( "max texture size: %d x %d\n", gRendererInfo.max_texture_width, gRendererInfo.max_texture_height );
     }
 
+    if ( waitvsync ) {
+        if ( SDL_GL_SetSwapInterval( -1 ) == -1 ) {
+            SDL_GL_SetSwapInterval( 1 );
+        }
+    } else {
+        SDL_GL_SetSwapInterval( 0 );
+    }
+
     //Initialize renderer color
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );
 
@@ -287,9 +244,6 @@ void gr_video_init() {
 
     if ( !SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_InitSubSystem( SDL_INIT_VIDEO );
 
-#ifdef _WIN32
-    if ( !directdraw ) init_dx();
-#endif
     apptitle = appname;
 
     if ( ( e = getenv( "VIDEO_WIDTH"  ) ) ) scr_width = atoi(e);
@@ -302,17 +256,6 @@ void gr_video_init() {
 /* --------------------------------------------------------------------------- */
 
 void gr_video_exit() {
-#ifdef _WIN32
-    if ( directdraw ) {
-        /* set cooperative level back to normal */
-        IDirectDraw2_SetCooperativeLevel( directdraw, NULL, DDSCL_NORMAL );
-
-        /* release DirectDraw interface */
-        IDirectDraw2_Release( directdraw );
-
-        directdraw = NULL;
-    }
-#endif
     if ( SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_QuitSubSystem( SDL_INIT_VIDEO );
 }
 

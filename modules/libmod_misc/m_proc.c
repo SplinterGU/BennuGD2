@@ -385,7 +385,7 @@ int64_t libmod_misc_proc_get_id( INSTANCE * my, int64_t * params ) {
 
     LOCQWORD( libmod_misc, my, ID_SCAN ) = 0;
     /* Check if already in scan by type and we reach limit */
-    ctx = ( INSTANCE ** ) LOCADDR( libmod_misc, my, CONTEXT );
+    ctx = ( INSTANCE ** ) LOCADDR( libmod_misc, my, _CONTEXT );
 /*
     if ( !*ctx && LOCQWORD( libmod_misc, my, TYPE_SCAN ) ) {
         LOCQWORD( libmod_misc, my, TYPE_SCAN ) = 0;

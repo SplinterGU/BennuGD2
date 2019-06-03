@@ -111,7 +111,7 @@ void __bgdexport( libmod_misc, module_finalize )() {
 void __bgdexport( libmod_misc, process_exec_hook )( INSTANCE * r ) {
     LOCQWORD( libmod_misc, r, TYPE_SCAN ) = 0;
     LOCQWORD( libmod_misc, r, ID_SCAN ) = 0;
-    LOCQWORD( libmod_misc, r, CONTEXT ) = 0;
+    LOCQWORD( libmod_misc, r, _CONTEXT ) = 0;
 }
 
 /* ---------------------------------------------------------------------- */

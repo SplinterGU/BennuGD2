@@ -100,7 +100,7 @@ DLVARFIXUP __bgdexport( libbggfx, locals_fixup )[] = {
     { "size_x"                          , NULL, -1, -1 },       // 12           GRAPHSIZEX
     { "size_y"                          , NULL, -1, -1 },       // 13           GRAPHSIZEY
     { "xgraph"                          , NULL, -1, -1 },       // 14           XGRAPH
-    { "_render_reserved_.object_id"     , NULL, -1, -1 },       // 15           OBJECTID
+    { "_render_reserved_.object_id"     , NULL, -1, -1 },       // 15           _OBJECTID
     { "_render_reserved_.graph_ptr"     , NULL, -1, -1 },       // 16           GRAPHPTR
     { "_render_reserved_.xgraph_flags"  , NULL, -1, -1 },       // 17           XGRAPH_FLAGS
     { "reserved.status"                 , NULL, -1, -1 },       // 18           STATUS
@@ -144,7 +144,7 @@ HOOK __bgdexport( libbggfx, handler_hooks )[] = {
 
 void __bgdexport( libbggfx, instance_create_hook )( INSTANCE * r ) {
     /* COORZ is 0 when a new instance is created */
-    LOCQWORD( libbggfx, r, OBJECTID ) = gr_new_object( /* LOCINT32( libbggfx, r, COORDZ ) */ 0, draw_instance_info, draw_instance, r );
+    LOCQWORD( libbggfx, r, _OBJECTID ) = gr_new_object( /* LOCINT32( libbggfx, r, COORDZ ) */ 0, draw_instance_info, draw_instance, r );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -159,7 +159,7 @@ void __bgdexport( libbggfx, instance_create_hook )( INSTANCE * r ) {
  */
 
 void __bgdexport( libbggfx, instance_destroy_hook )( INSTANCE * r ) {
-    if ( LOCQWORD( libbggfx, r, OBJECTID ) ) gr_destroy_object( LOCQWORD( libbggfx, r, OBJECTID ) );
+    if ( LOCQWORD( libbggfx, r, _OBJECTID ) ) gr_destroy_object( LOCQWORD( libbggfx, r, _OBJECTID ) );
 }
 
 /* --------------------------------------------------------------------------- */

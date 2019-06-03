@@ -91,7 +91,6 @@ extern int gr_init( int width, int height );
 extern void gr_set_caption( char * title );
 extern int gr_set_icon( GRAPH * map );
 extern int gr_set_mode( int width, int height, int depth );
-extern void gr_wait_vsync();
 
 /* --------------------------------------------------------------------------- */
 

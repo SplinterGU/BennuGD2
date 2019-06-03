@@ -26,6 +26,8 @@
  *
  */
 
+#if USE_CRYPT
+
 #include "b_crypt.h"
 
 #include <stdio.h>
@@ -96,3 +98,5 @@ int64_t libmod_misc_crypt_decrypt2( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+
+#endif

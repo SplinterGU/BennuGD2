@@ -1,18 +1,17 @@
 project(mod_input)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "../bin/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 
 set(CMAKE_MODULE_PATH ../cmake)
 
-find_package(SDL2 2.0.4 REQUIRED)
+find_package(SDL2 REQUIRED)
 
-add_definitions(-DTARGET_LINUX)
-
-include_directories(${SDL2_INCLUDE_DIR} ../../core/include ../../core/bgdrtm ../../modules/libbggfx  ../../modules/libbginput ../../modules/libmod_input)
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbggfx  ../../modules/libbginput ../../modules/libmod_input)
 
 file(GLOB SOURCES_LIBMOD_INPUT
      "../../modules/libmod_input/*.c"
      )
 
 add_library(mod_input SHARED ${SOURCES_LIBMOD_INPUT})
-target_link_libraries(mod_input ${SDL2_LIBRARY} -L../bin -lbgdrtm -lbggfx -lbginput)
+target_link_libraries(mod_input ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../bin -lbgdrtm -lbggfx -lbginput)

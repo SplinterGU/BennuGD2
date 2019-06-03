@@ -49,7 +49,7 @@
 #endif
 
 /* LINUX INCLUDES */
-#ifdef TARGET_LINUX
+#ifdef __linux__
 #include <unistd.h>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -83,7 +83,7 @@
 
 /* Linux utility function */
 
-#ifdef TARGET_LINUX
+#ifdef __linux__
 static int kernel_version_type( void ) {
     struct utsname sysinf;
     int kernel_v[3];

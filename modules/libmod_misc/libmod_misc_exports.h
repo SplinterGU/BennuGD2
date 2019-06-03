@@ -42,10 +42,12 @@
 
 DLCONSTANT  __bgdexport( libmod_misc, constants_def)[] =
 {
+#if USE_CRYPT
     /* Crypt */
     { "CRYPT_NONE"              , TYPE_QWORD    , CRYPT_NONE            },
     { "CRYPT_DES"               , TYPE_QWORD    , CRYPT_DES             },
     { "CRYPT_3DES"              , TYPE_QWORD    , CRYPT_3DES            },
+#endif
 
     /* Files */
     { "O_READ"                  , TYPE_QWORD    , 0                     },
@@ -137,6 +139,7 @@ char * __bgdexport( libmod_misc, locals_def ) =
 
 DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
 {
+#if USE_CRYPT
     /* Crypt */
     FUNC( "CRYPT_NEW"       , "IP"      , TYPE_POINTER      , libmod_misc_crypt_new              ),
     FUNC( "CRYPT_DEL"       , "P"       , TYPE_QWORD        , libmod_misc_crypt_del              ),
@@ -144,6 +147,7 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "CRYPT_DECRYPT"   , "PPPI"    , TYPE_QWORD        , libmod_misc_crypt_decrypt          ),
     FUNC( "CRYPT_ENCRYPT"   , "IPPPI"   , TYPE_QWORD        , libmod_misc_crypt_encrypt2         ),
     FUNC( "CRYPT_DECRYPT"   , "IPPPI"   , TYPE_QWORD        , libmod_misc_crypt_decrypt2         ),
+#endif
 
     /* Directories */
     FUNC( "CD"              , ""        , TYPE_STRING       , libmod_misc_dir_cd                 ),

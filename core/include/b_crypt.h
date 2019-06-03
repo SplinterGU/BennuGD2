@@ -24,6 +24,9 @@
  *
  */
 
+
+#if USE_CRYPT
+
 #ifndef __B_CRYPT_H
 #define __B_CRYPT_H
 
@@ -69,4 +72,5 @@ extern int crypt_data( crypt_handle * ch, char * in, char * out, int size, int e
 
 /* ------------------------------------------------------------------------- */
 
+#endif
 #endif

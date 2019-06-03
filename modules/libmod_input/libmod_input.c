@@ -39,12 +39,6 @@
 #include "libbginput.h"
 
 /* --------------------------------------------------------------------------- */
-
-#ifdef __GNUC__
-#define _inline inline
-#endif
-
-/* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : _get_key
  *
@@ -57,7 +51,7 @@
  *      A non-zero positive value if the key is pressed, 0 otherwise
  */
 
-static _inline int _get_key( int code ) {
+static inline int _get_key( int code ) {
     key_equiv * curr;
     int found = 0;
 

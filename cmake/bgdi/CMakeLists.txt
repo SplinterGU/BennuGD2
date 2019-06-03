@@ -3,7 +3,6 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 
 find_package(ZLIB REQUIRED)
-find_package(OpenSSL REQUIRED)
 
 add_definitions(-D__BGDI__ -DVERSION="2.0.0")
 
@@ -16,4 +15,4 @@ file(GLOB SOURCES
 link_directories(../build/bin)
 
 add_executable(bgdi ${SOURCES})
-target_link_libraries(bgdi -lbgdrtm -lm)
+target_link_libraries(bgdi -L../bin -lbgdrtm -lm)

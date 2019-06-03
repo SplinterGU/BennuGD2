@@ -96,7 +96,7 @@ enum {
     GRAPHSIZEX,
     GRAPHSIZEY,
     XGRAPH,
-    OBJECTID,
+    _OBJECTID,
     GRAPHPTR,
     XGRAPH_FLAGS,
     STATUS,

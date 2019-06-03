@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <unistd.h>
+
 #include <time.h>
 
 #ifdef WIN32
@@ -404,10 +406,17 @@ int main( int argc, char *argv[] ) {
 #ifdef WIN32
             char exepath[__MAX_PATH];
             GetModuleFileName( NULL, exepath, sizeof( exepath ) );
-            PathRemoveFileSpec( exepath );
-            strcat( exepath, "\\" );
-            memmove( stubname + strlen( exepath ), stubname, strlen( stubname ) + 1 );
-            memcpy( stubname, exepath, strlen( exepath ) );
+
+//            PathRemoveFileSpec( exepath );
+
+            const char * ptr = exepath + strlen( exepath );
+            while ( ptr > exepath && *ptr != '\\' && *ptr != '/' ) ptr--;
+            if ( *ptr == '\\' || *ptr == '/' ) ptr++;
+            if ( ptr > exepath ) {
+                strcat( exepath, "\\" );
+                memmove( stubname + strlen( exepath ), stubname, strlen( stubname ) + 1 );
+                memcpy( stubname, exepath, strlen( exepath ) );
+            }
 #else
             const char * ptr = argv[0] + strlen( argv[0] );
             while ( ptr > argv[0] && *ptr != '\\' && *ptr != '/' ) ptr--;

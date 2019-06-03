@@ -26,6 +26,7 @@
  *
  */
 
+#if USE_CRYPT
 #ifndef __M_CRYPT_H
 #define __M_CRYPT_H
 
@@ -36,4 +37,5 @@ extern int64_t libmod_misc_crypt_decrypt( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_crypt_encrypt2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_crypt_decrypt2( INSTANCE * my, int64_t * params );
 
+#endif
 #endif

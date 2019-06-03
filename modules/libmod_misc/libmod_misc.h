@@ -55,7 +55,7 @@ enum {
     STATUS,
     ID_SCAN,
     TYPE_SCAN,
-    CONTEXT,
+    _CONTEXT,
     SIGNAL_ACTION
 } ;
 

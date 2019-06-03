@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if USE_CRYPT
+
 #include "b_crypt.h"
 
 /* ------------------------------------------------------------------------- */
@@ -134,3 +136,5 @@ int crypt_data( crypt_handle * ch, char * in, char * out, int size, int enc )
 }
 
 /* ------------------------------------------------------------------------- */
+
+#endif
