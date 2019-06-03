@@ -37,7 +37,7 @@
 /* Pixels */
 /* --------------------------------------------------------------------------- */
 
-extern int gr_get_pixel( GRAPH * dest, int64_t x, int64_t y );
+extern int64_t gr_get_pixel( GRAPH * dest, int64_t x, int64_t y );
 extern void gr_put_pixel( GRAPH * dest, int64_t x, int64_t y, int64_t color );
 
 /* --------------------------------------------------------------------------- */

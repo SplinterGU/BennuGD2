@@ -45,7 +45,7 @@
  *
  */
 
-int gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
+int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
     if ( !gr || !gr->surface ) return -1;
 
     SDL_Surface * surface = gr->surface;
@@ -54,16 +54,16 @@ int gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
 
     switch ( surface->format->BitsPerPixel ) {
         case 1:
-            return (( *( uint8_t * )( surface->pixels + surface->pitch * y + ( x >> 3 ) ) ) & ( 0x80 >> ( x & 7 ) ) ) ? 1 : 0;
+            return ( int64_t ) (( *( uint8_t * )( surface->pixels + surface->pitch * y + ( x >> 3 ) ) ) & ( 0x80 >> ( x & 7 ) ) ) ? 1 : 0;
 
         case 8:
-            return *(( uint8_t * ) surface->pixels + surface->pitch * y + x );
+            return ( int64_t ) *(( uint8_t * ) surface->pixels + surface->pitch * y + x );
 
         case 16:
-            return *( uint16_t * )(( uint8_t * ) surface->pixels + surface->pitch * y + ( x << 1 ) );
+            return ( int64_t ) *( uint16_t * )(( uint8_t * ) surface->pixels + surface->pitch * y + ( x << 1 ) );
 
         case 32:
-            return *( uint32_t * )(( uint8_t * ) surface->pixels + surface->pitch * y + ( x << 2 ) );
+            return ( int64_t ) *( uint32_t * )(( uint8_t * ) surface->pixels + surface->pitch * y + ( x << 2 ) );
     }
 
     return -1;
