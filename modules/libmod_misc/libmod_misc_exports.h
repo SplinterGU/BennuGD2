@@ -190,7 +190,7 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     /* Math */
     FUNC( "ABS"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_abs               ),
     FUNC( "POW"             , "DD"      , TYPE_DOUBLE       , libmod_misc_math_pow               ),
-    FUNC( "SIRT"            , "D"       , TYPE_DOUBLE       , libmod_misc_math_sqrt              ),
+    FUNC( "SQRT"            , "D"       , TYPE_DOUBLE       , libmod_misc_math_sqrt              ),
 
     FUNC( "COS"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_cos               ),
     FUNC( "SIN"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_sin               ),
