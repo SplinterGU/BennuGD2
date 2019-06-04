@@ -48,22 +48,20 @@
 int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
     if ( !gr || !gr->surface ) return -1;
 
-    SDL_Surface * surface = gr->surface;
+    if ( x < 0 || y < 0 || x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return -1;
 
-    if ( x < 0 || y < 0 || x >= ( int64_t ) surface->w || y >= ( int64_t ) surface->h ) return -1;
-
-    switch ( surface->format->BitsPerPixel ) {
+    switch ( gr->surface->format->BitsPerPixel ) {
         case 1:
-            return ( int64_t ) (( *( uint8_t * )( surface->pixels + surface->pitch * y + ( x >> 3 ) ) ) & ( 0x80 >> ( x & 7 ) ) ) ? 1 : 0;
+            return ( int64_t ) (( *( uint8_t * )( gr->surface->pixels + gr->surface->pitch * y + ( x >> 3 ) ) ) & ( 0x80 >> ( x & 7 ) ) ) ? 1 : 0;
 
         case 8:
-            return ( int64_t ) *(( uint8_t * ) surface->pixels + surface->pitch * y + x );
+            return ( int64_t ) *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + x );
 
         case 16:
-            return ( int64_t ) *( uint16_t * )(( uint8_t * ) surface->pixels + surface->pitch * y + ( x << 1 ) );
+            return ( int64_t ) *( uint16_t * )(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 1 ) );
 
         case 32:
-            return ( int64_t ) *( uint32_t * )(( uint8_t * ) surface->pixels + surface->pitch * y + ( x << 2 ) );
+            return ( int64_t ) *( uint32_t * )(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 2 ) );
     }
 
     return -1;
@@ -87,30 +85,43 @@ int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
  */
 
 void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
-    if ( !gr || !gr->surface ) return;
 
-    SDL_Surface * surface = gr->surface;
+    if ( !gr ) return;
 
-    if ( x < 0 || y < 0 || x >= ( int64_t ) surface->w || y >= ( int64_t ) surface->h ) return;
+    if ( !gr->surface ) {
+        uint32_t rmask, gmask, bmask, amask;
+        getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
+        gr->surface = SDL_CreateRGBSurface( 0, gr->width, gr->height, 32, rmask, gmask, bmask, amask );
+        if ( !gr->surface ) return;
+        SDL_SetColorKey( gr->surface, SDL_TRUE, 0 );
+    }
 
-    switch ( surface->format->BitsPerPixel ) {
+    if ( x < 0 || y < 0 || x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return;
+
+    switch ( gr->surface->format->BitsPerPixel ) {
         case 1:
-            if ( color )    *(( uint8_t * ) surface->pixels + surface->pitch * y + ( x >> 3 ) ) |= ( 0x80 >> ( x & 7 ) );
-            else            *(( uint8_t * ) surface->pixels + surface->pitch * y + ( x >> 3 ) ) &= ~( 0x80 >> ( x & 7 ) );
+            if ( color )    *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x >> 3 ) ) |= ( 0x80 >> ( x & 7 ) );
+            else            *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x >> 3 ) ) &= ~( 0x80 >> ( x & 7 ) );
+            gr->texture_must_update = 1;
             break;
 
         case 8:
-            *(( uint8_t * ) surface->pixels + surface->pitch * y + x ) = color;
+            *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + x ) = color;
+            gr->texture_must_update = 1;
             break;
 
         case 16:
-            *( uint16_t * )(( uint8_t * ) surface->pixels + surface->pitch * y + ( x << 1 )) = color;
+            *( uint16_t * )(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 1 )) = color;
+            gr->texture_must_update = 1;
             break;
 
         case 32:
-            *( uint32_t * ) (( uint8_t * ) surface->pixels + surface->pitch * y + ( x << 2 )) = color;
+            *( uint32_t * ) (( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 2 )) = color;
+            gr->texture_must_update = 1;
             break;
+
     }
+
 }
 
 /* --------------------------------------------------------------------------- */

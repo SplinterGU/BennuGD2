@@ -64,7 +64,6 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
             getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
             dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
             if ( !dest->surface ) return 1;
-
             SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
         }
 
@@ -82,6 +81,8 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
             } else {
                 SDL_UpdateTexture( dest->texture, NULL, dest->surface->pixels, dest->surface->pitch );
             }
+
+            dest->texture_must_update = 0;
 
             dest->type = BITMAP_TEXTURE_TARGET;
         }
@@ -158,6 +159,19 @@ void gr_blit(
 
     if ( scalex <= 0 || scaley <= 0 ) return;
 
+    if ( gr->texture && gr->texture_must_update ) {
+        if ( SDL_MUSTLOCK( gr->surface ) ) {
+            SDL_LockSurface( gr->surface );
+            SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
+            SDL_UnlockSurface( gr->surface );
+        } else {
+            SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
+        }
+
+    }
+
+    gr->texture_must_update = 0;
+
     if ( !gr->texture && !gr->segments ) {
         if ( !gr->surface ) return;
 
@@ -210,6 +224,7 @@ void gr_blit(
                             printf ("error creando temp surface [%s]\n", SDL_GetError() );
                             return;
                         }
+                        SDL_SetColorKey( auxSurface, SDL_TRUE, 0 );
                     }
 
                     srcrect.x = offx;

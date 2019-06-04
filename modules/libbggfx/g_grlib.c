@@ -314,6 +314,7 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
                     uint32_t rmask, gmask, bmask, amask;
                     getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
                     scrbitmap->surface = SDL_CreateRGBSurface(0, scr_width, scr_height, 32, rmask, gmask, bmask, amask );
+                    SDL_SetColorKey( scrbitmap->surface, SDL_TRUE, 0 );
                 }
 
                 if ( scrbitmap->surface ) {

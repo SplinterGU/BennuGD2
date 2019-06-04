@@ -295,6 +295,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "PATH_GETXY"          , "PP"              , TYPE_QWORD      , libmod_gfx_path_getxy           ),
     FUNC( "PATH_WALL"           , "I"               , TYPE_QWORD      , libmod_gfx_path_wall            ),
 #endif
+
     FUNC( NULL                  , NULL              , 0             , NULL                              )
 };
 

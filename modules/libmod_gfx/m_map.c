@@ -485,3 +485,5 @@ int64_t libmod_gfx_unload_map( INSTANCE * my, int64_t * params ) {
 //     string_discard( params[2] );
 //     return r;
 // }
+
+/* ---------------------------------------------------------------------- */

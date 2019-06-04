@@ -60,6 +60,8 @@ typedef struct _bitmap {
     SDL_Surface     * surface;
     SDL_Texture     * texture;
 
+    int64_t         texture_must_update;
+
     int64_t         nsegments;
     struct {
         int64_t         offx, offy;

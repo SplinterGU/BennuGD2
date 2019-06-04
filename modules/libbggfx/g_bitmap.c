@@ -110,6 +110,8 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
     gr->type = 0;
     gr->texture = NULL;
 
+    gr->texture_must_update = 0;
+
     gr->width = w;
     gr->height = h;
 
