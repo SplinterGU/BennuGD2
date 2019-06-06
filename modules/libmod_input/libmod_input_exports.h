@@ -49,7 +49,7 @@ DLSYSFUNCS  __bgdexport( libmod_input, functions_exports )[] = {
     FUNC( "JOY_BUTTONS"         , ""        , TYPE_INT    , libmod_input_joy_buttons                  ),
     FUNC( "JOY_BUTTONS"         , "I"       , TYPE_INT    , libmod_input_joy_buttons_specific         ),
 
-    FUNC( "JOY_NAME"            , "I"       , TYPE_STRING   , libmod_input_joy_name                     ),
+    FUNC( "JOY_NAME"            , "I"       , TYPE_STRING , libmod_input_joy_name                     ),
 
     FUNC( "JOY_NUMBUTTONS"      , ""        , TYPE_INT    , libmod_input_joy_buttons                  ),
     FUNC( "JOY_NUMBUTTONS"      , "I"       , TYPE_INT    , libmod_input_joy_buttons_specific         ),
@@ -85,7 +85,7 @@ DLSYSFUNCS  __bgdexport( libmod_input, functions_exports )[] = {
     FUNC( "GET_JOY_POSITION"    , "I"       , TYPE_INT    , libmod_input_joy_get_position             ),
     FUNC( "GET_JOY_POSITION"    , "II"      , TYPE_INT    , libmod_input_joy_get_position_specific    ),
 
-    FUNC( 0                     , 0         , 0             , 0                                         )
+    FUNC( 0                     , 0         , 0           , 0                                         )
 };
 
 /* ----------------------------------------------------------------- */

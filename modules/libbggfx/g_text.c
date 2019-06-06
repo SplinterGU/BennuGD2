@@ -679,38 +679,23 @@ GRAPH * gr_text_bitmap( int64_t fontid, const char * text, int64_t alignment ) {
 
 /* --------------------------------------------------------------------------- */
 
-void gr_text_setcolor( int64_t textid, uint8_t r, uint8_t g, uint8_t b ) {
+void gr_text_setrgba( int64_t textid, uint8_t r, uint8_t g, uint8_t b, uint8_t a ) {
     if ( textid > 0 && textid < text_nextid ) {
         texts[textid].color_r = r;
         texts[textid].color_g = g;
         texts[textid].color_b = b;
+        texts[textid].alpha = a;
     }
 }
 
 /* --------------------------------------------------------------------------- */
 
-int64_t gr_text_getcolor( int64_t textid, uint8_t * r, uint8_t * g, uint8_t * b ) {
+int64_t gr_text_getrgba( int64_t textid, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a ) {
     if ( textid > 0 && textid < text_nextid ) {
         if ( r ) * r = texts[textid].color_r;
         if ( g ) * g = texts[textid].color_g;
         if ( b ) * b = texts[textid].color_b;
-    }
-    return 0;
-}
-
-/* --------------------------------------------------------------------------- */
-
-void gr_text_setalpha( int64_t textid, uint8_t alpha ) {
-    if ( textid > 0 && textid < text_nextid ) {
-        texts[textid].alpha = alpha;
-    }
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t gr_text_getalpha( int64_t textid, uint8_t * alpha ) {
-    if ( textid > 0 && textid < text_nextid ) {
-        if ( alpha ) * alpha = texts[textid].alpha;
+        if ( a ) * a = texts[textid].alpha;
     }
     return 0;
 }

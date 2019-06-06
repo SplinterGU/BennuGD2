@@ -44,18 +44,6 @@
 /* --------------------------------------------------------------------------- */
 
 DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
-    { "M320X200"            , TYPE_QWORD    , 3200200               },
-    { "M320X240"            , TYPE_QWORD    , 3200240               },
-    { "M320X400"            , TYPE_QWORD    , 3200400               },
-    { "M360X240"            , TYPE_QWORD    , 3600240               },
-    { "M376X282"            , TYPE_QWORD    , 3760282               },
-    { "M400X300"            , TYPE_QWORD    , 4000300               },
-    { "M512X384"            , TYPE_QWORD    , 5120384               },
-    { "M640X400"            , TYPE_QWORD    , 6400400               },
-    { "M640X480"            , TYPE_QWORD    , 6400480               },
-    { "M800X600"            , TYPE_QWORD    , 8000600               },
-    { "M1024X768"           , TYPE_QWORD    , 10240768              },
-    { "M1280X1024"          , TYPE_QWORD    , 12801024              },
 
     { "MODE_WINDOW"         , TYPE_QWORD    , MODE_WINDOW           },
     { "MODE_FULLSCREEN"     , TYPE_QWORD    , MODE_FULLSCREEN       },
@@ -71,14 +59,12 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
 
     /* --- */
     { "C_SCREEN"            , TYPE_QWORD    , C_SCREEN              },
-    { "SCREEN"              , TYPE_QWORD    , -1                    },
 
     /* Flags para gr_blit */
     { "B_HMIRROR"           , TYPE_QWORD    , B_HMIRROR             },
     { "B_VMIRROR"           , TYPE_QWORD    , B_VMIRROR             },
-    { "B_TRANSLUCENT"       , TYPE_QWORD    , B_TRANSLUCENT         },
     { "B_ABLEND"            , TYPE_QWORD    , B_ABLEND              },
-    { "B_SBLEND"            , TYPE_QWORD    , B_SBLEND              },
+//    { "B_SBLEND"            , TYPE_QWORD    , B_SBLEND              },
     { "B_MBLEND"            , TYPE_QWORD    , B_MBLEND              },
     { "B_NOCOLORKEY"        , TYPE_QWORD    , B_NOCOLORKEY          },
 
@@ -111,70 +97,82 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
 /* Definicion de variables globales (usada en tiempo de compilacion) */
 
 char * __bgdexport( libbggfx, globals_def ) =
+
     /* Video */
-    "INT graph_mode=0;\n"
-    "INT full_screen=0;\n"
-    "INT scale_resolution=-1;\n"
-    "INT scale_resolution_aspectratio=0;\n"
+    "STRUCT screen\n"
+    "    INT full_screen=0;\n"
+    "    INT scale_resolution=-1;\n"
+    "    INT scale_resolution_aspectratio=0;\n"
+    "END\n"
 
     /* Frame */
-    "INT fps;\n"
-    "INT speed_gauge=0;\n"
-    "DOUBLE frame_time=0;\n"
+    "STRUCT frame_info\n"
+    "   INT fps;\n"
+    "   INT speed_gauge=0;\n"
+    "   DOUBLE frame_time=0;\n"
+    "END\n"
 
     /* Fade */
-    "INT fading;\n"
+    "STRUCT fade_info\n"
+    "   INT fading;\n"
+    "END\n"
 
     /* wm */
-    "INT exit_status=0;\n"                /* SDL_QUIT status */
-    "INT window_status=1;\n"              /* MINIMIZED:0 VISIBLE:1 */
-    "INT focus_status=1;\n"               /* FOCUS status */
-    "INT mouse_status=1;\n"               /* MOUSE status (INSIDE WINDOW:1) */
+    "STRUCT wm_info\n"
+    "   INT exit_status=0;\n"                /* SDL_QUIT status */
+    "   INT window_status=1;\n"              /* MINIMIZED:0 VISIBLE:1 */
+    "   INT focus_status=1;\n"               /* FOCUS status */
+    "   INT mouse_status=1;\n"               /* MOUSE status (INSIDE WINDOW:1) */
+    "END\n"
 
     /* text */
-    "INT text_z=-512;\n"
-    "INT text_flags;\n"
-    "BYTE text_alpha=255;\n"
-    "BYTE text_color_r=255;\n"
-    "BYTE text_color_g=255;\n"
-    "BYTE text_color_b=255;\n"
+    "STRUCT text\n"
+    "   INT z=-512;\n"
+    "   INT flags;\n"
+    "   BYTE alpha=255;\n"
+    "   BYTE color_r=255;\n"
+    "   BYTE color_g=255;\n"
+    "   BYTE color_b=255;\n"
+    "END\n"
 
     /* backgound */
-    "INT background_file=0;\n"
-    "INT background_graph=0;\n"
-    "BYTE background_color_r=255;\n"
-    "BYTE background_color_g=255;\n"
-    "BYTE background_color_b=255;\n"
-    "INT background_flags=0;\n"
-    "INT background_angle=0;\n"
-    "INT background_size=100;\n"
-    "INT background_size_x=100;\n"
-    "INT background_size_y=100;\n"
+    "STRUCT background\n"
+    "   INT file=0;\n"
+    "   INT graph=0;\n"
+    "   BYTE color_r=255;\n"
+    "   BYTE color_g=255;\n"
+    "   BYTE color_b=255;\n"
+    "   INT flags=0;\n"
+    "   INT angle=0;\n"
+    "   INT size=100;\n"
+    "   INT size_x=100;\n"
+    "   INT size_y=100;\n"
+    "END\n"
 
     /* scroll */
     "STRUCT scroll[9]\n"
-        "INT x0;\n"
-        "INT y0;\n"
-        "INT x1;\n"
-        "INT y1;\n"
-        "INT z = 512;\n"
-        "INT camera;\n"
-        "INT ratio = 200;\n"
-        "INT speed;\n"
-        "INT region1 = -1;\n"
-        "INT region2 = -1;\n"
-        "INT flags1;\n"
-        "INT flags2;\n"
-        "INT follow = -1;\n"
-        "BYTE alpha = 255;\n"
-        "BYTE color_r = 255;\n"
-        "BYTE color_g = 255;\n"
-        "BYTE color_b = 255;\n"
-        "BYTE alpha2 = 255;\n"
-        "BYTE color_r2 = 255;\n"
-        "BYTE color_g2 = 255;\n"
-        "BYTE color_b2 = 255;\n"
-        "INT reserved[7];\n"
+    "   INT x0;\n"
+    "   INT y0;\n"
+    "   INT x1;\n"
+    "   INT y1;\n"
+    "   INT z=512;\n"
+    "   INT camera;\n"
+    "   INT ratio=200;\n"
+    "   INT speed;\n"
+    "   INT region1=-1;\n"
+    "   INT region2=-1;\n"
+    "   INT flags1;\n"
+    "   INT flags2;\n"
+    "   INT follow=-1;\n"
+    "   BYTE alpha=255;\n"
+    "   BYTE color_r=255;\n"
+    "   BYTE color_g=255;\n"
+    "   BYTE color_b=255;\n"
+    "   BYTE alpha2=255;\n"
+    "   BYTE color_r2=255;\n"
+    "   BYTE color_g2=255;\n"
+    "   BYTE color_b2=255;\n"
+    "   INT reserved[7];\n"
     "END\n"
     ;
 
@@ -217,9 +215,9 @@ char * __bgdexport( libbggfx, locals_def ) =
     "BYTE color_b=255;\n"
 
     "STRUCT _render_reserved_\n"
-        "INT object_id=0;\n"
-        "INT graph_ptr=0;\n"
-        "INT xgraph_flags;\n"
+    "   INT object_id=0;\n"
+    "   INT graph_ptr=0;\n"
+    "   INT xgraph_flags;\n"
     "END\n"
     ;
 

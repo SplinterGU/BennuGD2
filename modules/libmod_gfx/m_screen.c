@@ -106,27 +106,13 @@ int64_t libmod_gfx_get_screen( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_set_mode( INSTANCE * my, int64_t * params ) {
-    return gr_set_mode( params[0] / 10000, params[0] % 10000, 0 ) ;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_set_mode_2( INSTANCE * my, int64_t * params ) {
     return gr_set_mode( params[0], params[1], 0 ) ;
 }
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_set_mode_3( INSTANCE * my, int64_t * params ) {
-    GLOQWORD( libmod_gfx, GRAPH_MODE ) = (( GLOQWORD( libmod_gfx, GRAPH_MODE ) & 0xFF00 ) | params[2] );
-    return gr_set_mode( params[0], params[1], 0 ) ;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_set_mode_4( INSTANCE * my, int64_t * params ) {
-    GLOQWORD( libmod_gfx, GRAPH_MODE ) = ( params[2] | params[3] );
-    return gr_set_mode( params[0], params[1], 0 ) ;
+int64_t libmod_gfx_set_mode_extended( INSTANCE * my, int64_t * params ) {
+    return gr_set_mode( params[0], params[1], params[2] ) ;
 }
 
 /* --------------------------------------------------------------------------- */

@@ -42,13 +42,14 @@
 /* Globals */
 
 enum {
-    GRAPH_MODE = 0,
-    FULL_SCREEN,
+    FULL_SCREEN = 0,
     SCALE_RESOLUTION,
     SCALE_RESOLUTION_ASPECTRATIO,
+
     FPS,
     SPEED_GAUGE,
     FRAME_TIME,
+
     FADING,
 
     EXIT_STATUS,

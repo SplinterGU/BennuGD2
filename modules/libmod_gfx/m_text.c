@@ -180,77 +180,17 @@ int64_t libmod_gfx_text_write_var2( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 /*
- *  Same as libmod_gfx_text_write_var, but param[5] not given and always set to VAR_STRING
+ *  content of data pointed by pointer param[4]
  */
 
-int64_t libmod_gfx_text_write_string( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], TEXT_STRING );
+int64_t libmod_gfx_text_write_value( INSTANCE * my, int64_t * params ) {
+    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], params[5] );
 }
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_text_write_string2( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], TEXT_STRING );
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  Same as libmod_gfx_text_write_var, but param[5] not given and always set to VAR_INT64
- */
-
-int64_t libmod_gfx_text_write_int( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], TEXT_INT );
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_text_write_int2( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], TEXT_INT );
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  Same as libmod_gfx_text_write_var, but param[5] not given and always set to VAR_INT
- */
-
-int64_t libmod_gfx_text_write_int32( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], TEXT_INT32 );
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_text_write_int322( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], TEXT_INT32 );
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  Same as libmod_gfx_text_write_var, but param[5] not given and always set to VAR_DOUBLE
- */
-
-int64_t libmod_gfx_text_write_double( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], TEXT_DOUBLE );
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_text_write_double2( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], TEXT_DOUBLE );
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  Same as libmod_gfx_text_write_var, but param[5] not given and always set to VAR_FLOAT
- */
-
-int64_t libmod_gfx_text_write_float( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], TEXT_FLOAT );
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_text_write_float2( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], TEXT_FLOAT );
+int64_t libmod_gfx_text_write_value2( INSTANCE * my, int64_t * params ) {
+    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], params[6] );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -294,38 +234,23 @@ int64_t libmod_gfx_text_width( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_text_set_color( INSTANCE * my, int64_t * params ) {
-    gr_text_setcolor( params[0], params[1], params[2], params[3] );
+int64_t libmod_gfx_text_set_rgba( INSTANCE * my, int64_t * params ) {
+    gr_text_setrgba( params[0], params[1], params[2], params[3], params[4] );
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_text_get_color( INSTANCE * my, int64_t * params ) {
-    uint8_t r, g, b;
-    int64_t ret = gr_text_getcolor( params[0], &r, &g, &b );
+int64_t libmod_gfx_text_get_rgba( INSTANCE * my, int64_t * params ) {
+    uint8_t r, g, b, a;
+    int64_t ret = gr_text_getrgba( params[0], &r, &g, &b, &a );
 
     if ( params[1] ) *( uint8_t * )params[1] = r;
     if ( params[2] ) *( uint8_t * )params[2] = g;
     if ( params[3] ) *( uint8_t * )params[3] = b;
+    if ( params[4] ) *( uint8_t * )params[4] = a;
 
     return( ret );
 }
 
 /* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_text_set_alpha( INSTANCE * my, int64_t * params ) {
-    gr_text_setalpha( params[0], params[1] );
-    return 1;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_text_get_alpha( INSTANCE * my, int64_t * params ) {
-    uint8_t alpha;
-    int64_t ret = gr_text_getalpha( params[0], &alpha );
-
-    if ( params[1] ) *( uint8_t * )params[1] = alpha;
-
-    return( ret );
-}

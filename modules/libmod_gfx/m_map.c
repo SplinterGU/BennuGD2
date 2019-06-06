@@ -275,7 +275,7 @@ int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params ) {
  *  Draws a map into another one, with most blitter options including flags and alpha
  */
 
-int64_t libmod_gfx_map_xput( INSTANCE * my, int64_t * params ) {
+int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
     GRAPH * dest = bitmap_get( params[0], params[1] );
     GRAPH * orig = bitmap_get( params[2], params[3] );
     if ( !dest || !orig ) return 0;
@@ -333,27 +333,29 @@ int64_t libmod_gfx_map_exists( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
+static int64_t __libmod_gfx_map_block_copy(
+    int64_t dest_file,
+    int64_t dest_graph,
+    int64_t dest_x,
+    int64_t dest_y,
+    int64_t file,
+    int64_t graph,
+    int64_t x,
+    int64_t y,
+    int64_t w,
+    int64_t h,
+    int64_t flags,
+    uint8_t r,
+    uint8_t g,
+    uint8_t b,
+    uint8_t alpha
+ ) {
     GRAPH * dest, * orig;
     REGION clip;
     int64_t centerx, centery, flag;
-    uint64_t x, y, w, h, dx, dy;
-    uint8_t alpha, r, g, b;
 
-    if ( !( dest = bitmap_get( params[0], params[1] ) ) ) return 0;
-    if ( !( orig = bitmap_get( params[0], params[4] ) ) ) return 0;
-
-    x     = params[5];
-    y     = params[6];
-    w     = params[7];
-    h     = params[8];
-    dx    = params[2];
-    dy    = params[3];
-    flag  = params[9];
-    alpha = params[10];
-    r     = params[11];
-    g     = params[12];
-    b     = params[13];
+    if ( !( dest = bitmap_get( dest_file, dest_graph ) ) ) return 0;
+    if ( !( orig = bitmap_get( file, graph ) ) ) return 0;
 
     if ( orig->ncpoints > 0 && orig->cpoints[0].x != CPOINT_UNDEFINED ) {
         centerx = orig->cpoints[0].x;
@@ -366,25 +368,69 @@ int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
     if ( flag & B_HMIRROR ) centerx = orig->width - 1 - centerx;
     if ( flag & B_VMIRROR ) centery = orig->height - 1 - centery;
 
-    if ( x  < 0 ) { dx += x;  w += x;   x = 0; }
-    if ( y  < 0 ) { dy += y;  h += y;   y = 0; }
-    if ( dx < 0 ) {  x += dx; w += dx; dx = 0; }
-    if ( dy < 0 ) {  y += dy; h += dy; dy = 0; }
+    if ( x  < 0 ) { dest_x += x;  w += x;   x = 0; }
+    if ( y  < 0 ) { dest_y += y;  h += y;   y = 0; }
+    if ( dest_x < 0 ) {  x += dest_x; w += dest_x; dest_x = 0; }
+    if ( dest_y < 0 ) {  y += dest_y; h += dest_y; dest_y = 0; }
 
     if ( x + w  > orig->width  ) w = orig->width  - x;
     if ( y + h  > orig->height ) h = orig->height - y;
-    if ( dx + w > dest->width  ) w = dest->width  - dx;
-    if ( dy + h > dest->height ) h = dest->height - dy;
+    if ( dest_x + w > dest->width  ) w = dest->width  - dest_x;
+    if ( dest_y + h > dest->height ) h = dest->height - dest_y;
 
     if ( w <= 0 || h <= 0 ) return 0;
 
-    clip.x  = dx;
-    clip.y  = dy;
-    clip.x2 = dx + w - 1;
-    clip.y2 = dy + h - 1;
+    clip.x  = dest_x;
+    clip.y  = dest_y;
+    clip.x2 = dest_x + w - 1;
+    clip.y2 = dest_y + h - 1;
 
-    gr_blit( dest, &clip, dx - x + centerx, dy - y + centery, flag, 0, 100, 100, orig, NULL, alpha, r, g, b );
+    gr_blit( dest, &clip, dest_x - x + centerx, dest_y - y + centery, flag, 0, 100, 100, orig, NULL, alpha, r, g, b );
     return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
+    return __libmod_gfx_map_block_copy(
+        params[0],
+        params[1],
+        params[2],
+        params[3],
+        params[4],
+        params[5],
+        params[6],
+        params[7],
+        params[8],
+        params[9],
+        params[10],
+        255,
+        255,
+        255,
+        255
+    );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params ) {
+    return __libmod_gfx_map_block_copy(
+        params[0],
+        params[1],
+        params[2],
+        params[3],
+        params[4],
+        params[5],
+        params[6],
+        params[7],
+        params[8],
+        params[9],
+        params[10],
+        params[11],
+        params[12],
+        params[13],
+        params[14]
+    );
 }
 
 /* --------------------------------------------------------------------------- */

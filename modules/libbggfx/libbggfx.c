@@ -44,44 +44,43 @@
 
 DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
     /* Nombre de variable global, puntero al dato, tama�o del elemento, cantidad de elementos */
-    { "graph_mode"                      , NULL, -1, -1 },
-    { "full_screen"                     , NULL, -1, -1 },
-    { "scale_resolution"                , NULL, -1, -1 },
-    { "scale_resolution_aspectratio"    , NULL, -1, -1 },
+    { "screen.full_screen"                      , NULL, -1, -1 },
+    { "screen.scale_resolution"                 , NULL, -1, -1 },
+    { "screen.scale_resolution_aspectratio"     , NULL, -1, -1 },
 
-    { "fps"                             , NULL, -1, -1 },
-    { "speed_gauge"                     , NULL, -1, -1 },
-    { "frame_time"                      , NULL, -1, -1 },
+    { "frame_info.fps"                          , NULL, -1, -1 },
+    { "frame_info.speed_gauge"                  , NULL, -1, -1 },
+    { "frame_info.frame_time"                   , NULL, -1, -1 },
 
-    { "fading"                          , NULL, -1, -1 },
+    { "fade_info.fading"                        , NULL, -1, -1 },
 
-    { "exit_status"                     , NULL, -1, -1 },
-    { "window_status"                   , NULL, -1, -1 },
-    { "focus_status"                    , NULL, -1, -1 },
-    { "mouse_status"                    , NULL, -1, -1 },
+    { "wm_info.exit_status"                     , NULL, -1, -1 },
+    { "wm_info.window_status"                   , NULL, -1, -1 },
+    { "wm_info.focus_status"                    , NULL, -1, -1 },
+    { "wm_info.mouse_status"                    , NULL, -1, -1 },
 
-    { "text_z"                          , NULL, -1, -1 },
-    { "text_flags"                      , NULL, -1, -1 },
-    { "text_alpha"                      , NULL, -1, -1 },
-    { "text_color_r"                    , NULL, -1, -1 },
-    { "text_color_g"                    , NULL, -1, -1 },
-    { "text_color_b"                    , NULL, -1, -1 },
+    { "text.z"                                  , NULL, -1, -1 },
+    { "text.flags"                              , NULL, -1, -1 },
+    { "text.alpha"                              , NULL, -1, -1 },
+    { "text.color_r"                            , NULL, -1, -1 },
+    { "text.color_g"                            , NULL, -1, -1 },
+    { "text.color_b"                            , NULL, -1, -1 },
 
     /* backgound */
-    { "background_file"                 , NULL, -1, -1 },
-    { "background_graph"                , NULL, -1, -1 },
-    { "background_color_r"              , NULL, -1, -1 },
-    { "background_color_g"              , NULL, -1, -1 },
-    { "background_color_b"              , NULL, -1, -1 },
-    { "background_flags"                , NULL, -1, -1 },
-    { "background_angle"                , NULL, -1, -1 },
-    { "background_size"                 , NULL, -1, -1 },
-    { "background_size_x"               , NULL, -1, -1 },
-    { "background_size_y"               , NULL, -1, -1 },
+    { "background.file"                         , NULL, -1, -1 },
+    { "background.graph"                        , NULL, -1, -1 },
+    { "background.color_r"                      , NULL, -1, -1 },
+    { "background.color_g"                      , NULL, -1, -1 },
+    { "background.color_b"                      , NULL, -1, -1 },
+    { "background.flags"                        , NULL, -1, -1 },
+    { "background.angle"                        , NULL, -1, -1 },
+    { "background.size"                         , NULL, -1, -1 },
+    { "background.size_x"                       , NULL, -1, -1 },
+    { "background.size_y"                       , NULL, -1, -1 },
 
-    { "scroll"                          , NULL, -1, -1 },
+    { "scroll"                                  , NULL, -1, -1 },
 
-    { NULL                              , NULL, -1, -1 }
+    { NULL                                      , NULL, -1, -1 }
 };
 
 DLVARFIXUP __bgdexport( libbggfx, locals_fixup )[] = {

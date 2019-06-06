@@ -38,7 +38,6 @@
 
 #define B_HMIRROR       0x0001
 #define B_VMIRROR       0x0002
-#define B_TRANSLUCENT   0x0004
 #define B_ABLEND        0x0010
 #define B_SBLEND        0x0020
 #define B_MBLEND        0x0040

@@ -106,16 +106,16 @@ DLCONSTANT  __bgdexport( libmod_misc, constants_def)[] =
 
 char * __bgdexport( libmod_misc, globals_def ) =
     "STRUCT fileinfo\n"
-        "STRING path;\n"
-        "STRING name;\n"
-        "INT directory;\n"
-        "INT hidden;\n"
-        "INT readonly;\n"
-        "INT size;\n"
-        "STRING created;\n"
-        "STRING modified;\n"
-        "STRING accessed;\n"
-        "STRING statechg;\n"
+    "   STRING path;\n"
+    "   STRING name;\n"
+    "   INT directory;\n"
+    "   INT hidden;\n"
+    "   INT readonly;\n"
+    "   INT size;\n"
+    "   STRING created;\n"
+    "   STRING modified;\n"
+    "   STRING accessed;\n"
+    "   STRING statechg;\n"
     "END\n"
 
     "STRING regex_reg[15];\n"
@@ -127,10 +127,10 @@ char * __bgdexport( libmod_misc, globals_def ) =
 
 char * __bgdexport( libmod_misc, locals_def ) =
     "STRUCT __proccess_reserved\n"
-        "INT type_scan;\n"
-        "INT id_scan;\n"
-        "INT context;\n"
-        "QWORD signal_action;\n"
+    "   INT type_scan;\n"
+    "   INT id_scan;\n"
+    "   INT context;\n"
+    "   QWORD signal_action;\n"
     "END\n"
     ;
 

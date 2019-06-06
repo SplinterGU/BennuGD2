@@ -80,6 +80,22 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "PF_NODIAG"           , TYPE_QWORD      , PF_NODIAG             }, /* Prohibit the pathfinding from using diagonal paths. */
     { "PF_REVERSE"          , TYPE_QWORD      , PF_REVERSE            }, /* Return the path found in reverse order.             */
 
+    { "TEXT_TEXT"           , TYPE_QWORD      , TEXT_TEXT             },
+    { "TEXT_STRING"         , TYPE_QWORD      , TEXT_STRING           },
+    { "TEXT_INT"            , TYPE_QWORD      , TEXT_INT              },
+    { "TEXT_QWORD"          , TYPE_QWORD      , TEXT_QWORD            },
+    { "TEXT_INT32"          , TYPE_QWORD      , TEXT_INT32            },
+    { "TEXT_DWORD"          , TYPE_QWORD      , TEXT_DWORD            },
+    { "TEXT_SHORT"          , TYPE_QWORD      , TEXT_SHORT            },
+    { "TEXT_WORD"           , TYPE_QWORD      , TEXT_WORD             },
+    { "TEXT_SBYTE"          , TYPE_QWORD      , TEXT_SBYTE            },
+    { "TEXT_BYTE"           , TYPE_QWORD      , TEXT_BYTE             },
+    { "TEXT_CHAR"           , TYPE_QWORD      , TEXT_CHAR             },
+    { "TEXT_DOUBLE"         , TYPE_QWORD      , TEXT_DOUBLE           },
+    { "TEXT_FLOAT"          , TYPE_QWORD      , TEXT_FLOAT            },
+    { "TEXT_POINTER"        , TYPE_QWORD      , TEXT_POINTER          },
+    { "TEXT_CHARARRAY"      , TYPE_QWORD      , TEXT_CHARARRAY        },
+
     { NULL                  , 0               , 0                     }
 } ;
 
@@ -90,25 +106,25 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
 char * __bgdexport( libmod_gfx, locals_def ) =
     /* f_gproc */
     "STRUCT __collision_reserved\n"
-        "INT type_scan;\n"
-        "INT id_scan;\n"
-        "INT context;\n"
+    "   INT type_scan;\n"
+    "   INT id_scan;\n"
+    "   INT context;\n"
     "END\n"
     ;
 
 
 char * __bgdexport( libmod_gfx, types_def ) =
     /* m_draw */
-    "TYPE GFX_POINT\n"
-        "INT32 x;\n"
-        "INT32 y;\n"
+    "TYPE G_POINT\n"
+    "   INT32 x;\n"
+    "   INT32 y;\n"
     "END\n"
 
-    "TYPE GFX_RECT\n"
-        "INT32 x;\n"
-        "INT32 y;\n"
-        "INT32 w;\n"
-        "INT32 h;\n"
+    "TYPE G_RECT\n"
+    "   INT32 x;\n"
+    "   INT32 y;\n"
+    "   INT32 w;\n"
+    "   INT32 h;\n"
     "END\n"
     ;
 
@@ -153,10 +169,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "FADE_OFF"            , "I"               , TYPE_QWORD      , libmod_gfx_fade_off             ),
 
     /* Video */
-    FUNC( "SET_MODE"            , "I"               , TYPE_QWORD      , libmod_gfx_set_mode             ),
-    FUNC( "SET_MODE"            , "II"              , TYPE_QWORD      , libmod_gfx_set_mode_2           ),
-    FUNC( "SET_MODE"            , "III"             , TYPE_QWORD      , libmod_gfx_set_mode_3           ),
-    FUNC( "SET_MODE"            , "IIII"            , TYPE_QWORD      , libmod_gfx_set_mode_4           ),
+    FUNC( "SET_MODE"            , "II"              , TYPE_QWORD      , libmod_gfx_set_mode             ),
+    FUNC( "SET_MODE"            , "III"             , TYPE_QWORD      , libmod_gfx_set_mode_extended    ),
     FUNC( "SET_FPS"             , "II"              , TYPE_QWORD      , libmod_gfx_set_fps              ),
 
 //    FUNC( "GET_MODES"           , "II"              , TYPE_POINTER  , libmod_gfx_list_modes           ),
@@ -180,8 +194,6 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     /* Texts */
     FUNC( "WRITE"               , "IIIIS"           , TYPE_QWORD      , libmod_gfx_text_write           ),
     FUNC( "WRITE"               , "IIIIIS"          , TYPE_QWORD      , libmod_gfx_text_write2          ),
-    FUNC( "WRITE_INT"           , "IIIIP"           , TYPE_QWORD      , libmod_gfx_text_write_int       ),
-    FUNC( "WRITE_INT"           , "IIIIIP"          , TYPE_QWORD      , libmod_gfx_text_write_int2      ),
     FUNC( "WRITE_MOVE"          , "III"             , TYPE_QWORD      , libmod_gfx_text_move            ),
     FUNC( "WRITE_MOVE"          , "IIII"            , TYPE_QWORD      , libmod_gfx_text_move2           ),
     FUNC( "WRITE_DELETE"        , "I"               , TYPE_QWORD      , libmod_gfx_text_delete          ),
@@ -193,20 +205,17 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     /* Extended Write */
     FUNC( "WRITE_VAR"           , "IIIIV++"         , TYPE_QWORD      , libmod_gfx_text_write_var       ),
     FUNC( "WRITE_VAR"           , "IIIIIV++"        , TYPE_QWORD      , libmod_gfx_text_write_var2      ),
-    FUNC( "WRITE_FLOAT"         , "IIIIP"           , TYPE_QWORD      , libmod_gfx_text_write_float     ),
-    FUNC( "WRITE_FLOAT"         , "IIIIIP"          , TYPE_QWORD      , libmod_gfx_text_write_float2    ),
-    FUNC( "WRITE_STRING"        , "IIIIP"           , TYPE_QWORD      , libmod_gfx_text_write_string    ),
-    FUNC( "WRITE_STRING"        , "IIIIIP"          , TYPE_QWORD      , libmod_gfx_text_write_string2   ),
+    FUNC( "WRITE_VALUE"         , "IIIIIP"          , TYPE_QWORD      , libmod_gfx_text_write_value     ),
+    FUNC( "WRITE_VALUE"         , "IIIIIIP"         , TYPE_QWORD      , libmod_gfx_text_write_value2    ),
 
-    FUNC( "WRITE_GET_COLOR"     , "IPPP"            , TYPE_QWORD      , libmod_gfx_text_get_color       ),
-    FUNC( "WRITE_SET_COLOR"     , "IBBB"            , TYPE_QWORD      , libmod_gfx_text_set_color       ),
-    FUNC( "WRITE_GET_ALPHA"     , "IP"              , TYPE_QWORD      , libmod_gfx_text_get_alpha       ),
-    FUNC( "WRITE_SET_ALPHA"     , "IB"              , TYPE_QWORD      , libmod_gfx_text_set_alpha       ),
+    FUNC( "WRITE_GET_RGBA"      , "IPPPP"           , TYPE_QWORD      , libmod_gfx_text_get_rgba        ),
+    FUNC( "WRITE_SET_RGBA"      , "IBBBB"           , TYPE_QWORD      , libmod_gfx_text_set_rgba        ),
 
     /* Maps */
-    FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIII"      , TYPE_QWORD      , libmod_gfx_map_block_copy       ),
+    FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIII"     , TYPE_QWORD      , libmod_gfx_map_block_copy       ),
+    FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIIBBBB", TYPE_QWORD      , libmod_gfx_map_block_copy2      ),
     FUNC( "MAP_PUT"             , "IIIIII"          , TYPE_QWORD      , libmod_gfx_map_put              ),
-    FUNC( "MAP_XPUT"            , "IIIIIIIIIIBBBB"  , TYPE_QWORD      , libmod_gfx_map_xput             ),
+    FUNC( "MAP_XPUT"            , "IIIIIIIIIIBBBB"  , TYPE_QWORD      , libmod_gfx_map_put              ),
     FUNC( "MAP_NEW"             , "II"              , TYPE_QWORD      , libmod_gfx_new_map              ),
     FUNC( "MAP_NEW"             , "III"             , TYPE_QWORD      , libmod_gfx_new_map_extend       ),
     FUNC( "MAP_CLEAR"           , "II"              , TYPE_QWORD      , libmod_gfx_map_clear            ),

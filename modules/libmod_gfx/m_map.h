@@ -52,11 +52,12 @@ extern int64_t libmod_gfx_new_map( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_new_map_extend( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_clone( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_map_xput( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_name( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_set_name( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_exists( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_load_map( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_unload_map( INSTANCE * my, int64_t * params );
 

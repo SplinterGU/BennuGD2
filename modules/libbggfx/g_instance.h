@@ -35,17 +35,6 @@
 
 /* --------------------------------------------------------------------------- */
 
-/* Flags para gr_blit                                                          */
-
-#define B_HMIRROR       0x0001
-#define B_VMIRROR       0x0002
-#define B_TRANSLUCENT   0x0004
-#define B_ABLEND        0x0010
-#define B_SBLEND        0x0020
-#define B_NOCOLORKEY    0x0080
-
-/* --------------------------------------------------------------------------- */
-
 extern void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest );
 extern void draw_instance_at( INSTANCE * i, REGION * r, int64_t x, int64_t y, GRAPH * dest ) ;
 extern void draw_instance( void * what, REGION * clip ) ;

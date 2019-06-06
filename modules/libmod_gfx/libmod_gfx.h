@@ -96,8 +96,7 @@ enum {
 
 /* Globals */
 enum {
-    GRAPH_MODE = 0,
-    SCROLLS,
+    SCROLLS = 0,
     MOUSEX,
     MOUSEY
 };

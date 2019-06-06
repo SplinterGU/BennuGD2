@@ -39,20 +39,14 @@ extern int64_t libmod_gfx_text_write2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_write_in_map( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_write_var( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_write_var2( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_write_string( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_write_string2( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_write_int( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_write_int2( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_write_float( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_write_float2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_text_write_value( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_text_write_value2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_move( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_move2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_delete( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_height( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_width( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_set_color( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_get_color( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_set_alpha( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_text_get_alpha( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_text_set_rgba( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_text_get_rgba( INSTANCE * my, int64_t * params );
 
 #endif

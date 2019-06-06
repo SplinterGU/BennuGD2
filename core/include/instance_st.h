@@ -113,10 +113,13 @@ INSTANCE;
 #define LOCINT16(a,b)   ( *(int16_t  *) ((uint8_t *)(a->locdata)+b) )
 #define LOCINT8(a,b)    ( *(int8_t   *) ((uint8_t *)(a->locdata)+b) )
 
-#define LOCUINT64(a,b)  ( *(uint64_t *) ((uint8_t *)(a->locdata)+b) )
-#define LOCUINT32(a,b)  ( *(uint32_t *) ((uint8_t *)(a->locdata)+b) )
-#define LOCUINT16(a,b)  ( *(uint16_t *) ((uint8_t *)(a->locdata)+b) )
-#define LOCUINT8(a,b)   ( *(uint8_t  *) ((uint8_t *)(a->locdata)+b) )
+#define LOCUINT64(a,b)  LOCQWORD(a,b)
+#define LOCUINT32(a,b)  LOCDWORD(a,b)
+#define LOCUINT16(a,b)  LOCWORD(a,b)
+#define LOCUINT8(a,b)   LOCBYTE(a,b)
+
+#define LOCFLOAT(a,b)   ( *(float   *) ((uint8_t *)(a->locdata)+b) )
+#define LOCDOUBLE(a,b)  ( *(double  *) ((uint8_t *)(a->locdata)+b) )
 
 
 #define PRIQWORD(a,b)   ( *(uint64_t *) ((uint8_t *)(a->pridata)+b) )
@@ -129,10 +132,13 @@ INSTANCE;
 #define PRIINT16(a,b)   ( *(int16_t  *) ((uint8_t *)(a->pridata)+b) )
 #define PRIINT8(a,b)    ( *(int8_t   *) ((uint8_t *)(a->pridata)+b) )
 
-#define PRIUINT64(a,b)  ( *(uint64_t *) ((uint8_t *)(a->pridata)+b) )
-#define PRIUINT32(a,b)  ( *(uint32_t *) ((uint8_t *)(a->pridata)+b) )
-#define PRIUINT16(a,b)  ( *(uint16_t *) ((uint8_t *)(a->pridata)+b) )
-#define PRIUINT8(a,b)   ( *(uint8_t  *) ((uint8_t *)(a->pridata)+b) )
+#define PRIUINT64(a,b)  PRIQWORD(a,b)
+#define PRIUINT32(a,b)  PRIDWORD(a,b)
+#define PRIUINT16(a,b)  PRIWORD(a,b)
+#define PRIUINT8(a,b)   PRIBYTE(a,b)
+
+#define PRIFLOAT(a,b)   ( *(float    *) ((uint8_t *)(a->pridata)+b) )
+#define PRIDOUBLE(a,b)  ( *(double   *) ((uint8_t *)(a->pridata)+b) )
 
 
 #define PUBQWORD(a,b)   ( *(uint64_t *) ((uint8_t *)(a->pubdata)+b) )
@@ -145,10 +151,13 @@ INSTANCE;
 #define PUBINT16(a,b)   ( *(int16_t  *) ((uint8_t *)(a->pubdata)+b) )
 #define PUBINT8(a,b)    ( *(int8_t   *) ((uint8_t *)(a->pubdata)+b) )
 
-#define PUBUINT64(a,b)  ( *(uint64_t *) ((uint8_t *)(a->pubdata)+b) )
-#define PUBUINT32(a,b)  ( *(uint32_t *) ((uint8_t *)(a->pubdata)+b) )
-#define PUBUINT16(a,b)  ( *(uint16_t *) ((uint8_t *)(a->pubdata)+b) )
-#define PUBUINT8(a,b)   ( *(uint8_t  *) ((uint8_t *)(a->pubdata)+b) )
+#define PUBUINT64(a,b)  PUBQWORD(a,b)
+#define PUBUINT32(a,b)  PUBDWORD(a,b)
+#define PUBUINT16(a,b)  PUBWORD(a,b)
+#define PUBUINT8(a,b)   PUBBYTE(a,b)
+
+#define PUBFLOAT(a,b)   ( *(float    *) ((uint8_t *)(a->pubdata)+b) )
+#define PUBDOUBLE(a,b)  ( *(double   *) ((uint8_t *)(a->pubdata)+b) )
 
 
 #define GLOQWORD(b)     ( *(uint64_t *) ((uint8_t *)(globaldata)+b) )
@@ -161,9 +170,12 @@ INSTANCE;
 #define GLOINT16(b)     ( *(int16_t  *) ((uint8_t *)(globaldata)+b) )
 #define GLOINT8(b)      ( *(int8_t   *) ((uint8_t *)(globaldata)+b) )
 
-#define GLOUINT64(b)    ( *(uint64_t *) ((uint8_t *)(globaldata)+b) )
-#define GLOUINT32(b)    ( *(uint32_t *) ((uint8_t *)(globaldata)+b) )
-#define GLOUINT16(b)    ( *(uint16_t *) ((uint8_t *)(globaldata)+b) )
-#define GLOUINT8(b)     ( *(uint8_t  *) ((uint8_t *)(globaldata)+b) )
+#define GLOUINT64(b)    GLOQWORD(b)
+#define GLOUINT32(b)    GLODWORD(b)
+#define GLOUINT16(b)    GLOWORD(b)
+#define GLOUINT8(b)     GLOBYTE(b)
+
+#define GLOFLOAT(b)     ( *(float    *) ((uint8_t *)(globaldata)+b) )
+#define GLODOUBLE(b)    ( *(double   *) ((uint8_t *)(globaldata)+b) )
 
 #endif

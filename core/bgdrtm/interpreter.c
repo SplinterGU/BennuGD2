@@ -507,8 +507,8 @@ main_loop_instance_go:
                 break;
 
             case MN_GET_PUBLIC | MN_QWORD:
-            case MN_GET_PUBLIC | MN_DOUBLE:
             case MN_GET_PUBLIC | MN_QWORD | MN_UNSIGNED:
+            case MN_GET_PUBLIC | MN_DOUBLE:
                 *r->stack_ptr++ = PUBQWORD( r, ptr[1] );
                 ptr += 2;
                 break;
@@ -687,8 +687,8 @@ main_loop_instance_go:
 
             /* Access to variables WORD type */
 
-            case MN_WORD | MN_GET_PRIV:
-            case MN_WORD | MN_GET_PRIV | MN_UNSIGNED:
+            case MN_GET_PRIV | MN_WORD:
+            case MN_GET_PRIV | MN_WORD | MN_UNSIGNED:
                 *r->stack_ptr++ = PRIWORD( r, ptr[1] );
                 ptr += 2;
                 break;

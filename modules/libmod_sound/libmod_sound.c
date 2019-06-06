@@ -61,10 +61,10 @@ static int audio_initialized = 0 ;
 DLVARFIXUP  __bgdexport( libmod_sound, globals_fixup )[] =
 {
     /* Nombre de variable global, puntero al dato, tamano del elemento, cantidad de elementos */
-    { "sound_freq"      , NULL, -1, -1 },
-    { "sound_mode"      , NULL, -1, -1 },
-    { "sound_channels"  , NULL, -1, -1 },
-    { NULL              , NULL, -1, -1 }
+    { "sound.sound_freq"        , NULL, -1, -1 },
+    { "sound.sound_mode"        , NULL, -1, -1 },
+    { "sound.sound_channels"    , NULL, -1, -1 },
+    { NULL                      , NULL, -1, -1 }
 };
 
 /* ------------------------------------- */

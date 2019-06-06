@@ -50,6 +50,8 @@
 #undef LOCUINT16
 #undef LOCUINT8
 
+#undef LOCFLOAT
+#undef LOCDOUBLE
 
 #undef GLOQWORD
 #undef GLODWORD
@@ -65,6 +67,9 @@
 #undef GLOUINT32
 #undef GLOUINT16
 #undef GLOUINT8
+
+#undef GLOFLOAT
+#undef GLODOUBLE
 
 /* --------------------------------------------------------------------------- */
 /* Macros para acceder a datos locales de una instancia */
@@ -85,10 +90,13 @@
 #define LOCINT16(m,a,b)   (*(int16_t  *)LOCADDR(m,a,b))
 #define LOCINT8(m,a,b)    (*(int8_t   *)LOCADDR(m,a,b))
 
-#define LOCUINT64(m,a,b)  (*(uint64_t *)LOCADDR(m,a,b))
-#define LOCUINT32(m,a,b)  (*(uint32_t *)LOCADDR(m,a,b))
-#define LOCUINT16(m,a,b)  (*(uint16_t *)LOCADDR(m,a,b))
-#define LOCUINT8(m,a,b)   (*(uint8_t  *)LOCADDR(m,a,b))
+#define LOCUINT64(m,a,b)  LOCQWORD(m,a,b)
+#define LOCUINT32(m,a,b)  LOCDWORD(m,a,b)
+#define LOCUINT16(m,a,b)  LOCWORD(m,a,b)
+#define LOCUINT8(m,a,b)   LOCBYTE(m,a,b)
+
+#define LOCFLOAT(m,a,b)   (*(float    *)LOCADDR(m,a,b))
+#define LOCDOUBLE(m,a,b)  (*(double   *)LOCADDR(m,a,b))
 
 
 #define GLOQWORD(m,a)     (*(uint64_t *)GLOADDR(m,a))
@@ -101,10 +109,14 @@
 #define GLOINT16(m,a)     (*(int16_t  *)GLOADDR(m,a))
 #define GLOINT8(m,a)      (*(int8_t   *)GLOADDR(m,a))
 
-#define GLOUINT64(m,b)    (*(uint64_t *)GLOADDR(m,b))
-#define GLOUINT32(m,b)    (*(uint32_t *)GLOADDR(m,b))
-#define GLOUINT16(m,b)    (*(uint16_t *)GLOADDR(m,b))
-#define GLOUINT8(m,b)     (*(uint8_t  *)GLOADDR(m,b))
+#define GLOUINT64(m,a)    GLOQWORD(m,a)
+#define GLOUINT32(m,a)    GLODWORD(m,a)
+#define GLOUINT16(m,a)    GLOWORD(m,a)
+#define GLOUINT8(m,a)     GLOBYTE(m,a)
+
+#define GLOFLOAT(m,a,b)   (*(float    *)GLOADDR(m,a,b))
+#define GLODOUBLE(m,a,b)  (*(double   *)GLOADDR(m,a,b))
+
 
 /* --------------------------------------------------------------------------- */
 

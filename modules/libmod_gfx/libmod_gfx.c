@@ -84,7 +84,6 @@ DLVARFIXUP __bgdexport( libmod_gfx, locals_fixup )[] = {
 
 DLVARFIXUP __bgdexport( libmod_gfx, globals_fixup )[] = {
     /* Nombre de variable global, puntero al dato, tama�o del elemento, cantidad de elementos */
-    { "graph_mode"                      , NULL, -1, -1 },
     { "scroll"                          , NULL, -1, -1 },
     { "mouse.x"                         , NULL, -1, -1 },
     { "mouse.y"                         , NULL, -1, -1 },

@@ -308,14 +308,14 @@ void gr_blit(
 
     SDL_Rect dstrect;
     double centerx, centery,
-           scalex100, scaley100;
+           scalex_adjusted, scaley_adjusted;
     int i;
 
     if ( flags & B_HMIRROR ) angle = -angle;
     if ( flags & B_VMIRROR ) angle = -angle;
 
-    scalex100 = scalex / 100.0;
-    scaley100 = scaley / 100.0;
+    scalex_adjusted = scalex / 100.0;
+    scaley_adjusted = scaley / 100.0;
 
     if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
         int64_t cx = gr->cpoints[0].x, cy = gr->cpoints[0].y;
@@ -323,11 +323,11 @@ void gr_blit(
         if ( flags & B_HMIRROR ) cx = gr->width - cx - 1;
         if ( flags & B_VMIRROR ) cy = gr->height - cy - 1;
 
-        centerx = scalex100 * cx;
-        centery = scaley100 * cy;
+        centerx = scalex_adjusted * cx;
+        centery = scaley_adjusted * cy;
     } else {
-        centerx = scalex100 * w / 2.0;
-        centery = scaley100 * h / 2.0;
+        centerx = scalex_adjusted * w / 2.0;
+        centery = scaley_adjusted * h / 2.0;
     }
 
     if ( gr->segments ) {
@@ -338,8 +338,8 @@ void gr_blit(
         if ( flags & B_VMIRROR ) mirror_offset += gr->nsegments * 2;
 
         for ( i = mirror_offset; i < mirror_offset + gr->nsegments; i++ ) {
-            double  offx = gr->segments[ i ].offx * scalex100,
-                    offy = gr->segments[ i ].offy * scaley100;
+            double  offx = gr->segments[ i ].offx * scalex_adjusted,
+                    offy = gr->segments[ i ].offy * scaley_adjusted;
 
             tex = gr->segments[ i ].texture;
 
@@ -348,8 +348,8 @@ void gr_blit(
 
             dstrect.x = scrx - centerx + offx;
             dstrect.y = scry - centery + offy;
-            dstrect.w = scalex100 * gr->segments[ i ].w; // Calculate dest region according texture
-            dstrect.h = scaley100 * gr->segments[ i ].h; // Calculate dest region according texture
+            dstrect.w = scalex_adjusted * gr->segments[ i ].w; // Calculate dest region according texture
+            dstrect.h = scaley_adjusted * gr->segments[ i ].h; // Calculate dest region according texture
 
             SDL_SetTextureBlendMode( tex, blend_mode );
             SDL_SetTextureAlphaMod( tex, alpha );
@@ -364,8 +364,8 @@ void gr_blit(
 
         dstrect.x = scrx - center.x;
         dstrect.y = scry - center.y;
-        dstrect.w = scalex100 * w;
-        dstrect.h = scaley100 * h;
+        dstrect.w = scalex_adjusted * w;
+        dstrect.h = scaley_adjusted * h;
 
         SDL_SetTextureBlendMode( gr->texture, blend_mode );
         SDL_SetTextureAlphaMod( gr->texture, alpha );

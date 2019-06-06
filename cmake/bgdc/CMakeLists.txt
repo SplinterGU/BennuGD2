@@ -1,5 +1,4 @@
 project(bgdc)
-set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 
 find_package(ZLIB REQUIRED)

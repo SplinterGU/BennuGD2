@@ -106,7 +106,7 @@ void gr_set_caption( char * title ) {
 
 /* --------------------------------------------------------------------------- */
 
-int gr_set_mode( int width, int height, int depth ) {
+int gr_set_mode( int width, int height, int flags ) {
     char * e;
     SDL_DisplayMode current;
 
@@ -120,10 +120,10 @@ int gr_set_mode( int width, int height, int depth ) {
     int renderer_width = width;
     int renderer_height = height;
 
-    full_screen = ( GLOQWORD( libbggfx, GRAPH_MODE ) & MODE_FULLSCREEN ) ? 1 : 0 ;
-    grab_input = ( GLOQWORD( libbggfx, GRAPH_MODE ) & MODE_MODAL ) ? 1 : 0 ;
-    frameless = ( GLOQWORD( libbggfx, GRAPH_MODE ) & MODE_FRAMELESS ) ? 1 : 0 ;
-    waitvsync = ( GLOQWORD( libbggfx, GRAPH_MODE ) & MODE_WAITVSYNC ) ? 1 : 0 ;
+    full_screen = ( flags & MODE_FULLSCREEN ) ? 1 : 0 ;
+    grab_input = ( flags & MODE_MODAL ) ? 1 : 0 ;
+    frameless = ( flags & MODE_FRAMELESS ) ? 1 : 0 ;
+    waitvsync = ( flags & MODE_WAITVSYNC ) ? 1 : 0 ;
     full_screen |= GLOQWORD( libbggfx, FULL_SCREEN );
 
     scale_resolution = GLOQWORD( libbggfx, SCALE_RESOLUTION );
@@ -241,6 +241,7 @@ int gr_set_mode( int width, int height, int depth ) {
 
 void gr_video_init() {
     char * e;
+    int flags = 0;
 
     if ( !SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_InitSubSystem( SDL_INIT_VIDEO );
 
@@ -248,9 +249,9 @@ void gr_video_init() {
 
     if ( ( e = getenv( "VIDEO_WIDTH"  ) ) ) scr_width = atoi(e);
     if ( ( e = getenv( "VIDEO_HEIGHT" ) ) ) scr_height = atoi(e);
-    if ( ( e = getenv( "VIDEO_FULLSCREEN" ) ) ) GLOQWORD( libbggfx, GRAPH_MODE ) |= atoi(e) ? MODE_FULLSCREEN : 0;
+    if ( ( e = getenv( "VIDEO_FULLSCREEN" ) ) ) flags = atoi(e) ? MODE_FULLSCREEN : 0;
 
-    gr_set_mode( scr_width, scr_height, 0 );
+    gr_set_mode( scr_width, scr_height, flags );
 }
 
 /* --------------------------------------------------------------------------- */
