@@ -176,8 +176,8 @@ int gr_set_mode( int width, int height, int flags ) {
     if ( !gWindow ) {
         //Create window
         int sdl_flags = SDL_WINDOW_SHOWN;
-        if ( frameless )  sdl_flags |= SDL_WINDOW_BORDERLESS;
-        if ( full_screen )  sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        if ( frameless ) sdl_flags |= SDL_WINDOW_BORDERLESS;
+        if ( full_screen ) sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
         if ( grab_input ) sdl_flags |= SDL_WINDOW_INPUT_GRABBED;
 
         gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
@@ -185,9 +185,9 @@ int gr_set_mode( int width, int height, int flags ) {
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
     } else {
         SDL_SetWindowSize( gWindow, renderer_width, renderer_height );
-        if ( frameless ) SDL_SetWindowBordered( gWindow, SDL_TRUE );
-        if ( full_screen ) SDL_SetWindowFullscreen( gWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
-        if ( grab_input ) SDL_SetWindowGrab( gWindow, SDL_TRUE );
+        SDL_SetWindowBordered( gWindow, frameless ? SDL_FALSE : SDL_TRUE );
+        SDL_SetWindowFullscreen( gWindow, full_screen  ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0 );
+        SDL_SetWindowGrab( gWindow, grab_input ? SDL_TRUE : SDL_FALSE );
     }
 
     if ( !gRenderer ) {
