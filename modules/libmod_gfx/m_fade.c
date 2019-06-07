@@ -36,21 +36,21 @@
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_fade( INSTANCE * my, int64_t * params ) {
-    gr_fade_init( params[0], params[1] );
+    gr_fade_init( params[0], params[1], params[2], params[3], params[4] );
     return 1 ;
 }
 
  /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_fade_on( INSTANCE * my, int64_t * params ) {
-    gr_fade_init( 100, params[0] ) ;
+    gr_fade_init( 0, 0, 0, 0, params[0] ) ;
     return 1 ;
 }
 
  /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_fade_off( INSTANCE * my, int64_t * params ) {
-    gr_fade_init( 0, params[0] ) ;
+    gr_fade_init( 0, 0, 0, 255, params[0] ) ;
     return 1;
 }
 

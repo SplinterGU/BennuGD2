@@ -198,7 +198,7 @@ int gr_set_mode( int width, int height, int flags ) {
             return -1;
         }
         SDL_GetRendererInfo( gRenderer, &gRendererInfo );
-        printf( "max texture size: %d x %d\n", gRendererInfo.max_texture_width, gRendererInfo.max_texture_height );
+//        printf( "max texture size: %d x %d\n", gRendererInfo.max_texture_width, gRendererInfo.max_texture_height );
     }
 
     if ( waitvsync ) {

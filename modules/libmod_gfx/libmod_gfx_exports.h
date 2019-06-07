@@ -164,10 +164,10 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "RGB_GET"             , "IPPP"            , TYPE_QWORD      , libmod_gfx_get_rgb              ),
     FUNC( "RGBA_GET"            , "IPPPP"           , TYPE_QWORD      , libmod_gfx_get_rgba             ),
 
-    FUNC( "FADE"                , "II"              , TYPE_QWORD      , libmod_gfx_fade                 ),
+    FUNC( "FADE"                , "IIIII"           , TYPE_QWORD      , libmod_gfx_fade                 ),
     FUNC( "FADE_ON"             , "I"               , TYPE_QWORD      , libmod_gfx_fade_on              ),
     FUNC( "FADE_OFF"            , "I"               , TYPE_QWORD      , libmod_gfx_fade_off             ),
-
+    
     /* Video */
     FUNC( "SET_MODE"            , "II"              , TYPE_QWORD      , libmod_gfx_set_mode             ),
     FUNC( "SET_MODE"            , "III"             , TYPE_QWORD      , libmod_gfx_set_mode_extended    ),

@@ -184,13 +184,13 @@ int64_t libmod_gfx_text_write_var2( INSTANCE * my, int64_t * params ) {
  */
 
 int64_t libmod_gfx_text_write_value( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], params[5] );
+    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[5], params[4] );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_text_write_value2( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], params[6] );
+    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[6], params[5] );
 }
 
 /* --------------------------------------------------------------------------- */

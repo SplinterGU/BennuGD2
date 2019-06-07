@@ -36,36 +36,50 @@
 
 #include "libbggfx.h"
 
+#include "fmath.h"
+
 /* -------------------------------------------------------------------------- */
 
 int fade_on = 0;
 int fade_set = 0;
 
-static int fade_to;
-static double fade_pos = 100.0;
+static int fade_to_r = 0;
+static int fade_to_g = 0;
+static int fade_to_b = 0;
+static int fade_to_a = 0;
+
+static double fade_pos_r = 0.0;
+static double fade_pos_g = 0.0;
+static double fade_pos_b = 0.0;
+static double fade_pos_a = 0.0;
+
 static int fade_time_pos;
+
 static double fade_time_step;
 
 /* -------------------------------------------------------------------------- */
 /* duration = milliseconds                                                    */
 
-void gr_fade_init( int to, int duration ) {
-    if ( fade_pos == to ) {
-        GLOQWORD( libbggfx, FADING ) = 0;
-        fade_on = 0;
-        return;
-    }
+void gr_fade_init( int r, int g, int b, int a, int duration ) {
 
-    if ( to > 200 )     to = 200;
-    else if ( to < 0 )  to = 0;
+    if ( ( int ) fade_pos_a == 0 ) fade_pos_r = fade_pos_g = fade_pos_b = 0.0;
 
-    fade_time_step = duration / (double) ( to - fade_pos );
+    double  dif_r = ( double ) r - fade_pos_r,
+            dif_g = ( double ) g - fade_pos_g,
+            dif_b = ( double ) b - fade_pos_b,
+            dif_a = ( double ) a - fade_pos_a;
 
-    if ( fade_time_step == 0.0 ) return;
+    double max = MAX( ABS( dif_r ), MAX( ABS( dif_g ), MAX( ABS( dif_b ), ABS( dif_a ) ) ) );
+
+    if ( ( int ) max > 0 ) fade_time_step = duration / max; else fade_time_step = 0.0;
 
     fade_time_pos = SDL_GetTicks();
 
-    fade_to = to;
+    fade_to_r = r;
+    fade_to_g = g;
+    fade_to_b = b;
+    fade_to_a = a;
+
     fade_on = 1;
 
     GLOQWORD( libbggfx, FADING ) = 1;
@@ -74,30 +88,53 @@ void gr_fade_init( int to, int duration ) {
 /* -------------------------------------------------------------------------- */
 
 void gr_fade_step() {
-    double delta, pos;
+    double delta;
     int currtime;
 
     if ( fade_on ) {
         fade_set = 1;
         GLOQWORD( libbggfx, FADING ) = 1;
 
-        if ( ( delta = ( ( currtime = SDL_GetTicks() ) - fade_time_pos ) / fade_time_step ) != 0 ) {
-            pos = fade_pos + delta;
-            if ( ( fade_pos < fade_to && pos > fade_to ) || ( fade_pos > fade_to && pos < fade_to ) ) pos = fade_to;
-            fade_pos = pos;
+        if ( fade_time_step == 0.0 ) {
+            fade_pos_r = fade_to_r;
+            fade_pos_g = fade_to_g;
+            fade_pos_b = fade_to_b;
+            fade_pos_a = fade_to_a;
+
+        } else if ( ( delta = ( ( currtime = SDL_GetTicks() ) - fade_time_pos ) / fade_time_step ) != 0 ) {
+            if ( fade_pos_r < fade_to_r ) {
+                fade_pos_r = fade_pos_r + delta; if ( fade_pos_r > fade_to_r ) fade_pos_r = fade_to_r;
+            } else if ( fade_pos_r > fade_to_r ) {
+                fade_pos_r = fade_pos_r - delta; if ( fade_pos_r < fade_to_r ) fade_pos_r = fade_to_r;
+            }
+            if ( fade_pos_g < fade_to_g ) {
+                fade_pos_g = fade_pos_g + delta; if ( fade_pos_g > fade_to_g ) fade_pos_g = fade_to_g;
+            } else if ( fade_pos_g > fade_to_g ) {
+                fade_pos_g = fade_pos_g - delta; if ( fade_pos_g < fade_to_g ) fade_pos_g = fade_to_g;
+            }
+            if ( fade_pos_b < fade_to_b ) {
+                fade_pos_b = fade_pos_b + delta; if ( fade_pos_b > fade_to_b ) fade_pos_b = fade_to_b;
+            } else if ( fade_pos_b > fade_to_b ) {
+                fade_pos_b = fade_pos_b - delta; if ( fade_pos_b < fade_to_b ) fade_pos_b = fade_to_b;
+            }
+            if ( fade_pos_a < fade_to_a ) {
+                fade_pos_a = fade_pos_a + delta; if ( fade_pos_a > fade_to_a ) fade_pos_a = fade_to_a;
+            } else if ( fade_pos_a > fade_to_a ) {
+                fade_pos_a = fade_pos_a - delta; if ( fade_pos_a < fade_to_a ) fade_pos_a = fade_to_a;
+            }
             fade_time_pos = currtime;
+
         }
     }
 
     if ( fade_set ) {
-        if ( !fade_on && fade_pos == 100 ) fade_set = 0;
+        if ( !fade_on && ( int ) fade_pos_a == 0 ) fade_set = 0;
 
         SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_BLEND );
-        if ( fade_pos < 100 )   SDL_SetRenderDrawColor( gRenderer,   0,   0,   0, ( 100 - fade_pos ) * 255 / 100 );
-        else                    SDL_SetRenderDrawColor( gRenderer, 255, 255, 255, ( fade_pos - 100 ) * 255 / 100 );
+        SDL_SetRenderDrawColor( gRenderer, fade_pos_r, fade_pos_g, fade_pos_b, fade_pos_a );
         SDL_RenderFillRect( gRenderer, NULL );
 
-        if ( fade_pos == fade_to ) {
+        if ( ( int ) fade_pos_r == fade_to_r && ( int ) fade_pos_g == fade_to_g && ( int ) fade_pos_b == fade_to_b && ( int ) fade_pos_a == fade_to_a ) {
             GLOQWORD( libbggfx, FADING ) = 0;
             fade_on = 0;
         }
