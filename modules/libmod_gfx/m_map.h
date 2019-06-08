@@ -60,6 +60,7 @@ extern int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_load_map( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_unload_map( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params );
 
 extern int64_t gr_load_img( const char * mapname );
 

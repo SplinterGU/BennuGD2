@@ -134,27 +134,12 @@ int gr_set_mode( int width, int height, int flags ) {
     if ( ( e = getenv( "SCALE_RESOLUTION"             ) ) ) scale_resolution = atol( e );
     if ( ( e = getenv( "SCALE_RESOLUTION_ASPECTRATIO" ) ) ) scale_resolution_aspectratio = atol( e );
 
-    if ( scale_resolution != -1 ) {
+    if ( scale_resolution && scale_resolution != -1 ) {
         renderer_width  = scale_resolution / 10000 ;
         renderer_height = scale_resolution % 10000 ;
     }
 
-    /* Initialize video */
-/*
-    if ( gRenderer ) {
-        SDL_DestroyRenderer( gRenderer );
-        gRenderer = NULL;
-    }
-
-    if ( gWindow ) {
-        SDL_DestroyWindow( gWindow );
-        gWindow = NULL;
-    }
-*/
-    /* Set texture filtering to linear */
-    if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) ) { // linear
-        printf( "Warning: Linear texture filtering not enabled!" );
-    }
+    SDL_SetHint( SDL_HINT_RENDER_VSYNC, waitvsync ? "1" : "0" );
 
     /*
     SDL_WINDOW_FULLSCREEN               fullscreen window
@@ -192,7 +177,7 @@ int gr_set_mode( int width, int height, int flags ) {
 
     if ( !gRenderer ) {
         //Create renderer for window
-        gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | ( waitvsync ? SDL_RENDERER_PRESENTVSYNC : 0 ));
+        gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
         if( gRenderer == NULL ) {
             printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
             return -1;
@@ -219,12 +204,14 @@ int gr_set_mode( int width, int height, int flags ) {
 //    SDL_GetRendererOutputSize( gRenderer, &renderer_width, &renderer_height );
 
     if ( renderer_width != width || renderer_height != height ) {
-        SDL_RenderSetLogicalSize( gRenderer, width, height );
-
-        if ( scale_resolution_aspectratio != SRA_PRESERVE ) {
-            SDL_RenderSetScale( gRenderer, (double) renderer_width / (double) width, (double) renderer_height  / (double) height );
+        if ( scale_resolution_aspectratio == SRA_PRESERVE ) {
+            SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "letterbox");
+        } else {
+            SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "overscan");
         }
     }
+
+    SDL_RenderSetLogicalSize( gRenderer, width, height );
 
     scr_width = width;
     scr_height = height;

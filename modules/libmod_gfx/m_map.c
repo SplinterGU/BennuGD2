@@ -533,3 +533,21 @@ int64_t libmod_gfx_unload_map( INSTANCE * my, int64_t * params ) {
 // }
 
 /* ---------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
+    switch( params[0] ) {
+        case Q_NEAREST:
+        default:
+            return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
+
+        case Q_LINEAR:
+            return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "linear" );
+
+        case Q_BEST:
+            return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
+
+    }
+    return -1;
+}

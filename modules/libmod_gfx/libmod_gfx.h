@@ -66,6 +66,11 @@
 
 #define B_CLEAR         0x00000001
 
+/* Texture quality */
+#define Q_NEAREST       0
+#define Q_LINEAR        1
+#define Q_BEST          2
+
 /* --------------------------------------------------------------------------- */
 
 /* Locals */

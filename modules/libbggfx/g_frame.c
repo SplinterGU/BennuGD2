@@ -212,7 +212,7 @@ void gr_draw_frame() {
     if ( jump ) return;
 
     /* Set Viewport */
-    SDL_RenderSetViewport( gRenderer, NULL );
+//    SDL_RenderSetViewport( gRenderer, NULL );
 
     /* Clear screen */
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );

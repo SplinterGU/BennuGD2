@@ -71,9 +71,10 @@ enum {
     FILE_ACCESSED,
     FILE_STATECHG,
 
-    REGEX_REG,
+    TIMER,
 
-    TIMER
+    REGEX_REG
+
 } ;
 
 /* ----------------------------------------------------------------- */

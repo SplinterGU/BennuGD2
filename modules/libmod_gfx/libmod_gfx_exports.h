@@ -56,6 +56,10 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
 
     { "B_CLEAR"             , TYPE_QWORD      , B_CLEAR               },
 
+    { "Q_NEAREST"           , TYPE_QWORD      , Q_NEAREST             },
+    { "Q_LINEAR"            , TYPE_QWORD      , Q_LINEAR              },
+    { "Q_BEST"              , TYPE_QWORD      , Q_BEST                },
+
     { "CHARSET_ISO8859"     , TYPE_QWORD      , CHARSET_ISO8859       },
     { "CHARSET_CP850"       , TYPE_QWORD      , CHARSET_CP850         },
 
@@ -167,7 +171,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "FADE"                , "IIIII"           , TYPE_QWORD      , libmod_gfx_fade                 ),
     FUNC( "FADE_ON"             , "I"               , TYPE_QWORD      , libmod_gfx_fade_on              ),
     FUNC( "FADE_OFF"            , "I"               , TYPE_QWORD      , libmod_gfx_fade_off             ),
-    
+
     /* Video */
     FUNC( "SET_MODE"            , "II"              , TYPE_QWORD      , libmod_gfx_set_mode             ),
     FUNC( "SET_MODE"            , "III"             , TYPE_QWORD      , libmod_gfx_set_mode_extended    ),
@@ -304,6 +308,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "PATH_GETXY"          , "PP"              , TYPE_QWORD      , libmod_gfx_path_getxy           ),
     FUNC( "PATH_WALL"           , "I"               , TYPE_QWORD      , libmod_gfx_path_wall            ),
 #endif
+
+    FUNC( "TEXTURE_SET_QUALITY" , "I"               , TYPE_QWORD      , libmod_gfx_set_texture_quality          ),
 
     FUNC( NULL                  , NULL              , 0             , NULL                              )
 };
