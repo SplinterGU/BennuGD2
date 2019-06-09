@@ -94,7 +94,7 @@ texture_formats is an array of SDL_PixelFormatEnum values representing the avail
 /* --------------------------------------------------------------------------- */
 
 int gr_set_icon( GRAPH * map ) {
-//    SDL_SetWindowIcon(SDL_Window* window, SDL_Surface* icon);
+    if ( gWindow ) SDL_SetWindowIcon( gWindow, map->surface);
     return 1;
 }
 
