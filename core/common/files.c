@@ -126,7 +126,6 @@ int file_read( file * fp, void * buffer, int len ) {
         return result;
     }
 #endif
-
     return fread( buffer, 1, len, fp->fp );
 }
 

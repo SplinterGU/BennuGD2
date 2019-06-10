@@ -37,15 +37,16 @@
 
 #ifndef __BGDC__
 
-#ifndef __GNUC__
-#define __PACKED
-#define inline __inline
-#else
-#define __PACKED __attribute__ ((packed))
-#endif
-
 #ifdef _MSC_VER
 #pragma pack(push, 1)
+#endif
+
+#ifdef __GNUC__
+#define __PACKED __attribute__ ((packed))
+#pragma pack(1)
+#else
+#define __PACKED
+#define inline __inline
 #endif
 
 typedef struct _scrolldata {
@@ -100,6 +101,10 @@ typedef struct _scroll_Extra_data {
     uint8_t color_b2;
     int64_t reserved[8];       /* First reserved dword point to internal scrolldata struct */
 } __PACKED SCROLL_EXTRA_DATA;
+
+#ifdef __GNUC__
+#pragma pack()
+#endif
 
 #ifdef _MSC_VER
 #pragma pack(pop)

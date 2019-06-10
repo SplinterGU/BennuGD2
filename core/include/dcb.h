@@ -49,6 +49,7 @@
 
 #ifdef __GNUC__
 #define __PACKED __attribute__ ((packed))
+#pragma pack(1)
 #else
 #define __PACKED
 #endif
@@ -232,9 +233,13 @@ typedef struct {
 } __PACKED DCB_HEADER;
 
 typedef struct {
-    char    magic[12];
+    uint8_t magic[12];
     int64_t dcb_offset;
 } __PACKED dcb_signature;
+
+#ifdef __GNUC__
+#pragma pack()
+#endif
 
 #ifdef _MSC_VER
 #pragma pack(pop)
