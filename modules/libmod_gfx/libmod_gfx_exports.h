@@ -311,7 +311,11 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     FUNC( "TEXTURE_SET_QUALITY" , "I"               , TYPE_QWORD      , libmod_gfx_set_texture_quality          ),
 
-    FUNC( NULL                  , NULL              , 0             , NULL                              )
+    FUNC( "MAP_SET_PALETTE"     , "IIIIP"           , TYPE_QWORD      , libmod_gfx_set_palette                  ),
+    FUNC( "MAP_GET_PALETTE"     , "IIIIP"           , TYPE_QWORD      , libmod_gfx_get_palette                  ),
+
+
+    FUNC( NULL                  , NULL              , 0             , NULL                                      )
 };
 
 /* --------------------------------------------------------------------------- */

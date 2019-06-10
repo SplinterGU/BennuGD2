@@ -35,6 +35,8 @@
 #include "libbggfx.h"
 #include "bitwise_map.h"
 
+// #define __DISABLE_PALETTES__
+
 /* --------------------------------------------------------------------------- */
 
 uint64_t * map_code_bmp = NULL;
@@ -90,6 +92,7 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
         SDL_TEXTUREACCESS_TARGET
     */
     if ( surface ) {
+#ifdef __DISABLE_PALETTES__
         if ( surface->format->format == SDL_PIXELFORMAT_ARGB8888 /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
             gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
         } else {
@@ -99,6 +102,9 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
 
             gr->surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
         }
+#else
+        gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
+#endif
         if ( !gr->surface ) {
             free( gr );
             return NULL;

@@ -47,5 +47,7 @@ extern int64_t libmod_misc_math_fget_dist( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_near_angle( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_get_distx( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_get_disty( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_clamp( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_clampf( INSTANCE * my, int64_t * params );
 
 #endif

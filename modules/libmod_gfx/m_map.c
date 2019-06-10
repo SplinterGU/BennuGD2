@@ -551,3 +551,60 @@ int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
     }
     return -1;
 }
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
+    GRAPH * map = bitmap_get( params[0], params[1] );
+    int firstcolor = params[2], ncolors = params[3];
+    SDL_Color * colors = ( SDL_Color * ) params[4];
+
+    if ( !map->surface ) return -1;
+
+    if ( map->surface->format->BitsPerPixel != 8 ) return -2; // Not an 8-bit surface
+
+    SDL_Palette * palette = SDL_AllocPalette( 256 );
+    if ( !palette ) return -1;
+
+    if ( SDL_MUSTLOCK( map->surface ) ) {
+        SDL_LockSurface( map->surface );
+        SDL_SetPaletteColors( palette, map->surface->format->palette->colors, 0, 255 );
+        SDL_UnlockSurface( map->surface );
+    } else {
+        SDL_SetPaletteColors( palette, map->surface->format->palette->colors, 0, 255 );
+    }
+
+    SDL_SetPaletteColors( palette, colors, firstcolor, ncolors );
+
+    SDL_SetSurfacePalette( map->surface, palette );
+
+    SDL_FreePalette( palette );
+
+    map->texture_must_update = 1;
+
+    return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_palette( INSTANCE * my, int64_t * params ) {
+    GRAPH * map = bitmap_get( params[0], params[1] );
+    int firstcolor = params[2], ncolors = params[3], i;
+    SDL_Color * colors = ( SDL_Color * ) params[4];
+
+    if ( !map->surface ) return -1;
+
+    if ( map->surface->format->BitsPerPixel != 8 ) return -2; // Not an 8-bit surface
+
+    if ( SDL_MUSTLOCK( map->surface ) ) {
+        SDL_LockSurface( map->surface );
+        for ( i = 0; ncolors--; i++ ) colors[ i ] = map->surface->format->palette->colors[ firstcolor + i ];
+        SDL_UnlockSurface( map->surface );
+    } else {
+        for ( i = 0; ncolors--; i++ ) colors[ i ] = map->surface->format->palette->colors[ firstcolor + i ];
+    }
+
+    return 0;
+}
+
+/* --------------------------------------------------------------------------- */

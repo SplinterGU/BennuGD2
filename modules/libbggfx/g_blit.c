@@ -39,6 +39,43 @@
 #include "libbggfx.h"
 #include "dlvaracc.h"
 
+
+
+// #define __DISABLE_PALETTES__
+
+/* --------------------------------------------------------------------------- */
+
+#ifndef __DISABLE_PALETTES__
+int gr_update_texture( GRAPH * gr ) {
+    int must_free_surface = 0;
+    SDL_Surface * surface;
+
+    if ( gr->surface->format->format == SDL_PIXELFORMAT_ARGB8888 /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
+        surface = gr->surface;
+    } else {
+        // Set transparent color
+             if ( gr->surface->format->BitsPerPixel == 1 )  SDL_SetColorKey( surface, SDL_TRUE, 1 );
+        else                                                SDL_SetColorKey( surface, SDL_TRUE, 0 );
+
+        surface = SDL_ConvertSurfaceFormat(gr->surface, SDL_PIXELFORMAT_ARGB8888, 0);
+        if ( !surface ) return -1;
+        must_free_surface = 1;
+    }
+
+    if ( SDL_MUSTLOCK( surface ) ) {
+        SDL_LockSurface( surface );
+        SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch);
+        SDL_UnlockSurface( surface );
+    } else {
+        SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch);
+    }
+
+    if ( must_free_surface ) SDL_FreeSurface( surface );
+
+    return 0;
+}
+#endif
+
 /* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : gr_prepare_renderer
@@ -74,6 +111,9 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
                 return 1;
             }
 
+#ifndef __DISABLE_PALETTES__
+            gr_update_texture(dest);
+#else
             if ( SDL_MUSTLOCK( dest->surface ) ) {
                 SDL_LockSurface( dest->surface );
                 SDL_UpdateTexture( dest->texture, NULL, dest->surface->pixels, dest->surface->pitch );
@@ -81,7 +121,7 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
             } else {
                 SDL_UpdateTexture( dest->texture, NULL, dest->surface->pixels, dest->surface->pitch );
             }
-
+#endif
             dest->texture_must_update = 0;
 
             dest->type = BITMAP_TEXTURE_TARGET;
@@ -160,6 +200,9 @@ void gr_blit(
     if ( scalex <= 0 || scaley <= 0 ) return;
 
     if ( gr->texture && gr->texture_must_update ) {
+#ifndef __DISABLE_PALETTES__
+        gr_update_texture(gr);
+#else
         if ( SDL_MUSTLOCK( gr->surface ) ) {
             SDL_LockSurface( gr->surface );
             SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
@@ -167,7 +210,7 @@ void gr_blit(
         } else {
             SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
         }
-
+#endif
     }
 
     gr->texture_must_update = 0;
@@ -208,7 +251,7 @@ void gr_blit(
                     else                    w = gRendererInfo.max_texture_width;
                     gr->segments[seg].w = w;
                     gr->segments[seg].h = h;
-                    gr->segments[seg].texture = SDL_CreateTexture( gRenderer, gr->surface->format->format, SDL_TEXTUREACCESS_STATIC, w, h );
+                    gr->segments[seg].texture = SDL_CreateTexture( gRenderer, SDL_PIXELFORMAT_ARGB8888 /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, w, h );
                     if ( !gr->segments[seg].texture ) {
                         printf ("error creando multi textura RO [%s]\n", SDL_GetError() );
                         return;
@@ -272,19 +315,23 @@ void gr_blit(
             }
 
         } else {
-            gr->texture = SDL_CreateTexture( gRenderer, gr->surface->format->format, SDL_TEXTUREACCESS_STATIC, gr->width, gr->height );
+            gr->texture = SDL_CreateTexture( gRenderer, SDL_PIXELFORMAT_ARGB8888 /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, gr->width, gr->height );
             if ( !gr->texture ) {
                 printf ("error creando textura RO [%s]\n", SDL_GetError() );
                 return;
             }
 
-            if (SDL_MUSTLOCK(gr->surface)) {
-                SDL_LockSurface(gr->surface);
-                SDL_UpdateTexture(gr->texture, NULL, gr->surface->pixels, gr->surface->pitch);
-                SDL_UnlockSurface(gr->surface);
+#ifndef __DISABLE_PALETTES__
+            gr_update_texture(gr);
+#else
+            if ( SDL_MUSTLOCK( gr->surface ) ) {
+                SDL_LockSurface( gr->surface );
+                SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
+                SDL_UnlockSurface( gr->surface );
             } else {
-                SDL_UpdateTexture(gr->texture, NULL, gr->surface->pixels, gr->surface->pitch);
+                SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
             }
+#endif
         }
         gr->type = BITMAP_TEXTURE_STATIC;
     }

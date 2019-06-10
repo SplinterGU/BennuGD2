@@ -210,6 +210,9 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "GET_DISTX"       , "II"      , TYPE_QWORD        , libmod_misc_math_get_distx         ),
     FUNC( "GET_DISTY"       , "II"      , TYPE_QWORD        , libmod_misc_math_get_disty         ),
 
+    FUNC( "CLAMP"           , "III"     , TYPE_INT          , libmod_misc_math_clamp             ),
+    FUNC( "CLAMPF"          , "DDD"     , TYPE_DOUBLE       , libmod_misc_math_clampf            ),
+
     /* Mem */
     FUNC( "MEM_CALLOC"      , "II"      , TYPE_POINTER      , libmod_misc_mem_calloc             ),
     FUNC( "MEM_ALLOC"       , "I"       , TYPE_POINTER      , libmod_misc_mem_alloc              ),

@@ -629,7 +629,6 @@ GRAPH * gr_text_bitmap( int64_t fontid, const char * text, int64_t alignment ) {
     gr = bitmap_new_syslib( gr_text_width( fontid, ( const unsigned char * ) text ), gr_text_height( fontid, ( const unsigned char * ) text ) );
     if ( !gr ) return NULL;
 
-//    gr_clear( gr );
     if ( !gr_text_put( gr, NULL, 0, fontid, 0, -gr_text_margintop( fontid, ( const unsigned char * ) text ), ( const unsigned char * ) text ) ) {
         bitmap_destroy( gr );
         return NULL;

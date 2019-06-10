@@ -202,4 +202,19 @@ int64_t libmod_misc_math_get_disty( INSTANCE * my, int64_t * params ) {
     return ( int64_t )( params[1] * -sin( angle ) );
 }
 
-/* ----------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_clamp( INSTANCE * my, int64_t * params ) {
+    int64_t value = params[0], min = params[1], max = params[2];
+    return ( value < min ? min : value > max ? max : value );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_clampf( INSTANCE * my, int64_t * params ) {
+    double value = *( double * ) &params[0], min = *( double * ) &params[1], max = *( double * ) &params[2];
+    double res = ( value < min ? min : value > max ? max : value );
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */

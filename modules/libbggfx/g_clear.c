@@ -55,7 +55,7 @@ void gr_clear( GRAPH * dest ) {
         SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
     }
 
-    memset( dest->surface->pixels, '\0', dest->surface->h * dest->surface->pitch );
+    memset( dest->surface->pixels, '\0', dest->height * dest->surface->pitch );
 
     dest->texture_must_update = 1;
 }
@@ -76,6 +76,7 @@ void gr_clear( GRAPH * dest ) {
  */
 
 void gr_clear_as( GRAPH * dest, int color ) {
+
     if ( !dest ) return;
 
     if ( !dest->surface ) {
@@ -91,10 +92,46 @@ void gr_clear_as( GRAPH * dest, int color ) {
         return;
     }
 
-    int elements = dest->surface->h * dest->surface->pitch / 4 ;
+    switch ( dest->surface->format->BitsPerPixel ) {
+        case 1: {
+            int c = color ? 0xFF : 0 ;
+            memset( dest->surface->pixels, c, dest->surface->pitch * dest->height ) ;
+            break;
+        }
 
-    uint32_t * mem = dest->surface->pixels;
-    while( elements-- ) *mem++ = color ;
+        case 8: {
+            memset( dest->surface->pixels, color, dest->surface->pitch * dest->height ) ;
+            break;
+        }
+
+        case 16: {
+            uint8_t * data = dest->surface->pixels ;
+            int16_t * ptr ;
+            int n, y ;
+            y = dest->height;
+            while ( y-- ) {
+                ptr = ( int16_t * ) data;
+                n = dest->width;
+                while ( n-- ) * ptr++ = color ;
+                data += dest->surface->pitch;
+            }
+            break;
+        }
+
+        case 32: {
+            uint8_t * data = dest->surface->pixels ;
+            uint32_t * ptr ;
+            int n, y ;
+            y = dest->height;
+            while ( y-- ) {
+                ptr = ( uint32_t * ) data;
+                n = dest->width;
+                while ( n-- ) * ptr++ = color ;
+                data += dest->surface->pitch;
+            }
+            break;
+        }
+    }
 
     dest->texture_must_update = 1;
 }
@@ -118,9 +155,15 @@ void gr_clear_as( GRAPH * dest, int color ) {
 void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     int x, y, w, h;
 
-    if ( !dest || !dest->surface ) return;
+    if ( !dest ) return;
 
-//    if ( !dest ) dest = scrbitmap ;
+    if ( !dest->surface ) {
+        uint32_t rmask, gmask, bmask, amask;
+        getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
+        dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
+        if ( !dest->surface ) return;
+        SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
+    }
 
     if ( !region ) {
         x = 0 ;
@@ -137,15 +180,77 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     if ( x > dest->width || region->y > dest->height ) return;
     if ( ( x + w ) < 0 || ( y + h ) < 0 ) return;
 
-    int w2, h2, inc = dest->surface->pitch / 4;
-    uint32_t * mem, * pmem = ( (uint32_t *) dest->surface->pixels ) + inc * y + x;
+    switch ( dest->surface->format->BitsPerPixel ) {
+        case 1: {
+            uint8_t * mem, * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y;
+            int w2, h2;
 
-    for ( h2 = 0; h2 < h; h2++ ) {
-        mem = pmem;
-        for ( w2 = 0; w2 < w; w2++ ) {
-            *mem++ = color;
+            if ( color ) {
+                for ( h2 = 0; h2 < h; h2++ ) {
+                    mem = pmem;
+                    for ( w2 = 0; w2 < w; w2++ ) * ( mem + ( ( x + w2 ) >> 3 ) ) |= ( 0x80 >> ( ( x + w2 ) & 7 ) );
+                    pmem += dest->surface->pitch;
+                }
+            } else {
+                for ( h2 = 0; h2 < h; h2++ ) {
+                    mem = pmem;
+                    for ( w2 = 0; w2 < w; w2++ ) * ( mem + ( ( x + w2 ) >> 3 ) ) &= ~( 0x80 >> ( ( x + w2 ) & 7 ) );
+                    pmem += dest->surface->pitch;
+                }
+            }
+            dest->texture_must_update = 1;
+            break;
         }
-        pmem += inc;
+
+        case 8: {
+            uint8_t * mem, * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x;
+            int w2, h2;
+
+            for ( h2 = 0; h2 < h; h2++ ) {
+                mem = pmem;
+                for ( w2 = 0; w2 < w; w2++ ) {
+                    *mem++ = color;
+                }
+                pmem += dest->surface->pitch;
+            }
+            dest->texture_must_update = 1;
+            break;
+        }
+
+        case 16: {
+            uint8_t * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x * 2;
+            uint16_t * mem;
+            int w2, h2;
+
+            for ( h2 = 0; h2 < h; h2++ ) {
+                mem = ( uint16_t * ) pmem;
+                for ( w2 = 0; w2 < w; w2++ ) {
+                    *mem++ = color;
+                }
+                pmem += dest->surface->pitch;
+            }
+            dest->texture_must_update = 1;
+            break;
+        }
+
+        case 32: {
+            uint8_t * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x * 4;
+            uint32_t * mem;
+            int w2, h2;
+
+            for ( h2 = 0; h2 < h; h2++ ) {
+                mem = ( uint32_t * ) pmem;
+                for ( w2 = 0; w2 < w; w2++ ) {
+                    *mem++ = color;
+                }
+                pmem += dest->surface->pitch;
+            }
+            dest->texture_must_update = 1;
+            break;
+        }
+
+        default:
+            return;
     }
 
     dest->texture_must_update = 1;
