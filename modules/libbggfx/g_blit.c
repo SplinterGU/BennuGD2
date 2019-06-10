@@ -54,9 +54,9 @@ int gr_update_texture( GRAPH * gr ) {
         surface = gr->surface;
     } else {
         // Set transparent color
-             if ( gr->surface->format->BitsPerPixel == 1 )  SDL_SetColorKey( surface, SDL_TRUE, 1 );
+/*             if ( gr->surface->format->BitsPerPixel == 1 )  SDL_SetColorKey( surface, SDL_TRUE, 1 );
         else                                                SDL_SetColorKey( surface, SDL_TRUE, 0 );
-
+*/
         surface = SDL_ConvertSurfaceFormat(gr->surface, SDL_PIXELFORMAT_ARGB8888, 0);
         if ( !surface ) return -1;
         must_free_surface = 1;
