@@ -219,7 +219,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIII"     , TYPE_QWORD      , libmod_gfx_map_block_copy       ),
     FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIIBBBB", TYPE_QWORD      , libmod_gfx_map_block_copy2      ),
     FUNC( "MAP_PUT"             , "IIIIII"          , TYPE_QWORD      , libmod_gfx_map_put              ),
-    FUNC( "MAP_XPUT"            , "IIIIIIIIIIBBBB"  , TYPE_QWORD      , libmod_gfx_map_put              ),
+    FUNC( "MAP_XPUT"            , "IIIIIIIIIIBBBB"  , TYPE_QWORD      , libmod_gfx_map_put2             ),
     FUNC( "MAP_NEW"             , "II"              , TYPE_QWORD      , libmod_gfx_new_map              ),
     FUNC( "MAP_NEW"             , "III"             , TYPE_QWORD      , libmod_gfx_new_map_extend       ),
     FUNC( "MAP_CLEAR"           , "II"              , TYPE_QWORD      , libmod_gfx_map_clear            ),

@@ -99,8 +99,8 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
     if ( clip ) {
         rect.x = clip->x;
         rect.y = clip->y;
-        rect.w = clip->x2 - clip->x;
-        rect.h = clip->y2 - clip->y;
+        rect.w = clip->x2 - clip->x + 1;
+        rect.h = clip->y2 - clip->y + 1;
     } else {
         rect.x = 0;
         rect.y = 0;
