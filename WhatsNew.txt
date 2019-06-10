@@ -17,7 +17,7 @@
     NOTE: SRA_FIT have issues, don't adjust aspectratio when texture rotate, use only if use non-rotate textures
 
 
-- Add CLAM(value, min, max), CLAM(double value, double min, double max)
+- Add CLAMP(value, min, max), CLAMPF(double value, double min, double max)
 
 - Add TEXTURE_SET_QUALITY(quality)
     quality can be:
