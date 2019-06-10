@@ -44,8 +44,9 @@
 #define SRO_RIGHT           3
 
 /* Scale resolution aspectratio */
-#define SRA_STRETCH         0
-#define SRA_PRESERVE        1
+#define SRA_PRESERVE        0
+#define SRA_OVERSCAN        1
+#define SRA_FIT             2
 
 /* --------------------------------------------------------------------------- */
 

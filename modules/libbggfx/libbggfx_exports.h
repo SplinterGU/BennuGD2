@@ -54,8 +54,9 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "MODE_MODAL"          , TYPE_QWORD    , MODE_MODAL            },  /* GRAB INPU */
     { "MODE_FRAMELESS"      , TYPE_QWORD    , MODE_FRAMELESS        },  /* FRAMELESS window */
 
-    { "SRA_STRETCH"         , TYPE_QWORD    , SRA_STRETCH           },
     { "SRA_PRESERVE"        , TYPE_QWORD    , SRA_PRESERVE          },
+    { "SRA_OVERSCAN"        , TYPE_QWORD    , SRA_OVERSCAN          },
+    { "SRA_FIT"             , TYPE_QWORD    , SRA_FIT               },
 
     /* --- */
     { "C_SCREEN"            , TYPE_QWORD    , C_SCREEN              },

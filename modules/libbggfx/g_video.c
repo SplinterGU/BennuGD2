@@ -204,14 +204,31 @@ int gr_set_mode( int width, int height, int flags ) {
 //    SDL_GetRendererOutputSize( gRenderer, &renderer_width, &renderer_height );
 
     if ( renderer_width != width || renderer_height != height ) {
-        if ( scale_resolution_aspectratio == SRA_PRESERVE ) {
-            SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "letterbox");
-        } else {
-            SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "overscan");
-        }
-    }
+        switch ( scale_resolution_aspectratio ) {
+            case SRA_PRESERVE:
+                SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "letterbox");
+                SDL_RenderSetLogicalSize( gRenderer, width, height );
+                break;
 
-    SDL_RenderSetLogicalSize( gRenderer, width, height );
+            case SRA_OVERSCAN:
+                SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "overscan");
+                SDL_RenderSetLogicalSize( gRenderer, width, height );
+                break;
+
+            case SRA_FIT:
+                // Issues with rotated textures
+                SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "overscan");
+                SDL_RenderSetLogicalSize( gRenderer, width, height );
+                SDL_RenderSetScale( gRenderer, (float) renderer_width / (float) width, (float) renderer_height  / (float) height );
+                SDL_RenderSetViewport(gRenderer, NULL); // Fix SDL_RenderSetScale issue
+                break;
+
+        }
+
+    } else {
+        SDL_RenderSetLogicalSize( gRenderer, width, height );
+
+    }
 
     scr_width = width;
     scr_height = height;
