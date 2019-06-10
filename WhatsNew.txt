@@ -1,0 +1,62 @@
+
+2019-06-10:
+
+- Add MAP_SET_PALETTE(fileid, graphid, first_color, ncolors, byte * RGBA_data )
+      MAP_GET_PALETTE(fileid, graphid, first_color, ncolors, byte * RGBA_data )
+
+    NOTE: Only works with 8 bits surfaces, when the texture is updated the changes made in texture are lost.
+          The texture is update with original surface, changes made with map_clear* or map_put_pixel are considere as original surface.
+          Original palette is replaced.
+          Support alpha by color index.
+
+- Rework aspectratio, remove old defines, new modes are:
+    SRA_PRESERVE
+    SRA_OVERSCAN
+    SRA_FIT
+
+    NOTE: SRA_FIT have issues, don't adjust aspectratio when texture rotate, use only if use non-rotate textures
+
+
+- Add CLAM(value, min, max), CLAM(double value, double min, double max)
+
+- Add TEXTURE_SET_QUALITY(quality)
+    quality can be:
+        Q_NEAREST   (default)
+        Q_LINEAR
+        Q_BEST
+
+    NOTE: Only works with new or non drawed textures. If you want apply on exist maps, you must unload them and load them again.
+
+- Renamed MAP_XPUT to MAP_PUT
+
+- Bugfix, missing drawing line on margin right and button of screen
+
+- Fixed window_set_icon
+
+- Fixed timer
+
+- Fix fullscreen/window mode, grab and borderless.
+
+- Fix WRITE_VALUE
+
+- Rework FADE
+
+    FADE( to_R, to_G, to_B, to_A, time_in_miliseconds )
+    FADE_ON( time_in_miliseconds )          - Fade to normal
+    FADE_OFF( time_in_miliseconds )         - Fade to black
+
+- BugFix with FLOAT convertions from/to INTs types
+
+- Remove some variables
+
+- Group global variables
+
+- Update texture if surface changed
+
+- Fix SQRT name, error was named as SIRT
+
+- Fix map_get_pixel return color as RGBA (32bits)
+
+- Add vsync support and remove directdraw code
+
+- Disable crypt support
