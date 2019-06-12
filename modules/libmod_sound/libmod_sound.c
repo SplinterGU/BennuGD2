@@ -246,7 +246,6 @@ static int play_song( int64_t id, int loops ) {
         if ( result == -1 ) fprintf( stderr, "%s", Mix_GetError() );
         return result;
     }
-
     fprintf( stderr, "Play song called with invalid handle" );
     return( -1 );
 }
@@ -851,7 +850,7 @@ static int64_t libmod_sound_bgload_song( INSTANCE * my, int64_t * params ) {
 
 static int64_t libmod_sound_play_song( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
-    if ( params[0] == -1 ) return -1;
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
     return( play_song( params[0], params[1] ) );
 #else
     return -1;
@@ -876,7 +875,7 @@ static int64_t libmod_sound_play_song( INSTANCE * my, int64_t * params ) {
 
 static int64_t libmod_sound_unload_song( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
-    if ( params[0] == -1 ) return ( -1 );
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
     return( unload_song( params[0] ) );
 #else
     return -1;
@@ -902,9 +901,9 @@ static int64_t libmod_sound_unload_song( INSTANCE * my, int64_t * params ) {
 static int64_t libmod_sound_unload_song2( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
     int64_t *s = (int64_t *)(params[0]), r;
-    if ( !s || *s == -1 ) return ( -1 );
+    if ( !s || *s == -1LL ) return -1; // check for !*s in internal function
     r = unload_song( *s );
-    *s = 0;
+    *s = 0LL;
     return( r );
 #else
     return -1;
@@ -1051,7 +1050,7 @@ static int64_t libmod_sound_set_song_volume( INSTANCE * my, int64_t * params ) {
 
 static int64_t libmod_sound_fade_music_in( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
-    if ( params[0] == -1 ) return -1;
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
     return ( fade_music_in( params[0], params[1], params[2] ) );
 #else
     return -1;
@@ -1154,7 +1153,7 @@ static int64_t libmod_sound_bgload_wav( INSTANCE * my, int64_t * params ) {
 
 static int64_t libmod_sound_play_wav( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
-    if ( params[0] == -1 ) return -1;
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
     return( play_wav( params[0], params[1], -1 ) );
 #else
     return -1;
@@ -1181,7 +1180,7 @@ static int64_t libmod_sound_play_wav( INSTANCE * my, int64_t * params ) {
 
 static int64_t libmod_sound_play_wav_channel( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
-    if ( params[0] == -1 ) return -1;
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
     return( play_wav( params[0], params[1], params[2] ) );
 #else
     return -1;
@@ -1207,7 +1206,7 @@ static int64_t libmod_sound_play_wav_channel( INSTANCE * my, int64_t * params ) 
 
 static int64_t libmod_sound_unload_wav( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
-    if ( params[0] == -1 ) return -1;
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
     return( unload_wav( params[0] ) );
 #else
     return -1;
@@ -1234,9 +1233,9 @@ static int64_t libmod_sound_unload_wav( INSTANCE * my, int64_t * params ) {
 static int64_t libmod_sound_unload_wav2( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
     int64_t *s = (int64_t *)(params[0]), r;
-    if ( !s || *s == -1 ) return ( -1 );
+    if ( !s || *s == -1LL ) return -1; // check for !*s in internal function
     r = unload_wav( *s );
-    *s = 0;
+    *s = 0LL;
     return( r );
 #else
     return -1;
@@ -1251,7 +1250,7 @@ static int64_t libmod_sound_unload_wav2( INSTANCE * my, int64_t * params ) {
  *
  *  PARAMS:
  *
- *  wav id
+ *  channel
  *
  *  RETURN VALUE:
  *
@@ -1276,7 +1275,7 @@ static int64_t libmod_sound_stop_wav( INSTANCE * my, int64_t * params ) {
  *
  *  PARAMS:
  *
- *  wav id
+ *  channel
  *
  *  RETURN VALUE:
  *
@@ -1301,7 +1300,7 @@ static int64_t libmod_sound_pause_wav( INSTANCE * my, int64_t * params ) {
  *
  *  PARAMS:
  *
- *  wav id
+ *  channel
  *
  *  RETURN VALUE:
  *
@@ -1326,7 +1325,7 @@ static int64_t libmod_sound_resume_wav( INSTANCE * my, int64_t * params ) {
  *
  *  PARAMS:
  *
- *  wav id
+ *  channel
  *
  *  RETURN VALUE:
  *
@@ -1352,7 +1351,7 @@ static int64_t libmod_sound_is_playing_wav( INSTANCE * my, int64_t * params ) {
  *
  *  PARAMS:
  *
- *  wav id
+ *  channel
  *  int volume
  *
  *  RETURN VALUE:
@@ -1402,7 +1401,7 @@ static int64_t libmod_sound_reserve_channels( INSTANCE * my, int64_t * params ) 
  *
  *  PARAMS:
  *
- *  wav id
+ *  channel
  *  int volume
  *
  *  RETURN VALUE:
