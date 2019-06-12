@@ -137,7 +137,7 @@
 #define MSG_PROC_ALREADY_DEFINED                "Process/function already defined"
 #define MSG_PROC_ALREADY_DECLARED               "Process/function already declared"
 #define MSG_FRAME_REQUIRES_INT                  "FRAME requires an INT return value type"
-#define MSG_VARIABLE_ERROR                      "Variable already defined as process, expected type or variable name"
+#define MSG_VARIABLE_ERROR                      "Variable is process/process type identifier"
 #define MSG_PROTO_ERROR                         "Conflict with previous declaration"
 #define MSG_MACRO_ERROR                         "Macro %s already declared"
 #define MSG_OR                                  " or "

@@ -362,7 +362,7 @@ static void set_type( TYPEDEF * t, BASETYPE type ) {
  *
  */
 
-int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin ) {
+int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin, int level ) {
     int i, j,
         total_count, last_count = 0,
         base_offset = data->current,
@@ -566,10 +566,16 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
 
         if ( token.type != IDENTIFIER ) compile_error( MSG_IDENTIFIER_EXP );
 
-        if ( token.code < reserved_words ) {
-            if ( proc ) compile_error( MSG_VARIABLE_ERROR );
-            token_back();
-            break;
+        if ( !level ) {
+            if ( procdef_search( token.code ) ) {
+                compile_error(MSG_VARIABLE_ERROR);
+            }
+
+            if ( token.code < reserved_words ) {
+                if ( proc ) compile_error( MSG_VARIABLE_ERROR );
+                token_back();
+                break;
+            }
         }
 
         if (( var = varspace_search( n, token.code ) ) ) {
@@ -655,7 +661,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
             varspace_init( members );
 
-            ( void ) compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0 );
+            ( void ) compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0, level + 1 );
 
             type.varspace = members;
 

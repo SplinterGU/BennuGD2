@@ -3232,14 +3232,14 @@ void compile_block( PROCDEF * p ) {
                 token_back();
                 /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
                 VARSPACE * v[] = {&local, p->pubvars, NULL};
-                compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1 );
+                compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0 );
                 continue;
             }
         } else if (( !proc->declared ) && ( token.code == identifier_local || token.code == identifier_public ) ) {
             /* Ahora las declaraciones locales, son solo locales al proceso, pero visibles desde todo proceso */
             /* Se permite declarar local/publica una variable que haya sido declarada global, es una variable propia, no es la global */
             VARSPACE * v[] = {&local, p->privars, NULL};
-            compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1 );
+            compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0 );
         }
 
         if ( token.type == IDENTIFIER ) {
