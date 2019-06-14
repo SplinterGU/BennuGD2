@@ -227,7 +227,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "MAP_CLEAR"           , "IIIIII"          , TYPE_INT        , libmod_gfx_map_clear3           ),
     FUNC( "MAP_CLEAR"           , "IIIIIII"         , TYPE_INT        , libmod_gfx_map_clear4           ),
     FUNC( "MAP_CLONE"           , "II"              , TYPE_INT        , libmod_gfx_map_clone            ),
-    FUNC( "MAP_NAME"            , "II"              , TYPE_STRING   , libmod_gfx_map_name             ),
+    FUNC( "MAP_NAME"            , "II"              , TYPE_STRING     , libmod_gfx_map_name             ),
     FUNC( "MAP_SET_NAME"        , "IIS"             , TYPE_INT        , libmod_gfx_map_set_name         ),
     FUNC( "MAP_EXISTS"          , "II"              , TYPE_INT        , libmod_gfx_map_exists           ),
     FUNC( "MAP_DEL"             , "II"              , TYPE_INT        , libmod_gfx_unload_map           ),
@@ -286,21 +286,30 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "DRAWING_Z"           , "I"               , TYPE_INT         , libmod_gfx_draw_drawing_z              ),
     FUNC( "DRAWING_Z"           , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_z_id           ),
     FUNC( "DRAWING_MAP"         , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_map            ),
-    FUNC( "DELETE_DRAW"         , "I"               , TYPE_INT         , libmod_gfx_draw_delete_drawing         ),
-    FUNC( "MOVE_DRAW"           , "III"             , TYPE_INT         , libmod_gfx_draw_move_drawing           ),
     FUNC( "DRAW_DELETE"         , "I"               , TYPE_INT         , libmod_gfx_draw_delete_drawing         ),
     FUNC( "DRAW_MOVE"           , "III"             , TYPE_INT         , libmod_gfx_draw_move_drawing           ),
     FUNC( "DRAW_POINT"          , "II"              , TYPE_INT         , libmod_gfx_draw_point                  ),
+    FUNC( "DRAW_POINT"          , "III"             , TYPE_INT         , DRWFN_COLOR(point)                     ), // libmod_gfx_draw_point_color
     FUNC( "DRAW_POINTS"         , "IP"              , TYPE_INT         , libmod_gfx_draw_points                 ),
+    FUNC( "DRAW_POINTS"         , "IPI"             , TYPE_INT         , DRWFN_COLOR(points)                    ), // libmod_gfx_draw_points_color
     FUNC( "DRAW_LINE"           , "IIII"            , TYPE_INT         , libmod_gfx_draw_line                   ),
+    FUNC( "DRAW_LINE"           , "IIIII"           , TYPE_INT         , DRWFN_COLOR(line)                      ), // libmod_gfx_draw_line_color
     FUNC( "DRAW_LINES"          , "IP"              , TYPE_INT         , libmod_gfx_draw_lines                  ),
+    FUNC( "DRAW_LINES"          , "IPI"             , TYPE_INT         , DRWFN_COLOR(lines)                     ), // libmod_gfx_draw_lines_color
     FUNC( "DRAW_BOX"            , "IIII"            , TYPE_INT         , libmod_gfx_draw_box                    ),
+    FUNC( "DRAW_BOX"            , "IIIII"           , TYPE_INT         , DRWFN_COLOR(box)                       ), // libmod_gfx_draw_box_color
     FUNC( "DRAW_BOXES"          , "IP"              , TYPE_INT         , libmod_gfx_draw_boxes                  ),
+    FUNC( "DRAW_BOXES"          , "IPI"             , TYPE_INT         , DRWFN_COLOR(boxes)                     ), // libmod_gfx_draw_boxes_color
     FUNC( "DRAW_RECT"           , "IIII"            , TYPE_INT         , libmod_gfx_draw_rect                   ),
+    FUNC( "DRAW_RECT"           , "IIIII"           , TYPE_INT         , DRWFN_COLOR(rect)                      ), // libmod_gfx_draw_rect_color
     FUNC( "DRAW_RECTS"          , "IP"              , TYPE_INT         , libmod_gfx_draw_rects                  ),
+    FUNC( "DRAW_RECTS"          , "IPI"             , TYPE_INT         , DRWFN_COLOR(rects)                     ), // libmod_gfx_draw_rects_color
     FUNC( "DRAW_CIRCLE"         , "III"             , TYPE_INT         , libmod_gfx_draw_circle                 ),
+    FUNC( "DRAW_CIRCLE"         , "IIII"            , TYPE_INT         , DRWFN_COLOR(circle)                    ), // libmod_gfx_draw_circle_color
     FUNC( "DRAW_FCIRCLE"        , "III"             , TYPE_INT         , libmod_gfx_draw_fcircle                ),
+    FUNC( "DRAW_FCIRCLE"        , "IIII"            , TYPE_INT         , DRWFN_COLOR(fcircle)                   ), // libmod_gfx_draw_fcircle_color
     FUNC( "DRAW_CURVE"          , "IIIIIIIII"       , TYPE_INT         , libmod_gfx_draw_bezier                 ),
+    FUNC( "DRAW_CURVE"          , "IIIIIIIIII"      , TYPE_INT         , DRWFN_COLOR(bezier)                    ), // libmod_gfx_draw_bezier_color
 
 #if 0
     /* pathfind */

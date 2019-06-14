@@ -127,6 +127,7 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * bbox, int64_t * z
     int64_t minx, miny, maxx, maxy;
 
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) what;
+    if ( !dr ) return 1;
 
     * drawme = 1;
 
@@ -229,6 +230,7 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * bbox, int64_t * z
 
 static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) what;
+    if ( !dr ) return;
 
     uint8_t old_drawing_color_r = drawing_color_r;
     uint8_t old_drawing_color_g = drawing_color_g;
@@ -473,14 +475,20 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* Exportable functions                                                        */
-/* --------------------------------------------------------------------------- */
 
 static SDL_PixelFormat * pixformat = NULL;
 
-int64_t libmod_gfx_draw_drawing_color( INSTANCE * my, int64_t * params ) {
+static void __get_rgba( int64_t color, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a ) {
     if ( !pixformat ) pixformat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
-    SDL_GetRGBA( params[0], pixformat, &drawing_color_r, &drawing_color_g, &drawing_color_b, &drawing_color_a ) ;
+    SDL_GetRGBA( color, pixformat, r, g, b, a ) ;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Exportable functions                                                        */
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_drawing_color( INSTANCE * my, int64_t * params ) {
+    __get_rgba( params[0], &drawing_color_r, &drawing_color_g, &drawing_color_b, &drawing_color_a ) ;
     return 1 ;
 }
 
@@ -498,8 +506,8 @@ int64_t libmod_gfx_draw_drawing_rgba( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
-    if ( !pixformat ) pixformat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
-    SDL_GetRGBA( params[1], pixformat, &dr->color_r, &dr->color_g, &dr->color_b, &dr->color_a ) ;
+    if ( !dr ) return -1;
+    __get_rgba( params[1], &dr->color_r, &dr->color_g, &dr->color_b, &dr->color_a ) ;
     return 1 ;
 }
 
@@ -507,6 +515,7 @@ int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_draw_drawing_rgba_id( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    if ( !dr ) return -1;
     dr->color_r = params[1];
     dr->color_g = params[2];
     dr->color_b = params[3];
@@ -525,6 +534,7 @@ int64_t libmod_gfx_draw_drawing_blend_mode( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_draw_drawing_blend_mode_id( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    if ( !dr ) return -1;
     dr->blend_mode = params[1];
     return 1 ;
 }
@@ -541,6 +551,7 @@ int64_t libmod_gfx_draw_drawing_z( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_draw_drawing_z_id( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    if ( !dr ) return -1;
     dr->z = params[1];
     return 1 ;
 }
@@ -571,6 +582,7 @@ int64_t libmod_gfx_draw_move_drawing( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_point( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_POINT;
         dr->x1 = params[ 0 ];
@@ -587,6 +599,7 @@ int64_t libmod_gfx_draw_point( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_points( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_POINTS;
         dr->data_size = params[ 0 ];
@@ -603,6 +616,7 @@ int64_t libmod_gfx_draw_points( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_line( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_LINE;
         dr->x1 = params[ 0 ];
@@ -621,6 +635,7 @@ int64_t libmod_gfx_draw_line( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_lines( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_LINES;
         dr->data_size = params[ 0 ];
@@ -637,6 +652,7 @@ int64_t libmod_gfx_draw_lines( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_box( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_BOX;
         dr->x1 = params[ 0 ];
@@ -655,6 +671,7 @@ int64_t libmod_gfx_draw_box( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_boxes( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_BOXES;
         dr->data_size = params[ 0 ];
@@ -671,6 +688,7 @@ int64_t libmod_gfx_draw_boxes( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_rect( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_RECT;
         dr->x1 = params[ 0 ];
@@ -689,6 +707,7 @@ int64_t libmod_gfx_draw_rect( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_rects( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_RECTS;
         dr->data_size = params[ 0 ];
@@ -705,6 +724,7 @@ int64_t libmod_gfx_draw_rects( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_circle( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_CIRCLE;
         dr->x1 = params[ 0 ];
@@ -725,6 +745,7 @@ int64_t libmod_gfx_draw_circle( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_fcircle( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_FCIRCLE;
         dr->x1 = params[ 0 ];
@@ -745,6 +766,7 @@ int64_t libmod_gfx_draw_fcircle( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
 
         dr->type = DRAWOBJ_CURVE;
         dr->x1 = params[ 0 ];
@@ -765,5 +787,42 @@ int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params ) {
     draw_bezier( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ], params[ 5 ], params[ 6 ], params[ 7 ], params[ 8 ], NULL, NULL );
     return 1;
 }
+
+/* --------------------------------------------------------------------------- */
+
+#undef DRWFN_COLOR
+#define DRWFN_COLOR(fn,params_color) \
+int64_t libmod_gfx_draw_##fn##_color( INSTANCE * my, int64_t * params ) { \
+     \
+    uint8_t old_drawing_color_r = drawing_color_r; \
+    uint8_t old_drawing_color_g = drawing_color_g; \
+    uint8_t old_drawing_color_b = drawing_color_b; \
+    uint8_t old_drawing_color_a = drawing_color_a; \
+ \
+    __get_rgba( params[params_color], &drawing_color_r, &drawing_color_g, &drawing_color_b, &drawing_color_a ); \
+ \
+    int64_t result = libmod_gfx_draw_##fn( my, params ); \
+ \
+    drawing_color_r = old_drawing_color_r; \
+    drawing_color_g = old_drawing_color_g; \
+    drawing_color_b = old_drawing_color_b; \
+    drawing_color_a = old_drawing_color_a; \
+ \
+    return result ; \
+}
+
+/* ----------------------------------------------------------------- */
+
+DRWFN_COLOR(point,2)
+DRWFN_COLOR(points,2)
+DRWFN_COLOR(line,4)
+DRWFN_COLOR(lines,2)
+DRWFN_COLOR(box,4)
+DRWFN_COLOR(boxes,2)
+DRWFN_COLOR(rect,4)
+DRWFN_COLOR(rects,2)
+DRWFN_COLOR(circle,3)
+DRWFN_COLOR(fcircle,3)
+DRWFN_COLOR(bezier,9)
 
 /* ----------------------------------------------------------------- */

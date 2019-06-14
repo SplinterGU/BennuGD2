@@ -59,6 +59,24 @@ extern int64_t libmod_gfx_draw_circle( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_fcircle( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params );
 
+#define EXPORT_DRWFN_COLOR(fn) extern int64_t libmod_gfx_draw_##fn##_color( INSTANCE * my, int64_t * params );
+
+EXPORT_DRWFN_COLOR(point)
+EXPORT_DRWFN_COLOR(points)
+EXPORT_DRWFN_COLOR(line)
+EXPORT_DRWFN_COLOR(lines)
+EXPORT_DRWFN_COLOR(box)
+EXPORT_DRWFN_COLOR(boxes)
+EXPORT_DRWFN_COLOR(rect)
+EXPORT_DRWFN_COLOR(rects)
+EXPORT_DRWFN_COLOR(circle)
+EXPORT_DRWFN_COLOR(fcircle)
+EXPORT_DRWFN_COLOR(bezier)
+
+#undef EXPORT_DRWFN_COLOR
+
+#define DRWFN_COLOR(fn) libmod_gfx_draw_##fn##_color
+
 /* ----------------------------------------------------------------- */
 
 #endif

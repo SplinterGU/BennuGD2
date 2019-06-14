@@ -199,8 +199,7 @@ int identifier_is_basic_type(int64_t id) {
 		id == identifier_unsigned 	||
         id == identifier_double 	||
 		id == identifier_float 		||
-		id == identifier_string		||
-        id == identifier_bool
+		id == identifier_string
         //|| id == identifier_struct
 		);
 }

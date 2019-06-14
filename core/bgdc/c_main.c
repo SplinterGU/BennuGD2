@@ -62,7 +62,6 @@ int64_t identifier_qword,       identifier_int64,       identifier_double,
         identifier_int32,       identifier_short,       identifier_char,
         identifier_unsigned,    identifier_signed,      identifier_string,
         identifier_float,       identifier_struct,      identifier_type,
-        identifier_bool,
 
         identifier_declare,     identifier_program,     identifier_debug,
         identifier_begin,       identifier_end,

@@ -209,7 +209,7 @@ int64_t libmod_misc_mem_memset( INSTANCE * my, int64_t * params ) {
     return 1;
 }
 
-int64_t libmod_misc_mem_memsetw( INSTANCE * my, int64_t * params ) {
+int64_t libmod_misc_mem_memset16( INSTANCE * my, int64_t * params ) {
     uint16_t * ptr = ( uint16_t * )params[0];
     const uint16_t b = params[1];
     int n;
@@ -218,7 +218,7 @@ int64_t libmod_misc_mem_memsetw( INSTANCE * my, int64_t * params ) {
     return 1;
 }
 
-int64_t libmod_misc_mem_memseti( INSTANCE * my, int64_t * params ) {
+int64_t libmod_misc_mem_memset32( INSTANCE * my, int64_t * params ) {
     uint32_t * ptr = ( uint32_t * )params[0];
     const uint32_t b = params[1];
     int n;
@@ -227,7 +227,7 @@ int64_t libmod_misc_mem_memseti( INSTANCE * my, int64_t * params ) {
     return 1;
 }
 
-int64_t libmod_misc_mem_memsetq( INSTANCE * my, int64_t * params ) {
+int64_t libmod_misc_mem_memset64( INSTANCE * my, int64_t * params ) {
     uint64_t * ptr = ( uint64_t * )params[0];
     const uint64_t b = params[1];
     int n;

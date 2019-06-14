@@ -1343,6 +1343,26 @@ expresion_result compile_cast() {
                 codeblock_add( code,  mntype( res.type, 0 ) | MN_PTR, 0 );
                 res.lvalue = 0;
             }
+            if ( res.constant ) {
+                switch( typedef_base( type ) ) {
+                    case TYPE_QWORD:
+                        res.fvalue = res.value = ( uint64_t ) res.value;
+                        break;
+
+                    case TYPE_DWORD:
+                        res.fvalue = res.value = ( uint32_t ) res.value;
+                        break;
+
+                    case TYPE_WORD:
+                        res.fvalue = res.value = ( uint16_t ) res.value;
+                        break;
+
+                    case TYPE_BYTE:
+                        res.fvalue = res.value = ( uint8_t ) res.value;
+                        break;
+                }
+            }
+
         } else {
             compile_error( MSG_CONVERSION );
         }
@@ -1350,6 +1370,10 @@ expresion_result compile_cast() {
         if ( typedef_is_integer( res.type ) ) {
             switch ( type.chunk[0].type ) {
                 case    TYPE_BYTE:
+                        codeblock_add( code, MN_INT2BYTE | MN_UNSIGNED, 0 );
+                        res.type = type;
+                        break;
+
                 case    TYPE_SBYTE:
                 case    TYPE_CHAR:
                         codeblock_add( code, MN_INT2BYTE, 0 );
@@ -1357,28 +1381,38 @@ expresion_result compile_cast() {
                         break;
 
                 case    TYPE_WORD:
+                        codeblock_add( code, MN_INT2WORD | MN_UNSIGNED, 0 );
+                        res.type = type;
+                        break;
+
                 case    TYPE_SHORT:
                         codeblock_add( code, MN_INT2WORD, 0 );
                         res.type = type;
                         break;
 
                 case    TYPE_DWORD:
+                        codeblock_add( code, MN_INT2DWORD | MN_UNSIGNED, 0 );
+                        res.type = type;
+                        break;
+
                 case    TYPE_INT32:
                         codeblock_add( code, MN_INT2DWORD, 0 );
                         res.type = type;
                         break;
 
-                case    TYPE_UNDEFINED:
                 case    TYPE_INT:
                 case    TYPE_QWORD:
+                case    TYPE_POINTER:
+                        res.type = type;
+                        break;
+
+                case    TYPE_UNDEFINED:
                 case    TYPE_FLOAT:
                 case    TYPE_DOUBLE:
                 case    TYPE_STRING:
                 case    TYPE_ARRAY:
                 case    TYPE_STRUCT:
-                case    TYPE_POINTER:
                         break;
-
             }
         }
     } else if ( typedef_is_string( type ) ) {

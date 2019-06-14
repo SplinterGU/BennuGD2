@@ -171,7 +171,7 @@ int64_t savetypes( file * fp, void * data, DCB_TYPEDEF * var, int64_t nvars, int
 int64_t savetype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat ) {
     int64_t n = 0, count = 1, result = 0, partial;
     const char * str;
-    int64_t len;
+    uint32_t len;
 
     for ( ;; ) {
         switch ( var->BaseType[n] ) {
@@ -206,7 +206,7 @@ int64_t savetype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat )
                     for ( ; count; count-- ) {
                         str = string_get( *( uint64_t * )data );
                         len = strlen( str );
-                        file_writeUint64( fp, (uint64_t *)&len );
+                        file_writeUint32( fp, (uint32_t *)&len );
                         file_write( fp, ( void* )str, len );
                         data = ( uint8_t* )data + sizeof( uint64_t );
                         result += sizeof( uint64_t );
@@ -255,8 +255,9 @@ int64_t savetype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat )
  */
 
 int64_t loadtype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat ) {
-    int64_t n = 0, count = 1, result = 0, len, partial;
+    int64_t n = 0, count = 1, result = 0, partial;
     char * str;
+    uint32_t len;
 
     for ( ;; ) {
         switch ( var->BaseType[n] ) {
@@ -292,7 +293,7 @@ int64_t loadtype( file * fp, void * data, DCB_TYPEDEF * var, int64_t dcbformat )
                 } else {
                     for ( ; count; count-- ) {
                         string_discard( *( uint64_t* )data );
-                        file_readUint64( fp, (uint64_t *)&len );
+                        file_readUint32( fp, (uint32_t *)&len );
                         str = malloc( len + 1 );
                         if ( !str ) {
                             fprintf( stderr, "loadtype: out of memory\n" ) ;

@@ -868,117 +868,192 @@ main_loop_instance_go:
             /* Convert */
 
             case MN_DOUBLE2INT | MN_QWORD:
+                r->stack_ptr[-ptr[1] - 1] = ( int64_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
+                ptr += 2;
+                break;
+
             case MN_DOUBLE2INT | MN_QWORD | MN_UNSIGNED:
-                *( int64_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( int64_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = ( uint64_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
 
             case MN_DOUBLE2INT | MN_DWORD:
+                r->stack_ptr[-ptr[1] - 1] = ( int32_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
+                ptr += 2;
+                break;
+
             case MN_DOUBLE2INT | MN_DWORD | MN_UNSIGNED:
-                *( int32_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( int32_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = ( uint32_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
 
             case MN_DOUBLE2INT | MN_WORD:
+                r->stack_ptr[-ptr[1] - 1] = ( int16_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
+                ptr += 2;
+                break;
+
             case MN_DOUBLE2INT | MN_WORD | MN_UNSIGNED:
-                *( int16_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( int16_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = ( uint16_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
 
             case MN_DOUBLE2INT | MN_BYTE:
+                r->stack_ptr[-ptr[1] - 1] = ( int8_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
+                ptr += 2;
+                break;
+
             case MN_DOUBLE2INT | MN_BYTE | MN_UNSIGNED:
-                *( int8_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( int8_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = ( uint8_t ) * ( double * ) &( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
 
             case MN_INT2DOUBLE | MN_QWORD:
+                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) ( int64_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2DOUBLE | MN_QWORD | MN_UNSIGNED:
-                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) * ( int64_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) ( uint64_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2DOUBLE | MN_DWORD:
+                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) ( int32_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2DOUBLE | MN_DWORD | MN_UNSIGNED:
-                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) * ( int32_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) ( uint32_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2DOUBLE | MN_WORD:
+                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) ( int16_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2DOUBLE | MN_UNSIGNED | MN_WORD:
-                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) * ( uint16_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) ( uint16_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2DOUBLE | MN_BYTE:
+                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) ( int8_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2DOUBLE | MN_UNSIGNED | MN_BYTE:
-                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) * ( uint8_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( double * )&( r->stack_ptr[-ptr[1] - 1] ) = ( double ) ( uint8_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_FLOAT2INT | MN_QWORD:
+                r->stack_ptr[-ptr[1] - 1] = ( int64_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
+                ptr += 2;
+                break;
+
             case MN_FLOAT2INT | MN_QWORD | MN_UNSIGNED:
-                *( int64_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( int64_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = ( uint64_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
 
             case MN_FLOAT2INT | MN_DWORD:
+                r->stack_ptr[-ptr[1] - 1] = ( int32_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
+                ptr += 2;
+                break;
+
             case MN_FLOAT2INT | MN_DWORD | MN_UNSIGNED:
-                *( int32_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( int32_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = ( uint32_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
 
             case MN_FLOAT2INT | MN_WORD:
+                r->stack_ptr[-ptr[1] - 1] = ( int16_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
+                ptr += 2;
+                break;
+
             case MN_FLOAT2INT | MN_WORD | MN_UNSIGNED:
-                *( int16_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( int16_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = ( uint16_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
 
             case MN_FLOAT2INT | MN_BYTE:
+                r->stack_ptr[-ptr[1] - 1] = ( int8_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
+                ptr += 2;
+                break;
+
             case MN_FLOAT2INT | MN_BYTE | MN_UNSIGNED:
-                *( int8_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( int8_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
+                r->stack_ptr[-ptr[1] - 1] = ( uint8_t ) * ( float * ) &( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
 
             case MN_INT2FLOAT | MN_QWORD:
+                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) ( int64_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2FLOAT | MN_QWORD | MN_UNSIGNED:
-                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) * ( int64_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) ( uint64_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2FLOAT | MN_DWORD:
+                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) ( int32_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2FLOAT | MN_DWORD | MN_UNSIGNED:
-                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) * ( int32_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) ( uint32_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2FLOAT | MN_WORD:
+                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) ( int16_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2FLOAT | MN_UNSIGNED | MN_WORD:
-                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) * ( uint16_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) ( uint16_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2FLOAT | MN_BYTE:
+                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) ( int8_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2FLOAT | MN_UNSIGNED | MN_BYTE:
-                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) * ( uint8_t * ) &( r->stack_ptr[-ptr[1] - 1] );
+                *( float * )&( r->stack_ptr[-ptr[1] - 1] ) = ( float ) ( uint8_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2DWORD:
+                r->stack_ptr[-ptr[1] - 1] = ( int32_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2DWORD | MN_UNSIGNED:
-                *( uint32_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( uint32_t ) r->stack_ptr[-ptr[1] - 1];
+                r->stack_ptr[-ptr[1] - 1] = ( uint32_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2WORD:
+                r->stack_ptr[-ptr[1] - 1] = ( int16_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2WORD | MN_UNSIGNED:
-                *( uint16_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( uint16_t ) r->stack_ptr[-ptr[1] - 1];
+                r->stack_ptr[-ptr[1] - 1] = ( uint16_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
             case MN_INT2BYTE:
+                r->stack_ptr[-ptr[1] - 1] = ( int8_t ) r->stack_ptr[-ptr[1] - 1];
+                ptr += 2;
+                break;
+
             case MN_INT2BYTE | MN_UNSIGNED:
-//                *( uint8_t * )&( r->stack_ptr[-ptr[1] - 1] ) = r->stack_ptr[-ptr[1] - 1];
-                *( uint8_t * )&( r->stack_ptr[-ptr[1] - 1] ) = ( uint8_t ) r->stack_ptr[-ptr[1] - 1];
+                r->stack_ptr[-ptr[1] - 1] = ( uint8_t ) r->stack_ptr[-ptr[1] - 1];
                 ptr += 2;
                 break;
 
