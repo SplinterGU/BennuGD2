@@ -318,9 +318,15 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
                 }
 
                 if ( scrbitmap->surface ) {
+                    SDL_Rect rect;
+
+                    rect.x = rect.y = 0;
+                    rect.w = scr_width;
+                    rect.h = scr_height;
+
                     int r = SDL_RenderReadPixels( gRenderer,
-                                                  NULL,
-                                                  scrbitmap->surface->format->format,
+                                                  &rect,
+                                                  0 /*scrbitmap->surface->format->format*/,
                                                   scrbitmap->surface->pixels,
                                                   scrbitmap->surface->pitch );
                     if ( r ) {
