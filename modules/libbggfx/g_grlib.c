@@ -293,11 +293,6 @@ int64_t grlib_add_map( int64_t libid, GRAPH * map ) {
 GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
     GRLIB * lib = NULL;
     if ( !libid ) {
-        #if 0
-        /* Using (0, 0) we can get the background map */
-        if ( !mapcode ) return background;
-        #endif
-
         /* Using (0, -1) we can get the screen bitmap (undocumented bug/feature) */
         if ( mapcode == -1 ) {
             if ( scrbitmap && ( scrbitmap->width != scr_width || scrbitmap->height != scr_height ) ) {
@@ -313,8 +308,9 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
                 if ( !scrbitmap->surface ) {
                     uint32_t rmask, gmask, bmask, amask;
                     getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
+                    amask = 0; // Force alpha opaque
                     scrbitmap->surface = SDL_CreateRGBSurface(0, scr_width, scr_height, 32, rmask, gmask, bmask, amask );
-                    SDL_SetColorKey( scrbitmap->surface, SDL_TRUE, 0 );
+                    SDL_SetColorKey( scrbitmap->surface, SDL_FALSE, 0 );
                 }
 
                 if ( scrbitmap->surface ) {

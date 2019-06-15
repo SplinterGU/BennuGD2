@@ -173,6 +173,12 @@ static int64_t gr_read_lib( file * fp ) {
 
         if ( pal ) SDL_SetSurfacePalette( surface, pal );
 
+        // Set transparent color
+        if ( bpp != 32 ) {
+            if ( bpp == 1 ) SDL_SetColorKey( surface, SDL_TRUE, 1 );
+            else            SDL_SetColorKey( surface, SDL_TRUE, 0 );
+        }
+
         int ncpoints = chunk.flags;
         CPOINT * cpoints = NULL;
 
@@ -406,6 +412,12 @@ static int64_t gr_font_loadfrom( file * fp ) {
         }
 
         if ( pal ) SDL_SetSurfacePalette( surface, pal );
+
+        // Set transparent color
+        if ( bpp != 32 ) {
+            if ( bpp == 1 ) SDL_SetColorKey( surface, SDL_TRUE, 1 );
+            else            SDL_SetColorKey( surface, SDL_TRUE, 0 );
+        }
 
         /* Graphic data */
 
@@ -746,6 +758,12 @@ static GRAPH * gr_read_map( file * fp ) {
     }
 
     if ( pal ) SDL_SetSurfacePalette( surface, pal );
+
+    // Set transparent color
+    if ( bpp != 32 ) {
+        if ( bpp == 1 ) SDL_SetColorKey( surface, SDL_TRUE, 1 );
+        else            SDL_SetColorKey( surface, SDL_TRUE, 0 );
+    }
 
     /* Graphic data */
 

@@ -97,18 +97,18 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
             gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
         } else {
             // Set transparent color
-                 if ( surface->format->BitsPerPixel == 1 )   SDL_SetColorKey( surface, SDL_TRUE, 1 );
-            else                                             SDL_SetColorKey( surface, SDL_TRUE, 0 );
+//                 if ( surface->format->BitsPerPixel == 1 )   SDL_SetColorKey( surface, SDL_TRUE, 1 );
+//            else                                             SDL_SetColorKey( surface, SDL_TRUE, 0 );
 
             gr->surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
         }
 #else
         if ( surface->format->format != SDL_PIXELFORMAT_ARGB8888 ) {
             // Set transparent color
-                 if ( surface->format->BitsPerPixel == 1 )   SDL_SetColorKey( surface, SDL_TRUE, 1 );
-            else                                             SDL_SetColorKey( surface, SDL_TRUE, 0 );
+//                 if ( surface->format->BitsPerPixel == 1 )   SDL_SetColorKey( surface, SDL_TRUE, 1 );
+//            else                                             SDL_SetColorKey( surface, SDL_TRUE, 0 );
         }
-
+        // SDL_SetColorKey( surface, SDL_FALSE, 0 ); // Disable Color Key
         gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
 #endif
         if ( !gr->surface ) {

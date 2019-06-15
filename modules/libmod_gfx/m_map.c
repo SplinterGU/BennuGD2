@@ -118,8 +118,8 @@ int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params ) {
 //        case G_PITCH:           /* g_pitch */
 //            return map->pitch;
 
-//        case G_DEPTH:           /* g_depth */
-//            return map->format->depth;
+        case G_DEPTH:           /* g_depth */
+            return map->surface->format->BitsPerPixel;
 
         case G_CENTER_X:        /* g_center_x */
             if ( map->ncpoints > 0 )
@@ -493,7 +493,7 @@ int64_t gr_load_img( const char * mapname ) {
         }
 
         // Set transparent color
-        SDL_SetColorKey( surface, SDL_TRUE, 0 );
+//        SDL_SetColorKey( surface, SDL_TRUE, 0 );
 
         GRAPH *gr = bitmap_new( 0, 0, 0, surface );
         SDL_FreeSurface( surface );

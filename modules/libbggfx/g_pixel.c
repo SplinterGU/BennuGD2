@@ -93,7 +93,7 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
         getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
         gr->surface = SDL_CreateRGBSurface( 0, gr->width, gr->height, 32, rmask, gmask, bmask, amask );
         if ( !gr->surface ) return;
-        SDL_SetColorKey( gr->surface, SDL_TRUE, 0 );
+//        SDL_SetColorKey( gr->surface, SDL_TRUE, 0 );
     }
 
     if ( x < 0 || y < 0 || x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return;

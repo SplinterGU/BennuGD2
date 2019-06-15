@@ -53,10 +53,6 @@ int gr_update_texture( GRAPH * gr ) {
     if ( gr->surface->format->format == SDL_PIXELFORMAT_ARGB8888 /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
         surface = gr->surface;
     } else {
-        // Set transparent color
-/*             if ( gr->surface->format->BitsPerPixel == 1 )  SDL_SetColorKey( surface, SDL_TRUE, 1 );
-        else                                                SDL_SetColorKey( surface, SDL_TRUE, 0 );
-*/
         surface = SDL_ConvertSurfaceFormat(gr->surface, SDL_PIXELFORMAT_ARGB8888, 0);
         if ( !surface ) return -1;
         must_free_surface = 1;
@@ -101,7 +97,7 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
             getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
             dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
             if ( !dest->surface ) return 1;
-            SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
+//            SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
         }
 
         if ( !dest->texture ) {
@@ -132,6 +128,9 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
          if ( flags & B_NOCOLORKEY )    * blend_mode = SDL_BLENDMODE_NONE;  //Disable blending on texture
     else if ( flags & B_ABLEND     )    * blend_mode = SDL_BLENDMODE_ADD;   //Additive blending on texture
     else if ( flags & B_MBLEND     )    * blend_mode = SDL_BLENDMODE_MOD;   //Modulate blending on texture
+    else if ( flags & B_SBLEND     ) {
+        * blend_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT);
+    }
     else                                * blend_mode = SDL_BLENDMODE_BLEND; //Enable blending on texture
 
     SDL_Rect rect;
@@ -154,6 +153,8 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
     }
 
     if ( dest ) SDL_SetRenderTarget( gRenderer, dest->texture );
+//    if ( dest ) { SDL_SetRenderTarget( gRenderer, dest->texture ); SDL_SetTextureBlendMode( dest->texture, SDL_BLENDMODE_NONE ); }
+
     SDL_RenderSetClipRect( gRenderer, &rect );
 
     return 0;
@@ -267,7 +268,7 @@ void gr_blit(
                             printf ("error creando temp surface [%s]\n", SDL_GetError() );
                             return;
                         }
-                        SDL_SetColorKey( auxSurface, SDL_TRUE, 0 );
+//                        SDL_SetColorKey( auxSurface, SDL_TRUE, 0 );
                     }
 
                     srcrect.x = offx;
@@ -357,6 +358,8 @@ void gr_blit(
     double centerx, centery,
            scalex_adjusted, scaley_adjusted;
     int i;
+
+    if ( flags & B_TRANSLUCENT ) alpha >>= 1;
 
     if ( flags & B_HMIRROR ) angle = -angle;
     if ( flags & B_VMIRROR ) angle = -angle;

@@ -142,7 +142,7 @@ void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAP
     SDL_Rect *map_clip = NULL, _map_clip;
     uint8_t alpha, color_r, color_g, color_b;
 
-    if ( !( alpha = LOCBYTE( libbggfx, i, ALPHA ) ) ) return;
+    alpha = LOCBYTE( libbggfx, i, ALPHA );
 
     if ( !( map = instance_graph( i ) ) ) return;
 
@@ -179,7 +179,7 @@ void draw_instance( void * what, REGION * clip ) {
     SDL_Rect *map_clip = NULL, _map_clip;
     uint8_t alpha, color_r, color_g, color_b, c;
 
-    if ( !( alpha = LOCBYTE( libbggfx, i, ALPHA ) ) ) return;
+    alpha = LOCBYTE( libbggfx, i, ALPHA );
 
     if ( !( map = ( GRAPH * ) LOCQWORD( libbggfx, i, GRAPHPTR ) ) ) return;
 

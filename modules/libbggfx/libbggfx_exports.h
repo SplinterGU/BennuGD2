@@ -64,8 +64,9 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     /* Flags para gr_blit */
     { "B_HMIRROR"           , TYPE_QWORD    , B_HMIRROR             },
     { "B_VMIRROR"           , TYPE_QWORD    , B_VMIRROR             },
+    { "B_TRANSLUCENT"       , TYPE_QWORD    , B_TRANSLUCENT         },
     { "B_ABLEND"            , TYPE_QWORD    , B_ABLEND              },
-//    { "B_SBLEND"            , TYPE_QWORD    , B_SBLEND              },
+    { "B_SBLEND"            , TYPE_QWORD    , B_SBLEND              },
     { "B_MBLEND"            , TYPE_QWORD    , B_MBLEND              },
     { "B_NOCOLORKEY"        , TYPE_QWORD    , B_NOCOLORKEY          },
 

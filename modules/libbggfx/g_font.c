@@ -483,7 +483,7 @@ int gr_font_systemfont() {
     SDL_Surface * surface = SDL_CreateRGBSurfaceFrom( pixels, 8, 8 * 256, 32, 8 * 4, rmask, gmask, bmask, amask );
     if ( !surface ) return 0;
 
-    SDL_SetColorKey( surface, SDL_TRUE, 0 );
+//    SDL_SetColorKey( surface, SDL_TRUE, 0 );
 
     GRAPH *map = bitmap_new( 0, 0, 0, surface );
     SDL_FreeSurface( surface );
