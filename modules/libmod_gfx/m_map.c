@@ -352,7 +352,7 @@ static int64_t __libmod_gfx_map_block_copy(
  ) {
     GRAPH * dest, * orig;
     REGION clip;
-    int64_t centerx, centery, flag;
+    int64_t centerx, centery;
 
     if ( !( dest = bitmap_get( dest_file, dest_graph ) ) ) return 0;
     if ( !( orig = bitmap_get( file, graph ) ) ) return 0;
@@ -365,8 +365,8 @@ static int64_t __libmod_gfx_map_block_copy(
         centerx = orig->width / 2;
     }
 
-    if ( flag & B_HMIRROR ) centerx = orig->width - 1 - centerx;
-    if ( flag & B_VMIRROR ) centery = orig->height - 1 - centery;
+    if ( flags & B_HMIRROR ) centerx = orig->width - 1 - centerx;
+    if ( flags & B_VMIRROR ) centery = orig->height - 1 - centery;
 
     if ( x  < 0 ) { dest_x += x;  w += x;   x = 0; }
     if ( y  < 0 ) { dest_y += y;  h += y;   y = 0; }
@@ -385,7 +385,7 @@ static int64_t __libmod_gfx_map_block_copy(
     clip.x2 = dest_x + w - 1;
     clip.y2 = dest_y + h - 1;
 
-    gr_blit( dest, &clip, dest_x - x + centerx, dest_y - y + centery, flag, 0, 100, 100, orig, NULL, alpha, r, g, b );
+    gr_blit( dest, &clip, dest_x - x + centerx, dest_y - y + centery, flags, 0, 100, 100, orig, NULL, alpha, r, g, b );
     return 1;
 }
 
