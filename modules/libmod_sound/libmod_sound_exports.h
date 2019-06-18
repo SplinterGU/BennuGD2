@@ -95,8 +95,8 @@ DLSYSFUNCS  __bgdexport( libmod_sound, functions_exports )[] = {
 
     FUNC( "MUSIC_SET_POSITION"      , "D"    , TYPE_INT , libmod_sound_set_music_position   ),
 
-    FUNC( "VOLUME_SET"              , "II"   , TYPE_INT , libmod_sound_set_wav_volume       ),
-    FUNC( "VOLUME_SET_CHANNEL"      , "II"   , TYPE_INT , libmod_sound_set_channel_volume   ),
+    FUNC( "WAV_SET_VOLUME"          , "II"   , TYPE_INT , libmod_sound_set_wav_volume       ),
+    FUNC( "CHANNEL_SET_VOLUME"      , "II"   , TYPE_INT , libmod_sound_set_channel_volume   ),
 
     FUNC( "SET_PANNING"             , "III"  , TYPE_INT , libmod_sound_set_panning          ),
     FUNC( "SET_POSITION"            , "III"  , TYPE_INT , libmod_sound_set_position         ),

@@ -163,10 +163,13 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "SCREEN_GET"          , ""                , TYPE_INT        , libmod_gfx_get_screen           ),
 
     FUNC( "RGB"                 , "BBB"             , TYPE_INT        , libmod_gfx_rgb                  ),
+    FUNC( "RGB"                 , "IIBBB"           , TYPE_INT        , libmod_gfx_rgb_map              ),
     FUNC( "RGBA"                , "BBBB"            , TYPE_INT        , libmod_gfx_rgba                 ),
-
+    FUNC( "RGBA"                , "IIBBBB"          , TYPE_INT        , libmod_gfx_rgba_map             ),
     FUNC( "RGB_GET"             , "IPPP"            , TYPE_INT        , libmod_gfx_get_rgb              ),
+    FUNC( "RGB_GET"             , "IIIPPP"          , TYPE_INT        , libmod_gfx_get_rgb_map          ),
     FUNC( "RGBA_GET"            , "IPPPP"           , TYPE_INT        , libmod_gfx_get_rgba             ),
+    FUNC( "RGBA_GET"            , "IIIPPPP"         , TYPE_INT        , libmod_gfx_get_rgba_map         ),
 
     FUNC( "FADE"                , "IIIII"           , TYPE_INT        , libmod_gfx_fade                 ),
     FUNC( "FADE_ON"             , "I"               , TYPE_INT        , libmod_gfx_fade_on              ),
@@ -251,7 +254,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     /* Graphic information */
     FUNC( "MAP_INFO_SET"        , "IIII"            , TYPE_INT        , libmod_gfx_graphic_set          ),
-    FUNC( "MAP_INFO_GET"        , "III"             , TYPE_INT        , libmod_gfx_graphic_info         ),
+    FUNC( "MAP_INFO"            , "IIII"            , TYPE_INT        , libmod_gfx_graphic_set          ),
     FUNC( "MAP_INFO"            , "III"             , TYPE_INT        , libmod_gfx_graphic_info         ),
 
     FUNC( "GRAPHIC_SET"         , "IIII"            , TYPE_INT        , libmod_gfx_graphic_set          ),

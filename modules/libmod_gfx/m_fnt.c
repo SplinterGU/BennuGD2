@@ -78,7 +78,7 @@ int64_t libmod_gfx_unload_fnt( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/** FNT_NEW (DEPTH)
+/** FNT_NEW ()
  *  Create a new font in memory (returns the font ID)
  */
 

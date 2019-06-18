@@ -183,9 +183,9 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "FEOF"            , "I"       , TYPE_INT          , libmod_misc_file_feof              ),
 
     FUNC( "FLENGTH"         , "I"       , TYPE_INT          , libmod_misc_file_filelength        ),
-    FUNC( "FEXISTS"         , "S"       , TYPE_INT          , libmod_misc_file_exists            ) ,
-    FUNC( "FREMOVE"         , "S"       , TYPE_INT          , libmod_misc_file_remove            ) ,
-    FUNC( "FMOVE"           , "SS"      , TYPE_INT          , libmod_misc_file_move              ) ,
+    FUNC( "FEXISTS"         , "S"       , TYPE_INT          , libmod_misc_file_exists            ),
+    FUNC( "FREMOVE"         , "S"       , TYPE_INT          , libmod_misc_file_remove            ),
+    FUNC( "FMOVE"           , "SS"      , TYPE_INT          , libmod_misc_file_move              ),
 
     /* Math */
     FUNC( "ABS"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_abs               ),

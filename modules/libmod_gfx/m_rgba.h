@@ -39,4 +39,9 @@ extern int64_t libmod_gfx_get_rgba( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_rgb( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_rgba( INSTANCE * my, int64_t * params );
 
+extern int64_t libmod_gfx_get_rgb_map( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_get_rgba_map( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_rgb_map( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_rgba_map( INSTANCE * my, int64_t * params );
+
 #endif
