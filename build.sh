@@ -46,8 +46,10 @@ do
             echo "#### Building packages ####"
             mkdir -p packages 2>/dev/null
             rm -f packages/*
+            tar -zcvf packages/bgd2-linux-gnu-$(date +"%Y-%m-%d").tgz cmake/build-linux-gnu/bin/* WhatsNew.txt --transform='s/[^\/]*\///g'
+            tar -zcvf packages/bgd2-i386-linux-gnu-$(date +"%Y-%m-%d").tgz cmake/build-i386-linux-gnu/bin/* WhatsNew.txt --transform='s/[^\/]*\///g'
+            rar a -ep1 packages/bgd2-i686-w64-mingw32-$(date +"%Y-%m-%d").rar cmake/build-i686-w64-mingw32/bin/* dependencies/i686-w64-mingw32/* WhatsNew.txt
             rar a -ep1 packages/bgd2-x86_64-w64-mingw32-$(date +"%Y-%m-%d").rar cmake/build-x86_64-w64-mingw32/bin/* dependencies/x86_64-w64-mingw32/* WhatsNew.txt
-            tar -zcvf packages/bgd2-linux-gnu-$(date +"%Y-%m-%d").tgz cmake/build-linux-gnu/bin/* WhatsNew.txt
             exit 0
             ;;
 
