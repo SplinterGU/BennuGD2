@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages]"
+    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [verbose]"
     exit 1
 }
 
@@ -36,6 +36,10 @@ do
 
         clean)
             CLEAN=1
+            ;;
+
+        verbose)
+            VERBOSE="-DCMAKE_VERBOSE_MAKEFILE=ON"
             ;;
 
         packages)
@@ -72,7 +76,7 @@ if [ "$CLEAN" == "1" ]
 then
     rm CMakeCache.txt
 fi
-cmake .. $DEBUG -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA
+cmake .. $DEBUG -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE
 if [ "$CLEAN" == "1" ]
 then
     make clean

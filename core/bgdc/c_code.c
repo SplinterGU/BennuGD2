@@ -874,7 +874,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                 } else {
                     DCB_TYPEDEF type;
                     dcb_settype( &type, &res.type );
-                    segment_alloc( globaldata, sizeof( TYPEDEF ) );
+                    segment_alloc( globaldata, sizeof( DCB_TYPEDEF ) );
                     codeblock_add( code, MN_GLOBAL, globaldata->current );
                     memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &type, sizeof( DCB_TYPEDEF ) );
                     globaldata->current += sizeof( DCB_TYPEDEF );
