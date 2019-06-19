@@ -73,7 +73,7 @@ static int stack_dump( INSTANCE * r ) {
             i = 0;
             printf( "\n" );
         }
-        printf( "%016lX ", *ptr++ );
+        printf( "%016"PRIX64, *ptr++ );
         i++;
     }
 
@@ -187,6 +187,7 @@ int64_t instance_go( INSTANCE * r ) {
     if ( debug > 0 ) {
         printf( "\n>>> Instance:%s ProcID:%" PRId64 " StackUsed:%" PRId64 "/%" PRId64 "\n", r->proc->name,
                                                                  LOCQWORD( r, PROCESS_ID ),
+                                                                 ( int64_t )
                                                                  ( r->stack_ptr - r->stack ) / sizeof( r->stack[0] ),
                                                                  ( r->stack[0] & ~STACK_RETURN_VALUE )
               );
@@ -231,9 +232,9 @@ main_loop_instance_go:
         if ( debug > 0 ) {
             if ( debug > 2 ) {
                 int c = 34 - stack_dump( r ) * 17;
-                if ( debug > 1 ) printf( "%*.*s[%4" PRIu64 "] ", c, c, "", ( ptr - r->code ) );
+                if ( debug > 1 ) printf( "%*.*s[%4" PRIu64 "] ", c, c, "", ( uint64_t ) ( ptr - r->code ) );
             }
-            else if ( debug > 1 ) printf( "[%4" PRIu64 "] ", ( ptr - r->code ) );
+            else if ( debug > 1 ) printf( "[%4" PRIu64 "] ", ( uint64_t ) ( ptr - r->code ) );
             mnemonic_dump( *ptr, ptr[1] );
             fflush(stdout);
         }
@@ -2595,7 +2596,7 @@ main_loop_instance_go:
                 break;
 
             default:
-                fprintf( stderr, "ERROR: Runtime error in %s(%" PRId64 ") - Mnemonic 0x%02lX not implemented\n", r->proc->name, LOCQWORD( r, PROCESS_ID ), *ptr );
+                fprintf( stderr, "ERROR: Runtime error in %s(%" PRId64 ") - Mnemonic 0x%02"PRIX64" not implemented\n", r->proc->name, LOCQWORD( r, PROCESS_ID ), *ptr );
                 exit( 0 );
         }
 

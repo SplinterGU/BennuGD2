@@ -2,10 +2,9 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|linux] [debug] [clean] [packages]"
+    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages]"
     exit 1
 }
-
 
 BUILD_TYPE=Release
 
@@ -19,6 +18,16 @@ do
 
         linux)
             TARGET=linux-gnu
+            ;;
+
+        windows32)
+            TARGET=i686-w64-mingw32
+            CMAKE_EXTRA="-DBUILD_WIN32=ON -DCMAKE_TOOLCHAIN_FILE=../Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/i686-w64-mingw32/include/SDL2 -DSDL2_LIBRARY=/usr/${TARGET}/bin/SDL2.dll -DSDL2_IMAGE_LIBRARY=/usr/${TARGET}/bin/SDL2_image.dll -DSDLMIXER_LIBRARY=/usr/${TARGET}/bin/SDL2_mixer.dll"
+            ;;
+
+        linux32)
+            TARGET=i386-linux-gnu
+            CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=../Toolchains/linux_i686.toolchain.cmake -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=/usr/lib/${TARGET}/libSDL2-2.0.so.0 -DSDL2_IMAGE_LIBRARY=/usr/lib/${TARGET}/libSDL2_image-2.0.so.0 -DSDLMIXER_LIBRARY=/usr/lib/${TARGET}/libSDL2_mixer-2.0.so.0"
             ;;
 
         debug)
