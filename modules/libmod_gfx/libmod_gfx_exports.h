@@ -237,7 +237,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "MAP_UNLOAD"          , "II"              , TYPE_INT        , libmod_gfx_unload_map           ),
     FUNC( "MAP_LOAD"            , "S"               , TYPE_INT        , libmod_gfx_load_map             ),
     FUNC( "MAP_LOAD"            , "SP"              , TYPE_INT        , libmod_gfx_bgload_map           ),
-//    FUNC( "MAP_SAVE"            , "IIS"             , TYPE_INT        , libmod_gfx_save_map             ),
+    FUNC( "PNG_SAVE"            , "IIS"             , TYPE_INT        , libmod_gfx_save_png             ),
 //    FUNC( "MAP_BUFFER"          , "II"              , TYPE_POINTER  , libmod_gfx_map_buffer           ),
     FUNC( "MAP_GET_PIXEL"       , "IIII"            , TYPE_INT        , libmod_gfx_map_get_pixel        ),
     FUNC( "MAP_PUT_PIXEL"       , "IIIII"           , TYPE_INT        , libmod_gfx_map_put_pixel        ),

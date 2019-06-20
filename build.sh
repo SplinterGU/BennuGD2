@@ -69,7 +69,6 @@ export PKG_CONFIG_PATH
 export TARGET
 
 mkdir -p cmake/build-$TARGET 2>/dev/null
-mkdir -p bin/$TARGET 2>/dev/null
 
 echo "### Building BennuGD ($TARGET) ###"
 

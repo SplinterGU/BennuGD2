@@ -524,13 +524,18 @@ int64_t libmod_gfx_unload_map( INSTANCE * my, int64_t * params ) {
 }
 
 /* ---------------------------------------------------------------------- */
-
-// int64_t libmod_gfx_save_map( INSTANCE * my, int64_t * params )
-// {
-//     int64_t r = ( int64_t ) gr_save_map( bitmap_get( params[0], params[1] ), ( char * )string_get( params[2] ) );
-//     string_discard( params[2] );
-//     return r;
-// }
+/*
+extern DECLSPEC int SDLCALL IMG_SavePNG(SDL_Surface *surface, const char *file);
+extern DECLSPEC int SDLCALL IMG_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst);
+*/
+int64_t libmod_gfx_save_png( INSTANCE * my, int64_t * params )
+{
+    GRAPH * gr = bitmap_get( params[0], params[1] );
+    if ( !gr || !gr->surface ) return -1;
+    int64_t r = ( int64_t ) IMG_SavePNG( gr->surface, ( char * )string_get( params[2] ) );
+    string_discard( params[2] );
+    return r;
+}
 
 /* ---------------------------------------------------------------------- */
 

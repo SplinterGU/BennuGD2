@@ -295,13 +295,13 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
     if ( !libid ) {
         /* Using (0, -1) we can get the screen bitmap (undocumented bug/feature) */
         if ( mapcode == -1 ) {
-            if ( scrbitmap && ( scrbitmap->width != scr_width || scrbitmap->height != scr_height ) ) {
+            if ( scrbitmap && ( scrbitmap->width != renderer_width || scrbitmap->height != renderer_height ) ) {
                 bitmap_destroy( scrbitmap );
                 scrbitmap = NULL;
             }
 
             if ( !scrbitmap ) {
-                scrbitmap = bitmap_new( 0, scr_width, scr_height, NULL );
+                scrbitmap = bitmap_new( 0, renderer_width, renderer_height, NULL );
             }
 
             if ( scrbitmap ) {
@@ -309,7 +309,7 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
                     uint32_t rmask, gmask, bmask, amask;
                     getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
                     amask = 0; // Force alpha opaque
-                    scrbitmap->surface = SDL_CreateRGBSurface(0, scr_width, scr_height, 32, rmask, gmask, bmask, amask );
+                    scrbitmap->surface = SDL_CreateRGBSurface(0, scrbitmap->width, scrbitmap->height, 32, rmask, gmask, bmask, amask );
                     SDL_SetColorKey( scrbitmap->surface, SDL_FALSE, 0 );
                 }
 
@@ -317,8 +317,8 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
                     SDL_Rect rect;
 
                     rect.x = rect.y = 0;
-                    rect.w = scr_width;
-                    rect.h = scr_height;
+                    rect.w = scrbitmap->width;
+                    rect.h = scrbitmap->height;
 
                     int r = SDL_RenderReadPixels( gRenderer,
                                                   &rect,

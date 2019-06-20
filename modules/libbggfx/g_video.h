@@ -70,6 +70,9 @@ extern int64_t scale_resolution;
 extern int64_t scale_resolution_aspectratio;
 extern int64_t scale_resolution_orientation;
 
+extern int renderer_width;
+extern int renderer_height;
+
 extern SDL_Window * gWindow;
 extern SDL_Renderer * gRenderer;
 extern SDL_RendererInfo gRendererInfo;

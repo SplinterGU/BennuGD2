@@ -1,3 +1,27 @@
+2019-06-19:
+
+- Fix window issues in Windows
+- Disable set_mode at startup
+- For fullscreen mode don't use fake fullscreen that adjust to desktop resolution
+- Fix screen_get() in scaled mode
+- Add PNG_SAVE (ATENTION: USE IT ONLY FOR SCREEN_GET() OR MANUALLY MODIFIED/CREATED MAPS!!!)
+- Add 32bits binaries version
+- Add RGB, RGBA, RGB_GET and RGBA_GET for MAP
+- rename VOLUME_SET to WAV_SET_VOLUME and VOLUME_SET_CHANNEL to CHANNEL_SET_VOLUME
+- Fix transparence issues
+- Add B_TRANSLUCENT and B_SBLEND
+- Add Sustractive blend (but doesn't work as expected)
+- Add G_DEPTH to MAP_INFO
+- Fix blit when alpha is 0
+- Add alpha opaque for returned bitmap from screen_get()
+- Fix map_block_copy flags
+- Fix screen_get()
+- Fix cast and data type convertions
+- Strings in SAVE are compatibles as BGD1
+- Fix issue with variables already defined as "process" or "process type" identifier
+- Change UNSIGNED INT return in some functions to INT
+- Fix DBC windows/linux compatibility
+- Fix transparence in 8bpp and 16bpp maps
 
 2019-06-10:
 
@@ -5,16 +29,16 @@
       MAP_GET_PALETTE(fileid, graphid, first_color, ncolors, byte * RGBA_data )
 
     NOTE: Only works with 8 bits surfaces, when the texture is updated the changes made in texture are lost.
-          The texture is update with original surface, changes made with map_clear* or map_put_pixel are considere as original surface.
+          The texture is updated with original surface, changes made with map_clear* or map_put_pixel are considered as original surface.
           Original palette is replaced.
           Support alpha by color index.
 
-- Rework aspectratio, remove old defines, new modes are:
+- Rework aspect ratio, remove old defines, new modes are:
     SRA_PRESERVE
     SRA_OVERSCAN
     SRA_FIT
 
-    NOTE: SRA_FIT have issues, don't adjust aspectratio when texture rotate, use only if use non-rotate textures
+    NOTE: SRA_FIT have issues, don't adjust aspect ratio when texture rotate, use only if use non-rotate textures
 
 
 - Add CLAMP(value, min, max), CLAMPF(double value, double min, double max)
@@ -25,7 +49,7 @@
         Q_LINEAR
         Q_BEST
 
-    NOTE: Only works with new or non drawed textures. If you want apply on exist maps, you must unload them and load them again.
+    NOTE: Only works with new or non drawed textures. If you want to apply on exist maps, you must unload them and load them again.
 
 - Renamed MAP_XPUT to MAP_PUT
 

@@ -49,8 +49,8 @@
 
 char * apptitle = NULL ;
 
-int64_t scr_width = 0 ;
-int64_t scr_height = 0 ;
+int64_t scr_width = 320 ;
+int64_t scr_height = 240 ;
 
 int64_t scr_initialized = 0 ;
 
@@ -61,6 +61,9 @@ int64_t waitvsync = 0 ;
 
 int64_t scale_resolution = -1 ;
 int64_t scale_resolution_aspectratio = 0;
+
+int renderer_width = 0;
+int renderer_height = 0;
 
 //The window we'll be rendering to
 SDL_Window * gWindow = NULL;
@@ -110,15 +113,13 @@ int gr_set_mode( int width, int height, int flags ) {
     char * e;
     SDL_DisplayMode current;
 
-    SDL_DisableScreenSaver();
-
     SDL_GetCurrentDisplayMode( 0, &current );
 
     if ( !width ) width = current.w;
     if ( !height ) height = current.h;
 
-    int renderer_width = width;
-    int renderer_height = height;
+    renderer_width = width;
+    renderer_height = height;
 
     full_screen = ( flags & MODE_FULLSCREEN ) ? 1 : 0 ;
     grab_input = ( flags & MODE_MODAL ) ? 1 : 0 ;
@@ -135,45 +136,29 @@ int gr_set_mode( int width, int height, int flags ) {
     if ( ( e = getenv( "SCALE_RESOLUTION_ASPECTRATIO" ) ) ) scale_resolution_aspectratio = atol( e );
 
     if ( scale_resolution && scale_resolution != -1 ) {
-        renderer_width  = scale_resolution / 10000 ;
-        renderer_height = scale_resolution % 10000 ;
+        renderer_width  = ( int ) scale_resolution / 10000L ;
+        renderer_height = ( int ) scale_resolution % 10000L ;
     }
 
     SDL_SetHint( SDL_HINT_RENDER_VSYNC, waitvsync ? "1" : "0" );
-
-    /*
-    SDL_WINDOW_FULLSCREEN               fullscreen window
-    SDL_WINDOW_FULLSCREEN_DESKTOP       fullscreen window at the current desktop resolution
-    SDL_WINDOW_OPENGL                   window usable with OpenGL context
-    SDL_WINDOW_SHOWN                    window is visible
-    SDL_WINDOW_HIDDEN                   window is not visible
-    SDL_WINDOW_BORDERLESS               no window decoration
-    SDL_WINDOW_RESIZABLE                window can be resized
-    SDL_WINDOW_MINIMIZED                window is minimized
-    SDL_WINDOW_MAXIMIZED                window is maximized
-    SDL_WINDOW_INPUT_GRABBED            window has grabbed input focus
-    SDL_WINDOW_INPUT_FOCUS              window has input focus
-    SDL_WINDOW_MOUSE_FOCUS              window has mouse focus
-    SDL_WINDOW_FOREIGN                  window not created by SDL
-    SDL_WINDOW_ALLOW_HIGHDPI            window should be created in high-DPI mode if supported (>= SDL 2.0.1)
-    */
 
     if ( !gWindow ) {
         //Create window
         int sdl_flags = SDL_WINDOW_SHOWN;
         if ( frameless ) sdl_flags |= SDL_WINDOW_BORDERLESS;
-        if ( full_screen ) sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        if ( full_screen ) sdl_flags |= SDL_WINDOW_FULLSCREEN;
         if ( grab_input ) sdl_flags |= SDL_WINDOW_INPUT_GRABBED;
-
-        gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
+        gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
         if( gWindow == NULL ) return -1;
-        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
     } else {
-        SDL_SetWindowSize( gWindow, renderer_width, renderer_height );
+        SDL_SetWindowFullscreen( gWindow, full_screen  ? SDL_WINDOW_FULLSCREEN : 0 );
         SDL_SetWindowBordered( gWindow, frameless ? SDL_FALSE : SDL_TRUE );
-        SDL_SetWindowFullscreen( gWindow, full_screen  ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0 );
         SDL_SetWindowGrab( gWindow, grab_input ? SDL_TRUE : SDL_FALSE );
+        SDL_SetWindowSize( gWindow, renderer_width, renderer_height );
+        SDL_SetWindowPosition( gWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
     }
+
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 
     if ( !gRenderer ) {
         //Create renderer for window
@@ -193,6 +178,9 @@ int gr_set_mode( int width, int height, int flags ) {
     } else {
         SDL_GL_SetSwapInterval( 0 );
     }
+
+    current.w = renderer_width;
+    current.h = renderer_height;
 
     //Initialize renderer color
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );
@@ -249,18 +237,24 @@ void gr_video_init() {
 
     if ( !SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_InitSubSystem( SDL_INIT_VIDEO );
 
+    SDL_DisableScreenSaver();
+
     apptitle = appname;
 
+/*
     if ( ( e = getenv( "VIDEO_WIDTH"  ) ) ) scr_width = atoi(e);
     if ( ( e = getenv( "VIDEO_HEIGHT" ) ) ) scr_height = atoi(e);
     if ( ( e = getenv( "VIDEO_FULLSCREEN" ) ) ) flags = atoi(e) ? MODE_FULLSCREEN : 0;
 
     gr_set_mode( scr_width, scr_height, flags );
+*/
 }
 
 /* --------------------------------------------------------------------------- */
 
 void gr_video_exit() {
+    if ( gRenderer ) SDL_DestroyRenderer( gRenderer );
+    if ( gWindow ) SDL_DestroyWindow( gWindow );
     if ( SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_QuitSubSystem( SDL_INIT_VIDEO );
 }
 
