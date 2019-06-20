@@ -34,10 +34,17 @@
 #include "bgdrtm.h"
 #include "bgddl.h"
 
-#if 0
+/* --------------------------------------------------------------------------- */
+
+#define PF_NODIAG       1
+#define PF_REVERSE      2
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_path_find( INSTANCE * my, int64_t * params );
 int64_t libmod_gfx_path_getxy( INSTANCE * my, int64_t * params );
 int64_t libmod_gfx_path_wall( INSTANCE * my, int64_t * params );
-#endif
+
+/* --------------------------------------------------------------------------- */
 
 #endif

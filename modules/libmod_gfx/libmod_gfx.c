@@ -40,7 +40,7 @@
 #include "bgload.h"
 
 #include "file_div.h"
-#include "pathfind.h"
+#include "m_pathfind.h"
 
 #include "dlvaracc.h"
 

@@ -36,12 +36,12 @@
 #include "libbggfx.h"
 #include "libmod_gfx.h"
 
-#include "pathfind.h"
+#include "m_pathfind.h"
 
 /* --------------------------------------------------------------------------- */
 /* Path find                                                                   */
 /* --------------------------------------------------------------------------- */
-#if 0
+
 typedef struct _node {
     unsigned int x, y ;
     double f, g, h ;
@@ -65,7 +65,7 @@ static node * found = NULL ;
 static int destination_x, destination_y ;
 static int startup_x, startup_y ;
 
-static GRAPH * pf_map ;
+static GRAPH * pf_map = NULL ;
 
 static int block_if = 1 ;
 
@@ -73,11 +73,11 @@ static int block_if = 1 ;
 
 static double heuristic( int x, int y ) {
     int dx, dy ;
-    uint32_t block = (( uint32_t* )pf_map->surface->pixels )[(pf_map->surface->pitch*y+x)/4];
+    uint8_t block = (( uint8_t * ) pf_map->surface->pixels )[ pf_map->surface->pitch * y + x ];
 
     if ( x == destination_x && y == destination_y ) return 0 ;
     if ( block >= block_if ) return 1073741824.0 ;
-    if ( x < 0 || y < 0 || x >= ( int )pf_map->surface->w || y >= ( int )pf_map->surface->h ) return 1073741824.0 ;
+    if ( x < 0 || y < 0 || x >= ( int ) pf_map->surface->w || y >= ( int ) pf_map->surface->h ) return 1073741824.0 ;
 
     dx = abs( destination_x - x ) ;
     dy = abs( destination_y - y ) ;
@@ -196,7 +196,8 @@ static void node_push_succesor( node * parent, int ix, int iy, int cost ) {
     if ( f_op ) {
         pf_open = node_remove( pf_open, f_op ); /* this node is removed but childs that referent this node as parent will be wrong */
     }
-/* this can't be possible, previous "if ( f_cl )" abort this code ->   if ( f_cl ) { pf_closed = node_remove( pf_closed, f_cl ); }*/ /* this node is removed but childs that referent this node as parent will be wrong */
+
+    /* this can't be possible, previous "if ( f_cl )" abort this code ->   if ( f_cl ) { pf_closed = node_remove( pf_closed, f_cl ); }*/ /* this node is removed but childs that referent this node as parent will be wrong */
 
     pf_open = node_add( pf_open, curr ) ;
 }
@@ -314,10 +315,10 @@ static int path_find( GRAPH * bitmap, int sx, int sy, int dx, int dy, int option
 
 /* --------------------------------------------------------------------------- */
 
-static int path_get( int * x, int * y ) {
+static int path_get( int64_t * x, int64_t * y ) {
     if ( path_result_pointer ) {
-        ( *x ) = *path_result_pointer++ ;
-        ( *y ) = *path_result_pointer++ ;
+        ( *x ) = ( int64_t ) *path_result_pointer++ ;
+        ( *y ) = ( int64_t ) *path_result_pointer++ ;
         if ( *path_result_pointer == -1 ) path_result_pointer = NULL ;
         return 1 ;
     }
@@ -335,22 +336,21 @@ static int path_set_wall( int n ) {
 /* Funciones de búsqueda de caminos */
 
 int64_t libmod_gfx_path_find( INSTANCE * my, int64_t * params ) {
-    GRAPH * gpath = bitmap_get( params[0], params[1] ) ;
-    if ( !gpath || !gpath->format || gpath->format->depth != 8 ) return 0;
-    return path_find( gpath, params[2], params[3], params[4], params[5], params[6] ) ;
+    GRAPH * gr = bitmap_get( params[0], params[1] ) ;
+    if ( !gr || !gr->surface || gr->surface->format->BitsPerPixel != 8 ) return 0;
+    return path_find( gr, ( int ) params[2], ( int ) params[3], ( int ) params[4], ( int ) params[5], ( int ) params[6] ) ;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_path_getxy( INSTANCE * my, int64_t * params ) {
-    return path_get(( int * )params[0], ( int * )params[1] ) ;
+    return path_get(( int64_t * ) params[0], ( int64_t * ) params[1] ) ;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_path_wall( INSTANCE * my, int64_t * params ) {
-    return path_set_wall( params[0] ) ;
+    return path_set_wall( ( int ) params[0] ) ;
 }
-#endif
 
 /* --------------------------------------------------------------------------- */

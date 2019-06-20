@@ -314,12 +314,10 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "DRAW_CURVE"          , "IIIIIIIII"       , TYPE_INT         , libmod_gfx_draw_bezier                 ),
     FUNC( "DRAW_CURVE"          , "IIIIIIIIII"      , TYPE_INT         , DRWFN_COLOR(bezier)                    ), // libmod_gfx_draw_bezier_color
 
-#if 0
     /* pathfind */
-    FUNC( "PATH_FIND"           , "IIIIIII"         , TYPE_INT        , libmod_gfx_path_find            ),
-    FUNC( "PATH_GETXY"          , "PP"              , TYPE_INT        , libmod_gfx_path_getxy           ),
-    FUNC( "PATH_WALL"           , "I"               , TYPE_INT        , libmod_gfx_path_wall            ),
-#endif
+    FUNC( "PATH_FIND"           , "IIIIIII"         , TYPE_INT        , libmod_gfx_path_find                    ),
+    FUNC( "PATH_GETXY"          , "PP"              , TYPE_INT        , libmod_gfx_path_getxy                   ),
+    FUNC( "PATH_WALL"           , "I"               , TYPE_INT        , libmod_gfx_path_wall                    ),
 
     FUNC( "TEXTURE_SET_QUALITY" , "I"               , TYPE_INT        , libmod_gfx_set_texture_quality          ),
 
