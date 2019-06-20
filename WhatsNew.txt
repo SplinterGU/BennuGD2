@@ -1,5 +1,6 @@
 2019-06-19:
 
+- Add Pathfind
 - Fix window issues in Windows
 - Disable set_mode at startup
 - For fullscreen mode don't use fake fullscreen that adjust to desktop resolution
