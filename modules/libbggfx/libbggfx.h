@@ -42,7 +42,7 @@
 /* Globals */
 
 enum {
-    FULL_SCREEN = 0,
+    FULLSCREEN = 0,
     SCALE_RESOLUTION,
     SCALE_RESOLUTION_ASPECTRATIO,
 

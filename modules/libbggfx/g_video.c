@@ -54,7 +54,7 @@ int64_t scr_height = 240 ;
 
 int64_t scr_initialized = 0 ;
 
-int64_t full_screen = 0 ;
+int64_t fullscreen = 0 ;
 int64_t grab_input = 0 ;
 int64_t frameless = 0 ;
 int64_t waitvsync = 0 ;
@@ -121,11 +121,11 @@ int gr_set_mode( int width, int height, int flags ) {
     renderer_width = width;
     renderer_height = height;
 
-    full_screen = ( flags & MODE_FULLSCREEN ) ? 1 : 0 ;
+    fullscreen = ( flags & MODE_FULLSCREEN ) ? 1 : 0 ;
     grab_input = ( flags & MODE_MODAL ) ? 1 : 0 ;
     frameless = ( flags & MODE_FRAMELESS ) ? 1 : 0 ;
     waitvsync = ( flags & MODE_WAITVSYNC ) ? 1 : 0 ;
-    full_screen |= GLOQWORD( libbggfx, FULL_SCREEN );
+    fullscreen |= GLOQWORD( libbggfx, fullscreen );
 
     scale_resolution = GLOQWORD( libbggfx, SCALE_RESOLUTION );
     if ( GLOEXISTS( libbggfx, SCALE_RESOLUTION_ASPECTRATIO ) ) scale_resolution_aspectratio = GLOQWORD( libbggfx, SCALE_RESOLUTION_ASPECTRATIO );
@@ -146,12 +146,12 @@ int gr_set_mode( int width, int height, int flags ) {
         //Create window
         int sdl_flags = SDL_WINDOW_SHOWN;
         if ( frameless ) sdl_flags |= SDL_WINDOW_BORDERLESS;
-        if ( full_screen ) sdl_flags |= SDL_WINDOW_FULLSCREEN;
+        if ( fullscreen ) sdl_flags |= SDL_WINDOW_FULLSCREEN;
         if ( grab_input ) sdl_flags |= SDL_WINDOW_INPUT_GRABBED;
         gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
         if( gWindow == NULL ) return -1;
     } else {
-        SDL_SetWindowFullscreen( gWindow, full_screen  ? SDL_WINDOW_FULLSCREEN : 0 );
+        SDL_SetWindowFullscreen( gWindow, fullscreen  ? SDL_WINDOW_FULLSCREEN : 0 );
         SDL_SetWindowBordered( gWindow, frameless ? SDL_FALSE : SDL_TRUE );
         SDL_SetWindowGrab( gWindow, grab_input ? SDL_TRUE : SDL_FALSE );
         SDL_SetWindowSize( gWindow, renderer_width, renderer_height );

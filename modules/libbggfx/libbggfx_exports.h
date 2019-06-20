@@ -102,7 +102,7 @@ char * __bgdexport( libbggfx, globals_def ) =
 
     /* Video */
     "STRUCT screen\n"
-    "    INT full_screen=0;\n"
+    "    INT fullscreen=0;\n"
     "    INT scale_resolution=-1;\n"
     "    INT scale_resolution_aspectratio=0;\n"
     "END\n"

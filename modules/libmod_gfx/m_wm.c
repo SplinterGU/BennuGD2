@@ -104,7 +104,7 @@ int64_t libmod_gfx_restore_window( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_move_window( INSTANCE * my, int64_t * params ) {
-    if ( full_screen ) return 0;
+    if ( fullscreen ) return 0;
 
     SDL_SetWindowPosition( gWindow,
                            params[0],   // horizontal position
@@ -116,7 +116,7 @@ int64_t libmod_gfx_move_window( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_window_pos( INSTANCE * my, int64_t * params ) {
-    if ( full_screen ) return -1;
+    if ( fullscreen ) return -1;
 
     int x, y;
 

@@ -44,7 +44,7 @@
 
 DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
     /* Nombre de variable global, puntero al dato, tama�o del elemento, cantidad de elementos */
-    { "screen.full_screen"                      , NULL, -1, -1 },
+    { "screen.fullscreen"                      , NULL, -1, -1 },
     { "screen.scale_resolution"                 , NULL, -1, -1 },
     { "screen.scale_resolution_aspectratio"     , NULL, -1, -1 },
 

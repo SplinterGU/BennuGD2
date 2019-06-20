@@ -47,7 +47,6 @@
 
 #ifndef __DISABLE_PALETTES__
 int gr_update_texture( GRAPH * gr ) {
-    int must_free_surface = 0;
     SDL_Surface * surface;
 
     if ( gr->surface->format->format == SDL_PIXELFORMAT_ARGB8888 /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
@@ -55,7 +54,6 @@ int gr_update_texture( GRAPH * gr ) {
     } else {
         surface = SDL_ConvertSurfaceFormat(gr->surface, SDL_PIXELFORMAT_ARGB8888, 0);
         if ( !surface ) return -1;
-        must_free_surface = 1;
     }
 
     if ( SDL_MUSTLOCK( surface ) ) {
@@ -66,7 +64,7 @@ int gr_update_texture( GRAPH * gr ) {
         SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch);
     }
 
-    if ( must_free_surface ) SDL_FreeSurface( surface );
+    if ( surface != gr->surface ) SDL_FreeSurface( surface );
 
     return 0;
 }
@@ -236,6 +234,9 @@ void gr_blit(
             int64_t oldw = 0, oldh = 0;
             SDL_Rect srcrect = {0};
 
+            uint32_t rmask, gmask, bmask, amask;
+            getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
+
             int mustlock = SDL_MUSTLOCK( gr->surface );
 
             if ( mustlock ) SDL_LockSurface( gr->surface );
@@ -261,9 +262,7 @@ void gr_blit(
                     if ( oldw != w || oldh != h ) {
                         if ( auxSurface ) SDL_FreeSurface( auxSurface );
                         oldw = w; oldh = h;
-                        uint32_t rmask, gmask, bmask, amask;
-                        getRGBA_mask( gr->surface->format->BitsPerPixel, &rmask, &gmask, &bmask, &amask );
-                        auxSurface = SDL_CreateRGBSurface( 0, w, h, gr->surface->format->BitsPerPixel, rmask, gmask, bmask, amask );
+                        auxSurface = SDL_CreateRGBSurface( 0, w, h, 32, rmask, gmask, bmask, amask );
                         if ( !auxSurface ) {
                             printf ("error creando temp surface [%s]\n", SDL_GetError() );
                             return;

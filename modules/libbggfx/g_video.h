@@ -59,7 +59,7 @@ extern int64_t scr_height;
 
 extern int64_t scr_initialized;
 
-extern int64_t full_screen;
+extern int64_t fullscreen;
 extern int64_t grab_input;
 extern int64_t frameless;
 
