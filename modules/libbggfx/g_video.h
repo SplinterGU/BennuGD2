@@ -76,6 +76,7 @@ extern int renderer_height;
 extern SDL_Window * gWindow;
 extern SDL_Renderer * gRenderer;
 extern SDL_RendererInfo gRendererInfo;
+extern SDL_PixelFormat * gPixelFormat;
 
 /* --------------------------------------------------------------------------- */
 

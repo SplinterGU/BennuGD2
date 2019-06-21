@@ -48,9 +48,7 @@ void gr_clear( GRAPH * dest ) {
     if ( !dest ) return;
 
     if ( !dest->surface ) {
-        uint32_t rmask, gmask, bmask, amask;
-        getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
-        dest->surface = SDL_CreateRGBSurface(0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
+        dest->surface = SDL_CreateRGBSurface(0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !dest->surface ) return;
 //        SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
     }
@@ -80,9 +78,7 @@ void gr_clear_as( GRAPH * dest, int color ) {
     if ( !dest ) return;
 
     if ( !dest->surface ) {
-        uint32_t rmask, gmask, bmask, amask;
-        getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
-        dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
+        dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !dest->surface ) return;
 //        SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
     }
@@ -158,9 +154,7 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     if ( !dest ) return;
 
     if ( !dest->surface ) {
-        uint32_t rmask, gmask, bmask, amask;
-        getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
-        dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
+        dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !dest->surface ) return;
 //        SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
     }

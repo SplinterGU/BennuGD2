@@ -52,6 +52,12 @@ void getRGBA_mask( int bpp, uint32_t * rmask, uint32_t * gmask, uint32_t * bmask
         * bmask = 0x000000ff;
         * amask = 0xff000000;
     } else
+    if ( bpp == 24 ) {
+        * rmask = 0x00ff0000;
+        * gmask = 0x0000ff00;
+        * bmask = 0x000000ff;
+        * amask = 0;
+    } else
     if ( bpp == 16 ) {
         * rmask = 0xf800;
         * gmask = 0x07e0;

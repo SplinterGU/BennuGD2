@@ -480,7 +480,7 @@ int gr_font_systemfont() {
     uint32_t rmask, gmask, bmask, amask;
     getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
 
-    SDL_Surface * surface = SDL_CreateRGBSurfaceFrom( pixels, 8, 8 * 256, 32, 8 * 4, rmask, gmask, bmask, amask );
+    SDL_Surface * surface = SDL_CreateRGBSurfaceFrom( pixels, 8, 8 * 256, gPixelFormat->BitsPerPixel, 8 * 4, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
     if ( !surface ) return 0;
 
 //    SDL_SetColorKey( surface, SDL_TRUE, 0 );

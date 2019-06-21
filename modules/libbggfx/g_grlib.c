@@ -306,10 +306,7 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
 
             if ( scrbitmap ) {
                 if ( !scrbitmap->surface ) {
-                    uint32_t rmask, gmask, bmask, amask;
-                    getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
-                    amask = 0; // Force alpha opaque
-                    scrbitmap->surface = SDL_CreateRGBSurface(0, scrbitmap->width, scrbitmap->height, 32, rmask, gmask, bmask, amask );
+                    scrbitmap->surface = SDL_CreateRGBSurface(0, scrbitmap->width, scrbitmap->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, 0 /* Force alpha to opaque */ );
                     SDL_SetColorKey( scrbitmap->surface, SDL_FALSE, 0 );
                 }
 

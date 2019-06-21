@@ -69,6 +69,7 @@ int renderer_height = 0;
 SDL_Window * gWindow = NULL;
 SDL_Renderer * gRenderer = NULL;
 SDL_RendererInfo gRendererInfo = { 0 };
+SDL_PixelFormat * gPixelFormat = NULL;
 
 /*
 SDL_RendererInfo
@@ -93,6 +94,41 @@ Note that providing no flags gives priority to available SDL_RENDERER_ACCELERATE
 
 texture_formats is an array of SDL_PixelFormatEnum values representing the available texture formats for the renderer
 */
+
+/* --------------------------------------------------------------------------- */
+
+static void show_renderer_info( SDL_RendererInfo * ri ) {
+    Uint32 Rmask, Gmask, Bmask, Amask;
+    int    bpp;
+
+    printf( "Name                       : %s\n", ri->name );
+    printf( "Software Render            : %s\n", ri->flags & SDL_RENDERER_SOFTWARE      ? "Yes" : "No" );
+    printf( "Hardware Acceleration      : %s\n", ri->flags & SDL_RENDERER_ACCELERATED   ? "Yes" : "No" );
+    printf( "Vsync Present              : %s\n", ri->flags & SDL_RENDERER_PRESENTVSYNC  ? "Yes" : "No" );
+    printf( "Rendering to Texture       : %s\n", ri->flags & SDL_RENDERER_TARGETTEXTURE ? "Yes" : "No" );
+    printf( "Max Texture Size           : %d x %d\n", ri->max_texture_width, ri->max_texture_height );
+    printf( "Supported Texture Formats  :\n" );
+
+    for ( int i = 0; i < ri->num_texture_formats; ++i ) {
+        SDL_PixelFormatEnumToMasks( ri->texture_formats[i],
+                                    &bpp,
+                                    &Rmask,
+                                    &Gmask,
+                                    &Bmask,
+                                    &Amask);
+        printf( "%s Bpp: %d RGBA Mask: %08"PRIX32" %08"PRIX32" %08"PRIX32" %08"PRIX32"\n",
+                SDL_GetPixelFormatName( ri->texture_formats[i] ),
+                bpp,
+                Rmask,
+                Gmask,
+                Bmask,
+                Amask
+                );
+
+    }
+    printf("\n");
+
+}
 
 /* --------------------------------------------------------------------------- */
 
@@ -168,6 +204,7 @@ int gr_set_mode( int width, int height, int flags ) {
             return -1;
         }
         SDL_GetRendererInfo( gRenderer, &gRendererInfo );
+        show_renderer_info( &gRendererInfo );
 //        printf( "max texture size: %d x %d\n", gRendererInfo.max_texture_width, gRendererInfo.max_texture_height );
     }
 
@@ -239,6 +276,8 @@ void gr_video_init() {
 
     SDL_DisableScreenSaver();
 
+    gPixelFormat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
+
     apptitle = appname;
 
 /*
@@ -253,8 +292,10 @@ void gr_video_init() {
 /* --------------------------------------------------------------------------- */
 
 void gr_video_exit() {
+    if ( gPixelFormat ) SDL_FreeFormat( gPixelFormat );
     if ( gRenderer ) SDL_DestroyRenderer( gRenderer );
     if ( gWindow ) SDL_DestroyWindow( gWindow );
+
     if ( SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_QuitSubSystem( SDL_INIT_VIDEO );
 }
 

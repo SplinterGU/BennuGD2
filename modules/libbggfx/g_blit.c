@@ -39,22 +39,23 @@
 #include "libbggfx.h"
 #include "dlvaracc.h"
 
-
-
 // #define __DISABLE_PALETTES__
 
 /* --------------------------------------------------------------------------- */
 
-#ifndef __DISABLE_PALETTES__
-int gr_update_texture( GRAPH * gr ) {
+static int inline gr_update_texture( GRAPH * gr ) {
     SDL_Surface * surface;
 
+#ifndef __DISABLE_PALETTES__
     if ( gr->surface->format->format == SDL_PIXELFORMAT_ARGB8888 /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
         surface = gr->surface;
     } else {
         surface = SDL_ConvertSurfaceFormat(gr->surface, SDL_PIXELFORMAT_ARGB8888, 0);
         if ( !surface ) return -1;
     }
+#else
+    surface = gr->texture;
+#endif
 
     if ( SDL_MUSTLOCK( surface ) ) {
         SDL_LockSurface( surface );
@@ -64,11 +65,14 @@ int gr_update_texture( GRAPH * gr ) {
         SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch);
     }
 
+#ifndef __DISABLE_PALETTES__
     if ( surface != gr->surface ) SDL_FreeSurface( surface );
+#endif
+
+    gr->texture_must_update = 0;
 
     return 0;
 }
-#endif
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -91,9 +95,7 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
 
     if ( dest ) {
         if ( !dest->surface ) {
-            uint32_t rmask, gmask, bmask, amask;
-            getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
-            dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, 32, rmask, gmask, bmask, amask );
+            dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
             if ( !dest->surface ) return 1;
 //            SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
         }
@@ -105,18 +107,7 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
                 return 1;
             }
 
-#ifndef __DISABLE_PALETTES__
             gr_update_texture(dest);
-#else
-            if ( SDL_MUSTLOCK( dest->surface ) ) {
-                SDL_LockSurface( dest->surface );
-                SDL_UpdateTexture( dest->texture, NULL, dest->surface->pixels, dest->surface->pitch );
-                SDL_UnlockSurface( dest->surface );
-            } else {
-                SDL_UpdateTexture( dest->texture, NULL, dest->surface->pixels, dest->surface->pitch );
-            }
-#endif
-            dest->texture_must_update = 0;
 
             dest->type = BITMAP_TEXTURE_TARGET;
         }
@@ -194,28 +185,12 @@ void gr_blit(
                 uint8_t color_g,
                 uint8_t color_b
             ) {
-    if ( !gr ) return;
+
+    if ( !gr || !gr->surface ) return;
 
     if ( scalex <= 0 || scaley <= 0 ) return;
 
-    if ( gr->texture && gr->texture_must_update ) {
-#ifndef __DISABLE_PALETTES__
-        gr_update_texture(gr);
-#else
-        if ( SDL_MUSTLOCK( gr->surface ) ) {
-            SDL_LockSurface( gr->surface );
-            SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
-            SDL_UnlockSurface( gr->surface );
-        } else {
-            SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
-        }
-#endif
-    }
-
-    gr->texture_must_update = 0;
-
     if ( !gr->texture && !gr->segments ) {
-        if ( !gr->surface ) return;
 
         if ( gr->width > gRendererInfo.max_texture_width || gr->height > gRendererInfo.max_texture_height ) {
             int64_t nsegx = ( gr->width - 1 ) / gRendererInfo.max_texture_width + 1,
@@ -234,12 +209,6 @@ void gr_blit(
             int64_t oldw = 0, oldh = 0;
             SDL_Rect srcrect = {0};
 
-            uint32_t rmask, gmask, bmask, amask;
-            getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
-
-            int mustlock = SDL_MUSTLOCK( gr->surface );
-
-            if ( mustlock ) SDL_LockSurface( gr->surface );
             for ( y = 0; y < nsegy; y++ ) {
                 offy = y * gRendererInfo.max_texture_height;
                 if ( y + 1 == nsegy )   h = gr->height % gRendererInfo.max_texture_height;
@@ -262,7 +231,7 @@ void gr_blit(
                     if ( oldw != w || oldh != h ) {
                         if ( auxSurface ) SDL_FreeSurface( auxSurface );
                         oldw = w; oldh = h;
-                        auxSurface = SDL_CreateRGBSurface( 0, w, h, 32, rmask, gmask, bmask, amask );
+                        auxSurface = SDL_CreateRGBSurface( 0, w, h, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
                         if ( !auxSurface ) {
                             printf ("error creando temp surface [%s]\n", SDL_GetError() );
                             return;
@@ -279,7 +248,6 @@ void gr_blit(
                     SDL_UpdateTexture( gr->segments[seg].texture, NULL, auxSurface->pixels, auxSurface->pitch);
                 }
                 if ( auxSurface ) SDL_FreeSurface( auxSurface );
-                if ( mustlock ) SDL_UnlockSurface( gr->surface );
             }
 
             /* calc mirror texture */
@@ -321,20 +289,12 @@ void gr_blit(
                 return;
             }
 
-#ifndef __DISABLE_PALETTES__
             gr_update_texture(gr);
-#else
-            if ( SDL_MUSTLOCK( gr->surface ) ) {
-                SDL_LockSurface( gr->surface );
-                SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
-                SDL_UnlockSurface( gr->surface );
-            } else {
-                SDL_UpdateTexture( gr->texture, NULL, gr->surface->pixels, gr->surface->pitch );
-            }
-#endif
         }
         gr->type = BITMAP_TEXTURE_STATIC;
     }
+
+    if ( gr->texture && gr->texture_must_update ) gr_update_texture(gr);
 
     SDL_BlendMode blend_mode;
 
