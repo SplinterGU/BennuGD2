@@ -35,6 +35,8 @@
 
 #include <SDL.h>
 
+#include "bgdrtm.h"
+
 #include "xstrings.h"
 #include "bgddl.h"
 
@@ -59,7 +61,7 @@ int64_t libmod_misc_time( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 /*
- *  FUNCTION : modtime_ftime
+ *  FUNCTION : libmod_misc_ftime
  *
  *  Returns parts of the date
  *
@@ -209,7 +211,7 @@ int64_t libmod_misc_ftime( INSTANCE * my, int64_t * params ) {
 
 /* ----------------------------------------------------------------- */
 /*
- *  FUNCTION : _advance_timers
+ *  FUNCTION : libmod_misc_advance_timers
  *
  *  Update the value of all global timers
  *
@@ -221,17 +223,25 @@ int64_t libmod_misc_ftime( INSTANCE * my, int64_t * params ) {
  */
 
 void libmod_misc_advance_timers( void ) {
-    int64_t * timer, i;
-    int64_t curr_ticktimer = SDL_GetTicks();
     static int64_t initial_ticktimer[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     static int64_t ltimer[10] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; // -1 to force initial_ticktimer update
+    static int64_t last_curr_ticktimer = 0;
+    int64_t curr_ticktimer = SDL_GetTicks();
+    int64_t * timer, i;
 
     /* TODO: Here add checking for console_mode, don't advance in this mode */
     timer = ( int64_t * ) ( &GLOQWORD( libmod_misc, TIMER ) );
-    for ( i = 0; i < 10; i++ ) {
-        if ( timer[i] != ltimer[i] ) initial_ticktimer[i] = curr_ticktimer - ( timer[i] * 10 );
-        ltimer[i] = timer[i] = ( curr_ticktimer - initial_ticktimer[i] ) / 10;
+    if ( system_paused ) {
+        for ( i = 0; i < 10; i++ ) {
+            initial_ticktimer[i] += curr_ticktimer - last_curr_ticktimer;
+        }
+    } else {
+        for ( i = 0; i < 10; i++ ) {
+            if ( timer[i] != ltimer[i] ) initial_ticktimer[i] = curr_ticktimer - ( timer[i] * 10 );
+            ltimer[i] = timer[i] = ( curr_ticktimer - initial_ticktimer[i] ) / 10;
+        }
     }
+    last_curr_ticktimer = curr_ticktimer;
 }
 
 /* --------------------------------------------------------------------------- */

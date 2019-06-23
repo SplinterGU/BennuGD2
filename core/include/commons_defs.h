@@ -38,6 +38,7 @@
 #define STATUS_RUNNING          2
 #define STATUS_SLEEPING         3
 #define STATUS_FROZEN           4
+#define STATUS_PAUSED_MASK      0x4000
 #define STATUS_WAITING_MASK     0x8000
 
 /* New OS_* must be updated in bgdc/src/main_core.c and bgdrtm/src/misc.c */

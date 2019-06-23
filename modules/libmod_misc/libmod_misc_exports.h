@@ -255,6 +255,10 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "EXIT"            , "S"       , TYPE_INT          , libmod_misc_proc_exit_1            ),
     FUNC( "EXIT"            , ""        , TYPE_INT          , libmod_misc_proc_exit_0            ),
     FUNC( "EXISTS"          , "I"       , TYPE_INT          , libmod_misc_proc_running           ),
+    FUNC( "PAUSE"           , ""        , TYPE_INT          , libmod_misc_proc_pause0            ),
+    FUNC( "RESUME"          , ""        , TYPE_INT          , libmod_misc_proc_resume0           ),
+/*    FUNC( "PAUSE"           , "I"       , TYPE_INT          , libmod_misc_proc_pause1            ),
+    FUNC( "RESUME"          , "I"       , TYPE_INT          , libmod_misc_proc_resume1           ), */
 
     FUNC( "RAND_SEED"       , "I"       , TYPE_INT          , libmod_misc_rand_seed              ),
     FUNC( "RAND"            , "II"      , TYPE_INT          , libmod_misc_rand_std               ),

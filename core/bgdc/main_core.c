@@ -48,6 +48,7 @@ static struct {
     { "STATUS_RUNNING"          , TYPE_QWORD,   STATUS_RUNNING      },
     { "STATUS_SLEEPING"         , TYPE_QWORD,   STATUS_SLEEPING     },
     { "STATUS_FROZEN"           , TYPE_QWORD,   STATUS_FROZEN       },
+    { "STATUS_PAUSED"           , TYPE_QWORD,   STATUS_PAUSED_MASK  },
     { "STATUS_WAITING"          , TYPE_QWORD,   STATUS_WAITING_MASK },
 
     { "NULL"                    , TYPE_QWORD,   0LL                 },

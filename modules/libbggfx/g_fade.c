@@ -89,11 +89,13 @@ void gr_fade_init( int r, int g, int b, int a, int duration ) {
 
 void gr_fade_step() {
     double delta;
-    int currtime;
+    int currtime = SDL_GetTicks();
 
     if ( fade_on ) {
         fade_set = 1;
         GLOQWORD( libbggfx, FADING ) = 1;
+
+        if ( system_paused ) fade_time_pos = currtime;
 
         if ( fade_time_step == 0.0 ) {
             fade_pos_r = fade_to_r;
@@ -101,7 +103,7 @@ void gr_fade_step() {
             fade_pos_b = fade_to_b;
             fade_pos_a = fade_to_a;
 
-        } else if ( ( delta = ( ( currtime = SDL_GetTicks() ) - fade_time_pos ) / fade_time_step ) != 0 ) {
+        } else if ( ( delta = ( currtime - fade_time_pos ) / fade_time_step ) != 0 ) {
             if ( fade_pos_r < fade_to_r ) {
                 fade_pos_r = fade_pos_r + delta; if ( fade_pos_r > fade_to_r ) fade_pos_r = fade_to_r;
             } else if ( fade_pos_r > fade_to_r ) {

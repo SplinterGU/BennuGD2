@@ -31,6 +31,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "bgdrtm.h"
+
 #include "bgddl.h"
 #include "dlvaracc.h"
 
@@ -116,6 +118,8 @@ void scroll_update( int64_t n ) {
     GRAPH * gr, * graph, * back;
 
     SCROLL_EXTRA_DATA * data;
+
+    if ( system_paused ) return;
 
     if ( n < 0 || n > 9 ) return;
 
@@ -347,7 +351,7 @@ void scroll_draw( int64_t n, REGION * clipping ) {
     proclist_count = 0;
     while ( i ) {
         if ( LOCQWORD( libbggfx, i, CTYPE ) == C_SCROLL &&
-            (( status = ( LOCQWORD( libbggfx, i, STATUS ) & ~STATUS_WAITING_MASK ) ) == STATUS_RUNNING || status == STATUS_FROZEN )
+            (( status = ( LOCQWORD( libbggfx, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) ) == STATUS_RUNNING || status == STATUS_FROZEN )
            ) {
             if ( LOCQWORD( libbggfx, i, CNUMBER ) && !( LOCQWORD( libbggfx, i, CNUMBER ) & ( 1 << n ) ) ) {
                 i = i->next;

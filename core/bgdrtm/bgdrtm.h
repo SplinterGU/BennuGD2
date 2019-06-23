@@ -59,6 +59,7 @@ extern char *appexepath;
 extern char *appexefullpath;
 
 extern int64_t debug;          /* 1 if running in debug mode                    */
+extern int64_t system_paused;
 
 /* Trace */
 extern int64_t exit_value;

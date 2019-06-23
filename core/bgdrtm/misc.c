@@ -62,6 +62,8 @@ char * appexefullpath   = NULL;
 
 int64_t debug = 0;  /* 1 if running in debug mode      */
 
+int64_t system_paused = 0;
+
 /* --------------------------------------------------------------------------- */
 
 /* os versions */

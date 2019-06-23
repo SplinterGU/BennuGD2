@@ -99,13 +99,13 @@ int64_t libmod_misc_proc_running( INSTANCE * my, int64_t * params ) {
 
     if ( params[0] >= FIRST_INSTANCE_ID ) {
         i = instance_get( params[0] );
-        if ( i && ( LOCQWORD( libmod_misc, i, STATUS ) & ~STATUS_WAITING_MASK ) >= STATUS_RUNNING ) return 1;
+        if ( i && ( LOCQWORD( libmod_misc, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) >= STATUS_RUNNING ) return 1;
         return 0;
     }
 
     ctx = NULL;
     while ( ( i = instance_get_by_type( params[0], &ctx ) ) ) {
-        if ( ( LOCQWORD( libmod_misc, i, STATUS ) & ~STATUS_WAITING_MASK ) >= STATUS_RUNNING ) return 1;
+        if ( ( LOCQWORD( libmod_misc, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) >= STATUS_RUNNING ) return 1;
     }
 
     return 0;
@@ -123,7 +123,7 @@ int64_t libmod_misc_proc_signal( INSTANCE * my, int64_t * params ) {
         fake_params[1] = ( params[1] >= S_TREE ) ? params[1] - S_TREE : params[1];
         i = first_instance;
         while ( i ) {
-            if ( LOCQWORD( libmod_misc, i, PROCESS_ID ) != myid && ( LOCQWORD( libmod_misc, i, STATUS ) & ~STATUS_WAITING_MASK ) > STATUS_KILLED ) {
+            if ( LOCQWORD( libmod_misc, i, PROCESS_ID ) != myid && ( LOCQWORD( libmod_misc, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) > STATUS_KILLED ) {
                 fake_params[0] = LOCQWORD( libmod_misc, i, PROCESS_ID );
                 libmod_misc_proc_signal( my, fake_params );
             }
@@ -145,7 +145,7 @@ int64_t libmod_misc_proc_signal( INSTANCE * my, int64_t * params ) {
 
     i = instance_get( params[0] );
     if ( i ) {
-        if (( LOCQWORD( libmod_misc, i, STATUS ) & ~STATUS_WAITING_MASK ) > STATUS_KILLED ) {
+        if (( LOCQWORD( libmod_misc, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) > STATUS_KILLED ) {
             switch ( params[1] ) {
                 case S_KILL:
                 case S_KILL_FORCE:
@@ -156,43 +156,43 @@ int64_t libmod_misc_proc_signal( INSTANCE * my, int64_t * params ) {
                 case S_WAKEUP:
                 case S_WAKEUP_FORCE:
                     if ( params[1] == S_WAKEUP_FORCE || !( LOCQWORD( libmod_misc, i, SIGNAL_ACTION ) & SMASK_WAKEUP ) )
-                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & STATUS_WAITING_MASK ) | STATUS_RUNNING;
+                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & ( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) | STATUS_RUNNING;
                     break;
 
                 case S_SLEEP:
                 case S_SLEEP_FORCE:
                     if ( params[1] == S_SLEEP_FORCE || !( LOCQWORD( libmod_misc, i, SIGNAL_ACTION ) & SMASK_SLEEP ) )
-                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & STATUS_WAITING_MASK ) | STATUS_SLEEPING;
+                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & ( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) | STATUS_SLEEPING;
                     break;
 
                 case S_FREEZE:
                 case S_FREEZE_FORCE:
                     if ( params[1] == S_FREEZE_FORCE || !( LOCQWORD( libmod_misc, i, SIGNAL_ACTION ) & SMASK_FREEZE ) )
-                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & STATUS_WAITING_MASK ) | STATUS_FROZEN;
+                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & ( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) | STATUS_FROZEN;
                     break;
 
                 case S_KILL_TREE:
                 case S_KILL_TREE_FORCE:
                     if ( params[1] == S_KILL_TREE_FORCE || !( LOCQWORD( libmod_misc, i, SIGNAL_ACTION ) & SMASK_KILL_TREE ) )
-                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & STATUS_WAITING_MASK ) | STATUS_KILLED;
+                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & ( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) | STATUS_KILLED;
                     break;
 
                 case S_WAKEUP_TREE:
                 case S_WAKEUP_TREE_FORCE:
                     if ( params[1] == S_WAKEUP_TREE_FORCE || !( LOCQWORD( libmod_misc, i, SIGNAL_ACTION ) & SMASK_WAKEUP_TREE ) )
-                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & STATUS_WAITING_MASK ) | STATUS_RUNNING;
+                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & ( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) | STATUS_RUNNING;
                     break;
 
                 case S_SLEEP_TREE:
                 case S_SLEEP_TREE_FORCE:
                     if ( params[1] == S_SLEEP_TREE_FORCE || !( LOCQWORD( libmod_misc, i, SIGNAL_ACTION ) & SMASK_SLEEP_TREE ) )
-                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & STATUS_WAITING_MASK ) | STATUS_SLEEPING;
+                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & ( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) | STATUS_SLEEPING;
                     break;
 
                 case S_FREEZE_TREE:
                 case S_FREEZE_TREE_FORCE:
                     if ( params[1] == S_FREEZE_TREE_FORCE || !( LOCQWORD( libmod_misc, i, SIGNAL_ACTION ) & SMASK_FREEZE_TREE ) )
-                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & STATUS_WAITING_MASK ) | STATUS_FROZEN;
+                        LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & ( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) | STATUS_FROZEN;
                     break;
 
                 default:
@@ -353,7 +353,7 @@ int64_t libmod_misc_proc_let_me_alone( INSTANCE * my, int64_t * params ) {
     INSTANCE * i = first_instance;
 
     while ( i ) {
-        if ( i != my && ( LOCQWORD( libmod_misc, i, STATUS ) & ~STATUS_WAITING_MASK ) != STATUS_DEAD )
+        if ( i != my && ( LOCQWORD( libmod_misc, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) != STATUS_DEAD )
             LOCQWORD( libmod_misc, i, STATUS ) = ( LOCQWORD( libmod_misc, i, STATUS ) & STATUS_WAITING_MASK ) | STATUS_KILLED;
         i = i->next;
     }
@@ -374,7 +374,7 @@ int64_t libmod_misc_proc_get_id( INSTANCE * my, int64_t * params ) {
         }
 
         while ( ptr ) {
-            if (( LOCQWORD( libmod_misc, ptr, STATUS ) & ~STATUS_WAITING_MASK ) >= STATUS_RUNNING ) {
+            if (( LOCQWORD( libmod_misc, ptr, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) >= STATUS_RUNNING ) {
                 LOCQWORD( libmod_misc, my, ID_SCAN ) = LOCQWORD( libmod_misc, ptr, PROCESS_ID );
                 return LOCQWORD( libmod_misc, ptr, PROCESS_ID );
             }
@@ -399,7 +399,7 @@ int64_t libmod_misc_proc_get_id( INSTANCE * my, int64_t * params ) {
     }
 
     while ( ( ptr = instance_get_by_type( params[0], ctx ) ) ) {
-        if ( /*ptr != my &&*/ ( LOCQWORD( libmod_misc, ptr, STATUS ) & ~STATUS_WAITING_MASK ) >= STATUS_RUNNING ) {
+        if ( /*ptr != my &&*/ ( LOCQWORD( libmod_misc, ptr, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) >= STATUS_RUNNING ) {
             return LOCQWORD( libmod_misc, ptr, PROCESS_ID );
         }
     }
@@ -415,4 +415,108 @@ int64_t libmod_misc_proc_get_status( INSTANCE * my, int64_t * params ) {
     return LOCQWORD( libmod_misc, i, STATUS );
 }
 
+/* ----------------------------------------------------------------- */
+
+static int64_t __libmod_misc_proc_pause( INSTANCE * my, int64_t what ) {
+    INSTANCE * i, * ctx;
+    int64_t myid = LOCQWORD( libmod_misc, my, PROCESS_ID );
+
+#if 0
+    if ( what == ALL_PROCESS ) {
+#endif
+        system_paused = 1;
+        /* Pause all Process */
+        i = first_instance;
+        while ( i ) {
+            if ( LOCQWORD( libmod_misc, i, PROCESS_ID ) != myid ) {
+                LOCQWORD( libmod_misc, i, STATUS ) |= STATUS_PAUSED_MASK;
+            }
+            i = i->next;
+        }
+        return 0;
+#if 0
+    }
+    else if ( what < FIRST_INSTANCE_ID ) {
+        /* Pause by type */
+        ctx = NULL;
+        while ( ( i = instance_get_by_type( what, &ctx ) ) ) {
+            if ( LOCQWORD( libmod_misc, i, PROCESS_ID ) != myid ) {
+                LOCQWORD( libmod_misc, i, STATUS ) |= STATUS_PAUSED_MASK;
+            }
+        }
+        return 0;
+    }
+
+    if ( what != myid ) {
+        i = instance_get( what );
+        if ( i ) {
+            LOCQWORD( libmod_misc, i, STATUS ) |= STATUS_PAUSED_MASK;
+        }
+    }
+    return 1;
+#endif
+}
+
+/* ----------------------------------------------------------------- */
+
+static int64_t __libmod_misc_proc_resume( INSTANCE * my, int64_t what ) {
+    INSTANCE * i, * ctx;
+    int64_t myid = LOCQWORD( libmod_misc, my, PROCESS_ID );
+
+#if 0
+    if ( what == ALL_PROCESS ) {
+#endif
+        system_paused = 0;
+        /* Resume all Process */
+        i = first_instance;
+        while ( i ) {
+            LOCQWORD( libmod_misc, i, STATUS ) &= ~STATUS_PAUSED_MASK;
+            i = i->next;
+        }
+        return 0;
+#if 0
+    }
+    else if ( what < FIRST_INSTANCE_ID ) {
+        /* Resume by type */
+        ctx = NULL;
+        while ( ( i = instance_get_by_type( what, &ctx ) ) ) {
+            LOCQWORD( libmod_misc, i, STATUS ) &= ~STATUS_PAUSED_MASK;
+        }
+        return 0;
+    }
+
+    if ( what != myid ) {
+        i = instance_get( what );
+        if ( i ) {
+            LOCQWORD( libmod_misc, i, STATUS ) &= ~STATUS_PAUSED_MASK;
+        }
+    }
+    return 1;
+#endif
+}
+
+/* ----------------------------------------------------------------- */
+
+int64_t libmod_misc_proc_pause0( INSTANCE * my, int64_t * params ) {
+    return __libmod_misc_proc_pause( my, 0 );
+}
+
+/* ----------------------------------------------------------------- */
+
+int64_t libmod_misc_proc_resume0( INSTANCE * my, int64_t * params ) {
+    return __libmod_misc_proc_resume( my, 0 );
+}
+
+/* ----------------------------------------------------------------- */
+#if 0
+int64_t libmod_misc_proc_pause1( INSTANCE * my, int64_t * params ) {
+    return __libmod_misc_proc_pause( my, params[0] );
+}
+
+/* ----------------------------------------------------------------- */
+
+int64_t libmod_misc_proc_resume1( INSTANCE * my, int64_t * params ) {
+    return __libmod_misc_proc_resume( my, params[0] );
+}
+#endif
 /* ----------------------------------------------------------------- */
