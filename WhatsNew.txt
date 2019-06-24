@@ -1,3 +1,21 @@
+2019-06-24:
+
+- Change size, size_x and size_y to double
+- Fix mouse.size_x and mouse.size_y
+- Add UPTIME() as alias of GET_TIMER()
+- Change parameters size_x and size_y in MAP_PUT to double
+- Add global frame_info.frames_count
+- Now COLLISION(...) is alias of COLLISION_BOX(...)
+
+2019-06-23:
+
+- Add PAUSE/RESUME
+
+2019-06-20:
+
+- Fix big textures issues
+- Rename screen.full_screen to screen.fullscreen
+
 2019-06-19:
 
 - Add Pathfind
