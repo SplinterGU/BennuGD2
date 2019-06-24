@@ -54,13 +54,14 @@ static double fade_pos_b = 0.0;
 static double fade_pos_a = 0.0;
 
 static int fade_time_pos;
-
 static double fade_time_step;
+
+int fade_region = 0;
 
 /* -------------------------------------------------------------------------- */
 /* duration = milliseconds                                                    */
 
-void gr_fade_init( int r, int g, int b, int a, int duration ) {
+void gr_fade_init( int r, int g, int b, int a, int duration, int region ) {
 
     if ( ( int ) fade_pos_a == 0 ) fade_pos_r = fade_pos_g = fade_pos_b = 0.0;
 
@@ -81,6 +82,8 @@ void gr_fade_init( int r, int g, int b, int a, int duration ) {
     fade_to_a = a;
 
     fade_on = 1;
+
+    fade_region = region;
 
     GLOQWORD( libbggfx, FADING ) = 1;
 }
@@ -130,11 +133,22 @@ void gr_fade_step() {
     }
 
     if ( fade_set ) {
+        REGION * region = region_get( fade_region );
+
         if ( !fade_on && ( int ) fade_pos_a == 0 ) fade_set = 0;
 
         SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_BLEND );
         SDL_SetRenderDrawColor( gRenderer, fade_pos_r, fade_pos_g, fade_pos_b, fade_pos_a );
-        SDL_RenderFillRect( gRenderer, NULL );
+
+        SDL_Rect r;
+        if ( region ) {
+            r.x = region->x;
+            r.y = region->y;
+            r.w = region->x2 - region->x + 1;
+            r.h = region->y2 - region->y + 1;
+        }
+
+        SDL_RenderFillRect( gRenderer, !region ? NULL : &r );
 
         if ( ( int ) fade_pos_r == fade_to_r && ( int ) fade_pos_g == fade_to_g && ( int ) fade_pos_b == fade_to_b && ( int ) fade_pos_a == fade_to_a ) {
             GLOQWORD( libbggfx, FADING ) = 0;

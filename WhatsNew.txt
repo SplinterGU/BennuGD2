@@ -1,5 +1,7 @@
 2019-06-24:
 
+- Increment regions to 256
+- Add optional region to FADE, FADE_ON, FADE_OFF (last parameter)
 - Change size, size_x and size_y to double
 - Fix mouse.size_x and mouse.size_y
 - Add UPTIME() as alias of GET_TIMER()

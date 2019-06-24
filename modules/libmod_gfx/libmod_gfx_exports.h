@@ -171,15 +171,18 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "RGBA_GET"            , "IIIPPPP"         , TYPE_INT        , libmod_gfx_get_rgba_map         ),
 
     FUNC( "FADE"                , "IIIII"           , TYPE_INT        , libmod_gfx_fade                 ),
+    FUNC( "FADE"                , "IIIIII"          , TYPE_INT        , libmod_gfx_fade_region          ),
     FUNC( "FADE_ON"             , "I"               , TYPE_INT        , libmod_gfx_fade_on              ),
+    FUNC( "FADE_ON"             , "II"              , TYPE_INT        , libmod_gfx_fade_on_region       ),
     FUNC( "FADE_OFF"            , "I"               , TYPE_INT        , libmod_gfx_fade_off             ),
+    FUNC( "FADE_OFF"            , "II"              , TYPE_INT        , libmod_gfx_fade_off_region      ),
 
     /* Video */
     FUNC( "SET_MODE"            , "II"              , TYPE_INT        , libmod_gfx_set_mode             ),
     FUNC( "SET_MODE"            , "III"             , TYPE_INT        , libmod_gfx_set_mode_extended    ),
     FUNC( "SET_FPS"             , "II"              , TYPE_INT        , libmod_gfx_set_fps              ),
 
-//    FUNC( "GET_MODES"           , "II"              , TYPE_POINTER  , libmod_gfx_list_modes           ),
+//    FUNC( "GET_MODES"           , "II"              , TYPE_POINTER    , libmod_gfx_list_modes           ),
 //    FUNC( "MODE_IS_OK"          , "IIII"            , TYPE_INT        , libmod_gfx_mode_is_ok           ),
 
     FUNC( "WINDOW_SET_TITLE"    , "S"               , TYPE_INT        , libmod_gfx_set_title            ),

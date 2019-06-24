@@ -33,7 +33,7 @@
 /* --------------------------------------------------------------------------- */
 /* Gesti�n de regiones                                                         */
 
-REGION regions[ 32 ];
+REGION regions[ MAX_REGIONS ];
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -46,7 +46,7 @@ REGION regions[ 32 ];
  *  and cannot be changed
  *
  *  PARAMS :
- *      n           Number of region to set (1 to 31)
+ *      n           Number of region to set (1 to MAX_REGIONS - 1)
  *      x, y        Top-Left coordinates
  *      width       Width in pixels
  *      height      Height in pixels
@@ -56,7 +56,7 @@ REGION regions[ 32 ];
  */
 
 void region_define( int64_t region, int64_t x, int64_t y, int64_t width, int64_t height ) {
-    if ( region < 1 || region > 31 ) return;
+    if ( region < 1 || region > MAX_REGIONS - 1 ) return;
 #if 1
     regions[ region ].x = x;
     regions[ region ].y = y;
@@ -167,10 +167,10 @@ REGION * region_new( int64_t x, int64_t y, int64_t width, int64_t height ) {
 /*
  *  FUNCTION : region_get
  *
- *  Returns one of the 32 default regions visible from the fenix language
+ *  Returns one of the MAX_REGIONS default regions visible from the fenix language
  *
  *  PARAMS :
- *      n           Number of the region (0-31)
+ *      n           Number of the region ( 0 to MAX_REGIONS - 1 )
  *
  *  RETURN VALUE :
  *      Returns the region object
@@ -178,7 +178,7 @@ REGION * region_new( int64_t x, int64_t y, int64_t width, int64_t height ) {
  */
 
 REGION * region_get( int64_t n ) {
-    if ( n < 0 || n > 31 ) return 0;
+    if ( n < 0 || n > MAX_REGIONS - 1 ) return 0;
 
     return &regions[ n ];
 }
