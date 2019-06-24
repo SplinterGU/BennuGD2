@@ -309,8 +309,9 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "EXEC"            , "ISIP"    , TYPE_INT          , libmod_misc_sys_exec               ),
 
     /* Date/Time & Timers */
-    FUNC( "GET_TIMER"       , ""        , TYPE_INT          , libmod_misc_get_timer              ),
-    FUNC( "TIME"            , ""        , TYPE_INT          , libmod_misc_time                   ),
+    FUNC( "UPTIME"          , ""        , TYPE_QWORD        , libmod_misc_get_timer              ),
+    FUNC( "GET_TIMER"       , ""        , TYPE_QWORD        , libmod_misc_get_timer              ),
+    FUNC( "TIME"            , ""        , TYPE_QWORD        , libmod_misc_time                   ),
     FUNC( "FTIME"           , "SI"      , TYPE_STRING       , libmod_misc_ftime                  ),
 
     FUNC( 0                 , 0         , 0                , 0                                   )

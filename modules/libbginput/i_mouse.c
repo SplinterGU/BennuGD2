@@ -176,14 +176,18 @@ static void mouse_draw( void * what, REGION * clip ) {
         mouse_map_clip = &_mouse_map_clip;
     }
 
+    double sizex = GLODOUBLE( libbginput, MOUSESIZEX ), sizey = GLODOUBLE( libbginput, MOUSESIZEY );
+
+    if ( sizex == 100.0 && sizey == 100.0 ) sizex = sizey = GLODOUBLE( libbginput, MOUSESIZE );
+
     gr_blit(    0,
                 &region,
                 GLOINT64( libbginput, MOUSEX ),
                 GLOINT64( libbginput, MOUSEY ),
                 GLOQWORD( libbginput, MOUSEFLAGS ),
                 GLOINT64( libbginput, MOUSEANGLE ),
-                GLOINT64( libbginput, MOUSESIZE ),
-                GLOINT64( libbginput, MOUSESIZE ),
+                sizex,
+                sizey,
                 mouse_map,
                 mouse_map_clip,
                 GLOBYTE( libbginput, MOUSEALPHA ),

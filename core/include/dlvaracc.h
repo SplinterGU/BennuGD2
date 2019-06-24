@@ -114,8 +114,8 @@
 #define GLOUINT16(m,a)    GLOWORD(m,a)
 #define GLOUINT8(m,a)     GLOBYTE(m,a)
 
-#define GLOFLOAT(m,a,b)   (*(float    *)GLOADDR(m,a,b))
-#define GLODOUBLE(m,a,b)  (*(double   *)GLOADDR(m,a,b))
+#define GLOFLOAT(m,a)     (*(float    *)GLOADDR(m,a))
+#define GLODOUBLE(m,a)    (*(double   *)GLOADDR(m,a))
 
 
 /* --------------------------------------------------------------------------- */

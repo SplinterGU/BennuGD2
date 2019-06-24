@@ -44,13 +44,14 @@
 
 DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
     /* Nombre de variable global, puntero al dato, tama�o del elemento, cantidad de elementos */
-    { "screen.fullscreen"                      , NULL, -1, -1 },
+    { "screen.fullscreen"                       , NULL, -1, -1 },
     { "screen.scale_resolution"                 , NULL, -1, -1 },
     { "screen.scale_resolution_aspectratio"     , NULL, -1, -1 },
 
     { "frame_info.fps"                          , NULL, -1, -1 },
     { "frame_info.speed_gauge"                  , NULL, -1, -1 },
     { "frame_info.frame_time"                   , NULL, -1, -1 },
+    { "frame_info.frames_count"                 , NULL, -1, -1 },
 
     { "fade_info.fading"                        , NULL, -1, -1 },
 

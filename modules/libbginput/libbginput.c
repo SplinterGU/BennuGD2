@@ -55,6 +55,8 @@ DLVARFIXUP  __bgdexport( libbginput, globals_fixup )[] = {
     { "mouse.graph"             , NULL, -1, -1 },
     { "mouse.angle"             , NULL, -1, -1 },
     { "mouse.size"              , NULL, -1, -1 },
+    { "mouse.size_x"            , NULL, -1, -1 },
+    { "mouse.size_y"            , NULL, -1, -1 },
     { "mouse.flags"             , NULL, -1, -1 },
     { "mouse.region"            , NULL, -1, -1 },
     { "mouse.left"              , NULL, -1, -1 },

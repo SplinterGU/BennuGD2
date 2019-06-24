@@ -74,11 +74,11 @@ static int64_t inline get_distance( int64_t x1, int64_t y1, int64_t r1, int64_t 
 #if 0
 void draw_at( GRAPH * dest, int x, int y, REGION * r, INSTANCE * i ) {
     GRAPH * map;
-    int scalex, scaley;
+    double scalex, scaley;
 
-    scalex = LOCINT64( libmod_gfx, i, GRAPHSIZEX );
-    scaley = LOCINT64( libmod_gfx, i, GRAPHSIZEY );
-    if ( scalex == 100 && scaley == 100 ) scalex = scaley = LOCINT64( libmod_gfx, i, GRAPHSIZE );
+    scalex = LOCDOUBLE( libmod_gfx, i, GRAPHSIZEX );
+    scaley = LOCDOUBLE( libmod_gfx, i, GRAPHSIZEY );
+    if ( scalex == 100.0 && scaley == 100.0 ) scalex = scaley = LOCDOUBLE( libmod_gfx, i, GRAPHSIZE );
 
     map = instance_graph( i );
     if ( !map ) return;
@@ -110,15 +110,15 @@ void draw_at( GRAPH * dest, int x, int y, REGION * r, INSTANCE * i ) {
 static int get_bbox( REGION * bbox, INSTANCE * proc ) {
     GRAPH * b;
     int64_t x, y;
-    int64_t scalex, scaley;
+    double scalex, scaley;
     SDL_Rect *map_clip = NULL, _map_clip;
 
     b = instance_graph( proc );
     if ( !b ) return 0;
 
-    scalex = LOCINT64( libmod_gfx, proc, GRAPHSIZEX );
-    scaley = LOCINT64( libmod_gfx, proc, GRAPHSIZEY );
-    if ( scalex == 100 && scaley == 100 ) scalex = scaley = LOCINT64( libmod_gfx, proc, GRAPHSIZE );
+    scalex = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZEX );
+    scaley = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZEY );
+    if ( scalex == 100.0 && scaley == 100.0 ) scalex = scaley = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZE );
 
     x = LOCINT64( libmod_gfx, proc, COORDX );
     y = LOCINT64( libmod_gfx, proc, COORDY );
@@ -150,9 +150,10 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
     switch ( colltype ) {
         case    COLLISION_BOX:
         case    COLLISION_CIRCLE:
+        case    COLLISION_NORMAL:
                 if ( !get_bbox( &bbox2, proc1 ) ) return 0;
 
-        case    COLLISION_NORMAL:
+//        case    COLLISION_NORMAL:
                 break;
 
         default:
@@ -167,11 +168,12 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 
     if ( LOCQWORD( libmod_gfx, proc1, CTYPE ) == C_SCREEN ) {
         switch ( colltype ) {
-            case    COLLISION_NORMAL:
-                    if ( !get_bbox( &bbox2, proc1 ) ) return 0;
-                    if ( bbox2.x > mx || bbox2.x2 < mx || bbox2.y > my || bbox2.y2 < my ) return 0;
-                    break;
+//            case    COLLISION_NORMAL:
+//                    if ( !get_bbox( &bbox2, proc1 ) ) return 0;
+//                    if ( bbox2.x > mx || bbox2.x2 < mx || bbox2.y > my || bbox2.y2 < my ) return 0;
+//                    break;
 
+            case    COLLISION_NORMAL:
             case    COLLISION_BOX:
                     if ( bbox2.x <= mx && bbox2.x2 >= mx && bbox2.y <= my && bbox2.y2 >= my ) return 1;
                     return 0;
@@ -251,6 +253,7 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
                                 }
                                 break;
 #endif
+                        case    COLLISION_NORMAL:
                         case    COLLISION_BOX:
                                 if ( bbox2.x <= scroll->posx0 + r->x + mx && bbox2.x2 >= scroll->posx0 + r->x + mx &&
                                      bbox2.y <= scroll->posy0 + r->y + my && bbox2.y2 >= scroll->posy0 + r->y + my ) return 1;
@@ -295,6 +298,7 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
                 }
                 break;
 #endif
+        case    COLLISION_NORMAL:
         case    COLLISION_BOX:
                 if ( bbox2.x <= mx && bbox2.x2 >= mx &&
                      bbox2.y <= my && bbox2.y2 >= my ) return 1;
@@ -486,6 +490,7 @@ static int64_t __collision( INSTANCE * my, int64_t id, int64_t colltype ) {
                 colfunc = check_collision;
                 break;
 #endif
+        case    COLLISION_NORMAL:
         case    COLLISION_BOX:
                 colfunc = check_collision_box;
                 break;

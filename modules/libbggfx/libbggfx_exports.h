@@ -112,6 +112,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   INT fps;\n"
     "   INT speed_gauge=0;\n"
     "   DOUBLE frame_time=0;\n"
+    "   INT frames_count=0;\n"
     "END\n"
 
     /* Fade */
@@ -146,9 +147,9 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   BYTE color_b=255;\n"
     "   INT flags=0;\n"
     "   INT angle=0;\n"
-    "   INT size=100;\n"
-    "   INT size_x=100;\n"
-    "   INT size_y=100;\n"
+    "   DOUBLE size=100;\n"
+    "   DOUBLE size_x=100;\n"
+    "   DOUBLE size_y=100;\n"
     "END\n"
 
     /* scroll */
@@ -194,13 +195,13 @@ char * __bgdexport( libbggfx, locals_def ) =
     "INT z;\n"
     "INT file;\n"
     "INT graph;\n"
-    "INT size=100;\n"
+    "DOUBLE size=100;\n"
     "INT angle;\n"
     "INT flags;\n"
     "INT region;\n"
     "INT resolution;\n"
-    "INT size_x=100;\n"
-    "INT size_y=100;\n"
+    "DOUBLE size_x=100;\n"
+    "DOUBLE size_y=100;\n"
     "INT POINTER xgraph;\n"
 
     "INT render_file=0;\n"

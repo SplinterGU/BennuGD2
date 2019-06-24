@@ -49,7 +49,7 @@ int64_t fps_value = FPS_INTIAL_VALUE;
 int64_t max_jump = FPS_INTIAL_SKIP;
 double frame_ms = 1000.0 / FPS_INTIAL_VALUE; /* 40.0; */
 
-uint64_t frame_count = 0;
+uint64_t frames_count = 0;
 int64_t last_frame_ticks = 0;
 int64_t jump = 0;
 
@@ -108,7 +108,7 @@ void gr_set_fps( int64_t fps, int64_t skip ) {
 void gr_wait_frame() {
     int64_t frame_ticks;
 
-    frame_count++;
+    GLOQWORD( libbggfx, FRAMES_COUNT ) = ++frames_count;
 
     /* -------------- */
 
@@ -223,9 +223,9 @@ void gr_draw_frame() {
 
     /* Put background */
     if ( background_graph && ( background = bitmap_get( GLOQWORD( libbggfx, BACKGROUND_FILE ), background_graph ) ) ) {
-        int64_t sizex = GLOQWORD( libbggfx, BACKGROUND_SIZEX ),
-                sizey = GLOQWORD( libbggfx, BACKGROUND_SIZEY );
-        if ( sizex == 100 && sizey == 100 ) sizex = sizey = GLOQWORD( libbggfx, BACKGROUND_SIZE );
+        double  sizex = GLODOUBLE( libbggfx, BACKGROUND_SIZEX ),
+                sizey = GLODOUBLE( libbggfx, BACKGROUND_SIZEY );
+        if ( sizex == 100.0 && sizey == 100.0 ) sizex = sizey = GLODOUBLE( libbggfx, BACKGROUND_SIZE );
         gr_blit( NULL,
                  NULL,
                  scr_width / 2,

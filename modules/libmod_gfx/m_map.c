@@ -266,7 +266,7 @@ int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params ) {
 
     if ( !dest || !orig ) return 0;
 
-    gr_blit( dest, NULL, params[4], params[5], 0, 0, 100, 100, orig, NULL, 255, 255, 255, 255 );
+    gr_blit( dest, NULL, params[4], params[5], 0, 0, 100.0, 100.0, orig, NULL, 255, 255, 255, 255 );
     return 1;
 }
 
@@ -286,8 +286,8 @@ int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
              params[5],  // y
              params[9],  // flags
              params[6],  // angle
-             params[7],  // scalex
-             params[8],  // scaley
+             *(double *) &params[7],  // scalex
+             *(double *) &params[8],  // scaley
              orig,       // orig
              NULL,       // orig_clip
              params[10], // alpha
@@ -385,7 +385,7 @@ static int64_t __libmod_gfx_map_block_copy(
     clip.x2 = dest_x + w - 1;
     clip.y2 = dest_y + h - 1;
 
-    gr_blit( dest, &clip, dest_x - x + centerx, dest_y - y + centery, flags, 0, 100, 100, orig, NULL, alpha, r, g, b );
+    gr_blit( dest, &clip, dest_x - x + centerx, dest_y - y + centery, flags, 0, 100.0, 100.0, orig, NULL, alpha, r, g, b );
     return 1;
 }
 

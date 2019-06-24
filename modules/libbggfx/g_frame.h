@@ -31,7 +31,7 @@
 
 /* --------------------------------------------------------------------------- */
 
-extern uint64_t frame_count ;
+extern uint64_t frames_count ;
 extern int64_t last_frame_ticks ;
 extern int64_t next_frame_ticks ;
 extern double frame_ms ;

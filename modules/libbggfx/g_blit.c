@@ -176,8 +176,8 @@ void gr_blit(
                 int64_t scry,
                 int64_t flags,
                 int64_t angle,
-                int64_t scalex,
-                int64_t scaley,
+                double scalex,
+                double scaley,
                 GRAPH * gr,
                 SDL_Rect * gr_clip,
                 uint8_t alpha,
@@ -185,10 +185,9 @@ void gr_blit(
                 uint8_t color_g,
                 uint8_t color_b
             ) {
-
     if ( !gr || !gr->surface ) return;
 
-    if ( scalex <= 0 || scaley <= 0 ) return;
+    if ( scalex <= 0.0 || scaley <= 0.0 ) return;
 
     if ( !gr->texture && !gr->segments ) {
 
@@ -408,12 +407,12 @@ void gr_blit(
  *
  */
 
-static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen_y, int64_t flags, int64_t angle, int64_t scalex, int64_t scaley, SDL_Point * corners, SDL_Rect * map_clip ) {
+static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen_y, int64_t flags, int64_t angle, double scalex, double scaley, SDL_Point * corners, SDL_Rect * map_clip ) {
     int64_t center_x, center_y, sx = 1, sy = -1;
     int64_t width = dest->width, height = dest->height;
 
-    if ( scalex < 0 ) scalex = 0;
-    if ( scaley < 0 ) scaley = 0;
+    if ( scalex < 0.0 ) scalex = 0.0;
+    if ( scaley < 0.0 ) scaley = 0.0;
 
     if ( map_clip ) {
         width = map_clip->w;
@@ -443,7 +442,7 @@ static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen
     int64_t x0 = screen_x * 100,
             y0 = screen_y * 100;
 
-    int64_t lef_x, top_y, rig_x, bot_y;
+    double lef_x, top_y, rig_x, bot_y;
 
     lef_x = - ( scalex * center_x );
     rig_x =   ( scalex * ( width - center_x ) );
@@ -481,7 +480,7 @@ static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen
  *
  */
 
-void gr_get_bbox( REGION * dest, REGION * clip, int64_t x, int64_t y, int64_t flags, int64_t angle, int64_t scalex, int64_t scaley, GRAPH * gr, SDL_Rect * map_clip ) {
+void gr_get_bbox( REGION * dest, REGION * clip, int64_t x, int64_t y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * map_clip ) {
     SDL_Point corners[4];
     SDL_Point min, max;
     int i;

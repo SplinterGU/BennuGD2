@@ -49,6 +49,7 @@ enum {
     FPS,
     SPEED_GAUGE,
     FRAME_TIME,
+    FRAMES_COUNT,
 
     FADING,
 
@@ -78,6 +79,7 @@ enum {
 
     /*Scroll*/
     SCROLLS
+
 };
 
 
