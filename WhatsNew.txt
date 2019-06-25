@@ -1,5 +1,8 @@
 2019-06-24:
 
+- Remove math fixed point functions (internal)
+- Support module operator for double/float (% and %=)
+- Locals X and Y are double (mouse, process, scroll, and others)
 - Increment regions to 256
 - Add optional region to FADE, FADE_ON, FADE_OFF (last parameter)
 - Change size, size_x and size_y to double
