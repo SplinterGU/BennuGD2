@@ -172,8 +172,8 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
 void gr_blit(
                 GRAPH * dest,
                 REGION * clip,
-                int64_t scrx,
-                int64_t scry,
+                double scrx,
+                double scry,
                 int64_t flags,
                 int64_t angle,
                 double scalex,
@@ -434,8 +434,8 @@ static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen
 
     /* Rotate the coordinates */
 
-    double cos_angle = fixtof( fixcos( angle ) );
-    double sin_angle = fixtof( fixsin( angle ) );
+    double cos_angle = cos_deg( angle );
+    double sin_angle = sin_deg( angle );
 
     /* Top-left, top-right, bottom-left, bottom-right */
 
@@ -480,7 +480,7 @@ static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen
  *
  */
 
-void gr_get_bbox( REGION * dest, REGION * clip, int64_t x, int64_t y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * map_clip ) {
+void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * map_clip ) {
     SDL_Point corners[4];
     SDL_Point min, max;
     int i;

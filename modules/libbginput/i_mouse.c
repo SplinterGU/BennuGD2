@@ -61,7 +61,7 @@ void do_mouse_events() {
 
     /* El cambio de mouse.x/y afecta directamente al rat�n */
 
-//    SDL_WarpMouseInWindow( gWindow, GLOINT64( libbginput, MOUSEX ), GLOINT64( libbginput, MOUSEY ) );
+//    SDL_WarpMouseInWindow( gWindow, GLODOUBLE( libbginput, MOUSEX ), GLODOUBLE( libbginput, MOUSEY ) );
 
     /* Procesa los eventos de mouse pendientes */
 
@@ -73,24 +73,24 @@ void do_mouse_events() {
     while ( SDL_PeepEvents( &e, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEWHEEL ) > 0 ) {
         switch ( e.type ) {
             case SDL_MOUSEMOTION:
-                GLOINT64( libbginput, MOUSEX ) = e.motion.x;
-                GLOINT64( libbginput, MOUSEY ) = e.motion.y;
+                GLODOUBLE( libbginput, MOUSEX ) = ( double ) e.motion.x;
+                GLODOUBLE( libbginput, MOUSEY ) = ( double ) e.motion.y;
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
                 if ( e.button.button == SDL_BUTTON_LEFT )   GLOQWORD( libbginput, MOUSELEFT )     = e.button.clicks;
                 if ( e.button.button == SDL_BUTTON_MIDDLE ) GLOQWORD( libbginput, MOUSEMIDDLE )   = e.button.clicks;
                 if ( e.button.button == SDL_BUTTON_RIGHT )  GLOQWORD( libbginput, MOUSERIGHT )    = e.button.clicks;
-                if ( e.button.button == SDL_BUTTON_X1 )     GLOQWORD( libbginput, MOUSEX1 )       = e.button.clicks;
-                if ( e.button.button == SDL_BUTTON_X2 )     GLOQWORD( libbginput, MOUSEX2 )       = e.button.clicks;
+                if ( e.button.button == SDL_BUTTON_X1 )     GLODOUBLE( libbginput, MOUSEX1 )      = ( double ) e.button.clicks;
+                if ( e.button.button == SDL_BUTTON_X2 )     GLODOUBLE( libbginput, MOUSEX2 )      = ( double ) e.button.clicks;
                 break;
 
             case SDL_MOUSEBUTTONUP:
                 if ( e.button.button == SDL_BUTTON_LEFT )   GLOQWORD( libbginput, MOUSELEFT )     = 0;
                 if ( e.button.button == SDL_BUTTON_MIDDLE ) GLOQWORD( libbginput, MOUSEMIDDLE )   = 0;
                 if ( e.button.button == SDL_BUTTON_RIGHT )  GLOQWORD( libbginput, MOUSERIGHT )    = 0;
-                if ( e.button.button == SDL_BUTTON_X1 )     GLOQWORD( libbginput, MOUSEX1 )       = 0;
-                if ( e.button.button == SDL_BUTTON_X2 )     GLOQWORD( libbginput, MOUSEX2 )       = 0;
+                if ( e.button.button == SDL_BUTTON_X1 )     GLODOUBLE( libbginput, MOUSEX1 )      = 0.0;
+                if ( e.button.button == SDL_BUTTON_X2 )     GLODOUBLE( libbginput, MOUSEX2 )      = 0.0;
                 break;
 
             case SDL_MOUSEWHEEL:
@@ -160,7 +160,7 @@ static void mouse_draw( void * what, REGION * clip ) {
     if ( !mouse_map ) return;
 
     r = GLOINT64( libbginput, MOUSEREGION );
-    if ( r < 0 || r > 31 ) r = 0;
+    if ( r < 0 || r > MAX_REGIONS -1 ) r = 0;
 
     region = regions[r];
     if ( clip ) region_union( &region, clip );
@@ -182,8 +182,8 @@ static void mouse_draw( void * what, REGION * clip ) {
 
     gr_blit(    0,
                 &region,
-                GLOINT64( libbginput, MOUSEX ),
-                GLOINT64( libbginput, MOUSEY ),
+                GLODOUBLE( libbginput, MOUSEX ),
+                GLODOUBLE( libbginput, MOUSEY ),
                 GLOQWORD( libbginput, MOUSEFLAGS ),
                 GLOINT64( libbginput, MOUSEANGLE ),
                 sizex,

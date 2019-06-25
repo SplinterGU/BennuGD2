@@ -188,7 +188,7 @@ char * __bgdexport( libbginput, globals_def ) =
     "END\n"
 
     "STRUCT mouse\n"
-    "   INT x=99999, y=99999;\n"
+    "   DOUBLE x=99999, y=99999;\n"
     "   INT z=-512;\n"
     "   INT file;\n"
     "   INT graph;\n"
@@ -198,7 +198,8 @@ char * __bgdexport( libbginput, globals_def ) =
     "   DOUBLE size_y=100;\n"
     "   INT flags;\n"
     "   INT region;\n"
-    "   INT left, middle, right, x1, x2;\n"
+    "   INT left, middle, right;\n"
+    "   DOUBLE x1, x2;\n"
     "   INT wheelup, wheeldown;\n"
     "   INT wheelright, wheelleft;\n"
 

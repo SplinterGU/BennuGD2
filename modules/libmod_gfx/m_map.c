@@ -101,6 +101,10 @@ int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params ) {
 
             case G_CENTER_Y:        /* g_center_y */
                 return scr_height / 2;
+
+            case G_DEPTH:           /* g_depth */
+                return 32;
+
         }
         return 0;
     }
@@ -170,10 +174,9 @@ int64_t libmod_gfx_get_point( INSTANCE * my, int64_t * params ) {
         return 1;
     }
 
-    if (( uint64_t )params[2] >= bmp->ncpoints || params[2] < 0 )
-        return 0;
-    if ( bmp->cpoints[params[2]].x == CPOINT_UNDEFINED && bmp->cpoints[params[2]].y == CPOINT_UNDEFINED )
-        return 0;
+    if (( uint64_t )params[2] >= bmp->ncpoints || params[2] < 0 ) return 0;
+
+    if ( bmp->cpoints[params[2]].x == CPOINT_UNDEFINED && bmp->cpoints[params[2]].y == CPOINT_UNDEFINED ) return 0;
 
     *( int64_t * )params[3] = bmp->cpoints[params[2]].x;
     *( int64_t * )params[4] = bmp->cpoints[params[2]].y;
@@ -336,12 +339,12 @@ int64_t libmod_gfx_map_exists( INSTANCE * my, int64_t * params ) {
 static int64_t __libmod_gfx_map_block_copy(
     int64_t dest_file,
     int64_t dest_graph,
-    int64_t dest_x,
-    int64_t dest_y,
+    double dest_x,
+    double dest_y,
     int64_t file,
     int64_t graph,
-    int64_t x,
-    int64_t y,
+    double x,
+    double y,
     int64_t w,
     int64_t h,
     int64_t flags,
@@ -352,7 +355,7 @@ static int64_t __libmod_gfx_map_block_copy(
  ) {
     GRAPH * dest, * orig;
     REGION clip;
-    int64_t centerx, centery;
+    double centerx, centery;
 
     if ( !( dest = bitmap_get( dest_file, dest_graph ) ) ) return 0;
     if ( !( orig = bitmap_get( file, graph ) ) ) return 0;
@@ -361,17 +364,17 @@ static int64_t __libmod_gfx_map_block_copy(
         centerx = orig->cpoints[0].x;
         centery = orig->cpoints[0].y;
     } else {
-        centery = orig->height / 2;
-        centerx = orig->width / 2;
+        centery = orig->height / 2.0;
+        centerx = orig->width / 2.0;
     }
 
     if ( flags & B_HMIRROR ) centerx = orig->width - 1 - centerx;
     if ( flags & B_VMIRROR ) centery = orig->height - 1 - centery;
 
-    if ( x  < 0 ) { dest_x += x;  w += x;   x = 0; }
-    if ( y  < 0 ) { dest_y += y;  h += y;   y = 0; }
-    if ( dest_x < 0 ) {  x += dest_x; w += dest_x; dest_x = 0; }
-    if ( dest_y < 0 ) {  y += dest_y; h += dest_y; dest_y = 0; }
+    if ( x  < 0.0 ) { dest_x += x;  w += x;   x = 0.0; }
+    if ( y  < 0.0 ) { dest_y += y;  h += y;   y = 0.0; }
+    if ( dest_x < 0.0 ) {  x += dest_x; w += dest_x; dest_x = 0.0; }
+    if ( dest_y < 0.0 ) {  y += dest_y; h += dest_y; dest_y = 0.0; }
 
     if ( x + w  > orig->width  ) w = orig->width  - x;
     if ( y + h  > orig->height ) h = orig->height - y;
@@ -395,12 +398,12 @@ int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
     return __libmod_gfx_map_block_copy(
         params[0],
         params[1],
-        params[2],
-        params[3],
+        *(double *)&params[2],
+        *(double *)&params[3],
         params[4],
         params[5],
-        params[6],
-        params[7],
+        *(double *)&params[6],
+        *(double *)&params[7],
         params[8],
         params[9],
         params[10],
@@ -417,12 +420,12 @@ int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params ) {
     return __libmod_gfx_map_block_copy(
         params[0],
         params[1],
-        params[2],
-        params[3],
+        *(double *)&params[2],
+        *(double *)&params[3],
         params[4],
         params[5],
-        params[6],
-        params[7],
+        *(double *)&params[6],
+        *(double *)&params[7],
         params[8],
         params[9],
         params[10],

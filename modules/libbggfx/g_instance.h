@@ -36,7 +36,7 @@
 /* --------------------------------------------------------------------------- */
 
 extern void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest );
-extern void draw_instance_at( INSTANCE * i, REGION * r, int64_t x, int64_t y, GRAPH * dest ) ;
+extern void draw_instance_at( INSTANCE * i, REGION * r, double x, double y, GRAPH * dest ) ;
 extern void draw_instance( void * what, REGION * clip ) ;
 extern GRAPH * instance_graph( INSTANCE * i ) ;
 extern int draw_instance_info( void * what, REGION * region, int64_t * z, int64_t * drawme );

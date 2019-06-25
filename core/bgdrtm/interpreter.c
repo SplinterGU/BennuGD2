@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include <inttypes.h>
 
@@ -797,35 +798,41 @@ main_loop_instance_go:
             /* Floating point math (double) */
 
             case MN_DOUBLE | MN_NEG:
-                *( double * )&r->stack_ptr[-1] = -*(( double * ) & r->stack_ptr[-1] );
+                *( double * )&r->stack_ptr[-1] = -*(( double * ) &r->stack_ptr[-1] );
                 ptr++;
                 break;
 
             case MN_DOUBLE | MN_NOT:
-                *( double * )&r->stack_ptr[-1] = ( double ) !*(( double * ) & r->stack_ptr[-1] );
+                *( double * )&r->stack_ptr[-1] = ( double ) !*(( double * ) &r->stack_ptr[-1] );
                 ptr++;
                 break;
 
             case MN_DOUBLE | MN_ADD:
-                *( double * )&r->stack_ptr[-2] += *(( double * ) & r->stack_ptr[-1] );
+                *( double * )&r->stack_ptr[-2] += *(( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_DOUBLE | MN_SUB:
-                *( double * )&r->stack_ptr[-2] -= *(( double * ) & r->stack_ptr[-1] );
+                *( double * )&r->stack_ptr[-2] -= *(( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_DOUBLE | MN_MUL:
-                *( double * )&r->stack_ptr[-2] *= *(( double * ) & r->stack_ptr[-1] );
+                *( double * )&r->stack_ptr[-2] *= *(( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_DOUBLE | MN_DIV:
-                *( double * )&r->stack_ptr[-2] /= *(( double * ) & r->stack_ptr[-1] );
+                *( double * )&r->stack_ptr[-2] /= *(( double * ) &r->stack_ptr[-1] );
+                r->stack_ptr--;
+                ptr++;
+                break;
+
+            case MN_DOUBLE | MN_MOD:
+                *( double * )&r->stack_ptr[-2] = fmod( *( double * )&r->stack_ptr[-2], *(( double * ) &r->stack_ptr[-1] ) );
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -833,35 +840,41 @@ main_loop_instance_go:
             /* Floating point math */
 
             case MN_FLOAT | MN_NEG:
-                *( float * )&r->stack_ptr[-1] = -*(( float * ) & r->stack_ptr[-1] );
+                *( float * )&r->stack_ptr[-1] = -*(( float * ) &r->stack_ptr[-1] );
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_NOT:
-                *( float * )&r->stack_ptr[-1] = ( float ) !*(( float * ) & r->stack_ptr[-1] );
+                *( float * )&r->stack_ptr[-1] = ( float ) !*(( float * ) &r->stack_ptr[-1] );
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_ADD:
-                *( float * )&r->stack_ptr[-2] += *(( float * ) & r->stack_ptr[-1] );
+                *( float * )&r->stack_ptr[-2] += *(( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_SUB:
-                *( float * )&r->stack_ptr[-2] -= *(( float * ) & r->stack_ptr[-1] );
+                *( float * )&r->stack_ptr[-2] -= *(( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_MUL:
-                *( float * )&r->stack_ptr[-2] *= *(( float * ) & r->stack_ptr[-1] );
+                *( float * )&r->stack_ptr[-2] *= *(( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_DIV:
-                *( float * )&r->stack_ptr[-2] /= *(( float * ) & r->stack_ptr[-1] );
+                *( float * )&r->stack_ptr[-2] /= *(( float * ) &r->stack_ptr[-1] );
+                r->stack_ptr--;
+                ptr++;
+                break;
+
+            case MN_FLOAT | MN_MOD:
+                *( float * )&r->stack_ptr[-2] = fmod( *( float * )&r->stack_ptr[-2], *(( float * ) &r->stack_ptr[-1] ) );
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1457,37 +1470,37 @@ main_loop_instance_go:
             /* Floating point comparisons (double) */
 
             case MN_EQ | MN_DOUBLE:
-                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] == *( double * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] == *( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_NE | MN_DOUBLE:
-                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] != *( double * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] != *( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_GTE | MN_DOUBLE:
-                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] >= *( double * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] >= *( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_LTE | MN_DOUBLE:
-                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] <= *( double * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] <= *( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_LT | MN_DOUBLE:
-                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] < *( double * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] < *( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_GT | MN_DOUBLE:
-                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] > *( double * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( double * ) & r->stack_ptr[-2] > *( double * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1495,37 +1508,37 @@ main_loop_instance_go:
             /* Floating point comparisons */
 
             case MN_EQ | MN_FLOAT:
-                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] == *( float * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] == *( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_NE | MN_FLOAT:
-                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] != *( float * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] != *( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_GTE | MN_FLOAT:
-                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] >= *( float * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] >= *( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_LTE | MN_FLOAT:
-                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] <= *( float * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] <= *( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_LT | MN_FLOAT:
-                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] < *( float * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] < *( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_GT | MN_FLOAT:
-                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] > *( float * ) & r->stack_ptr[-1] );
+                r->stack_ptr[-2] = ( *( float * ) & r->stack_ptr[-2] > *( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -2292,13 +2305,13 @@ main_loop_instance_go:
             /* Direct operations with variables DOUBLE type */
 
             case MN_LETNP | MN_DOUBLE:
-                ( *( double * )( r->stack_ptr[-2] ) ) = *( double * ) & r->stack_ptr[-1];
+                ( *( double * )( r->stack_ptr[-2] ) ) = *( double * ) &r->stack_ptr[-1];
                 r->stack_ptr -= 2;
                 ptr++;
                 break;
 
             case MN_LET | MN_DOUBLE:
-                ( *( double * )( r->stack_ptr[-2] ) ) = *( double * ) & r->stack_ptr[-1];
+                ( *( double * )( r->stack_ptr[-2] ) ) = *( double * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -2326,40 +2339,45 @@ main_loop_instance_go:
                 break;
 
             case MN_VARADD | MN_DOUBLE:
-                *( double * )( r->stack_ptr[-2] ) += *( double * ) & r->stack_ptr[-1];
+                *( double * )( r->stack_ptr[-2] ) += *( double * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARSUB | MN_DOUBLE:
-                *( double * )( r->stack_ptr[-2] ) -= *( double * ) & r->stack_ptr[-1];
+                *( double * )( r->stack_ptr[-2] ) -= *( double * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARMUL | MN_DOUBLE:
-                *( double * )( r->stack_ptr[-2] ) *= *( double * ) & r->stack_ptr[-1];
+                *( double * )( r->stack_ptr[-2] ) *= *( double * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARDIV | MN_DOUBLE:
-                *( double * )( r->stack_ptr[-2] ) /= *( double * ) & r->stack_ptr[-1];
+                *( double * )( r->stack_ptr[-2] ) /= *( double * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
+            case MN_VARMOD | MN_DOUBLE:
+                *( double * )( r->stack_ptr[-2] ) = fmod( *( double * )( r->stack_ptr[-2] ), *( double * ) &r->stack_ptr[-1] );
+                r->stack_ptr--;
+                ptr++;
+                break;
 
             /* Direct operations with variables FLOAT type */
 
             case MN_LETNP | MN_FLOAT:
-                ( *( float * )( r->stack_ptr[-2] ) ) = *( float * ) & r->stack_ptr[-1];
+                ( *( float * )( r->stack_ptr[-2] ) ) = *( float * ) &r->stack_ptr[-1];
                 r->stack_ptr -= 2;
                 ptr++;
                 break;
 
             case MN_LET | MN_FLOAT:
-                ( *( float * )( r->stack_ptr[-2] ) ) = *( float * ) & r->stack_ptr[-1];
+                ( *( float * )( r->stack_ptr[-2] ) ) = *( float * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -2387,25 +2405,31 @@ main_loop_instance_go:
                 break;
 
             case MN_VARADD | MN_FLOAT:
-                *( float * )( r->stack_ptr[-2] ) += *( float * ) & r->stack_ptr[-1];
+                *( float * )( r->stack_ptr[-2] ) += *( float * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARSUB | MN_FLOAT:
-                *( float * )( r->stack_ptr[-2] ) -= *( float * ) & r->stack_ptr[-1];
+                *( float * )( r->stack_ptr[-2] ) -= *( float * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARMUL | MN_FLOAT:
-                *( float * )( r->stack_ptr[-2] ) *= *( float * ) & r->stack_ptr[-1];
+                *( float * )( r->stack_ptr[-2] ) *= *( float * ) &r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARDIV | MN_FLOAT:
-                *( float * )( r->stack_ptr[-2] ) /= *( float * ) & r->stack_ptr[-1];
+                *( float * )( r->stack_ptr[-2] ) /= *( float * ) &r->stack_ptr[-1];
+                r->stack_ptr--;
+                ptr++;
+                break;
+
+            case MN_VARMOD | MN_FLOAT:
+                *( float * )( r->stack_ptr[-2] ) = fmod( *( float * )( r->stack_ptr[-2] ), *( float * ) &r->stack_ptr[-1] );
                 r->stack_ptr--;
                 ptr++;
                 break;

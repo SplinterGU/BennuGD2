@@ -56,17 +56,17 @@ enum {
 
 /* --------------------------------------------------------------------------- */
 
-static int64_t inline get_distance( int64_t x1, int64_t y1, int64_t r1, int64_t x2, int64_t y2, int64_t r2 ) {
+static double inline get_distance( double x1, double y1, double r1, double x2, double y2, double r2 ) {
     RESOLXY_RES( x1, y1, r1 );
     RESOLXY_RES( x2, y2, r2 );
 
     double dx = ( x2 - x1 ) * ( x2 - x1 );
     double dy = ( y2 - y1 ) * ( y2 - y1 );
 
-    if ( r1 > 0 ) return ( int64_t )sqrt( dx + dy ) * r1;
-    else if ( r1 < 0 ) return ( int64_t )sqrt( dx + dy ) / -r1;
+    if ( r1 > 0 ) return sqrt( dx + dy ) * r1;
+    else if ( r1 < 0 ) return sqrt( dx + dy ) / -r1;
 
-    return ( int64_t )sqrt( dx + dy );
+    return sqrt( dx + dy );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -108,10 +108,9 @@ void draw_at( GRAPH * dest, int x, int y, REGION * r, INSTANCE * i ) {
 /* --------------------------------------------------------------------------- */
 
 static int get_bbox( REGION * bbox, INSTANCE * proc ) {
-    GRAPH * b;
-    int64_t x, y;
-    double scalex, scaley;
     SDL_Rect *map_clip = NULL, _map_clip;
+    double x, y, scalex, scaley;
+    GRAPH * b;
 
     b = instance_graph( proc );
     if ( !b ) return 0;
@@ -120,8 +119,8 @@ static int get_bbox( REGION * bbox, INSTANCE * proc ) {
     scaley = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZEY );
     if ( scalex == 100.0 && scaley == 100.0 ) scalex = scaley = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZE );
 
-    x = LOCINT64( libmod_gfx, proc, COORDX );
-    y = LOCINT64( libmod_gfx, proc, COORDY );
+    x = LOCDOUBLE( libmod_gfx, proc, COORDX );
+    y = LOCDOUBLE( libmod_gfx, proc, COORDY );
 
     RESOLXY( libmod_gfx, proc, x, y );
 
@@ -144,7 +143,7 @@ static int get_bbox( REGION * bbox, INSTANCE * proc ) {
 
 static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
     REGION bbox1, bbox2;
-    int64_t x, y, mx, my;
+    double x, y, mx, my;
 //    static GRAPH * bmp = NULL;
 
     switch ( colltype ) {
@@ -160,8 +159,8 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
                 return 0;
     }
 
-    mx = GLOINT64( libmod_gfx, MOUSEX );
-    my = GLOINT64( libmod_gfx, MOUSEY );
+    mx = ( double ) GLODOUBLE( libmod_gfx, MOUSEX );
+    my = ( double ) GLODOUBLE( libmod_gfx, MOUSEY );
 
     /* Checks the process's bounding box to optimize checking
        (only for screen-type objects) */
@@ -181,12 +180,12 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 
             case    COLLISION_CIRCLE:
                 {
-                    int64_t cx1, cy1, dx1, dy1;
+                    double cx1, cy1, dx1, dy1;
 
-                    cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2;
-                    cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2;
+                    cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2.0;
+                    cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2.0;
 
-                    if ( get_distance( cx1, cy1, 0, mx, my, 0 ) < ( dx1 + dy1 ) / 4 ) return 1;
+                    if ( get_distance( cx1, cy1, 0, mx, my, 0 ) < ( dx1 + dy1 ) / 4.0 ) return 1;
                     return 0;
                     break;
                 }
@@ -209,8 +208,8 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
     bbox1.x = 0; bbox1.x2 = 1;
     bbox1.y = 0; bbox1.y2 = 0;
 
-    x = LOCINT64( libmod_gfx, proc1, COORDX );
-    y = LOCINT64( libmod_gfx, proc1, COORDY );
+    x = LOCDOUBLE( libmod_gfx, proc1, COORDX );
+    y = LOCDOUBLE( libmod_gfx, proc1, COORDY );
 
     RESOLXY( libmod_gfx, proc1, x, y );
 
@@ -261,12 +260,12 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 
                         case    COLLISION_CIRCLE:
                             {
-                                int64_t cx1, cy1, dx1, dy1;
+                                double cx1, cy1, dx1, dy1;
 
-                                cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2;
-                                cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2;
+                                cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2.0;
+                                cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2.0;
 
-                                if ( get_distance( cx1, cy1, 0, r->x + mx + scroll->posx0, r->y + my + scroll->posy0, 0 ) < ( dx1 + dy1 ) / 4 ) return 1;
+                                if ( get_distance( cx1, cy1, 0, r->x + mx + scroll->posx0, r->y + my + scroll->posy0, 0 ) < ( dx1 + dy1 ) / 4.0 ) return 1;
                                 break;
                             }
                     }
@@ -306,12 +305,12 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 
         case    COLLISION_CIRCLE:
             {
-                int64_t cx1, cy1, dx1, dy1;
+                double cx1, cy1, dx1, dy1;
 
-                cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2;
-                cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2;
+                cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2.0;
+                cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2.0;
 
-                if ( get_distance( cx1, cy1, 0, mx, my, 0 ) < ( dx1 + dy1 ) / 4 ) return 1;
+                if ( get_distance( cx1, cy1, 0, mx, my, 0 ) < ( dx1 + dy1 ) / 4.0 ) return 1;
                 break;
             }
     }
@@ -322,20 +321,20 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 /* --------------------------------------------------------------------------- */
 
 static int check_collision_circle( INSTANCE * proc1, REGION * bbox1, INSTANCE * proc2 ) {
+    double cx1, cy1, cx2, cy2, dx1, dy1, dx2, dy2;
     REGION bbox2;
     GRAPH * bmp;
-    int64_t cx1, cy1, cx2, cy2, dx1, dy1, dx2, dy2;
 
     bmp = instance_graph( proc2 ); if ( !bmp ) return 0;
     instance_get_bbox( proc2, bmp, &bbox2 );
 
-    cx1 = bbox1->x + ( dx1 = ( bbox1->x2 - bbox1->x + 1 ) ) / 2;
-    cy1 = bbox1->y + ( dy1 = ( bbox1->y2 - bbox1->y + 1 ) ) / 2;
+    cx1 = bbox1->x + ( dx1 = ( bbox1->x2 - bbox1->x + 1 ) ) / 2.0;
+    cy1 = bbox1->y + ( dy1 = ( bbox1->y2 - bbox1->y + 1 ) ) / 2.0;
 
-    cx2 = bbox2.x + ( dx2 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2;
-    cy2 = bbox2.y + ( dy2 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2;
+    cx2 = bbox2.x + ( dx2 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2.0;
+    cy2 = bbox2.y + ( dy2 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2.0;
 
-    if ( get_distance( cx1, cy1, 0, cx2, cy2, 0 ) < ( ( dx1 + dy1 ) / 2 + ( dx2 + dy2 ) / 2 ) / 2 ) return 1;
+    if ( get_distance( cx1, cy1, 0, cx2, cy2, 0 ) < ( ( dx1 + dy1 ) / 2.0 + ( dx2 + dy2 ) / 2.0 ) / 2.0 ) return 1;
 
     return 0;
 }
@@ -390,16 +389,16 @@ static int check_collision( INSTANCE * proc1, REGION * bbox3, INSTANCE * proc2 )
     memset( bmp1->data, 0, bmp1->pitch * h );
     memset( bmp2->data, 0, bmp2->pitch * h );
 
-    x = LOCINT64( libmod_gfx, proc1, COORDX );
-    y = LOCINT64( libmod_gfx, proc1, COORDY );
+    x = LOCDOUBLE( libmod_gfx, proc1, COORDX );
+    y = LOCDOUBLE( libmod_gfx, proc1, COORDY );
     RESOLXY( libmod_gfx, proc1, x, y );
 
     x -= bbox1.x;
     y -= bbox1.y;
     draw_at( bmp1, x, y, &bbox2, proc1 );
 
-    x = LOCINT64( libmod_gfx, proc2, COORDX );
-    y = LOCINT64( libmod_gfx, proc2, COORDY );
+    x = LOCDOUBLE( libmod_gfx, proc2, COORDX );
+    y = LOCDOUBLE( libmod_gfx, proc2, COORDY );
     RESOLXY( libmod_gfx, proc2, x, y );
 
     x -= bbox1.x;
@@ -476,9 +475,9 @@ static int check_collision( INSTANCE * proc1, REGION * bbox3, INSTANCE * proc2 )
 /* --------------------------------------------------------------------------- */
 
 static int64_t __collision( INSTANCE * my, int64_t id, int64_t colltype ) {
+    int ( *colfunc )( INSTANCE *, REGION *, INSTANCE * );
     INSTANCE * ptr, ** ctx;
     int64_t status, p;
-    int ( *colfunc )( INSTANCE *, REGION *, INSTANCE * );
     REGION bbox1;
     GRAPH * bmp1;
 
@@ -578,3 +577,5 @@ int64_t libmod_gfx_collision_box( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_collision_circle( INSTANCE * my, int64_t * params ) {
     return __collision( my, params[ 0 ], COLLISION_CIRCLE );
 }
+
+/* --------------------------------------------------------------------------- */

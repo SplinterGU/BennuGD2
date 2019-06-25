@@ -47,8 +47,8 @@
 /* --------------------------------------------------------------------------- */
 
 extern int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMode * blend_mode );
-extern void gr_blit( GRAPH * dest, REGION * clip, int64_t scrx, int64_t scry, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b );
-extern void gr_get_bbox( REGION * dest, REGION * clip, int64_t x, int64_t y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * map_clip );
+extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b );
+extern void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * map_clip );
 
 /* --------------------------------------------------------------------------- */
 

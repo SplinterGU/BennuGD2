@@ -1948,12 +1948,12 @@ expresion_result compile_operand() {
             continue;
         } else if ( token.type == IDENTIFIER && ( token.code == identifier_divide || token.code == identifier_mod ) ) { /* "/" or "%" */
             op = token.code == identifier_mod ? MN_MOD : MN_DIV;
-            if ( op == MN_MOD && ( typedef_base( left.type ) == TYPE_DOUBLE || typedef_base( left.type ) == TYPE_FLOAT ) ) compile_error( MSG_INTEGER_REQUIRED );
+//            if ( op == MN_MOD && ( typedef_base( left.type ) == TYPE_DOUBLE || typedef_base( left.type ) == TYPE_FLOAT ) ) compile_error( MSG_INTEGER_REQUIRED );
 
             if ( left.lvalue ) codeblock_add( code, mntype( left.type, 0 ) | MN_PTR, 0 );
 
             right = compile_factor();
-            if ( op == MN_MOD && ( typedef_base( right.type ) == TYPE_DOUBLE || typedef_base( right.type ) == TYPE_FLOAT ) ) compile_error( MSG_INTEGER_REQUIRED );
+//            if ( op == MN_MOD && ( typedef_base( right.type ) == TYPE_DOUBLE || typedef_base( right.type ) == TYPE_FLOAT ) ) compile_error( MSG_INTEGER_REQUIRED );
             if ( right.lvalue ) codeblock_add( code, mntype( right.type, 0 ) | MN_PTR, 0 );
 
             t = check_numeric_types( &left, &right );

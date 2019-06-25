@@ -95,16 +95,16 @@ GRAPH * instance_graph( INSTANCE * i ) {
 
 void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest ) {
     REGION *region;
-    int64_t x, y, r;
-    double scalex, scaley;
+    int64_t r;
+    double x, y, scalex, scaley;
     SDL_Rect *map_clip = NULL, _map_clip;
 
     r = LOCINT64( libbggfx, i, REGIONID );
     if ( r > 0 && r < 32 ) region = &regions[ r ];
     else                   region = &regions[ 0 ];
 
-    x = LOCINT64( libbggfx, i, COORDX );
-    y = LOCINT64( libbggfx, i, COORDY );
+    x = LOCDOUBLE( libbggfx, i, COORDX );
+    y = LOCDOUBLE( libbggfx, i, COORDY );
 
     RESOLXY( libbggfx, i, x, y );
 
@@ -136,7 +136,7 @@ void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest ) {
 
 /* ---------------------------------------------------------------------- */
 
-void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAPH * dest ) {
+void draw_instance_at( INSTANCE * i, REGION * region, double x, double y, GRAPH * dest ) {
     GRAPH * map;
     int64_t flags;
     double scalex, scaley;
@@ -175,8 +175,8 @@ void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAP
 void draw_instance( void * what, REGION * clip ) {
     INSTANCE * i = ( void * ) what;
     GRAPH * map, * map_dst = NULL;
-    int64_t flags, x, y, r;
-    double scalex, scaley;
+    int64_t flags, r;
+    double x, y, scalex, scaley;
     REGION region;
     SDL_Rect *map_clip = NULL, _map_clip;
     uint8_t alpha, color_r, color_g, color_b, c;
@@ -200,8 +200,8 @@ void draw_instance( void * what, REGION * clip ) {
     scaley = LOCDOUBLE( libbggfx, i, GRAPHSIZEY );
     if ( scalex == 100.0 && scaley == 100.0 ) scalex = scaley = LOCDOUBLE( libbggfx, i, GRAPHSIZE );
 
-    x = LOCINT64( libbggfx, i, COORDX );
-    y = LOCINT64( libbggfx, i, COORDY );
+    x = LOCDOUBLE( libbggfx, i, COORDX );
+    y = LOCDOUBLE( libbggfx, i, COORDY );
 
     RESOLXY( libbggfx, i, x, y );
 

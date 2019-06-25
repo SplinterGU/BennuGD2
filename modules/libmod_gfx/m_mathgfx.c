@@ -48,8 +48,8 @@
 
 int64_t libmod_gfx_advance( INSTANCE * my, int64_t * params ) {
     int64_t angle = LOCINT64( libmod_gfx, my, ANGLE ) ;
-    LOCINT64( libmod_gfx, my, COORDX ) += fixtoi( fixmul( fixcos( angle ), itofix( params[0] ) ) ) ;
-    LOCINT64( libmod_gfx, my, COORDY ) -= fixtoi( fixmul( fixsin( angle ), itofix( params[0] ) ) ) ;
+    LOCDOUBLE( libmod_gfx, my, COORDX ) += cos_deg( angle ) * *( double * ) &params[0] ;
+    LOCDOUBLE( libmod_gfx, my, COORDY ) -= sin_deg( angle ) * *( double * ) &params[0] ;
     return 1 ;
 }
 
@@ -57,8 +57,8 @@ int64_t libmod_gfx_advance( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_xadvance( INSTANCE * my, int64_t * params ) {
     int64_t angle = params[0] ;
-    LOCINT64( libmod_gfx, my, COORDX ) += fixtoi( fixmul( fixcos( angle ), itofix( params[1] ) ) ) ;
-    LOCINT64( libmod_gfx, my, COORDY ) -= fixtoi( fixmul( fixsin( angle ), itofix( params[1] ) ) ) ;
+    LOCDOUBLE( libmod_gfx, my, COORDX ) += cos_deg( angle ) * *( double * ) &params[1] ;
+    LOCDOUBLE( libmod_gfx, my, COORDY ) -= sin_deg( angle ) * *( double * ) &params[1] ;
     return 1 ;
 }
 
@@ -68,8 +68,9 @@ int64_t libmod_gfx_get_angle( INSTANCE * my, int64_t * params ) {
     INSTANCE * b = instance_get( params[0] ) ;
 
     if ( my && b ) {
-        double dx = ( double )(( int64_t )( LOCINT64( libmod_gfx, b, COORDX ) - LOCINT64( libmod_gfx, my, COORDX ) ) ) ;
-        double dy = ( double )(( int64_t )( LOCINT64( libmod_gfx, b, COORDY ) - LOCINT64( libmod_gfx, my, COORDY ) ) ) ;
+        double dx = LOCDOUBLE( libmod_gfx, b, COORDX ) - LOCDOUBLE( libmod_gfx, my, COORDX ) ;
+        double dy = LOCDOUBLE( libmod_gfx, b, COORDY ) - LOCDOUBLE( libmod_gfx, my, COORDY ) ;
+
         int64_t angle ;
 
         if ( dx == 0 ) return ( dy > 0 ) ? 270000L : 90000L ;
@@ -83,13 +84,14 @@ int64_t libmod_gfx_get_angle( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-static int64_t inline get_distance_xy( INSTANCE * a, int64_t x2, int64_t y2, int64_t r2 ) {
+static double inline get_distance_xy( INSTANCE * a, double x2, double y2, int64_t r2 ) {
+    double ret = -1.0;
     if ( a ) {
-        int64_t x1, y1;
+        double x1, y1;
         int64_t res = LOCINT64( libmod_gfx, a, RESOLUTION ) ;
 
-        x1 = LOCINT64( libmod_gfx, a, COORDX ) ;
-        y1 = LOCINT64( libmod_gfx, a, COORDY ) ;
+        x1 = LOCDOUBLE( libmod_gfx, a, COORDX ) ;
+        y1 = LOCDOUBLE( libmod_gfx, a, COORDY ) ;
 
         RESOLXY( libmod_gfx, a, x1, y1 );
         RESOLXY_RES( x2, y2, r2 );
@@ -97,33 +99,41 @@ static int64_t inline get_distance_xy( INSTANCE * a, int64_t x2, int64_t y2, int
         double dx = ( x2 - x1 ) * ( x2 - x1 ) ;
         double dy = ( y2 - y1 ) * ( y2 - y1 ) ;
 
-        if ( res > 0 ) return ( int64_t )sqrt( dx + dy ) * res ;
-        else if ( res < 0 ) return ( int64_t )sqrt( dx + dy ) / -res ;
+             if ( res > 0 ) ret = sqrt( dx + dy ) * res ;
+        else if ( res < 0 ) ret = sqrt( dx + dy ) / -res ;
+        else                ret = sqrt( dx + dy ) ;
 
-        return ( int64_t )sqrt( dx + dy ) ;
     }
 
-    return -1 ;
+    return *( int64_t * ) &ret ;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t get_distance_proc( INSTANCE * a, INSTANCE * b ) {
-    if ( a && b ) return ( get_distance_xy( a, LOCINT64( libmod_gfx, b, COORDX ), LOCINT64( libmod_gfx, b, COORDY ), LOCINT64( libmod_gfx, b, RESOLUTION ) ) ) ;
-    return -1 ;
+    double ret = -1.0;
+    if ( a && b ) return ( get_distance_xy( a, LOCDOUBLE( libmod_gfx, b, COORDX ), LOCDOUBLE( libmod_gfx, b, COORDY ), LOCINT64( libmod_gfx, b, RESOLUTION ) ) ) ;
+    return *( int64_t * ) &ret ;
 }
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_get_dist( INSTANCE * a, int64_t * params ) {
-    return ( get_distance_proc( a, instance_get( params[0] ) ) );
+int64_t libmod_gfx_get_dist( INSTANCE * my, int64_t * params ) {
+    return ( get_distance_proc( my, instance_get( params[0] ) ) );
+}
+
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_dist_proc( INSTANCE * my, int64_t * params ) {
+    return ( get_distance_proc( instance_get( params[0] ), instance_get( params[1] ) ) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
     GRAPH * b ;
-    int64_t x, y, r, centerx, centery, px = 0, py = 0, rx = 0, ry = 0 ;
+    double x, y, r, centerx, centery, px = 0, py = 0, rx = 0, ry = 0 ;
     int64_t _angle = 0, angle = 0;
 
     b = instance_graph( my ) ;
@@ -145,7 +155,7 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
         return 0;
 
     r = LOCINT64( libmod_gfx, my, REGIONID ) ;
-    if ( r < 0 || r > 31 ) r = 0 ;
+    if ( r < 0 || r > MAX_REGIONS - 1 ) r = 0 ;
 
     if ( b->cpoints[0].x != CPOINT_UNDEFINED && b->cpoints[0].y != CPOINT_UNDEFINED ) {
         centerx = b->cpoints[0].x ;
@@ -196,33 +206,33 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
     }
 
     if ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZEX ) == 100.0 && LOCDOUBLE( libmod_gfx, my, GRAPHSIZEY ) == 100.0 ) {
-        if ((( int64_t )LOCDOUBLE( libmod_gfx, my, GRAPHSIZE ) ) > 0.0 ) {
+        if ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZE ) > 0.0 ) {
             // Corrected a bug from the casting that rounded to 0
-            px = ( int64_t )( px * ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZE ) / 100.0 ) ) ;
-            py = ( int64_t )( py * ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZE ) / 100.0 ) ) ;
+            px = ( px * ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZE ) / 100.0 ) ) ;
+            py = ( py * ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZE ) / 100.0 ) ) ;
         }
     } else {
         // Adding size_x/size_y control
         if ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZEX ) > 0.0 )
-            px = ( int64_t )( px * ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZEX ) / 100.0 ) ) ;
+            px = ( px * ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZEX ) / 100.0 ) ) ;
 
         if ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZEY ) > 0.0 )
-            py = ( int64_t )( py * ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZEY ) / 100.0 ) ) ;
+            py = ( py * ( LOCDOUBLE( libmod_gfx, my, GRAPHSIZEY ) / 100.0 ) ) ;
     }
 
     if ( angle ) {
-        double cos_angle = ( double ) cos( angle * M_PI / -180000.0 );
-        double sin_angle = ( double ) sin( angle * M_PI / -180000.0 );
+        double cos_angle = cos_deg( -angle );
+        double sin_angle = sin_deg( -angle );
 
-        rx = ( int64_t )(( double )px * cos_angle - ( double )py * sin_angle ) ;
-        ry = ( int64_t )(( double )px * sin_angle + ( double )py * cos_angle ) ;
+        rx = ( ( double )px * cos_angle - ( double )py * sin_angle ) ;
+        ry = ( ( double )px * sin_angle + ( double )py * cos_angle ) ;
 
         px = rx ;
         py = ry ;
     }
 
-    x = LOCINT64( libmod_gfx, my, COORDX ) ;
-    y = LOCINT64( libmod_gfx, my, COORDY ) ;
+    x = LOCDOUBLE( libmod_gfx, my, COORDX ) ;
+    y = LOCDOUBLE( libmod_gfx, my, COORDY ) ;
 
     RESOLXY( libmod_gfx, my, x, y );
 

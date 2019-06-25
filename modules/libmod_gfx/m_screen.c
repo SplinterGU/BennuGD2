@@ -53,7 +53,7 @@ int64_t libmod_gfx_out_region( INSTANCE * my, int64_t * params ) {
     REGION bbox ;
     GRAPH * gr ;
 
-    if ( region < 0 || region > 31 || !proc ) return 0 ;
+    if ( region < 0 || region > MAX_REGIONS - 1 || !proc ) return 0 ;
 
     gr = instance_graph( proc ) ;
     if ( !gr ) return 0 ;

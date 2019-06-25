@@ -136,11 +136,12 @@ char * __bgdexport( libmod_gfx, types_def ) =
 DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     /* f_grproc */
-    FUNC( "ADVANCE"             , "I"               , TYPE_INT        , libmod_gfx_advance              ),
-    FUNC( "XADVANCE"            , "II"              , TYPE_INT        , libmod_gfx_xadvance             ),
+    FUNC( "ADVANCE"             , "D"               , TYPE_INT        , libmod_gfx_advance              ),
+    FUNC( "XADVANCE"            , "ID"              , TYPE_INT        , libmod_gfx_xadvance             ),
 
     FUNC( "GET_ANGLE"           , "I"               , TYPE_INT        , libmod_gfx_get_angle            ),
-    FUNC( "GET_DIST"            , "I"               , TYPE_INT        , libmod_gfx_get_dist             ),
+    FUNC( "GET_DIST"            , "I"               , TYPE_DOUBLE     , libmod_gfx_get_dist             ),
+    FUNC( "GET_DIST"            , "II"              , TYPE_DOUBLE     , libmod_gfx_get_dist_proc        ),
 
     FUNC( "GET_REAL_POINT"      , "IPP"             , TYPE_INT        , libmod_gfx_get_real_point       ),
 
@@ -221,8 +222,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "WRITE_SET_RGBA"      , "IBBBB"           , TYPE_INT        , libmod_gfx_text_set_rgba        ),
 
     /* Maps */
-    FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIII"     , TYPE_INT        , libmod_gfx_map_block_copy       ),
-    FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIBBBB" , TYPE_INT        , libmod_gfx_map_block_copy2      ),
+    FUNC( "MAP_BLOCK_COPY"      , "IIDDIIDDIII"     , TYPE_INT        , libmod_gfx_map_block_copy       ),
+    FUNC( "MAP_BLOCK_COPY"      , "IIDDIIDDIIIBBBB" , TYPE_INT        , libmod_gfx_map_block_copy2      ),
     FUNC( "MAP_PUT"             , "IIIIII"          , TYPE_INT        , libmod_gfx_map_put              ),
     FUNC( "MAP_PUT"             , "IIIIIIIDDIBBBB"  , TYPE_INT        , libmod_gfx_map_put2             ),
     FUNC( "MAP_NEW"             , "II"              , TYPE_INT        , libmod_gfx_new_map              ),

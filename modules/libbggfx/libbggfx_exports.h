@@ -154,10 +154,10 @@ char * __bgdexport( libbggfx, globals_def ) =
 
     /* scroll */
     "STRUCT scroll[9]\n"
-    "   INT x0;\n"
-    "   INT y0;\n"
-    "   INT x1;\n"
-    "   INT y1;\n"
+    "   DOUBLE x0;\n"
+    "   DOUBLE y0;\n"
+    "   DOUBLE x1;\n"
+    "   DOUBLE y1;\n"
     "   INT z=512;\n"
     "   INT camera;\n"
     "   INT ratio=200;\n"
@@ -190,8 +190,8 @@ char * __bgdexport( libbggfx, locals_def ) =
 
     /* Render */
 
-    "INT x;\n"
-    "INT y;\n"
+    "DOUBLE x;\n"
+    "DOUBLE y;\n"
     "INT z;\n"
     "INT file;\n"
     "INT graph;\n"

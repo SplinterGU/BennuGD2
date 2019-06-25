@@ -47,17 +47,8 @@
 #define SGN(a)  (((a) < 0) ? -1 : !(a) ? 0 : 1)
 #endif
 
-typedef int64_t fixed ;
-
-extern fixed ftofix( double x );
-extern double fixtof( fixed x );
-extern fixed itofix( int64_t x );
-extern int64_t fixtoi( fixed x );
-extern int64_t fixceil( fixed x );
-extern fixed fixcos( int64_t x );
-extern fixed fixsin( int64_t x );
-extern fixed fixmul( int64_t x, int64_t y );
-extern fixed fixdiv( int64_t x, int64_t y );
+extern double cos_deg( int64_t x );
+extern double sin_deg( int64_t x );
 extern void init_cos_tables();
 
 #endif

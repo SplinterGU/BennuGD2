@@ -30,6 +30,7 @@
 #include "fmath.h"
 #include "bgdcore.h"
 
+#if 0
 /* --------------------------------------------------------------------------- */
 /* Fixed-point math routines, based on Allegro */
 
@@ -124,6 +125,41 @@ void init_cos_tables() {
     int i ;
     if ( !cos_table ) cos_table = ( fixed * ) malloc( 90001 * sizeof( fixed ) );
     for ( i = 0 ; i <= 90000 ; i++ ) cos_table[i] = ftofix( cos( i * M_PI / 180000.0 ) ) ;
+}
+
+/* --------------------------------------------------------------------------- */
+#endif
+
+static double * cos_table = NULL ;
+
+/* --------------------------------------------------------------------------- */
+
+double cos_deg( int64_t x ) {
+    if ( x < 0 ) x = -x ;
+    if ( x > 360000 ) x %= 360000 ;
+    if ( x > 270000 ) return cos_table[360000 - x] ;
+    if ( x > 180000 ) return -cos_table[x - 180000] ;
+    if ( x > 90000 ) return -cos_table[180000 - x] ;
+    return cos_table[x] ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+double sin_deg( int64_t x ) {
+    if ( x < 0 ) return -sin_deg( -x ) ;
+    if ( x > 360000 ) x %= 360000 ;
+    if ( x > 270000 ) return -cos_table[x - 270000] ;
+    if ( x > 180000 ) return -cos_table[270000 - x] ;
+    if ( x > 90000 ) return cos_table[x - 90000] ;
+    return cos_table[90000 - x] ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+void init_cos_tables() {
+    int i ;
+    if ( !cos_table ) cos_table = ( double * ) malloc( 90001 * sizeof( double ) );
+    for ( i = 0; i <= 90000; i++ ) cos_table[i] = cos( i * M_PI / 180000.0 );
 }
 
 /* --------------------------------------------------------------------------- */

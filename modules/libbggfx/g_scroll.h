@@ -31,7 +31,9 @@
 
 /* --------------------------------------------------------------------------- */
 
-#define C_SCROLL    1
+#define C_SCROLL        1
+
+#define MAX_SCROLLS     10
 
 /* --------------------------------------------------------------------------- */
 
@@ -57,9 +59,9 @@ typedef struct _scrolldata {
     REGION * region;
     int64_t flags;
 
-    int64_t x0, y0;
-    int64_t posx0, posy0;
-    int64_t x1, y1;
+    double x0, y0;
+    double posx0, posy0;
+    double x1, y1;
     int64_t z;
 
     INSTANCE * camera;
@@ -78,10 +80,10 @@ typedef struct _scrolldata {
 } __PACKED scrolldata;
 
 typedef struct _scroll_Extra_data {
-    int64_t x0;
-    int64_t y0;
-    int64_t x1;
-    int64_t y1;
+    double x0;
+    double y0;
+    double x1;
+    double y1;
     int64_t z;
     int64_t camera;
     int64_t ratio;
@@ -99,7 +101,7 @@ typedef struct _scroll_Extra_data {
     uint8_t color_r2;
     uint8_t color_g2;
     uint8_t color_b2;
-    int64_t reserved[8];       /* First reserved dword point to internal scrolldata struct */
+    int64_t reserved[8];        /* First reserved dword point to internal scrolldata struct */
 } __PACKED SCROLL_EXTRA_DATA;
 
 #ifdef __GNUC__
@@ -112,7 +114,7 @@ typedef struct _scroll_Extra_data {
 
 /* --------------------------------------------------------------------------- */
 
-extern scrolldata  scrolls[10];
+extern scrolldata  scrolls[ MAX_SCROLLS ];
 
 /* --------------------------------------------------------------------------- */
 
