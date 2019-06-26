@@ -1,3 +1,14 @@
+2019-06-25:
+
+- Fix bug if create more than 128 maps
+- Remove change of x, y and size as double/float
+- Change int fget_angle( double, double, double, double)
+- Change double fget_dist( double, double, double, double)
+- Change double fget_distx( int, double)
+- Change double fget_disty( int, double)
+- Add int get_angle(int, int)
+- Add int get_dist(int, int)
+
 2019-06-24:
 
 - Remove math fixed point functions (internal)

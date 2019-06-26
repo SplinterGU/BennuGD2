@@ -199,24 +199,24 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
     if ( LOCINT64( libmod_gfx, my, GRAPHSIZEX ) == 100 && LOCINT64( libmod_gfx, my, GRAPHSIZEY ) == 100 ) {
         if ( LOCINT64( libmod_gfx, my, GRAPHSIZE ) > 0 ) {
             // Corrected a bug from the casting that rounded to 0
-            px = ( px * ( LOCINT64( libmod_gfx, my, GRAPHSIZE ) / 100 ) ) ;
-            py = ( py * ( LOCINT64( libmod_gfx, my, GRAPHSIZE ) / 100 ) ) ;
+            px = ( int64_t ) ( px * ( LOCINT64( libmod_gfx, my, GRAPHSIZE ) / 100.0 ) ) ;
+            py = ( int64_t ) ( py * ( LOCINT64( libmod_gfx, my, GRAPHSIZE ) / 100.0 ) ) ;
         }
     } else {
         // Adding size_x/size_y control
         if ( LOCINT64( libmod_gfx, my, GRAPHSIZEX ) > 0 )
-            px = ( px * ( LOCINT64( libmod_gfx, my, GRAPHSIZEX ) / 100 ) ) ;
+            px = ( int64_t ) ( px * ( LOCINT64( libmod_gfx, my, GRAPHSIZEX ) / 100.0 ) ) ;
 
         if ( LOCINT64( libmod_gfx, my, GRAPHSIZEY ) > 0 )
-            py = ( py * ( LOCINT64( libmod_gfx, my, GRAPHSIZEY ) / 100 ) ) ;
+            py = ( int64_t ) ( py * ( LOCINT64( libmod_gfx, my, GRAPHSIZEY ) / 100.0 ) ) ;
     }
 
     if ( angle ) {
         double cos_angle = cos_deg( -angle );
         double sin_angle = sin_deg( -angle );
 
-        rx = ( ( double )px * cos_angle - ( double )py * sin_angle ) ;
-        ry = ( ( double )px * sin_angle + ( double )py * cos_angle ) ;
+        rx = ( int64_t ) ( ( double )px * cos_angle - ( double )py * sin_angle ) ;
+        ry = ( int64_t ) ( ( double )px * sin_angle + ( double )py * cos_angle ) ;
 
         px = rx ;
         py = ry ;
