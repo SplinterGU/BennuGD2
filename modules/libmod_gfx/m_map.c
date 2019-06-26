@@ -289,8 +289,8 @@ int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
              params[5],  // y
              params[9],  // flags
              params[6],  // angle
-             *(double *) &params[7],  // scalex
-             *(double *) &params[8],  // scaley
+             params[7],  // scalex
+             params[8],  // scaley
              orig,       // orig
              NULL,       // orig_clip
              params[10], // alpha
@@ -339,12 +339,12 @@ int64_t libmod_gfx_map_exists( INSTANCE * my, int64_t * params ) {
 static int64_t __libmod_gfx_map_block_copy(
     int64_t dest_file,
     int64_t dest_graph,
-    double dest_x,
-    double dest_y,
+    int64_t dest_x,
+    int64_t dest_y,
     int64_t file,
     int64_t graph,
-    double x,
-    double y,
+    int64_t x,
+    int64_t y,
     int64_t w,
     int64_t h,
     int64_t flags,
@@ -355,7 +355,7 @@ static int64_t __libmod_gfx_map_block_copy(
  ) {
     GRAPH * dest, * orig;
     REGION clip;
-    double centerx, centery;
+    int64_t centerx, centery;
 
     if ( !( dest = bitmap_get( dest_file, dest_graph ) ) ) return 0;
     if ( !( orig = bitmap_get( file, graph ) ) ) return 0;
@@ -364,17 +364,17 @@ static int64_t __libmod_gfx_map_block_copy(
         centerx = orig->cpoints[0].x;
         centery = orig->cpoints[0].y;
     } else {
-        centery = orig->height / 2.0;
-        centerx = orig->width / 2.0;
+        centery = orig->height / 2;
+        centerx = orig->width / 2;
     }
 
     if ( flags & B_HMIRROR ) centerx = orig->width - 1 - centerx;
     if ( flags & B_VMIRROR ) centery = orig->height - 1 - centery;
 
-    if ( x  < 0.0 ) { dest_x += x;  w += x;   x = 0.0; }
-    if ( y  < 0.0 ) { dest_y += y;  h += y;   y = 0.0; }
-    if ( dest_x < 0.0 ) {  x += dest_x; w += dest_x; dest_x = 0.0; }
-    if ( dest_y < 0.0 ) {  y += dest_y; h += dest_y; dest_y = 0.0; }
+    if ( x      < 0 ) { dest_x += x; w += x;      x = 0; }
+    if ( y      < 0 ) { dest_y += y; h += y;      y = 0; }
+    if ( dest_x < 0 ) { x += dest_x; w += dest_x; dest_x = 0; }
+    if ( dest_y < 0 ) { y += dest_y; h += dest_y; dest_y = 0; }
 
     if ( x + w  > orig->width  ) w = orig->width  - x;
     if ( y + h  > orig->height ) h = orig->height - y;
@@ -398,12 +398,12 @@ int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
     return __libmod_gfx_map_block_copy(
         params[0],
         params[1],
-        *(double *)&params[2],
-        *(double *)&params[3],
+        params[2],
+        params[3],
         params[4],
         params[5],
-        *(double *)&params[6],
-        *(double *)&params[7],
+        params[6],
+        params[7],
         params[8],
         params[9],
         params[10],
@@ -420,12 +420,12 @@ int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params ) {
     return __libmod_gfx_map_block_copy(
         params[0],
         params[1],
-        *(double *)&params[2],
-        *(double *)&params[3],
+        params[2],
+        params[3],
         params[4],
         params[5],
-        *(double *)&params[6],
-        *(double *)&params[7],
+        params[6],
+        params[7],
         params[8],
         params[9],
         params[10],
@@ -583,9 +583,7 @@ int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
     }
 
     SDL_SetPaletteColors( palette, colors, firstcolor, ncolors );
-
     SDL_SetSurfacePalette( map->surface, palette );
-
     SDL_FreePalette( palette );
 
     map->texture_must_update = 1;

@@ -59,9 +59,9 @@ typedef struct _scrolldata {
     REGION * region;
     int64_t flags;
 
-    double x0, y0;
-    double posx0, posy0;
-    double x1, y1;
+    int64_t x0, y0;
+    int64_t posx0, posy0;
+    int64_t x1, y1;
     int64_t z;
 
     INSTANCE * camera;
@@ -80,10 +80,10 @@ typedef struct _scrolldata {
 } __PACKED scrolldata;
 
 typedef struct _scroll_Extra_data {
-    double x0;
-    double y0;
-    double x1;
-    double y1;
+    int64_t x0;
+    int64_t y0;
+    int64_t x1;
+    int64_t y1;
     int64_t z;
     int64_t camera;
     int64_t ratio;

@@ -37,10 +37,10 @@
     {                                                               \
         int64_t res = LOCINT64(m, r, RESOLUTION );                  \
         if ( res > 0 ) {                                            \
-            if ( x < 0.0 )  ( x ) = ( ( x ) - ( res - 1 )) / res;   \
+            if ( x < 0 )    ( x ) = ( ( x ) - ( res - 1 )) / res;   \
             else            ( x ) /= res;                           \
                                                                     \
-            if ( y < 0.0 )  ( y ) = ( ( y ) - ( res - 1 )) / res;   \
+            if ( y < 0 )    ( y ) = ( ( y ) - ( res - 1 )) / res;   \
             else            ( y ) /= res;                           \
         } else if ( res < 0 ) {                                     \
             ( x ) *= -res;                                          \
@@ -52,10 +52,10 @@
     {                                                               \
         int64_t res = LOCINT64(m, r, RESOLUTION );                  \
         if ( res > 0 ) {                                            \
-            if ( x < 0.0 )  ( x ) = ( ( x ) - ( res - 1 )) / res;   \
+            if ( x < 0 )    ( x ) = ( ( x ) - ( res - 1 )) / res;   \
             else            ( x ) /= res;                           \
                                                                     \
-            if ( y < 0.0 )  ( y ) = ( ( y ) - ( res - 1 )) / res;   \
+            if ( y < 0 )    ( y ) = ( ( y ) - ( res - 1 )) / res;   \
             else            ( y ) /= res;                           \
                                                                     \
             if ( z < 0 )    ( z ) = ( ( z ) - ( res - 1 )) / res;   \

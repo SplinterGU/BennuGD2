@@ -65,16 +65,14 @@ int64_t libmod_misc_math_sqrt( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_cos( INSTANCE * my, int64_t * params ) {
-    double param = *( double * ) &params[0];
-    double res = cos( param * M_PI / 180000.0 );
+    double res = cos_deg( *( double * ) &params[0] );
     return *(( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_sin( INSTANCE * my, int64_t * params ) {
-    double param = *( double * ) &params[0];
-    double res = sin( param * M_PI / 180000.0 );
+    double res = sin_deg( *( double * ) &params[0] );
     return *(( int64_t * )&res );
 }
 
@@ -144,8 +142,8 @@ int64_t libmod_misc_math_finite( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_fget_angle( INSTANCE * my, int64_t * params ) {
-    double dx = params[2] - params[0];
-    double dy = params[3] - params[1];
+    double dx = *( double * ) &params[2] - *( double * ) &params[0];
+    double dy = *( double * ) &params[3] - *( double * ) &params[1];
     int64_t angle;
 
     if ( dx == 0 ) return ( dy > 0 ) ? 270000L : 90000L;
@@ -158,10 +156,10 @@ int64_t libmod_misc_math_fget_angle( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_fget_dist( INSTANCE * my, int64_t * params ) {
-    double dx = params[2] - params[0];
-    double dy = params[3] - params[1];
-
-    return ( int64_t )sqrt( dx*dx + dy*dy );
+    double dx = *( double * ) &params[2] - *( double * ) &params[0];
+    double dy = *( double * ) &params[3] - *( double * ) &params[1];
+    double res = sqrt( dx*dx + dy*dy );
+    return *( int64_t * ) &res;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -172,7 +170,6 @@ int64_t libmod_misc_math_near_angle( INSTANCE * my, int64_t * params ) {
             incr  = params[2];
 
     if ( angle < dest && dest - angle > 180000L ) angle += 360000L;
-
     if ( angle > dest && angle - dest > 180000L ) angle -= 360000L;
 
     if ( angle < dest ) {
@@ -191,15 +188,15 @@ int64_t libmod_misc_math_near_angle( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_get_distx( INSTANCE * my, int64_t * params ) {
-    double angle = params[0] * M_PI / 180000.0;
-    return ( int64_t )( params[1] * cos( angle ) );
+    double res = ( *( double * ) &params[1] * cos_deg( params[0] ) );
+    return *( int64_t * ) &res;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_get_disty( INSTANCE * my, int64_t * params ) {
-    double angle = params[0] * M_PI / 180000.0;
-    return ( int64_t )( params[1] * -sin( angle ) );
+    double res = ( *( double * ) &params[1] * -sin_deg( params[0] ) );
+    return *( int64_t * ) &res;
 }
 
 /* --------------------------------------------------------------------------- */

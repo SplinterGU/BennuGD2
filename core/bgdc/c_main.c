@@ -893,6 +893,7 @@ void compile_process() {
                     type = typedef_base( var->type );
                     ctype = var->type;
                 }
+
                 if ( typedef_base( var->type ) != type ) {
                     if ( typedef_is_integer( var->type ) && typedef_is_integer( typedef_new( type ) ) ) {
                         /*
@@ -915,7 +916,7 @@ void compile_process() {
 
                 if ( proc->privars->reserved == proc->privars->count ) varspace_alloc( proc->privars, 16 );
 
-                proc->privars->vars[proc->privars->count].type   = typedef_new( TYPE_INT );
+                proc->privars->vars[proc->privars->count].type   = ctype; // typedef_new( TYPE_INT ); // FIX JJP ???
                 proc->privars->vars[proc->privars->count].offset = proc->pridata->current;
                 proc->privars->vars[proc->privars->count].code   = -1; // for runtime search the right var
 
@@ -952,7 +953,7 @@ void compile_process() {
             if ( proc->paramtype[params] == TYPE_UNDEFINED ) proc->paramtype[params] = type;
             else if (( proc->paramtype[params] == TYPE_QWORD || proc->paramtype[params] == TYPE_INT ) &&
                      (  type == TYPE_QWORD ||
-                        type == TYPE_INT ||
+                        type == TYPE_INT   ||
                         type == TYPE_DWORD ||
                         type == TYPE_INT32 ||
                         type == TYPE_BYTE  ||

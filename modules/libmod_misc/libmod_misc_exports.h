@@ -204,11 +204,11 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "ISNAN"           , "D"       , TYPE_INT          , libmod_misc_math_isnan             ),
     FUNC( "FINITE"          , "D"       , TYPE_INT          , libmod_misc_math_finite            ),
 
-    FUNC( "FGET_ANGLE"      , "IIII"    , TYPE_INT          , libmod_misc_math_fget_angle        ),
-    FUNC( "FGET_DIST"       , "IIII"    , TYPE_INT          , libmod_misc_math_fget_dist         ),
+    FUNC( "FGET_ANGLE"      , "DDDD"    , TYPE_INT          , libmod_misc_math_fget_angle        ),
+    FUNC( "FGET_DIST"       , "DDDD"    , TYPE_DOUBLE       , libmod_misc_math_fget_dist         ),
     FUNC( "NEAR_ANGLE"      , "III"     , TYPE_INT          , libmod_misc_math_near_angle        ),
-    FUNC( "GET_DISTX"       , "II"      , TYPE_INT          , libmod_misc_math_get_distx         ),
-    FUNC( "GET_DISTY"       , "II"      , TYPE_INT          , libmod_misc_math_get_disty         ),
+    FUNC( "GET_DISTX"       , "ID"      , TYPE_DOUBLE       , libmod_misc_math_get_distx         ),
+    FUNC( "GET_DISTY"       , "ID"      , TYPE_DOUBLE       , libmod_misc_math_get_disty         ),
 
     FUNC( "CLAMP"           , "III"     , TYPE_INT          , libmod_misc_math_clamp             ),
     FUNC( "CLAMPF"          , "DDD"     , TYPE_DOUBLE       , libmod_misc_math_clampf            ),

@@ -46,7 +46,7 @@ REGION regions[ MAX_REGIONS ];
  *  and cannot be changed
  *
  *  PARAMS :
- *      n           Number of region to set (1 to MAX_REGIONS - 1)
+ *      n           Number of region to set (1 to MAX_REGIONS)
  *      x, y        Top-Left coordinates
  *      width       Width in pixels
  *      height      Height in pixels
@@ -56,7 +56,7 @@ REGION regions[ MAX_REGIONS ];
  */
 
 void region_define( int64_t region, int64_t x, int64_t y, int64_t width, int64_t height ) {
-    if ( region < 1 || region > MAX_REGIONS - 1 ) return;
+    if ( region < 1 || region >= MAX_REGIONS ) return;
 #if 1
     regions[ region ].x = x;
     regions[ region ].y = y;
@@ -170,7 +170,7 @@ REGION * region_new( int64_t x, int64_t y, int64_t width, int64_t height ) {
  *  Returns one of the MAX_REGIONS default regions visible from the fenix language
  *
  *  PARAMS :
- *      n           Number of the region ( 0 to MAX_REGIONS - 1 )
+ *      n           Number of the region (0 to MAX_REGIONS)
  *
  *  RETURN VALUE :
  *      Returns the region object
@@ -178,7 +178,7 @@ REGION * region_new( int64_t x, int64_t y, int64_t width, int64_t height ) {
  */
 
 REGION * region_get( int64_t n ) {
-    if ( n < 0 || n > MAX_REGIONS - 1 ) return 0;
+    if ( n < 0 || n >= MAX_REGIONS ) return 0;
 
     return &regions[ n ];
 }

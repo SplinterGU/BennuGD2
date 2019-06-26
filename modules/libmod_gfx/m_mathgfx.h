@@ -37,8 +37,9 @@
 extern int64_t libmod_gfx_advance( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_xadvance( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_angle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_get_angle2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_dist( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_get_dist_proc( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_get_dist2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params );
 
 #endif

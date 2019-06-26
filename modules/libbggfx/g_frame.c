@@ -223,9 +223,9 @@ void gr_draw_frame() {
 
     /* Put background */
     if ( background_graph && ( background = bitmap_get( GLOQWORD( libbggfx, BACKGROUND_FILE ), background_graph ) ) ) {
-        double  sizex = GLODOUBLE( libbggfx, BACKGROUND_SIZEX ),
-                sizey = GLODOUBLE( libbggfx, BACKGROUND_SIZEY );
-        if ( sizex == 100.0 && sizey == 100.0 ) sizex = sizey = GLODOUBLE( libbggfx, BACKGROUND_SIZE );
+        int64_t sizex = GLOINT64( libbggfx, BACKGROUND_SIZEX ),
+                sizey = GLOINT64( libbggfx, BACKGROUND_SIZEY );
+        if ( sizex == 100 && sizey == 100 ) sizex = sizey = GLOINT64( libbggfx, BACKGROUND_SIZE );
         gr_blit( NULL,
                  NULL,
                  scr_width / 2,

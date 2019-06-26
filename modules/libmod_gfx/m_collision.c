@@ -56,71 +56,35 @@ enum {
 
 /* --------------------------------------------------------------------------- */
 
-static double inline get_distance( double x1, double y1, double r1, double x2, double y2, double r2 ) {
+static int64_t inline get_distance( int64_t x1, int64_t y1, int64_t r1, int64_t x2, int64_t y2, int64_t r2 ) {
     RESOLXY_RES( x1, y1, r1 );
     RESOLXY_RES( x2, y2, r2 );
 
     double dx = ( x2 - x1 ) * ( x2 - x1 );
     double dy = ( y2 - y1 ) * ( y2 - y1 );
 
-    if ( r1 > 0 ) return sqrt( dx + dy ) * r1;
-    else if ( r1 < 0 ) return sqrt( dx + dy ) / -r1;
+    if ( r1 > 0 ) return ( int64_t ) sqrt( dx + dy ) * r1;
+    else if ( r1 < 0 ) return ( int64_t ) sqrt( dx + dy ) / -r1;
 
-    return sqrt( dx + dy );
+    return ( int64_t ) sqrt( dx + dy );
 }
 
-/* --------------------------------------------------------------------------- */
-/* Rutinas de utilidad local */
-#if 0
-void draw_at( GRAPH * dest, int x, int y, REGION * r, INSTANCE * i ) {
-    GRAPH * map;
-    double scalex, scaley;
-
-    scalex = LOCDOUBLE( libmod_gfx, i, GRAPHSIZEX );
-    scaley = LOCDOUBLE( libmod_gfx, i, GRAPHSIZEY );
-    if ( scalex == 100.0 && scaley == 100.0 ) scalex = scaley = LOCDOUBLE( libmod_gfx, i, GRAPHSIZE );
-
-    map = instance_graph( i );
-    if ( !map ) return;
-
-    // PATCH - XGRAPH DOES NOT ROTATE DESTINATION GRAPHIC
-    if ( LOCINT64( libmod_gfx, i, ANGLE ) || scaley != 100 || scalex != 100 ) {
-        if ( LOCQWORD( libmod_gfx, i, XGRAPH ) && scalex == 100 && scaley == 100 ) {
-            gr_blit( dest, r, x, y, LOCQWORD( libmod_gfx, i, FLAGS ) & ( B_HMIRROR | B_VMIRROR ), map );
-        }
-        else
-        {
-            if ( LOCQWORD( libmod_gfx, i, XGRAPH ) ) {
-                gr_rotated_blit( dest, r, x, y, LOCQWORD( libmod_gfx, i, FLAGS ) & ( B_HMIRROR | B_VMIRROR ), 0, scalex, scaley, map );
-            }
-            else
-            {
-                gr_rotated_blit( dest, r, x, y, LOCQWORD( libmod_gfx, i, FLAGS ) & ( B_HMIRROR | B_VMIRROR ), LOCINT64( libmod_gfx, i, ANGLE ), scalex, scaley, map );
-            }
-        }
-    }
-    else
-    {
-        gr_blit( dest, r, x, y, LOCQWORD( libmod_gfx, i, FLAGS ) & ( B_HMIRROR | B_VMIRROR ), map );
-    }
-}
-#endif
 /* --------------------------------------------------------------------------- */
 
 static int get_bbox( REGION * bbox, INSTANCE * proc ) {
     SDL_Rect *map_clip = NULL, _map_clip;
-    double x, y, scalex, scaley;
+    int64_t x, y, scalex, scaley;
     GRAPH * b;
 
     b = instance_graph( proc );
     if ( !b ) return 0;
 
-    scalex = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZEX );
-    scaley = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZEY );
-    if ( scalex == 100.0 && scaley == 100.0 ) scalex = scaley = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZE );
+    scalex = LOCINT64( libmod_gfx, proc, GRAPHSIZEX );
+    scaley = LOCINT64( libmod_gfx, proc, GRAPHSIZEY );
+    if ( scalex == 100 && scaley == 100 ) scalex = scaley = LOCINT64( libmod_gfx, proc, GRAPHSIZE );
 
-    x = LOCDOUBLE( libmod_gfx, proc, COORDX );
-    y = LOCDOUBLE( libmod_gfx, proc, COORDY );
+    x = LOCINT64( libmod_gfx, proc, COORDX );
+    y = LOCINT64( libmod_gfx, proc, COORDY );
 
     RESOLXY( libmod_gfx, proc, x, y );
 
@@ -143,35 +107,27 @@ static int get_bbox( REGION * bbox, INSTANCE * proc ) {
 
 static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
     REGION bbox1, bbox2;
-    double x, y, mx, my;
-//    static GRAPH * bmp = NULL;
+    int64_t x, y, mx, my;
 
     switch ( colltype ) {
         case    COLLISION_BOX:
         case    COLLISION_CIRCLE:
         case    COLLISION_NORMAL:
                 if ( !get_bbox( &bbox2, proc1 ) ) return 0;
-
-//        case    COLLISION_NORMAL:
                 break;
 
         default:
                 return 0;
     }
 
-    mx = ( double ) GLODOUBLE( libmod_gfx, MOUSEX );
-    my = ( double ) GLODOUBLE( libmod_gfx, MOUSEY );
+    mx = GLOINT64( libmod_gfx, MOUSEX );
+    my = GLOINT64( libmod_gfx, MOUSEY );
 
     /* Checks the process's bounding box to optimize checking
        (only for screen-type objects) */
 
     if ( LOCQWORD( libmod_gfx, proc1, CTYPE ) == C_SCREEN ) {
         switch ( colltype ) {
-//            case    COLLISION_NORMAL:
-//                    if ( !get_bbox( &bbox2, proc1 ) ) return 0;
-//                    if ( bbox2.x > mx || bbox2.x2 < mx || bbox2.y > my || bbox2.y2 < my ) return 0;
-//                    break;
-
             case    COLLISION_NORMAL:
             case    COLLISION_BOX:
                     if ( bbox2.x <= mx && bbox2.x2 >= mx && bbox2.y <= my && bbox2.y2 >= my ) return 1;
@@ -180,36 +136,25 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 
             case    COLLISION_CIRCLE:
                 {
-                    double cx1, cy1, dx1, dy1;
+                    int64_t cx1, cy1, dx1, dy1;
 
-                    cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2.0;
-                    cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2.0;
+                    cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2;
+                    cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2;
 
-                    if ( get_distance( cx1, cy1, 0, mx, my, 0 ) < ( dx1 + dy1 ) / 4.0 ) return 1;
+                    if ( get_distance( cx1, cy1, 0, mx, my, 0 ) < ( dx1 + dy1 ) / 4 ) return 1;
                     return 0;
                     break;
                 }
         }
     }
 
-    /* Creates a temporary bitmap (only once) */
-#if 0
-    if ( colltype == COLLISION_NORMAL ) {
-        /* maybe must force this to 32 bits */
-        if ( bmp && bmp->format->depth != sys_pixel_format->depth ) { bitmap_destroy( bmp ); bmp = NULL; }
-        if ( !bmp ) bmp = bitmap_new( 0, 2, 1, sys_pixel_format->depth );
-        if ( !bmp ) return 0;
-
-        memset( bmp->data, 0, bmp->pitch * bmp->height );
-    }
-#endif
     /* Retrieves process information */
 
     bbox1.x = 0; bbox1.x2 = 1;
     bbox1.y = 0; bbox1.y2 = 0;
 
-    x = LOCDOUBLE( libmod_gfx, proc1, COORDX );
-    y = LOCDOUBLE( libmod_gfx, proc1, COORDY );
+    x = LOCINT64( libmod_gfx, proc1, COORDX );
+    y = LOCINT64( libmod_gfx, proc1, COORDY );
 
     RESOLXY( libmod_gfx, proc1, x, y );
 
@@ -232,26 +177,6 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
                     REGION * r = scroll->region;
 
                     switch ( colltype ) {
-#if 0
-                        case    COLLISION_NORMAL:
-                                if ( r->x > mx || r->x2 < mx || r->y > my || r->y2 < my ) continue;
-
-                                draw_at( bmp, x + r->x - mx - scroll->posx0, y + r->y - my - scroll->posy0, &bbox1, proc1 );
-                                switch ( sys_pixel_format->depth ) {
-                                    case    8:
-                                        if ( *( uint8_t * )bmp->data ) return 1;
-                                        break;
-
-                                    case    16:
-                                        if ( *( uint16_t * )bmp->data ) return 1;
-                                        break;
-
-                                    case    32:
-                                        if ( *( uint32_t * )bmp->data ) return 1;
-                                        break;
-                                }
-                                break;
-#endif
                         case    COLLISION_NORMAL:
                         case    COLLISION_BOX:
                                 if ( bbox2.x <= scroll->posx0 + r->x + mx && bbox2.x2 >= scroll->posx0 + r->x + mx &&
@@ -260,12 +185,12 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 
                         case    COLLISION_CIRCLE:
                             {
-                                double cx1, cy1, dx1, dy1;
+                                int64_t cx1, cy1, dx1, dy1;
 
-                                cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2.0;
-                                cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2.0;
+                                cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2;
+                                cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2;
 
-                                if ( get_distance( cx1, cy1, 0, r->x + mx + scroll->posx0, r->y + my + scroll->posy0, 0 ) < ( dx1 + dy1 ) / 4.0 ) return 1;
+                                if ( get_distance( cx1, cy1, 0, r->x + mx + scroll->posx0, r->y + my + scroll->posy0, 0 ) < ( dx1 + dy1 ) / 4 ) return 1;
                                 break;
                             }
                     }
@@ -277,26 +202,6 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
     }
 
     switch ( colltype ) {
-#if 0
-        case    COLLISION_NORMAL:
-                /* Collision check (blits into temporary space and checks the resulting pixel) */
-                draw_at( bmp, x - mx, y - my, &bbox1, proc1 );
-
-                switch ( sys_pixel_format->depth ) {
-                    case    8:
-                        if ( *( uint8_t * )bmp->data ) return 1;
-                        break;
-
-                    case    16:
-                        if ( *( uint16_t * )bmp->data ) return 1;
-                        break;
-
-                    case    32:
-                        if ( *( uint32_t * )bmp->data ) return 1;
-                        break;
-                }
-                break;
-#endif
         case    COLLISION_NORMAL:
         case    COLLISION_BOX:
                 if ( bbox2.x <= mx && bbox2.x2 >= mx &&
@@ -305,12 +210,12 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 
         case    COLLISION_CIRCLE:
             {
-                double cx1, cy1, dx1, dy1;
+                int64_t cx1, cy1, dx1, dy1;
 
-                cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2.0;
-                cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2.0;
+                cx1 = bbox2.x + ( dx1 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2;
+                cy1 = bbox2.y + ( dy1 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2;
 
-                if ( get_distance( cx1, cy1, 0, mx, my, 0 ) < ( dx1 + dy1 ) / 4.0 ) return 1;
+                if ( get_distance( cx1, cy1, 0, mx, my, 0 ) < ( dx1 + dy1 ) / 4 ) return 1;
                 break;
             }
     }
@@ -321,20 +226,20 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 /* --------------------------------------------------------------------------- */
 
 static int check_collision_circle( INSTANCE * proc1, REGION * bbox1, INSTANCE * proc2 ) {
-    double cx1, cy1, cx2, cy2, dx1, dy1, dx2, dy2;
+    int64_t cx1, cy1, cx2, cy2, dx1, dy1, dx2, dy2;
     REGION bbox2;
     GRAPH * bmp;
 
     bmp = instance_graph( proc2 ); if ( !bmp ) return 0;
     instance_get_bbox( proc2, bmp, &bbox2 );
 
-    cx1 = bbox1->x + ( dx1 = ( bbox1->x2 - bbox1->x + 1 ) ) / 2.0;
-    cy1 = bbox1->y + ( dy1 = ( bbox1->y2 - bbox1->y + 1 ) ) / 2.0;
+    cx1 = bbox1->x + ( dx1 = ( bbox1->x2 - bbox1->x + 1 ) ) / 2;
+    cy1 = bbox1->y + ( dy1 = ( bbox1->y2 - bbox1->y + 1 ) ) / 2;
 
-    cx2 = bbox2.x + ( dx2 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2.0;
-    cy2 = bbox2.y + ( dy2 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2.0;
+    cx2 = bbox2.x + ( dx2 = ( bbox2.x2 - bbox2.x + 1 ) ) / 2;
+    cy2 = bbox2.y + ( dy2 = ( bbox2.y2 - bbox2.y + 1 ) ) / 2;
 
-    if ( get_distance( cx1, cy1, 0, cx2, cy2, 0 ) < ( ( dx1 + dy1 ) / 2.0 + ( dx2 + dy2 ) / 2.0 ) / 2.0 ) return 1;
+    if ( get_distance( cx1, cy1, 0, cx2, cy2, 0 ) < ( ( dx1 + dy1 ) / 2 + ( dx2 + dy2 ) / 2 ) / 2 ) return 1;
 
     return 0;
 }
@@ -355,124 +260,6 @@ static int check_collision_box( INSTANCE * proc1, REGION * bbox1, INSTANCE * pro
 }
 
 /* --------------------------------------------------------------------------- */
-#if 0
-static int check_collision( INSTANCE * proc1, REGION * bbox3, INSTANCE * proc2 ) {
-    REGION bbox1, bbox2;
-    int x, y, w, h;
-    GRAPH * bmp1 = NULL, * bmp2 = NULL;
-
-    bbox1 = *bbox3;
-
-    bmp2 = instance_graph( proc2 ); if ( !bmp2 ) return 0;
-    instance_get_bbox( proc2, bmp2, &bbox2 );
-
-    region_union( &bbox1, &bbox2 );
-    if ( region_is_empty( &bbox1 ) ) return 0;
-
-    // Solo si las regiones de ambos bbox se superponen
-
-    w = bbox1.x2 - bbox1.x + 1;
-    h = bbox1.y2 - bbox1.y + 1;
-    bbox2.x = bbox2.y = 0;
-    bbox2.x2 = w - 1;
-    bbox2.y2 = h - 1;
-
-    bmp1 = bitmap_new( 0, w, h, sys_pixel_format->depth );
-    if ( !bmp1 ) return 0;
-
-    bmp2 = bitmap_new( 0, w, h, sys_pixel_format->depth );
-    if ( !bmp2 ) {
-        bitmap_destroy( bmp1 );
-        return 0;
-    }
-
-    memset( bmp1->data, 0, bmp1->pitch * h );
-    memset( bmp2->data, 0, bmp2->pitch * h );
-
-    x = LOCDOUBLE( libmod_gfx, proc1, COORDX );
-    y = LOCDOUBLE( libmod_gfx, proc1, COORDY );
-    RESOLXY( libmod_gfx, proc1, x, y );
-
-    x -= bbox1.x;
-    y -= bbox1.y;
-    draw_at( bmp1, x, y, &bbox2, proc1 );
-
-    x = LOCDOUBLE( libmod_gfx, proc2, COORDX );
-    y = LOCDOUBLE( libmod_gfx, proc2, COORDY );
-    RESOLXY( libmod_gfx, proc2, x, y );
-
-    x -= bbox1.x;
-    y -= bbox1.y;
-    draw_at( bmp2, x, y, &bbox2, proc2 );
-
-    if ( sys_pixel_format->depth == 32 ) {
-        uint32_t * ptr1 = ( uint32_t * ) bmp1->data;
-        uint32_t * ptr2 = ( uint32_t * ) bmp2->data;
-
-        uint8_t * _ptr1 = ( uint8_t * ) ptr1;
-        uint8_t * _ptr2 = ( uint8_t * ) ptr2;
-
-        for ( y = 0; y < h; y++ ) {
-            for ( x = 0; x < w; x++, ptr1++, ptr2++ ) {
-                if ( *ptr1 && *ptr2 ) {
-                    bitmap_destroy( bmp1 );
-                    bitmap_destroy( bmp2 );
-                    return 1;
-                }
-            }
-            ptr1 = ( uint32_t * )( _ptr1 += bmp1->pitch );
-            ptr2 = ( uint32_t * )( _ptr2 += bmp2->pitch );
-        }
-    }
-    else
-    {
-        if ( sys_pixel_format->depth == 16 ) {
-            uint16_t * ptr1 = ( uint16_t * ) bmp1->data;
-            uint16_t * ptr2 = ( uint16_t * ) bmp2->data;
-
-            uint8_t * _ptr1 = ( uint8_t * ) ptr1;
-            uint8_t * _ptr2 = ( uint8_t * ) ptr2;
-
-            for ( y = 0; y < h; y++ ) {
-                for ( x = 0; x < w; x++, ptr1++, ptr2++ ) {
-                    if ( *ptr1 && *ptr2 ) {
-                        bitmap_destroy( bmp1 );
-                        bitmap_destroy( bmp2 );
-                        return 1;
-                    }
-                }
-                ptr1 = ( uint16_t * )( _ptr1 += bmp1->pitch );
-                ptr2 = ( uint16_t * )( _ptr2 += bmp2->pitch );
-            }
-        }
-        else
-        {
-            uint8_t * ptr1 = ( uint8_t * )bmp1->data;
-            uint8_t * ptr2 = ( uint8_t * )bmp2->data;
-
-            uint8_t * _ptr1 = ptr1;
-            uint8_t * _ptr2 = ptr2;
-
-            for ( y = 0; y < h; y++ ) {
-                for ( x = 0; x < w; x++, ptr1++, ptr2++ ) {
-                    if ( *ptr1 && *ptr2 ) {
-                        bitmap_destroy( bmp1 );
-                        bitmap_destroy( bmp2 );
-                        return 1;
-                    }
-                }
-                ptr1 = _ptr1 += bmp1->pitch;
-                ptr2 = _ptr2 += bmp2->pitch;
-            }
-        }
-    }
-
-    bitmap_destroy( bmp1 );
-    bitmap_destroy( bmp2 );
-    return 0;
-}
-#endif
-/* --------------------------------------------------------------------------- */
 
 static int64_t __collision( INSTANCE * my, int64_t id, int64_t colltype ) {
     int ( *colfunc )( INSTANCE *, REGION *, INSTANCE * );
@@ -484,11 +271,6 @@ static int64_t __collision( INSTANCE * my, int64_t id, int64_t colltype ) {
     if ( id == -1 ) return ( check_collision_with_mouse( my, colltype ) ) ? 1 : 0;
 
     switch ( colltype ) {
-#if 0
-        case    COLLISION_NORMAL:
-                colfunc = check_collision;
-                break;
-#endif
         case    COLLISION_NORMAL:
         case    COLLISION_BOX:
                 colfunc = check_collision_box;
