@@ -94,8 +94,8 @@ static int __libmod_gfx_text_write_var( int withz, INSTANCE * my, int64_t * para
     DCB_TYPEDEF * var;
     int64_t t = 0;
 
-    if ( withz ) var =( DCB_TYPEDEF * )params[6];
-    else var =( DCB_TYPEDEF * )params[5];
+    if ( withz ) var = ( DCB_TYPEDEF * ) ( intptr_t ) params[6];
+    else var = ( DCB_TYPEDEF * ) ( intptr_t ) params[5];
 
     switch( var->BaseType[0] ) {
         case TYPE_DOUBLE:
@@ -162,8 +162,8 @@ static int __libmod_gfx_text_write_var( int withz, INSTANCE * my, int64_t * para
             break;
     }
 
-    if ( withz ) return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[5], t );
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[4], t );
+    if ( withz ) return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )( intptr_t ) params[5], t );
+    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )( intptr_t ) params[4], t );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -184,13 +184,13 @@ int64_t libmod_gfx_text_write_var2( INSTANCE * my, int64_t * params ) {
  */
 
 int64_t libmod_gfx_text_write_value( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )params[5], params[4] );
+    return gr_text_new_var( params[0], params[1], params[2], params[3], ( void * )( intptr_t ) params[5], params[4] );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_text_write_value2( INSTANCE * my, int64_t * params ) {
-    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )params[6], params[5] );
+    return gr_text_new_var2( params[0], params[1], params[2], params[3], params[4], ( void * )( intptr_t ) params[6], params[5] );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -245,10 +245,10 @@ int64_t libmod_gfx_text_get_rgba( INSTANCE * my, int64_t * params ) {
     uint8_t r, g, b, a;
     int64_t ret = gr_text_getrgba( params[0], &r, &g, &b, &a );
 
-    if ( params[1] ) *( uint8_t * )params[1] = r;
-    if ( params[2] ) *( uint8_t * )params[2] = g;
-    if ( params[3] ) *( uint8_t * )params[3] = b;
-    if ( params[4] ) *( uint8_t * )params[4] = a;
+    if ( params[1] ) *( uint8_t * )( intptr_t ) params[1] = r;
+    if ( params[2] ) *( uint8_t * )( intptr_t ) params[2] = g;
+    if ( params[3] ) *( uint8_t * )( intptr_t ) params[3] = b;
+    if ( params[4] ) *( uint8_t * )( intptr_t ) params[4] = a;
 
     return( ret );
 }

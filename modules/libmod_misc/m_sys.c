@@ -61,7 +61,7 @@ int64_t libmod_misc_sys_exec( INSTANCE * my, int64_t * params ) {
     argv = ( char ** ) calloc( argc + 2, sizeof( char * ) );
     argv[0] = filename;
     for ( n = 0; n < argc; n++ )
-        argv[n + 1] = ( char * ) string_get((( int64_t * )( params[3] ) )[n] );
+        argv[n + 1] = ( char * ) string_get((( int64_t * )( intptr_t )( params[3] ) )[n] );
 
     // Execute program
 #ifdef WIN32

@@ -28,6 +28,8 @@
 
 #undef DEBUG
 
+#include <stdint.h>
+
 #define STDC_HEADERS 1
 
 /* AIX requires this to be the first thing in the file. */
@@ -2346,7 +2348,7 @@ typedef struct
    value.  Assumes the variable `fail_stack'.  Probably should only
    be called from within `PUSH_FAILURE_POINT'.  */
 #define PUSH_FAILURE_ITEM(item)                     \
-  fail_stack.stack[fail_stack.avail++] = (fail_stack_elt_t) item
+  fail_stack.stack[fail_stack.avail++] = (fail_stack_elt_t)( intptr_t ) item
 
 /* The complement operation.  Assumes `fail_stack' is nonempty.  */
 #define POP_FAILURE_ITEM() fail_stack.stack[--fail_stack.avail]
@@ -2513,10 +2515,10 @@ typedef struct
   DEBUG_PRINT_COMPILED_PATTERN (bufp, pat, pend);           \
                                     \
   /* Restore register info.  */                     \
-  high_reg = (unsigned) POP_FAILURE_ITEM ();                \
+  high_reg = (unsigned) ( intptr_t ) POP_FAILURE_ITEM ();                \
   DEBUG_PRINT2 ("  Popping high active reg: %d\n", high_reg);       \
                                     \
-  low_reg = (unsigned) POP_FAILURE_ITEM ();             \
+  low_reg = (unsigned) ( intptr_t ) POP_FAILURE_ITEM ();             \
   DEBUG_PRINT2 ("  Popping  low active reg: %d\n", low_reg);        \
                                     \
   for (this_reg = high_reg; this_reg >= low_reg; this_reg--)        \
@@ -3783,7 +3785,7 @@ re_match_2 (bufp, string1, size1, string2, size2, pos, regs, stop)
                           regstart[r] = old_regstart[r];
 
                           /* xx why this test?  */
-                          if ((int) old_regend[r] >= (int) regstart[r])
+                          if ((int) ( intptr_t ) old_regend[r] >= (int) ( intptr_t ) regstart[r])
                             regend[r] = old_regend[r];
                         }
                     }

@@ -190,7 +190,7 @@ int64_t libmod_misc_dir_glob( INSTANCE * my, int64_t * params ) {
  */
 
 int64_t libmod_misc_dir_open( INSTANCE * my, int64_t * params ) {
-    int64_t result = ( int64_t ) dir_open( string_get( params[ 0 ] ) );
+    int64_t result = ( int64_t ) ( intptr_t ) dir_open( string_get( params[ 0 ] ) );
     string_discard( params[ 0 ] );
     return result;
 }
@@ -199,7 +199,7 @@ int64_t libmod_misc_dir_open( INSTANCE * my, int64_t * params ) {
  */
 
 int64_t libmod_misc_dir_close( INSTANCE * my, int64_t * params ) {
-    if ( params[ 0 ] ) dir_close ( ( __DIR_ST * ) params[ 0 ] ) ;
+    if ( params[ 0 ] ) dir_close ( ( __DIR_ST * ) ( intptr_t ) params[ 0 ] ) ;
     return 1;
 }
 
@@ -211,7 +211,7 @@ int64_t libmod_misc_dir_close( INSTANCE * my, int64_t * params ) {
  */
 
 int64_t libmod_misc_dir_read( INSTANCE * my, int64_t * params ) {
-    return ( __moddir_read((__DIR_ST *) params[ 0 ] ) ) ;
+    return ( __moddir_read((__DIR_ST *) ( intptr_t ) params[ 0 ] ) ) ;
 }
 
 /* ----------------------------------------------------------------- */

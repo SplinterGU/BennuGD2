@@ -273,7 +273,7 @@ int64_t libmod_misc_regex_regex_replace (INSTANCE * my, int64_t * params) {
 int64_t libmod_misc_regex_split (INSTANCE * my, int64_t * params) {
     const char * reg = string_get(params[0]);
     const char * str = string_get(params[1]);
-    int64_t * result_array = (int64_t *)params[2];
+    int64_t * result_array = (int64_t *)(intptr_t)params[2];
     int result_array_size = params[3];
     int64_t count = 0;
     int pos, lastpos = 0;
@@ -335,7 +335,7 @@ int64_t libmod_misc_regex_split (INSTANCE * my, int64_t * params) {
 
 int64_t libmod_misc_regex_join (INSTANCE * my, int64_t * params) {
     const char * sep = string_get(params[0]);
-    int64_t * string_array = (int64_t *)params[1];
+    int64_t * string_array = (int64_t *)(intptr_t)params[1];
     int64_t count = params[2],
             total_length = 0,
             sep_len = strlen(sep);

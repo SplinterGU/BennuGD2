@@ -79,7 +79,7 @@ int64_t joy_num( void ) {
 
 int64_t joy_name( int64_t joy ) {
     int64_t result;
-    result = string_new( SDL_JoystickName( ( SDL_Joystick * ) joy ) );
+    result = string_new( SDL_JoystickName( ( SDL_Joystick * ) ( intptr_t ) joy ) );
     string_use( result );
     return result;
 }

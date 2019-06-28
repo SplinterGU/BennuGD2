@@ -122,8 +122,8 @@ int64_t libmod_gfx_get_window_pos( INSTANCE * my, int64_t * params ) {
 
     SDL_GetWindowPosition( gWindow, &x, &y );
 
-    if ( params[0] ) *(( int64_t * )( params[0] ) ) = x;
-    if ( params[1] ) *(( int64_t * )( params[1] ) ) = y;
+    if ( params[0] ) *(( int64_t * )( intptr_t )( params[0] ) ) = x;
+    if ( params[1] ) *(( int64_t * )( intptr_t )( params[1] ) ) = y;
 
     return 1 ;
 }
@@ -134,16 +134,16 @@ int64_t libmod_gfx_get_window_size( INSTANCE * my, int64_t * params ) {
     int w, h;
 
     SDL_GetWindowSize( gWindow, &w, &h );
-    if ( params[0] ) *(( int64_t * )( params[0] ) ) = w;
-    if ( params[1] ) *(( int64_t * )( params[1] ) ) = h;
+    if ( params[0] ) *(( int64_t * )( intptr_t )( params[0] ) ) = w;
+    if ( params[1] ) *(( int64_t * )( intptr_t )( params[1] ) ) = h;
 
     SDL_GetWindowMaximumSize( gWindow, &w, &h );
-    if ( params[2] ) *(( int64_t * )( params[2] ) ) = w;
-    if ( params[3] ) *(( int64_t * )( params[3] ) ) = h;
+    if ( params[2] ) *(( int64_t * )( intptr_t )( params[2] ) ) = w;
+    if ( params[3] ) *(( int64_t * )( intptr_t )( params[3] ) ) = h;
 
     SDL_GetWindowMinimumSize( gWindow, &w, &h );
-    if ( params[4] ) *(( int64_t * )( params[4] ) ) = w;
-    if ( params[5] ) *(( int64_t * )( params[5] ) ) = h;
+    if ( params[4] ) *(( int64_t * )( intptr_t )( params[4] ) ) = w;
+    if ( params[5] ) *(( int64_t * )( intptr_t )( params[5] ) ) = h;
 
     return 1 ;
 }
@@ -155,8 +155,8 @@ int64_t libmod_gfx_get_desktop_size( INSTANCE * my, int64_t * params ) {
 
     if ( SDL_GetDesktopDisplayMode( 0, &mode ) < 0 ) return -1;
 
-    if ( params[0] ) *(( int64_t * )( params[0] ) ) = mode.w;
-    if ( params[1] ) *(( int64_t * )( params[1] ) ) = mode.h;
+    if ( params[0] ) *(( int64_t * )( intptr_t )( params[0] ) ) = mode.w;
+    if ( params[1] ) *(( int64_t * )( intptr_t )( params[1] ) ) = mode.h;
 
     return 1 ;
 }

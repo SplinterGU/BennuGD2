@@ -52,7 +52,7 @@ int64_t libmod_misc_file_save( INSTANCE * my, int64_t * params ) {
 
     fp = file_open( filename, "wb0" );
     if ( fp ) {
-        result = savetypes( fp, ( void * )params[1], ( void * )params[2], params[3], 0 );
+        result = savetypes( fp, ( void * )( intptr_t )params[1], ( void * )( intptr_t )params[2], params[3], 0 );
         file_close( fp );
     }
     string_discard( params[0] );
@@ -69,7 +69,7 @@ int64_t libmod_misc_file_load( INSTANCE * my, int64_t * params ) {
 
     fp = file_open( filename, "rb0" );
     if ( fp ) {
-        result = loadtypes( fp, ( void * )params[1], ( void * )params[2], params[3], 0 );
+        result = loadtypes( fp, ( void * )( intptr_t )params[1], ( void * )( intptr_t )params[2], params[3], 0 );
         file_close( fp );
     }
     string_discard( params[0] );
@@ -83,57 +83,57 @@ int64_t libmod_misc_file_fopen( INSTANCE * my, int64_t * params ) {
     if ( params[1] < 0 || params[1] > 4 )
         params[0] = 0;
 
-    r = ( int64_t ) file_open( string_get( params[0] ), ops[params[1]] );
+    r = ( int64_t ) ( intptr_t ) file_open( string_get( params[0] ), ops[params[1]] );
     string_discard( params[0] );
     return r;
 }
 
 int64_t libmod_misc_file_fclose( INSTANCE * my, int64_t * params ) {
-    file_close(( file * )params[0] );
+    file_close(( file * )( intptr_t )params[0] );
     return 1;
 }
 
 int64_t libmod_misc_file_fread( INSTANCE * my, int64_t * params ) {
-    return loadtypes(( file * )params[0], ( void * )params[1], ( void * )params[2], params[3], 0 );
+    return loadtypes(( file * )( intptr_t )params[0], ( void * )( intptr_t )params[1], ( void * )( intptr_t )params[2], params[3], 0 );
 }
 
 int64_t libmod_misc_file_fwrite( INSTANCE * my, int64_t * params ) {
-    return savetypes(( file * )params[0], ( void * )params[1], ( void * )params[2], params[3], 0 );
+    return savetypes(( file * )( intptr_t )params[0], ( void * )( intptr_t )params[1], ( void * )( intptr_t )params[2], params[3], 0 );
 }
 
 int64_t libmod_misc_file_freadC( INSTANCE * my, int64_t * params ) {
-    return file_read(( file * )params[2], ( void * )params[0], params[1] );
+    return file_read(( file * )( intptr_t )params[2], ( void * )( intptr_t )params[0], params[1] );
 }
 
 int64_t libmod_misc_file_fwriteC( INSTANCE * my, int64_t * params ) {
-    return file_write(( file * )params[2], ( void * )params[0], params[1] );
+    return file_write(( file * )( intptr_t )params[2], ( void * )( intptr_t )params[0], params[1] );
 }
 
 int64_t libmod_misc_file_fseek( INSTANCE * my, int64_t * params ) {
-    return file_seek(( file * )params[0], params[1], params[2] );
+    return file_seek(( file * )( intptr_t )params[0], params[1], params[2] );
 }
 
 int64_t libmod_misc_file_frewind( INSTANCE * my, int64_t * params ) {
-    file_rewind(( file * )params[0] );
+    file_rewind(( file * )( intptr_t )params[0] );
     return 1;
 }
 
 int64_t libmod_misc_file_ftell( INSTANCE * my, int64_t * params ) {
-    return file_pos(( file * )params[0] );
+    return file_pos(( file * )( intptr_t )params[0] );
 }
 
 int64_t libmod_misc_file_fflush( INSTANCE * my, int64_t * params ) {
-    return file_flush(( file * )params[0] );
+    return file_flush(( file * )( intptr_t )params[0] );
 }
 
 int64_t libmod_misc_file_filelength( INSTANCE * my, int64_t * params ) {
-    return file_size(( file * )params[0] );
+    return file_size(( file * )( intptr_t )params[0] );
 }
 
 int64_t libmod_misc_file_fputs( INSTANCE * my, int64_t * params ) {
     char * str = ( char * ) string_get( params[1] );
-    int64_t r = file_puts(( file * )params[0], str );
-    if ( str[strlen( str )-1] != '\n' ) file_puts(( file * )params[0], "\r\n" );
+    int64_t r = file_puts(( file * )( intptr_t )params[0], str );
+    if ( str[strlen( str )-1] != '\n' ) file_puts(( file * )( intptr_t )params[0], "\r\n" );
     /*    int64_t r = file_puts ((file *)params[0], string_get(params[1])); */
     string_discard( params[1] );
     return r;
@@ -145,7 +145,7 @@ int64_t libmod_misc_file_fgets( INSTANCE * my, int64_t * params ) {
     int64_t str = string_new( "" );
 
     while ( !done ) {
-        len = file_gets(( file * )params[0], buffer, sizeof( buffer ) - 1);
+        len = file_gets(( file * )( intptr_t )params[0], buffer, sizeof( buffer ) - 1);
         if ( len < 1 ) break;
 
         if ( buffer[len-1] == '\r' || buffer[len-1] == '\n' ) {
@@ -188,7 +188,7 @@ int64_t libmod_misc_file_file( INSTANCE * my, int64_t * params ) {
 }
 
 int64_t libmod_misc_file_feof( INSTANCE * my, int64_t * params ) {
-    return file_eof(( file * )params[0] );
+    return file_eof(( file * )( intptr_t )params[0] );
 }
 
 int64_t libmod_misc_file_exists( INSTANCE * my, int64_t * params ) {

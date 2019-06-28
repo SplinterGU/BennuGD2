@@ -71,7 +71,7 @@ int64_t libmod_gfx_out_region( INSTANCE * my, int64_t * params ) {
 
             for ( i = 0 ; i < 10 ; i++ ) {
                 data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libmod_gfx, SCROLLS ) )[ i ] ;
-                scroll = ( scrolldata  * ) data->reserved[0];
+                scroll = ( scrolldata  * ) ( intptr_t ) data->reserved[0];
 
                 if ( scroll && scroll->active && ( cnumber & ( 1 << i ) ) ) {
                     bbox.x  -= scroll->posx0 ;

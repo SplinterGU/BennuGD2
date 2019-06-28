@@ -48,9 +48,9 @@ int64_t libmod_gfx_get_rgb( INSTANCE * my, int64_t * params ) {
     if ( !pixformat ) pixformat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
 
     SDL_GetRGB( params[0], pixformat, &r, &g, &b ) ;
-    *( uint8_t * )(params[1]) = ( uint8_t ) r;
-    *( uint8_t * )(params[2]) = ( uint8_t ) g;
-    *( uint8_t * )(params[3]) = ( uint8_t ) b;
+    *( uint8_t * )( intptr_t )(params[1]) = ( uint8_t ) r;
+    *( uint8_t * )( intptr_t )(params[2]) = ( uint8_t ) g;
+    *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) b;
 
     return 1 ;
 }
@@ -63,10 +63,10 @@ int64_t libmod_gfx_get_rgba( INSTANCE * my, int64_t * params ) {
     if ( !pixformat ) pixformat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
 
     SDL_GetRGBA( params[0], pixformat, &r, &g, &b, &a ) ;
-    *( uint8_t * )(params[1]) = ( uint8_t ) r;
-    *( uint8_t * )(params[2]) = ( uint8_t ) g;
-    *( uint8_t * )(params[3]) = ( uint8_t ) b;
-    *( uint8_t * )(params[4]) = ( uint8_t ) a;
+    *( uint8_t * )( intptr_t )(params[1]) = ( uint8_t ) r;
+    *( uint8_t * )( intptr_t )(params[2]) = ( uint8_t ) g;
+    *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) b;
+    *( uint8_t * )( intptr_t )(params[4]) = ( uint8_t ) a;
 
     return 1 ;
 }
@@ -80,9 +80,9 @@ int64_t libmod_gfx_get_rgb_map( INSTANCE * my, int64_t * params ) {
     if ( !map->surface ) return 0;
 
     SDL_GetRGB( params[2], map->surface->format, &r, &g, &b ) ;
-    *( uint8_t * )(params[3]) = ( uint8_t ) r;
-    *( uint8_t * )(params[4]) = ( uint8_t ) g;
-    *( uint8_t * )(params[5]) = ( uint8_t ) b;
+    *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) r;
+    *( uint8_t * )( intptr_t )(params[4]) = ( uint8_t ) g;
+    *( uint8_t * )( intptr_t )(params[5]) = ( uint8_t ) b;
 
     return 1 ;
 }
@@ -96,10 +96,10 @@ int64_t libmod_gfx_get_rgba_map( INSTANCE * my, int64_t * params ) {
     if ( !map->surface ) return 0;
 
     SDL_GetRGBA( params[2], map->surface->format, &r, &g, &b, &a ) ;
-    *( uint8_t * )(params[3]) = ( uint8_t ) r;
-    *( uint8_t * )(params[4]) = ( uint8_t ) g;
-    *( uint8_t * )(params[5]) = ( uint8_t ) b;
-    *( uint8_t * )(params[6]) = ( uint8_t ) a;
+    *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) r;
+    *( uint8_t * )( intptr_t )(params[4]) = ( uint8_t ) g;
+    *( uint8_t * )( intptr_t )(params[5]) = ( uint8_t ) b;
+    *( uint8_t * )( intptr_t )(params[6]) = ( uint8_t ) a;
 
     return 1 ;
 }

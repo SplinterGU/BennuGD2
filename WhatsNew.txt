@@ -1,3 +1,9 @@
+2019-06-27:
+- Add string escape caracters
+- Add map characters to fonts from bitmap (optional)
+- Fix region issues with negative height or width
+- Add text Ansi escape color sequence (only foreground colors)
+
 2019-06-25:
 
 - Fix bug if create more than 128 maps

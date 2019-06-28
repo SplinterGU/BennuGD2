@@ -169,8 +169,8 @@ int64_t libmod_gfx_get_point( INSTANCE * my, int64_t * params ) {
 
     /* Use the center as control point if it is not there */
     if ( params[2] == 0 && ( bmp->ncpoints == 0 || bmp->cpoints[0].x == CPOINT_UNDEFINED ) ) {
-        *( int64_t * )params[3] = bmp->width / 2;
-        *( int64_t * )params[4] = bmp->height / 2;
+        *( int64_t * )( intptr_t )params[3] = bmp->width / 2;
+        *( int64_t * )( intptr_t )params[4] = bmp->height / 2;
         return 1;
     }
 
@@ -178,8 +178,8 @@ int64_t libmod_gfx_get_point( INSTANCE * my, int64_t * params ) {
 
     if ( bmp->cpoints[params[2]].x == CPOINT_UNDEFINED && bmp->cpoints[params[2]].y == CPOINT_UNDEFINED ) return 0;
 
-    *( int64_t * )params[3] = bmp->cpoints[params[2]].x;
-    *( int64_t * )params[4] = bmp->cpoints[params[2]].y;
+    *( int64_t * )( intptr_t )params[3] = bmp->cpoints[params[2]].x;
+    *( int64_t * )( intptr_t )params[4] = bmp->cpoints[params[2]].y;
     return 1;
 }
 
@@ -565,7 +565,7 @@ int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
     GRAPH * map = bitmap_get( params[0], params[1] );
     int firstcolor = params[2], ncolors = params[3];
-    SDL_Color * colors = ( SDL_Color * ) params[4];
+    SDL_Color * colors = ( SDL_Color * ) ( intptr_t ) params[4];
 
     if ( !map->surface ) return -1;
 
@@ -596,7 +596,7 @@ int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_get_palette( INSTANCE * my, int64_t * params ) {
     GRAPH * map = bitmap_get( params[0], params[1] );
     int firstcolor = params[2], ncolors = params[3], i;
-    SDL_Color * colors = ( SDL_Color * ) params[4];
+    SDL_Color * colors = ( SDL_Color * ) ( intptr_t ) params[4];
 
     if ( !map->surface ) return -1;
 

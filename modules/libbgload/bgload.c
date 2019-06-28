@@ -57,7 +57,7 @@ static bgdata *prep( int64_t *params ) {
         free( t );
         return NULL;
     }
-    t->id = ( int64_t * )params[1];
+    t->id = ( int64_t * )( intptr_t )params[1];
     *( t->id ) = -2 ; // WAIT STATUS
     return t;
 }

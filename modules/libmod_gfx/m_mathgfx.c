@@ -238,8 +238,8 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
         ry /= -LOCINT64( libmod_gfx, my, RESOLUTION );
     }
 
-    *( int64_t * )params[1] = rx ;
-    *( int64_t * )params[2] = ry ;
+    *( int64_t * )( intptr_t )params[1] = rx ;
+    *( int64_t * )( intptr_t )params[2] = ry ;
 
     return 1 ;
 }

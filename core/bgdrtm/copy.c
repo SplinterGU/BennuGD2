@@ -195,19 +195,19 @@ static int64_t copytype( void * dst, void * src, DCB_TYPEDEF * var ) {
  **/
 
 int64_t bgd_copy_struct( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) copytypes(( void * )params[0], ( void * )params[1], ( DCB_TYPEDEF * )params[2], params[3], params[4] );
+    return ( int64_t ) copytypes(( void * )( intptr_t )params[0], ( void * )( intptr_t )params[1], ( DCB_TYPEDEF * )( intptr_t )params[2], params[3], params[4] );
 }
 
 int64_t bgd_internal_memcopy( INSTANCE * my, int64_t * params ) {
-    memmove(( void * )params[0], ( void * )params[1], params[2] ) ;
+    memmove(( void * )( intptr_t )params[0], ( void * )( intptr_t )params[1], params[2] ) ;
     return 1 ;
 }
 
 int64_t bgd_internal_copy_string_array( INSTANCE * my, int64_t * params ) {
     int64_t n = params[ 2 ];
     while( n-- ) {
-        ((int64_t *)( params[ 0 ] )) [ n ] = ((int64_t *)( params[ 1 ] )) [ n ];
-        string_use( ((int64_t *)( params[ 0 ] )) [ n ] );
+        ((int64_t *)( intptr_t )( params[ 0 ] )) [ n ] = ((int64_t *)( intptr_t )( params[ 1 ] )) [ n ];
+        string_use( ((int64_t *)( intptr_t )( params[ 0 ] )) [ n ] );
     }
     return 1 ;
 }

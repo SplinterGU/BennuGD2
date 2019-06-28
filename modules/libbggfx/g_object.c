@@ -157,7 +157,7 @@ int64_t gr_new_object( int64_t z, OBJ_INFO * info, OBJ_DRAW * draw, void * what 
 
     ctr->first_in_key = object;
 
-    return ( int64_t ) object;
+    return ( int64_t ) ( intptr_t ) object;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -175,7 +175,7 @@ int64_t gr_new_object( int64_t z, OBJ_INFO * info, OBJ_DRAW * draw, void * what 
 
 void gr_destroy_object( int64_t id ) {
     CONTAINER * ctr ;
-    OBJECT * object = ( OBJECT * ) id ;
+    OBJECT * object = ( OBJECT * ) ( intptr_t ) id ;
 
     if ( !object ) return ;
 

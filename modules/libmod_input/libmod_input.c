@@ -216,13 +216,13 @@ static int64_t libmod_input_joy_get_hat( INSTANCE * my, int64_t * params ) {
  **/
 
 static int64_t libmod_input_joy_get_ball( INSTANCE * my, int64_t * params ) {
-    return ( joy_get_ball( params[0], ( int64_t * )params[1], ( int64_t * )params[2] ) );
+    return ( joy_get_ball( params[0], ( int64_t * )( intptr_t )params[1], ( int64_t * )( intptr_t )params[2] ) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int64_t libmod_input_joy_get_accel( INSTANCE * my, int64_t * params ) {
-    return ( joy_get_accel( ( int64_t * ) params[0], ( int64_t * ) params[1], ( int64_t * ) params[2] ) );
+    return ( joy_get_accel( ( int64_t * ) ( intptr_t ) params[0], ( int64_t * ) ( intptr_t ) params[1], ( int64_t * ) ( intptr_t ) params[2] ) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -329,13 +329,13 @@ static int64_t libmod_input_joy_get_hat_specific( INSTANCE * my, int64_t * param
  **/
 
 static int64_t libmod_input_joy_get_ball_specific( INSTANCE * my, int64_t * params ) {
-    return ( joy_get_ball_specific( params[0], params[1], ( int64_t * ) params[2], ( int64_t * ) params[3] ) );
+    return ( joy_get_ball_specific( params[0], params[1], ( int64_t * ) ( intptr_t ) params[2], ( int64_t * ) ( intptr_t ) params[3] ) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int64_t libmod_input_joy_get_accel_specific( INSTANCE * my, int64_t * params ) {
-    return ( joy_get_accel_specific( params[0], ( int64_t * ) params[1], ( int64_t * ) params[2], ( int64_t * ) params[3] ) );
+    return ( joy_get_accel_specific( params[0], ( int64_t * ) ( intptr_t ) params[1], ( int64_t * ) ( intptr_t ) params[2], ( int64_t * ) ( intptr_t ) params[3] ) );
 }
 
 /* --------------------------------------------------------------------------- */

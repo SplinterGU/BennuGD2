@@ -357,7 +357,7 @@ static int64_t _libmod_gfx_draw_object_new( DRAWING_OBJECT * dr, int64_t z ) {
 
     drawing_objects = dr;
 
-    return ( int64_t ) dr;
+    return ( int64_t ) ( intptr_t ) dr;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -377,7 +377,7 @@ static int64_t _libmod_gfx_draw_object_new( DRAWING_OBJECT * dr, int64_t z ) {
 
 static void _libmod_gfx_draw_object_destroy( int64_t id )
 {
-    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) id, * next;
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) id, * next;
     int64_t destroyall = 0;
 
     if ( !dr ) {
@@ -425,7 +425,7 @@ static void _libmod_gfx_draw_object_destroy( int64_t id )
  */
 
 static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
-    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) id;
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) id;
 
     if ( dr ) {
         int64_t incx = x - dr->x1;
@@ -505,7 +505,7 @@ int64_t libmod_gfx_draw_drawing_rgba( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params ) {
-    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     __get_rgba( params[1], &dr->color_r, &dr->color_g, &dr->color_b, &dr->color_a ) ;
     return 1 ;
@@ -514,7 +514,7 @@ int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_draw_drawing_rgba_id( INSTANCE * my, int64_t * params ) {
-    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     dr->color_r = params[1];
     dr->color_g = params[2];
@@ -533,7 +533,7 @@ int64_t libmod_gfx_draw_drawing_blend_mode( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_draw_drawing_blend_mode_id( INSTANCE * my, int64_t * params ) {
-    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     dr->blend_mode = params[1];
     return 1 ;
@@ -550,7 +550,7 @@ int64_t libmod_gfx_draw_drawing_z( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_draw_drawing_z_id( INSTANCE * my, int64_t * params ) {
-    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) params[0];
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     dr->z = params[1];
     return 1 ;
@@ -603,11 +603,11 @@ int64_t libmod_gfx_draw_points( INSTANCE * my, int64_t * params ) {
 
         dr->type = DRAWOBJ_POINTS;
         dr->data_size = params[ 0 ];
-        dr->data = ( void * ) params[ 1 ];;
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];;
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
-    draw_points( drawing_graph, 0, params[ 0 ], ( void * ) params[ 1 ] );
+    draw_points( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] );
     return 1 ;
 }
 
@@ -639,11 +639,11 @@ int64_t libmod_gfx_draw_lines( INSTANCE * my, int64_t * params ) {
 
         dr->type = DRAWOBJ_LINES;
         dr->data_size = params[ 0 ];
-        dr->data = ( void * ) params[ 1 ];;
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];;
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
-    draw_lines( drawing_graph, 0, params[ 0 ], ( void * ) params[ 1 ] );
+    draw_lines( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] );
     return 1 ;
 }
 
@@ -675,11 +675,11 @@ int64_t libmod_gfx_draw_boxes( INSTANCE * my, int64_t * params ) {
 
         dr->type = DRAWOBJ_BOXES;
         dr->data_size = params[ 0 ];
-        dr->data = ( void * ) params[ 1 ];;
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];;
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
-    draw_boxes( drawing_graph, 0, params[ 0 ], ( void * ) params[ 1 ] ) ;
+    draw_boxes( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] ) ;
     return 1 ;
 }
 
@@ -711,11 +711,11 @@ int64_t libmod_gfx_draw_rects( INSTANCE * my, int64_t * params ) {
 
         dr->type = DRAWOBJ_RECTS;
         dr->data_size = params[ 0 ];
-        dr->data = ( void * ) params[ 1 ];;
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];;
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
-    draw_rectangles( drawing_graph, 0, params[ 0 ], ( void * ) params[ 1 ] ) ;
+    draw_rectangles( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] ) ;
     return 1 ;
 }
 

@@ -191,26 +191,26 @@ int64_t libmod_misc_mem_memory_total( INSTANCE * my, int64_t * params ) {
 }
 
 int64_t libmod_misc_mem_memcmp( INSTANCE * my, int64_t * params ) {
-    return ( memcmp(( void * )params[0], ( void * )params[1], params[2] ) );
+    return ( memcmp(( void * )( intptr_t )params[0], ( void * )( intptr_t )params[1], params[2] ) );
 }
 
 int64_t libmod_misc_mem_memmove( INSTANCE * my, int64_t * params ) {
-    memmove(( void * )params[0], ( void * )params[1], params[2] );
+    memmove(( void * )( intptr_t )params[0], ( void * )( intptr_t )params[1], params[2] );
     return 1;
 }
 
 int64_t libmod_misc_mem_memcopy( INSTANCE * my, int64_t * params ) {
-    memcpy(( void * )params[0], ( void * )params[1], params[2] );
+    memcpy(( void * )( intptr_t )params[0], ( void * )( intptr_t )params[1], params[2] );
     return 1;
 }
 
 int64_t libmod_misc_mem_memset( INSTANCE * my, int64_t * params ) {
-    memset(( void * )params[0], params[1], params[2] );
+    memset(( void * )( intptr_t )params[0], params[1], params[2] );
     return 1;
 }
 
 int64_t libmod_misc_mem_memset16( INSTANCE * my, int64_t * params ) {
-    uint16_t * ptr = ( uint16_t * )params[0];
+    uint16_t * ptr = ( uint16_t * )( intptr_t )params[0];
     const uint16_t b = params[1];
     int n;
 
@@ -219,7 +219,7 @@ int64_t libmod_misc_mem_memset16( INSTANCE * my, int64_t * params ) {
 }
 
 int64_t libmod_misc_mem_memset32( INSTANCE * my, int64_t * params ) {
-    uint32_t * ptr = ( uint32_t * )params[0];
+    uint32_t * ptr = ( uint32_t * )( intptr_t )params[0];
     const uint32_t b = params[1];
     int n;
 
@@ -228,7 +228,7 @@ int64_t libmod_misc_mem_memset32( INSTANCE * my, int64_t * params ) {
 }
 
 int64_t libmod_misc_mem_memset64( INSTANCE * my, int64_t * params ) {
-    uint64_t * ptr = ( uint64_t * )params[0];
+    uint64_t * ptr = ( uint64_t * )( intptr_t )params[0];
     const uint64_t b = params[1];
     int n;
 
@@ -237,19 +237,19 @@ int64_t libmod_misc_mem_memset64( INSTANCE * my, int64_t * params ) {
 }
 
 int64_t libmod_misc_mem_calloc( INSTANCE * my, int64_t * params ) {
-    return (( int64_t ) calloc( params[0], params[1] ) );
+    return (( int64_t ) ( intptr_t ) calloc( params[0], params[1] ) );
 }
 
 int64_t libmod_misc_mem_alloc( INSTANCE * my, int64_t * params ) {
-    return (( int64_t ) malloc( params[0] ) );
+    return (( int64_t ) ( intptr_t ) malloc( params[0] ) );
 }
 
 int64_t libmod_misc_mem_realloc( INSTANCE * my, int64_t * params ) {
-    return (( int64_t )realloc(( void * )params[0], params[1] ) );
+    return (( int64_t ) ( intptr_t ) realloc(( void * )( intptr_t )params[0], params[1] ) );
 }
 
 int64_t libmod_misc_mem_free( INSTANCE * my, int64_t * params ) {
-    free(( void * )params[0] );
+    free(( void * )( intptr_t )params[0] );
     return 1;
 }
 

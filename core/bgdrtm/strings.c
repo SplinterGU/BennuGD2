@@ -84,7 +84,7 @@ static int      string_last_id = 1;        /* How many strings slots are used. T
 
 void _string_ptoa( char *t, void * ptr )  {
     unsigned char c;
-    int64_t p = ( int64_t ) ptr;
+    int64_t p = ( int64_t )( intptr_t )ptr;
 
     c = ((( p ) & 0xf000000000000000 ) >> 60 );
     *t++ = ( c > 9 ? '7' : '0' ) + c; /* '7' + 10 = 'A' */

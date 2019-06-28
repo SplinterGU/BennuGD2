@@ -57,7 +57,7 @@
 
 #define HASH(id)            (uint64_t)((id)&0x0000ffff)
 #define HASH_PRIORITY(id)   (uint64_t)(((id) + INSTANCE_NORMALIZE_PRIORITY) & 0x0000ffff)
-#define HASH_INSTANCE(id)   (uint64_t)(((( uint64_t )(id)) >> 2 ) & 0x0000ffff)
+#define HASH_INSTANCE(id)   (uint64_t)(((( uint64_t )( intptr_t )(id)) >> 2 ) & 0x0000ffff)
 #define HASH_SIZE           65536
 
 INSTANCE ** hashed_by_id = NULL;
@@ -366,7 +366,7 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
     r->called_by = NULL;
 
     r->stack = malloc( father->stack[0] );
-    memmove(r->stack, father->stack, (int64_t)father->stack_ptr - (int64_t)father->stack);
+    memmove(r->stack, father->stack, (int64_t)( intptr_t )father->stack_ptr - (int64_t)( intptr_t )father->stack);
     r->stack_ptr = &r->stack[1];
 
     /* Initialize list pointers */

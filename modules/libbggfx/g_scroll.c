@@ -90,10 +90,10 @@ void scroll_start( int64_t n, int64_t fileid, int64_t graphid, int64_t filebacki
 
         data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libbggfx, SCROLLS ) )[n];
 
-        data->reserved[0] = ( int64_t ) &scrolls[n]; /* First reserved qword point to internal scrolldata struct */
+        data->reserved[0] = ( int64_t ) ( intptr_t ) &scrolls[n]; /* First reserved qword point to internal scrolldata struct */
 
         if ( scrolls_objects[n] ) gr_destroy_object( scrolls_objects[n] );
-        scrolls_objects[n] = ( int64_t ) gr_new_object( 0, info_scroll, draw_scroll, ( void * ) n );
+        scrolls_objects[n] = ( int64_t ) gr_new_object( 0, info_scroll, draw_scroll, ( void * ) ( intptr_t ) n );
     }
 }
 
@@ -386,13 +386,13 @@ void scroll_draw( int64_t n, REGION * clipping ) {
 /* --------------------------------------------------------------------------- */
 
 static void draw_scroll( void * what, REGION * clip ) {
-    scroll_draw( ( int64_t ) what, clip );
+    scroll_draw( ( int64_t ) ( intptr_t ) what, clip );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int info_scroll( void * what, REGION * clip, int64_t * z, int64_t * drawme ) {
-    int64_t n = ( int64_t ) what;
+    int64_t n = ( int64_t ) ( intptr_t ) what;
     * z = scrolls[n].z;
     * drawme = 1;
     if ( clip ) * clip = * scrolls[n].region;

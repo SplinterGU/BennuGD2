@@ -344,7 +344,7 @@ int64_t libmod_gfx_path_find( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_path_getxy( INSTANCE * my, int64_t * params ) {
-    return path_get(( int64_t * ) params[0], ( int64_t * ) params[1] ) ;
+    return path_get(( int64_t * ) ( intptr_t ) params[0], ( int64_t * ) ( intptr_t ) params[1] ) ;
 }
 
 /* --------------------------------------------------------------------------- */

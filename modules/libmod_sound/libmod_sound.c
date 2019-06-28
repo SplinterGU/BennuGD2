@@ -221,7 +221,7 @@ static int64_t load_song( const char * filename ) {
         return( 0 );
     }
 
-    return (( int64_t )music );
+    return (( int64_t )( intptr_t )music );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -242,7 +242,7 @@ static int64_t load_song( const char * filename ) {
 
 static int play_song( int64_t id, int loops ) {
     if ( audio_initialized && id ) {
-        int result = Mix_PlayMusic(( Mix_Music * )id, loops );
+        int result = Mix_PlayMusic(( Mix_Music * )( intptr_t )id, loops );
         if ( result == -1 ) fprintf( stderr, "%s", Mix_GetError() );
         return result;
     }
@@ -268,7 +268,7 @@ static int play_song( int64_t id, int loops ) {
  */
 
 static int fade_music_in( int64_t id, int loops, int ms ) {
-    if ( audio_initialized && id ) return( Mix_FadeInMusic(( Mix_Music * )id, loops, ms ) );
+    if ( audio_initialized && id ) return( Mix_FadeInMusic(( Mix_Music * )( intptr_t )id, loops, ms ) );
     return( -1 );
 }
 
@@ -312,7 +312,7 @@ static int fade_music_off( int ms ) {
 static int unload_song( int64_t id ) {
     if ( audio_initialized && id ) {
         if ( Mix_PlayingMusic() ) Mix_HaltMusic();
-        Mix_FreeMusic(( Mix_Music * )id );
+        Mix_FreeMusic(( Mix_Music * )( intptr_t )id );
     }
     return ( 0 ) ;
 }
@@ -461,7 +461,7 @@ static int64_t load_wav( const char * filename ) {
         fprintf( stderr, "Couldn't load %s: %s\n", filename, SDL_GetError() );
         return( 0 );
     }
-    return (( int64_t )music );
+    return (( int64_t )( intptr_t )music );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -483,7 +483,7 @@ static int64_t load_wav( const char * filename ) {
  */
 
 static int play_wav( int64_t id, int loops, int channel ) {
-    if ( audio_initialized && id ) return ( ( int ) Mix_PlayChannel( channel, ( Mix_Chunk * )id, loops ) );
+    if ( audio_initialized && id ) return ( ( int ) Mix_PlayChannel( channel, ( Mix_Chunk * )( intptr_t )id, loops ) );
     return ( -1 );
 }
 
@@ -504,7 +504,7 @@ static int play_wav( int64_t id, int loops, int channel ) {
  */
 
 static int unload_wav( int64_t id ) {
-    if ( audio_initialized && id ) Mix_FreeChunk(( Mix_Chunk * )id );
+    if ( audio_initialized && id ) Mix_FreeChunk(( Mix_Chunk * )( intptr_t )id );
     return ( 0 );
 }
 
@@ -622,7 +622,7 @@ static int  set_wav_volume( int64_t sample, int volume ) {
     if ( volume < 0 ) volume = 0;
     if ( volume > 128 ) volume = 128;
 
-    if ( sample ) return( Mix_VolumeChunk(( Mix_Chunk * )sample, volume ) );
+    if ( sample ) return( Mix_VolumeChunk(( Mix_Chunk * )( intptr_t )sample, volume ) );
 
     return -1 ;
 }
@@ -826,7 +826,7 @@ static int64_t libmod_sound_bgload_song( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
     bgload( load_song, params );
 #else
-    *(int64_t *)(params[1]) = -1;
+    *(int64_t *)(intptr_t)(params[1]) = -1;
 #endif
     return 0;
 }
@@ -900,7 +900,7 @@ static int64_t libmod_sound_unload_song( INSTANCE * my, int64_t * params ) {
 
 static int64_t libmod_sound_unload_song2( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
-    int64_t *s = (int64_t *)(params[0]), r;
+    int64_t *s = (int64_t *)(intptr_t)(params[0]), r;
     if ( !s || *s == -1LL ) return -1; // check for !*s in internal function
     r = unload_song( *s );
     *s = 0LL;
@@ -1129,7 +1129,7 @@ static int64_t libmod_sound_bgload_wav( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
     bgload( load_wav, params );
 #else
-    *(int64_t *)(params[1]) = -1;
+    *(int64_t *)(intptr_t)(params[1]) = -1;
 #endif
     return 0;
 }
@@ -1232,7 +1232,7 @@ static int64_t libmod_sound_unload_wav( INSTANCE * my, int64_t * params ) {
 
 static int64_t libmod_sound_unload_wav2( INSTANCE * my, int64_t * params ) {
 #ifndef TARGET_DINGUX_A320
-    int64_t *s = (int64_t *)(params[0]), r;
+    int64_t *s = (int64_t *)(intptr_t)(params[0]), r;
     if ( !s || *s == -1LL ) return -1; // check for !*s in internal function
     r = unload_wav( *s );
     *s = 0LL;

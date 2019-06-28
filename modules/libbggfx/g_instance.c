@@ -60,7 +60,7 @@
 GRAPH * instance_graph( INSTANCE * i ) {
     int64_t * xgraph, c, a;
 
-    if (( xgraph = ( int64_t * ) LOCQWORD( libbggfx, i, XGRAPH ) ) ) { // Get offset of XGRAPH table
+    if (( xgraph = ( int64_t * ) ( intptr_t ) LOCQWORD( libbggfx, i, XGRAPH ) ) ) { // Get offset of XGRAPH table
         c = *xgraph++;  // Get number of graphs ids in XGRAPH table
         if ( c ) {
             // Normalize ANGLE
@@ -180,7 +180,7 @@ void draw_instance( void * what, REGION * clip ) {
 
     alpha = LOCBYTE( libbggfx, i, ALPHA );
 
-    if ( !( map = ( GRAPH * ) LOCQWORD( libbggfx, i, GRAPHPTR ) ) ) return;
+    if ( !( map = ( GRAPH * ) ( intptr_t ) LOCQWORD( libbggfx, i, GRAPHPTR ) ) ) return;
 
     // Get GRAPH * target, if exists
     if (( c = LOCQWORD( libbggfx, i, RENDER_GRAPHID ) ) ) {
@@ -249,7 +249,7 @@ int draw_instance_info( void * what, REGION * region, int64_t * z, int64_t * dra
 
     if ( drawme ) * drawme = 0;
 
-    LOCQWORD( libbggfx, i, GRAPHPTR ) = ( int64_t )( graph = instance_graph( i ) );
+    LOCQWORD( libbggfx, i, GRAPHPTR ) = ( int64_t ) ( intptr_t ) ( graph = instance_graph( i ) );
     if ( !graph ) return 0;
 
     int status;

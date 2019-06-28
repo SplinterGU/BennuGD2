@@ -171,7 +171,7 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype ) {
 
             for ( i = 0; i < 10; i++ ) {
                 data = &(( SCROLL_EXTRA_DATA * ) & GLOQWORD( libmod_gfx, SCROLLS ) )[i];
-                scroll = ( scrolldata * ) data->reserved[0];
+                scroll = ( scrolldata * ) ( intptr_t ) data->reserved[0];
 
                 if ( scroll && scroll->active && ( cnumber & ( 1 << i ) ) ) {
                     REGION * r = scroll->region;
