@@ -273,6 +273,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "FNT_NEW"             , ""                , TYPE_INT        , libmod_gfx_fnt_new              ),
     FUNC( "FNT_NEW"             , "I"               , TYPE_INT        , libmod_gfx_fnt_new_charset      ),
     FUNC( "FNT_NEW"             , "IIIIIIII"        , TYPE_INT        , libmod_gfx_fnt_new_from_bitmap  ),
+    FUNC( "FNT_NEW"             , "IIIIIIIIII"      , TYPE_INT        , libmod_gfx_fnt_new_from_bitmap2 ),
     FUNC( "FNT_LOAD"            , "S"               , TYPE_INT        , libmod_gfx_load_fnt             ),
     FUNC( "FNT_LOAD"            , "SP"              , TYPE_INT        , libmod_gfx_bgload_fnt           ),
     FUNC( "FNT_UNLOAD"          , "I"               , TYPE_INT        , libmod_gfx_unload_fnt           ),

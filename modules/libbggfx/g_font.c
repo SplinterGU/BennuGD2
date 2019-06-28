@@ -302,8 +302,8 @@ static unsigned char default_font[ 256 * 8 ] =
 
 /* --------------------------------------------------------------------------- */
 
-static int align_bitmap_char_left( unsigned char *data, int64_t width, int64_t height, int64_t pitch );
-static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t height, int64_t pitch );
+static int align_bitmap_char_left( unsigned char *data, int64_t width, int64_t height, int64_t pitch, int64_t bbp );
+static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t height, int64_t pitch, int64_t bbp );
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -317,7 +317,7 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
  *
  *  RETURN VALUE :
  *      Code of the new font or -1 if error
- *      The font data is in the global array fonts[index]
+ *      The font data is in the global array fonts[id]
  *
  */
 
@@ -356,19 +356,19 @@ int64_t gr_font_new( int64_t charset ) {
  *  first       First char
  *  last        Last char
  *  options     Can be 0 or a combination of the following flags:
- *
- * NFB_FIXEDWIDTH  Create a fixed width font (the default is a propotional width one)
+ *                  NFB_FIXEDWIDTH  Create a fixed width font (the default is a propotional width one)
+ *  charmap     Null char terminate string, used for map each character to a glyph, if it is NULL, then use "first" and "last" arguments
  *
  *  RETURN VALUE :
  *      -1 if Error, id otherwise
  *
  */
 
-int64_t gr_font_newfrombitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options ) {
+int64_t gr_font_newfrombitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
     FONT * f;
     char * chardata, * charptr;
-    int64_t i, id;
-    int charsize, linesize;
+    int64_t i, idx, id;
+    int charsize;
     int w, h, cw, ch;
 
     if ( ( id = gr_font_new( charset ) ) == -1 ) return -1;
@@ -378,44 +378,74 @@ int64_t gr_font_newfrombitmap( GRAPH * map, int64_t charset, int64_t width, int6
     f->fontmap = map;
 
     charsize = map->surface->pitch * height;
-    linesize = width * sizeof( uint32_t );
 
+/*
+    switch ( map->surface->format->BitsPerPixel ) {
+        case    1:
+                linesize = ( width + 7 ) / 8;
+                psz = sizeof( uint8_t );
+                break;
+
+        case    8:
+                linesize = width;
+                psz = sizeof( uint8_t );
+                break;
+
+        case    16:
+                linesize = width * sizeof( uint16_t );
+                psz = sizeof( uint16_t );
+                break;
+
+        case    32:
+                linesize = width * sizeof( uint32_t );
+                psz = sizeof( uint32_t );
+                break;
+    }
+*/
     ch = map->height / height;
     cw = map->width / width;
 
-    i = first;
+    i = charmap ? 0 : first;
+    idx = 0;
 
     for ( h = 0; h < ch; h++ ) {
-        if ( i > last ) break;
+        if ( (  charmap && !charmap[ i ] ) ||
+             ( !charmap && i > last      ) ) break;
 
         chardata = map->surface->pixels + h * charsize;
 
-        for ( charptr = chardata, w = 0; w < cw; w++, charptr += linesize, i++ ) {
+        for ( charptr = chardata, w = 0; w < cw; w++, charptr += map->surface->pitch, i++ ) {
             int align = 0;
 
-            if ( options != NFB_FIXEDWIDTH )
-                align = align_bitmap_char_left( ( unsigned char * ) charptr, width, height, map->surface->pitch );
+            idx = ( charmap ) ? charmap[ i ] : i;
 
-            f->glyph[ i ].fontsource.x = w * width + align;
-            f->glyph[ i ].fontsource.y = h * height;
-            f->glyph[ i ].fontsource.w = width - align;
-            f->glyph[ i ].fontsource.h = height;
-            f->glyph[ i ].xoffset = 0;
-            f->glyph[ i ].yoffset = 0;
+            if ( options != NFB_FIXEDWIDTH )
+                align = align_bitmap_char_left( ( unsigned char * ) charptr, width, height, map->surface->pitch, map->surface->format->BitsPerPixel );
+
+            f->glyph[ idx ].fontsource.x = w * width + align;
+            f->glyph[ idx ].fontsource.y = h * height;
+            f->glyph[ idx ].fontsource.w = width - align;
+            f->glyph[ idx ].fontsource.h = height;
+            f->glyph[ idx ].xoffset = 0;
+            f->glyph[ idx ].yoffset = 0;
 
             if ( options != NFB_FIXEDWIDTH ) {
-                int ww = get_bitmap_char_width( map->surface->pixels + map->surface->pitch * f->glyph[ i ].fontsource.y + f->glyph[ i ].fontsource.x * 4, width - align, height, map->surface->pitch );
-                f->glyph[ i ].fontsource.w = ww;
-                f->glyph[ i ].xadvance = ww + 1;
+                int ww = get_bitmap_char_width( map->surface->pixels + map->surface->pitch * f->glyph[ idx ].fontsource.y + f->glyph[ idx ].fontsource.x * map->surface->format->BytesPerPixel,
+                                                width - align,
+                                                height,
+                                                map->surface->pitch,
+                                                map->surface->format->BitsPerPixel );
+                f->glyph[ idx ].fontsource.w = ww;
+                f->glyph[ idx ].xadvance = ww + 1;
             }
             else
-                f->glyph[ i ].xadvance = width + 1;
+                f->glyph[ idx ].xadvance = width + 1;
         }
     }
 
     /* Set a reasonable size for the space */
 
-    f->glyph[ 32 ].xadvance = width * 65 / 100;
+    f->glyph[ 32 ].xadvance = ( options != NFB_FIXEDWIDTH ) ? width * 65 / 100 : width;
     f->maxwidth = width;
     f->maxheight = height;
 
@@ -425,30 +455,103 @@ int64_t gr_font_newfrombitmap( GRAPH * map, int64_t charset, int64_t width, int6
 /* --------------------------------------------------------------------------- */
 /* Utility function used by gr_new_fontfrombitmap to align characters */
 
-static int align_bitmap_char_left( unsigned char *data, int64_t width, int64_t height, int64_t pitch ) {
-    int x, align = width;
-    uint32_t * p = ( uint32_t * ) data;
-    while ( height-- ) {
-        p = ( uint32_t * ) ( data + height * pitch );
-        for ( x = 0; x < width && !*p++; x++ );
-        if ( align > x ) align = x;
+static int align_bitmap_char_left( unsigned char *data, int64_t width, int64_t height, int64_t pitch, int64_t bpp ) {
+    int n, c, x, align = width;
+
+    switch( bpp ) {
+        case    1: {
+                uint8_t * p = ( uint8_t * ) data;
+                while ( height-- ) {
+                    p = ( uint8_t * ) ( data + height * pitch );
+                    for ( x = 0; x < width && !( p[ x >> 3 ] & ( 0x80 >> ( x & 3 ) ) ); x++ );
+                    if ( align > x ) align = x;
+                }
+                break;
+            }
+
+        case    8: {
+                uint8_t * p = ( uint8_t * ) data;
+                while ( height-- ) {
+                    p = ( uint8_t * ) ( data + height * pitch );
+                    for ( x = 0; x < width && !*p++; x++ );
+                    if ( align > x ) align = x;
+                }
+                break;
+            }
+
+        case    16: {
+                uint16_t * p = ( uint16_t * ) data;
+                while ( height-- ) {
+                    p = ( uint16_t * ) ( data + height * pitch );
+                    for ( x = 0; x < width && !*p++; x++ );
+                    if ( align > x ) align = x;
+                }
+                break;
+            }
+
+        case    32: {
+                uint32_t * p = ( uint32_t * ) data;
+                while ( height-- ) {
+                    p = ( uint32_t * ) ( data + height * pitch );
+                    for ( x = 0; x < width && !*p++; x++ );
+                    if ( align > x ) align = x;
+                }
+                break;
+            }
     }
+
     return ( align == width ) ? 0 : align;
 }
 
 /* --------------------------------------------------------------------------- */
 /* Utility function used by gr_new_fontfrombitmap to calculate char widths */
 
-static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t height, int64_t pitch ) {
-    int64_t x, max = 0;
-    uint32_t * p;
-    while ( height-- ) {
-        p = ( uint32_t * ) ( data + height * pitch + width - 1 );
-        for ( x = width; x > 0 && !*p++; x-- );
-        if ( max < x ) max = x;
+static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t height, int64_t pitch, int64_t bpp ) {
+    int x, c, d, max = 0, w ;
+
+    switch( bpp ) {
+        case    1: {
+                uint8_t * p;
+                while ( height-- ) {
+                    p = ( uint8_t * ) ( data + height * pitch );
+                    for ( x = width; x > 0 && !( p[ x >> 3 ] & ( 0x80 >> ( x & 3 ) ) ); x++ );
+                    if ( max < x ) max = x;
+                }
+                return ( max < 4 ) ? 4 : max;
+            }
+
+        case    8: {
+                uint8_t * p;
+                while ( height-- ) {
+                    p = ( uint8_t * ) ( data + height * pitch + width - 1 );
+                    for ( x = width; x > 0 && !*p++; x-- );
+                    if ( max < x ) max = x;
+                }
+                return ( !max ) ? width * 65 / 100 : max;
+            }
+
+        case    16: {
+                uint16_t * p;
+                while ( height-- ) {
+                    p = ( uint16_t * ) ( data + height * pitch + width - 1 );
+                    for ( x = width; x > 0 && !*p++; x-- );
+                    if ( max < x ) max = x;
+                }
+                return ( !max ) ? width * 65 / 100 : max;
+            }
+
+        case    32: {
+                uint32_t * p;
+                while ( height-- ) {
+                    p = ( uint32_t * ) ( data + height * pitch + width - 1 );
+                    for ( x = width; x > 0 && !*p++; x-- );
+                    if ( max < x ) max = x;
+                }
+                return ( !max ) ? width * 65 / 100 : max;
+        }
     }
 
-    return ( !max ) ? width * 65 / 100 : max;
+    return width;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -477,12 +580,17 @@ int gr_font_systemfont() {
             for ( iii = 0; iii < 8; iii++ )
                 pixels[ i * 64 + ii * 8 + iii ] = ( default_font[ i * 8 + ii ] & ( 0x80 >> iii ) ) ? 0xffffffff : 0;
 
-    uint32_t rmask, gmask, bmask, amask;
-    getRGBA_mask( 32, &rmask, &gmask, &bmask, &amask );
-
-    SDL_Surface * surface = SDL_CreateRGBSurfaceFrom( pixels, 8, 8 * 256, gPixelFormat->BitsPerPixel, 8 * 4, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
+    SDL_Surface * surface = SDL_CreateRGBSurfaceFrom(   pixels,
+                                                        8,                          /* width  */
+                                                        8 * 256,                    /* height */
+                                                        gPixelFormat->BitsPerPixel, /* depth  */
+                                                        8 * 4,                      /* pitch  */
+                                                        gPixelFormat->Rmask,
+                                                        gPixelFormat->Gmask,
+                                                        gPixelFormat->Bmask,
+                                                        gPixelFormat->Amask
+                                                    );
     if ( !surface ) return 0;
-
 //    SDL_SetColorKey( surface, SDL_TRUE, 0 );
 
     GRAPH *map = bitmap_new( 0, 0, 0, surface );
@@ -495,7 +603,7 @@ int gr_font_systemfont() {
     if ( fonts[0] ) gr_font_destroy( 0 );
     font_count = 0;
 
-    gr_font_newfrombitmap( map, CHARSET_CP850, 8, 8, 0, 255, 0 );
+    gr_font_newfrombitmap( map, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
     if ( last_count ) font_count = last_count;
 
     return 1;

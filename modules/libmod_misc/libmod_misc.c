@@ -86,8 +86,8 @@ DLVARFIXUP __bgdexport( libmod_misc, globals_fixup)[] = {
    Lowest priority last execute */
 
 HOOK __bgdexport( libmod_misc, handler_hooks )[] = {
-    { 100, libmod_misc_advance_timers   },
-    {   0, NULL                         }
+    {  100, libmod_misc_advance_timers   },
+    {    0, NULL                         }
 } ;
 
 /* --------------------------------------------------------------------------- */

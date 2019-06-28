@@ -39,6 +39,7 @@ extern int64_t libmod_gfx_unload_fnt( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_fnt_new( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_fnt_new_charset( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_fnt_new_from_bitmap( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_fnt_new_from_bitmap2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_glyph( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_set_glyph( INSTANCE * my, int64_t * params );
 

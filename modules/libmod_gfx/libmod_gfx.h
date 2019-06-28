@@ -51,6 +51,7 @@
 #include "m_text.h"
 #include "m_wm.h"
 #include "m_draw.h"
+#include "m_debug.h"
 
 /* --------------------------------------------------------------------------- */
 
@@ -96,14 +97,18 @@ enum {
     CLIPX,
     CLIPY,
     CLIPW,
-    CLIPH
+    CLIPH,
+    FATHER,
+    BIGBRO,
+    SON
 };
 
 /* Globals */
 enum {
     SCROLLS = 0,
     MOUSEX,
-    MOUSEY
+    MOUSEY,
+    SHIFTSTATUS
 };
 
 /* --------------------------------------------------------------------------- */

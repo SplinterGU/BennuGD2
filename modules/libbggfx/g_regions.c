@@ -58,10 +58,10 @@ REGION regions[ MAX_REGIONS ];
 void region_define( int64_t region, int64_t x, int64_t y, int64_t width, int64_t height ) {
     if ( region < 1 || region >= MAX_REGIONS ) return;
 #if 1
-    regions[ region ].x = x;
-    regions[ region ].y = y;
-    regions[ region ].x2 = ( x + width ) - 1;
-    regions[ region ].y2 = ( y + height ) - 1;
+    regions[ region ].x = MAX( x, 0 );
+    regions[ region ].y = MAX( y, 0 );
+    regions[ region ].x2 = x + MAX( width  - 1, 0 );
+    regions[ region ].y2 = y + MAX( height - 1, 0 );
 #else
     regions[ region ].x = MAX( x, 0 );
     regions[ region ].y = MAX( y, 0 );

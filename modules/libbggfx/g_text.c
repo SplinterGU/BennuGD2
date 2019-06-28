@@ -76,6 +76,167 @@ int64_t text_count  = 0;
 
 /* --------------------------------------------------------------------------- */
 
+static uint32_t ansi_colors_4[][3] = {
+    { 0x00, 0x00, 0x00 }, { 0x80, 0x00, 0x00 }, { 0x00, 0x80, 0x00 }, { 0x80, 0x80, 0x00 },
+    { 0x00, 0x00, 0x80 }, { 0x80, 0x00, 0x80 }, { 0x00, 0x80, 0x80 }, { 0xc0, 0xc0, 0xc0 },
+    { 0x80, 0x80, 0x80 }, { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }, { 0xff, 0xff, 0x00 },
+    { 0x00, 0x00, 0xff }, { 0xff, 0x00, 0xff }, { 0x00, 0xff, 0xff }, { 0xff, 0xff, 0xff }
+};
+
+static uint32_t ansi_colors_8[][3] = {
+    { 0x00, 0x00, 0x00 }, { 0x80, 0x00, 0x00 }, { 0x00, 0x80, 0x00 }, { 0x80, 0x80, 0x00 },
+    { 0x00, 0x00, 0x80 }, { 0x80, 0x00, 0x80 }, { 0x00, 0x80, 0x80 }, { 0xc0, 0xc0, 0xc0 },
+    { 0x80, 0x80, 0x80 }, { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }, { 0xff, 0xff, 0x00 },
+    { 0x00, 0x00, 0xff }, { 0xff, 0x00, 0xff }, { 0x00, 0xff, 0xff }, { 0xff, 0xff, 0xff },
+    { 0x00, 0x00, 0x00 }, { 0x00, 0x00, 0x5f }, { 0x00, 0x00, 0x87 }, { 0x00, 0x00, 0xaf },
+    { 0x00, 0x00, 0xd7 }, { 0x00, 0x00, 0xff }, { 0x00, 0x5f, 0x00 }, { 0x00, 0x5f, 0x5f },
+    { 0x00, 0x5f, 0x87 }, { 0x00, 0x5f, 0xaf }, { 0x00, 0x5f, 0xd7 }, { 0x00, 0x5f, 0xff },
+    { 0x00, 0x87, 0x00 }, { 0x00, 0x87, 0x5f }, { 0x00, 0x87, 0x87 }, { 0x00, 0x87, 0xaf },
+    { 0x00, 0x87, 0xd7 }, { 0x00, 0x87, 0xff }, { 0x00, 0xaf, 0x00 }, { 0x00, 0xaf, 0x5f },
+    { 0x00, 0xaf, 0x87 }, { 0x00, 0xaf, 0xaf }, { 0x00, 0xaf, 0xd7 }, { 0x00, 0xaf, 0xff },
+    { 0x00, 0xd7, 0x00 }, { 0x00, 0xd7, 0x5f }, { 0x00, 0xd7, 0x87 }, { 0x00, 0xd7, 0xaf },
+    { 0x00, 0xd7, 0xd7 }, { 0x00, 0xd7, 0xff }, { 0x00, 0xff, 0x00 }, { 0x00, 0xff, 0x5f },
+    { 0x00, 0xff, 0x87 }, { 0x00, 0xff, 0xaf }, { 0x00, 0xff, 0xd7 }, { 0x00, 0xff, 0xff },
+    { 0x5f, 0x00, 0x00 }, { 0x5f, 0x00, 0x5f }, { 0x5f, 0x00, 0x87 }, { 0x5f, 0x00, 0xaf },
+    { 0x5f, 0x00, 0xd7 }, { 0x5f, 0x00, 0xff }, { 0x5f, 0x5f, 0x00 }, { 0x5f, 0x5f, 0x5f },
+    { 0x5f, 0x5f, 0x87 }, { 0x5f, 0x5f, 0xaf }, { 0x5f, 0x5f, 0xd7 }, { 0x5f, 0x5f, 0xff },
+    { 0x5f, 0x87, 0x00 }, { 0x5f, 0x87, 0x5f }, { 0x5f, 0x87, 0x87 }, { 0x5f, 0x87, 0xaf },
+    { 0x5f, 0x87, 0xd7 }, { 0x5f, 0x87, 0xff }, { 0x5f, 0xaf, 0x00 }, { 0x5f, 0xaf, 0x5f },
+    { 0x5f, 0xaf, 0x87 }, { 0x5f, 0xaf, 0xaf }, { 0x5f, 0xaf, 0xd7 }, { 0x5f, 0xaf, 0xff },
+    { 0x5f, 0xd7, 0x00 }, { 0x5f, 0xd7, 0x5f }, { 0x5f, 0xd7, 0x87 }, { 0x5f, 0xd7, 0xaf },
+    { 0x5f, 0xd7, 0xd7 }, { 0x5f, 0xd7, 0xff }, { 0x5f, 0xff, 0x00 }, { 0x5f, 0xff, 0x5f },
+    { 0x5f, 0xff, 0x87 }, { 0x5f, 0xff, 0xaf }, { 0x5f, 0xff, 0xd7 }, { 0x5f, 0xff, 0xff },
+    { 0x87, 0x00, 0x00 }, { 0x87, 0x00, 0x5f }, { 0x87, 0x00, 0x87 }, { 0x87, 0x00, 0xaf },
+    { 0x87, 0x00, 0xd7 }, { 0x87, 0x00, 0xff }, { 0x87, 0x5f, 0x00 }, { 0x87, 0x5f, 0x5f },
+    { 0x87, 0x5f, 0x87 }, { 0x87, 0x5f, 0xaf }, { 0x87, 0x5f, 0xd7 }, { 0x87, 0x5f, 0xff },
+    { 0x87, 0x87, 0x00 }, { 0x87, 0x87, 0x5f }, { 0x87, 0x87, 0x87 }, { 0x87, 0x87, 0xaf },
+    { 0x87, 0x87, 0xd7 }, { 0x87, 0x87, 0xff }, { 0x87, 0xaf, 0x00 }, { 0x87, 0xaf, 0x5f },
+    { 0x87, 0xaf, 0x87 }, { 0x87, 0xaf, 0xaf }, { 0x87, 0xaf, 0xd7 }, { 0x87, 0xaf, 0xff },
+    { 0x87, 0xd7, 0x00 }, { 0x87, 0xd7, 0x5f }, { 0x87, 0xd7, 0x87 }, { 0x87, 0xd7, 0xaf },
+    { 0x87, 0xd7, 0xd7 }, { 0x87, 0xd7, 0xff }, { 0x87, 0xff, 0x00 }, { 0x87, 0xff, 0x5f },
+    { 0x87, 0xff, 0x87 }, { 0x87, 0xff, 0xaf }, { 0x87, 0xff, 0xd7 }, { 0x87, 0xff, 0xff },
+    { 0xaf, 0x00, 0x00 }, { 0xaf, 0x00, 0x5f }, { 0xaf, 0x00, 0x87 }, { 0xaf, 0x00, 0xaf },
+    { 0xaf, 0x00, 0xd7 }, { 0xaf, 0x00, 0xff }, { 0xaf, 0x5f, 0x00 }, { 0xaf, 0x5f, 0x5f },
+    { 0xaf, 0x5f, 0x87 }, { 0xaf, 0x5f, 0xaf }, { 0xaf, 0x5f, 0xd7 }, { 0xaf, 0x5f, 0xff },
+    { 0xaf, 0x87, 0x00 }, { 0xaf, 0x87, 0x5f }, { 0xaf, 0x87, 0x87 }, { 0xaf, 0x87, 0xaf },
+    { 0xaf, 0x87, 0xd7 }, { 0xaf, 0x87, 0xff }, { 0xaf, 0xaf, 0x00 }, { 0xaf, 0xaf, 0x5f },
+    { 0xaf, 0xaf, 0x87 }, { 0xaf, 0xaf, 0xaf }, { 0xaf, 0xaf, 0xd7 }, { 0xaf, 0xaf, 0xff },
+    { 0xaf, 0xd7, 0x00 }, { 0xaf, 0xd7, 0x5f }, { 0xaf, 0xd7, 0x87 }, { 0xaf, 0xd7, 0xaf },
+    { 0xaf, 0xd7, 0xd7 }, { 0xaf, 0xd7, 0xff }, { 0xaf, 0xff, 0x00 }, { 0xaf, 0xff, 0x5f },
+    { 0xaf, 0xff, 0x87 }, { 0xaf, 0xff, 0xaf }, { 0xaf, 0xff, 0xd7 }, { 0xaf, 0xff, 0xff },
+    { 0xd7, 0x00, 0x00 }, { 0xd7, 0x00, 0x5f }, { 0xd7, 0x00, 0x87 }, { 0xd7, 0x00, 0xaf },
+    { 0xd7, 0x00, 0xd7 }, { 0xd7, 0x00, 0xff }, { 0xd7, 0x5f, 0x00 }, { 0xd7, 0x5f, 0x5f },
+    { 0xd7, 0x5f, 0x87 }, { 0xd7, 0x5f, 0xaf }, { 0xd7, 0x5f, 0xd7 }, { 0xd7, 0x5f, 0xff },
+    { 0xd7, 0x87, 0x00 }, { 0xd7, 0x87, 0x5f }, { 0xd7, 0x87, 0x87 }, { 0xd7, 0x87, 0xaf },
+    { 0xd7, 0x87, 0xd7 }, { 0xd7, 0x87, 0xff }, { 0xd7, 0xaf, 0x00 }, { 0xd7, 0xaf, 0x5f },
+    { 0xd7, 0xaf, 0x87 }, { 0xd7, 0xaf, 0xaf }, { 0xd7, 0xaf, 0xd7 }, { 0xd7, 0xaf, 0xff },
+    { 0xd7, 0xd7, 0x00 }, { 0xd7, 0xd7, 0x5f }, { 0xd7, 0xd7, 0x87 }, { 0xd7, 0xd7, 0xaf },
+    { 0xd7, 0xd7, 0xd7 }, { 0xd7, 0xd7, 0xff }, { 0xd7, 0xff, 0x00 }, { 0xd7, 0xff, 0x5f },
+    { 0xd7, 0xff, 0x87 }, { 0xd7, 0xff, 0xaf }, { 0xd7, 0xff, 0xd7 }, { 0xd7, 0xff, 0xff },
+    { 0xff, 0x00, 0x00 }, { 0xff, 0x00, 0x5f }, { 0xff, 0x00, 0x87 }, { 0xff, 0x00, 0xaf },
+    { 0xff, 0x00, 0xd7 }, { 0xff, 0x00, 0xff }, { 0xff, 0x5f, 0x00 }, { 0xff, 0x5f, 0x5f },
+    { 0xff, 0x5f, 0x87 }, { 0xff, 0x5f, 0xaf }, { 0xff, 0x5f, 0xd7 }, { 0xff, 0x5f, 0xff },
+    { 0xff, 0x87, 0x00 }, { 0xff, 0x87, 0x5f }, { 0xff, 0x87, 0x87 }, { 0xff, 0x87, 0xaf },
+    { 0xff, 0x87, 0xd7 }, { 0xff, 0x87, 0xff }, { 0xff, 0xaf, 0x00 }, { 0xff, 0xaf, 0x5f },
+    { 0xff, 0xaf, 0x87 }, { 0xff, 0xaf, 0xaf }, { 0xff, 0xaf, 0xd7 }, { 0xff, 0xaf, 0xff },
+    { 0xff, 0xd7, 0x00 }, { 0xff, 0xd7, 0x5f }, { 0xff, 0xd7, 0x87 }, { 0xff, 0xd7, 0xaf },
+    { 0xff, 0xd7, 0xd7 }, { 0xff, 0xd7, 0xff }, { 0xff, 0xff, 0x00 }, { 0xff, 0xff, 0x5f },
+    { 0xff, 0xff, 0x87 }, { 0xff, 0xff, 0xaf }, { 0xff, 0xff, 0xd7 }, { 0xff, 0xff, 0xff },
+    { 0x08, 0x08, 0x08 }, { 0x12, 0x12, 0x12 }, { 0x1c, 0x1c, 0x1c }, { 0x26, 0x26, 0x26 },
+    { 0x30, 0x30, 0x30 }, { 0x3a, 0x3a, 0x3a }, { 0x44, 0x44, 0x44 }, { 0x4e, 0x4e, 0x4e },
+    { 0x58, 0x58, 0x58 }, { 0x62, 0x62, 0x62 }, { 0x6c, 0x6c, 0x6c }, { 0x76, 0x76, 0x76 },
+    { 0x80, 0x80, 0x80 }, { 0x8a, 0x8a, 0x8a }, { 0x94, 0x94, 0x94 }, { 0x9e, 0x9e, 0x9e },
+    { 0xa8, 0xa8, 0xa8 }, { 0xb2, 0xb2, 0xb2 }, { 0xbc, 0xbc, 0xbc }, { 0xc6, 0xc6, 0xc6 },
+    { 0xd0, 0xd0, 0xd0 }, { 0xda, 0xda, 0xda }, { 0xe4, 0xe4, 0xe4 }, { 0xee, 0xee, 0xee }
+};
+
+/* --------------------------------------------------------------------------- */
+
+#define get_number(v) for ( v = 0; *text && *text >= '0' && *text <= '9'; text++ ) v = v * 10 + *text - '0'; if ( *text == ';' ) text++;
+
+#define PARSE_ANSI() \
+    if ( *text == '\e' && *( text + 1 ) == '[' ) { /* Ansi secuence */ \
+        text += 2, stop = 0; \
+        while ( *text && !stop ) { \
+            switch ( *text ) { \
+                case 'm': text++; stop = 1; break; \
+                case ';': text++; break; \
+                case '0': r = original_r, g = original_g, b = original_b; text++; break; \
+                case '1': \
+                    if ( *( text + 1 ) == ';' && *( text + 2 ) == '3' && *( text + 3 ) >= '0' && *( text + 3 ) <= '7' ) { /* Light colors \e[1;30 to \e[1;37 */ \
+                        idx = 8 + *( text + 3 ) - '0';  r = ansi_colors_4[ idx ][ 0 ], g = ansi_colors_4[ idx ][ 1 ], b = ansi_colors_4[ idx ][ 2 ]; text += 4; \
+                    } else { stop = 1; } \
+                    break; \
+                case '3': \
+                    if ( *( text + 1 ) >= '0' && *( text + 1 ) <= '7' ) { /* Normal colors \e[31 to \e[37 */ \
+                        idx = *( text + 1 ) - '0'; r = ansi_colors_4[ idx ][ 0 ], g = ansi_colors_4[ idx ][ 1 ], b = ansi_colors_4[ idx ][ 2 ]; text += 2; break; \
+                    } else if ( *( text + 1 ) == '8' && *( text + 2 ) == ';' ) { /* Ansi colors \e[38; */ \
+                        text += 3; \
+                        switch ( *text ) { \
+                            case '2': /* 24 bits mode \e[38;2;r;g;b */ \
+                                text++; if ( *text != ';' ) { stop = 1; break;  } text++; get_number(r); get_number(g); get_number(b); break; \
+                            case '5': /* 8 bits mode \e[38;5;colorindex */ \
+                                text++; if ( *text != ';' ) { stop = 1; break;  } text++; get_number(idx); idx &= 0xff; r = ansi_colors_8[ idx ][ 0 ], g = ansi_colors_8[ idx ][ 1 ], b = ansi_colors_8[ idx ][ 2 ]; break; \
+                            default: stop = 1; break; \
+                        } \
+                    } else { stop = 1; } \
+                    break; \
+                default: stop = 1; break; \
+            } \
+        } \
+    }
+
+#define SKIP_ANSI() \
+    if ( *text == '\e' && *( text + 1 ) == '[' ) { /* Ansi secuence */ \
+        text += 2, stop = 0; \
+        while ( *text && !stop ) { \
+            switch ( *text ) { \
+                case 'm': text++; stop = 1; break; \
+                case ';': text++; break; \
+                case '0': text++; break; \
+                case '1': \
+                    if ( *( text + 1 ) == ';' && *( text + 2 ) == '3' && *( text + 3 ) >= '0' && *( text + 3 ) <= '7' ) { /* Light colors \e[1;30 to \e[1;37 */ text += 4; \
+                    } else { stop = 1; } \
+                    break; \
+                case '3': \
+                    if ( *( text + 1 ) >= '0' && *( text + 1 ) <= '7' ) { /* Normal colors \e[31 to \e[37 */  text += 2; break; \
+                    } else if ( *( text + 1 ) == '8' && *( text + 2 ) == ';' ) { /* Ansi colors \e[38; */ text += 3; \
+                        switch ( *text ) { \
+                            case '2': /* 24 bits mode \e[38;2;r;g;b */ \
+                                text++; if ( *text != ';' ) { stop = 1; break;  } text++; get_number(dummy); get_number(dummy); get_number(dummy); break; \
+                            case '5': /* 8 bits mode \e[38;5;colorindex */ \
+                                text++; if ( *text != ';' ) { stop = 1; break;  } text++; get_number(dummy); break; \
+                            default: stop = 1; break; \
+                        } \
+                    } else { stop = 1; } \
+                    break; \
+                default: stop = 1; break; \
+            } \
+        } \
+    }
+
+#define WRITE_TEXT_FNT_CHARMAP(enc) \
+                while ( *text ) { \
+                    PARSE_ANSI() \
+                    current_char = enc; \
+                    fntclip = &f->glyph[current_char].fontsource; \
+                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, f->fontmap, fntclip, alpha, r, g, b ); \
+                    x += f->glyph[current_char].xadvance; \
+                    text++; \
+                }
+
+#define WRITE_TEXT_FNT_MAP(enc) \
+                while ( *text ) { \
+                    PARSE_ANSI() \
+                    current_char = enc; \
+                    ch = f->glyph[current_char].glymap; \
+                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, ch, NULL, alpha, r, g, b ); \
+                    x += f->glyph[current_char].xadvance; \
+                    text++; \
+                }
+
+/* --------------------------------------------------------------------------- */
+
 int64_t gr_text_height_no_margin( int64_t fontid, const unsigned char * text );
 
 /* --------------------------------------------------------------------------- */
@@ -190,8 +351,7 @@ static int info_text( void * what, REGION * bbox, int64_t * z, int64_t * drawme 
     // Splinter
     if ( !str || !*str ) return 0;
 
-    font = gr_font_get( text->fontid );
-    if ( !font ) return 0;
+    if ( !( font = gr_font_get( text->fontid ) ) ) return 0 ;
 
     * drawme = 1;
 
@@ -428,21 +588,26 @@ void gr_text_destroy( int64_t textid ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t gr_text_width( int64_t fontid, const unsigned char * text ) {
+    int stop = 0, idx, dummy;
     int64_t l = 0;
     FONT * f;
 
     if ( !text || !*text ) return 0;
-    if ( fontid < 0 || fontid >= MAX_FONTS || !fonts[fontid] ) return 0; // Incorrect font type
-
-    f = fonts[fontid];
+    if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
 
     switch ( f->charset ) {
         case CHARSET_ISO8859:
-            while ( *text ) l += f->glyph[dos_to_win[*text++]].xadvance;
+            while ( *text ) {
+                SKIP_ANSI();
+                l += f->glyph[dos_to_win[*text++]].xadvance;
+            }
             break;
 
         case CHARSET_CP850:
-            while ( *text ) l += f->glyph[*text++].xadvance;
+            while ( *text ) {
+                SKIP_ANSI();
+                l += f->glyph[*text++].xadvance;
+            }
             break;
     }
 
@@ -456,9 +621,7 @@ int64_t gr_text_margintop( int64_t fontid, const unsigned char * text ) {
     FONT * f;
 
     if ( !text || !*text ) return 0;
-    if ( fontid < 0 || fontid >= MAX_FONTS || !fonts[fontid] ) return 0; // Incorrect font type
-
-    f = fonts[fontid];
+    if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
 
     switch ( f->charset ) {
         case CHARSET_ISO8859:
@@ -486,9 +649,7 @@ int64_t gr_text_height_no_margin( int64_t fontid, const unsigned char * text ) {
     FONT * f;
 
     if ( !text || !*text ) return 0;
-    if ( fontid < 0 || fontid >= MAX_FONTS || !fonts[fontid] ) return 0; // Incorrect font type
-
-    f = fonts[fontid];
+    if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
 
     if ( f->fontmap ) {
         switch ( f->charset ) {
@@ -540,14 +701,13 @@ int64_t gr_text_height( int64_t fontid, const unsigned char * text ) {
 int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, int64_t x, int64_t y, const unsigned char * text ) {
     GRAPH * ch;
     FONT * f;
-    uint8_t current_char, alpha, r, g, b;
+    uint8_t current_char, alpha, r, g, b, original_r, original_g, original_b;
     int64_t flags;
     SDL_Rect * fntclip = NULL;
+    int stop = 0, idx;
 
     if ( !text || !*text ) return -1;
-    if ( fontid < 0 || fontid >= MAX_FONTS || !fonts[fontid] ) return 0; // Incorrect font type
-
-    f = fonts[fontid];
+    if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
 
     if ( ptext ) {
         if ( !( alpha = ( ( TEXT * ) ptext )->alpha ) ) return 0;
@@ -561,54 +721,30 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
         b = GLOBYTE( libbggfx, TEXT_COLORB );
     }
 
+    original_r = r;
+    original_g = g;
+    original_b = b;
+
     flags = GLOQWORD( libbggfx, TEXT_FLAGS );
 
     if ( f->fontmap ) {
         switch ( f->charset ) {
             case CHARSET_ISO8859:
-                while ( *text ) {
-                    current_char = dos_to_win[*text];
-                    fntclip = &f->glyph[current_char].fontsource;
-                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, f->fontmap, fntclip, alpha, r, g, b );
-                    x += f->glyph[current_char].xadvance;
-                    text++;
-                }
+                WRITE_TEXT_FNT_CHARMAP(dos_to_win[*text]);
                 break;
 
             case CHARSET_CP850:
-                while ( *text ) {
-                    current_char = *text;
-                    fntclip = &f->glyph[current_char].fontsource;
-                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, f->fontmap, fntclip, alpha, r, g, b );
-                    x += f->glyph[current_char].xadvance;
-                    text++;
-                }
+                WRITE_TEXT_FNT_CHARMAP(*text);
                 break;
         }
     } else {
         switch ( f->charset ) {
             case CHARSET_ISO8859:
-                while ( *text ) {
-                    current_char = dos_to_win[*text];
-                    ch = f->glyph[current_char].glymap;
-                    if ( ch ) {
-                        gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, ch, NULL, alpha, r, g, b );
-                    }
-                    x += f->glyph[current_char].xadvance;
-                    text++;
-                }
+                WRITE_TEXT_FNT_MAP(dos_to_win[*text]);
                 break;
 
             case CHARSET_CP850:
-                while ( *text ) {
-                    current_char = *text;
-                    ch = f->glyph[current_char].glymap;
-                    if ( ch ) {
-                        gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, ch, NULL, alpha, r, g, b );
-                    }
-                    x += f->glyph[current_char].xadvance;
-                    text++;
-                }
+                WRITE_TEXT_FNT_MAP(*text);
                 break;
         }
     }
@@ -624,7 +760,7 @@ GRAPH * gr_text_bitmap( int64_t fontid, const char * text, int64_t alignment ) {
 
     // Splinter
     if ( !text || !*text ) return NULL;
-    if ( fontid < 0 || fontid >= MAX_FONTS || !fonts[fontid] ) return NULL; // Incorrect font type
+    if ( !gr_font_get( fontid ) ) return NULL; // Incorrect font type
 
     gr = bitmap_new_syslib( gr_text_width( fontid, ( const unsigned char * ) text ), gr_text_height( fontid, ( const unsigned char * ) text ) );
     if ( !gr ) return NULL;

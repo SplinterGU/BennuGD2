@@ -127,7 +127,7 @@ int64_t check_for_valid_pathname( char * pathname ) {
 int64_t no_include_this_file = 0;
 
 int64_t string_compile( const char ** source ) {
-    char c = *( *source ) ++, conv;
+    unsigned char c = *( *source )++, conv, cc;
     const char * ptr;
     int64_t string_used_back = string_used;
 
@@ -142,41 +142,77 @@ int64_t string_compile( const char ** source ) {
 
     string_offset[ string_count ] = string_used;
 
-    while ( *( *source ) ) {
-        if ( *( *source ) == c ) {  /* Termina la string? */
-            ( *source ) ++;
-            if ( *( *source ) == c ) { /* Comienza una nueva? (esto es para strings divididas) */
-                ( *source ) ++;
-            } else {
-                /* Elimino todos los espacios para buscar si hay otra string, esto es para strings divididas */
-                ptr = ( *source );
-                while ( ISSPACE( *ptr ) ) {
-                    if ( *ptr == '\n' ) line_count++;
-                    ptr++;
-                }
-                /* Si despues de saltar todos los espacios, no tengo un delimitador de string, salgo */
-                if ( *ptr != c ) {
-                    ( *source ) = ptr; /* Fix: Splinter, por problema con numeracion de lineas */
+/*
+\a  07  Alert (Beep, Bell) (added in C89)[1]
+\b  08  Backspace
+\e  1B  escape character
+\f  0C  Formfeed Page Break
+\n  0A  Newline (Line Feed); see notes below
+\r  0D  Carriage Return
+\t  09  Horizontal Tab
+\v  0B  Vertical Tab
+\\  5C  Backslash
+\'  27  Apostrophe or single quotation mark
+\"  22  Double quotation mark
+\?  3F  Question mark (used to avoid trigraphs)
+\nnn  any The byte whose numerical value is given by nnn interpreted as an octal number
+\xhh…   any The byte whose numerical value is given by hh… interpreted as a hexadecimal number
+*/
+
+    while ( ( cc = *( *source ) ) ) {
+        if ( cc == '\\' ) { // ESCAPE
+            cc = *( *source )++;
+            switch ( cc = *( *source ) ) {
+                case 'a':   cc = '\a'; ( *source )++; break; /* Alert (Beep, Bell) (added in C89)[1] */
+                case 'b':   cc = '\b'; ( *source )++; break; /* Backspace */
+                case 'e':   cc = '\e'; ( *source )++; break; /* escape character */
+                case 'f':   cc = '\f'; ( *source )++; break; /* Formfeed Page Break */
+                case 'n':   cc = '\n'; ( *source )++; break; /* Newline (Line Feed); see notes below */
+                case 'r':   cc = '\r'; ( *source )++; break; /* Carriage Return */
+                case 't':   cc = '\t'; ( *source )++; break; /* Horizontal Tab */
+                case 'v':   cc = '\v'; ( *source )++; break; /* Vertical Tab */
+                case '\\':  cc = '\\'; ( *source )++; break; /* Backslash */
+                case '\'':  cc = '\''; ( *source )++; break; /* Apostrophe or single quotation mark */
+                case '"':   cc = '\"'; ( *source )++; break; /* Double quotation mark */
+                case '?':   cc = '\?'; ( *source )++; break; /* Question mark (used to avoid trigraphs) */
+                case 'x':   {          /*   hexadecimal number */
+                    unsigned char cx, n;
+                    ( *source )++;
+                    for ( cc = 0, n = 2; n && ( cx = *( *source ) ) && ( ( cx >= '0' && cx <= '9' ) || ( cx >= 'a' && cx <= 'f' ) || ( cx >= 'A' && cx <= 'F' ) ); n-- ) {
+                        if ( cx >= '0' && cx <= '9' ) cc = cc * 16 + cx - '0';
+                        else if ( cx >= 'a' && cx <= 'f' ) cc = cc * 16 + cx - 'a';
+                        else cc = cc * 16 + cx - 'A';
+                        ( *source )++;
+                    }
                     break;
                 }
 
-                /* Obtengo delimitador de string, me posiciono en el caracter siguiente, dentro de la string */
-                ( *source ) = ptr + 1;
-                continue;
+                default: { /* Octal or ignore */
+                    unsigned char cx, n;
+                    for ( cc = 0, n = 3; n && ( cx = *( *source ) ) && cx >= '0' && cx <= '7' ; n-- ) cc = cc * 8 + cx - '0', ( *source ) ++;
+                    break;
+                }
             }
-        } else if ( *( *source ) == '\n' ) {
+            if ( cc ) {
+                conv = convert( cc );
+                string_mem[ string_used++ ] = conv;
+            }
+        } else if ( cc == c ) {  /* Termina la string? */
+            ( *source )++;
+            /* Elimino todos los espacios para buscar si hay otra string, esto es para strings divididas */
+            while ( ISSPACE( * ( * source ) ) ) if ( *( * source )++ == '\n' ) line_count++;
+            /* Si despues de saltar todos los espacios, no tengo un delimitador de string, salgo */
+            if ( *( * source ) != c ) break;
+            ( *source )++;
+            continue;
+        } else if ( cc == '\n' ) {
             line_count++;
             string_mem[ string_used++ ] = '\n';
-
-            ( *source ) ++;
+            ( *source )++;
         } else {
-#ifdef __USE_C_STRING_ESCAPE
-            if ( *( *source ) == '\\' && *( *source + 1 ) == c ) ( *source ) ++;
-#endif
-            conv = convert( *( *source ) );
+            conv = convert( cc );
             string_mem[ string_used++ ] = conv;
-
-            ( *source ) ++;
+            ( *source )++;
         }
 
         if ( string_used >= string_allocated )
