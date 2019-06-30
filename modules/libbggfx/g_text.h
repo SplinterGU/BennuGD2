@@ -70,6 +70,23 @@
 #define ALIGN_BOTTOM        7
 #define ALIGN_BOTTOM_RIGHT  8
 
+#define COLOR_BLACK     "\e[30m"
+#define COLOR_MAROON    "\e[31m"
+#define COLOR_GREEN     "\e[32m"
+#define COLOR_OLIVE     "\e[33m"
+#define COLOR_NAVY      "\e[34m"
+#define COLOR_PURPLE    "\e[35m"
+#define COLOR_TEAL      "\e[36m"
+#define COLOR_SILVER    "\e[37m"
+#define COLOR_GRAY      "\e[90m"
+#define COLOR_RED       "\e[91m"
+#define COLOR_LIME      "\e[92m"
+#define COLOR_YELLOW    "\e[93m"
+#define COLOR_BLUE      "\e[94m"
+#define COLOR_MAGENTA   "\e[95m"
+#define COLOR_AQUA      "\e[96m"
+#define COLOR_WHITE     "\e[97m"
+
 #ifndef __BGDC__
 
 /* --------------------------------------------------------------------------- */

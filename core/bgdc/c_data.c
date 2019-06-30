@@ -362,7 +362,7 @@ static void set_type( TYPEDEF * t, BASETYPE type ) {
  *
  */
 
-int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin, int level ) {
+int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin, int level, int inline_assignation_disabled ) {
     int i, j,
         total_count, last_count = 0,
         base_offset = data->current,
@@ -539,6 +539,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             token_set_pos( tokp1 );
 //        }
 
+        /* Variable type required */
         if ( basetype == TYPE_UNDEFINED && token.code != identifier_struct ) compile_error( MSG_DATA_TYPE_REQUIRED ); // type = typedef_new( TYPE_INT ); // Data Type Required
 
         if ( token.type == IDENTIFIER && token.code == identifier_struct ) {
@@ -661,7 +662,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
             varspace_init( members );
 
-            ( void ) compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0, level + 1 );
+            ( void ) compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0, level + 1, inline_assignation_disabled );
 
             type.varspace = members;
 
@@ -776,6 +777,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             data->current = i;
 
         } else if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
+            if ( inline_assignation_disabled ) compile_error( MSG_INLINE_ASSIGNATION_ERROR );
+
             res = compile_expresion( 1, 0, 0, basetype );
 
             if ( basetype == TYPE_UNDEFINED ) {

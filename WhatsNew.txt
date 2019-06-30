@@ -1,8 +1,51 @@
 2019-06-27:
 - Add string escape caracters
+    SECUENCE    HEX DESCRIPTION
+    \a          07  Alert (Beep, Bell) (added in C89)[1]
+    \b          08  Backspace
+    \e          1B  escape character
+    \f          0C  Formfeed Page Break
+    \n          0A  Newline (Line Feed); see notes below
+    \r          0D  Carriage Return
+    \t          09  Horizontal Tab
+    \v          0B  Vertical Tab
+    \\          5C  Backslash
+    \'          27  Apostrophe or single quotation mark
+    \"          22  Double quotation mark
+    \?          3F  Question mark (used to avoid trigraphs)
+    \nnn            any The byte whose numerical value is given by nnn interpreted as an octal number
+    \xhh…           any The byte whose numerical value is given by hh… interpreted as a hexadecimal number
 - Add map characters to fonts from bitmap (optional)
 - Fix region issues with negative height or width
-- Add text Ansi escape color sequence (only foreground colors)
+- Add color ANSI/VT100 escape sequence for texts (only foreground colors supported)
+    All ANSI escape sequence start with "\e[" or "\033[" or "\x1B[", then contine with:
+
+        39                  Default foreground color
+
+        30                  Black
+        31                  Maroon
+        32                  Green
+        33                  Olive
+        34                  Navy
+        35                  Purple
+        36                  Teal
+        37                  Silver
+
+        90                  Gray
+        91                  Red
+        92                  Lime
+        93                  Yellow
+        94                  Blue
+        95                  Magenta
+        96                  Aqua
+        97                  White
+
+        38;2;r;g;b          24 bits RGB mode, where r, g, b are numbers from 0 to 255
+        38;5;c              8 bits index color mode, where c is a number from 0 to 255
+
+        0                   Reset to default color
+        m                   End sequence modification
+        ;                   Sequence separator
 
 2019-06-25:
 

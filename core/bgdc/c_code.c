@@ -3254,6 +3254,7 @@ void compile_block( PROCDEF * p ) {
 
         tok_pos tokp = token_pos();
 
+        /* Compile inline variable definitions */
         if ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || token.code == identifier_private || typedef_by_name( token.code ) || ( ps = procdef_search( token.code ) ) ) {
             is_process = 0;
             if ( ps ) {
@@ -3266,14 +3267,14 @@ void compile_block( PROCDEF * p ) {
                 token_back();
                 /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
                 VARSPACE * v[] = {&local, p->pubvars, NULL};
-                compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0 );
+                compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0, 1 );
                 continue;
             }
         } else if (( !proc->declared ) && ( token.code == identifier_local || token.code == identifier_public ) ) {
             /* Ahora las declaraciones locales, son solo locales al proceso, pero visibles desde todo proceso */
             /* Se permite declarar local/publica una variable que haya sido declarada global, es una variable propia, no es la global */
             VARSPACE * v[] = {&local, p->privars, NULL};
-            compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0 );
+            compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0, 1 );
         }
 
         if ( token.type == IDENTIFIER ) {

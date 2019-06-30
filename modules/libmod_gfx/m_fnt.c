@@ -103,7 +103,7 @@ int64_t libmod_gfx_fnt_new_charset( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_fnt_new_from_bitmap( INSTANCE * my, int64_t * params ) {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
     if ( !bmp ) return -1;
-    return gr_font_newfrombitmap( bmp, params[2], params[3], params[4], params[5], params[6], params[7], NULL );
+    return gr_font_new_from_bitmap( bmp, params[2], params[3], params[4], params[5], params[6], params[7], NULL );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -114,7 +114,7 @@ int64_t libmod_gfx_fnt_new_from_bitmap( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_fnt_new_from_bitmap2( INSTANCE * my, int64_t * params ) {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
     if ( !bmp ) return -1;
-    int64_t ret = gr_font_newfrombitmap( bmp, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ) );
+    int64_t ret = gr_font_new_from_bitmap( bmp, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ) );
     string_discard( params[8] );
     return ret;
 }
@@ -157,7 +157,7 @@ int64_t libmod_gfx_set_glyph( INSTANCE * my, int64_t * params ) {
     GRAPH * map  = bitmap_get( params[2], params[3] );
     unsigned char c = params[1];
 
-    if ( font->charset == /*CHARSET_CP850*/CHARSET_ISO8859 ) c = win_to_dos[c];
+    if ( font->charset == /*CHARSET_CP850*/ CHARSET_ISO8859 ) c = win_to_dos[c];
 
     if ( font && map ) {
         if ( font->glyph[c].glymap ) grlib_unload_map( 0, font->glyph[c].glymap->code );

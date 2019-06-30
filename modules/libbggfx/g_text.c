@@ -76,14 +76,12 @@ int64_t text_count  = 0;
 
 /* --------------------------------------------------------------------------- */
 
-static uint32_t ansi_colors_4[][3] = {
-    { 0x00, 0x00, 0x00 }, { 0x80, 0x00, 0x00 }, { 0x00, 0x80, 0x00 }, { 0x80, 0x80, 0x00 },
-    { 0x00, 0x00, 0x80 }, { 0x80, 0x00, 0x80 }, { 0x00, 0x80, 0x80 }, { 0xc0, 0xc0, 0xc0 },
-    { 0x80, 0x80, 0x80 }, { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }, { 0xff, 0xff, 0x00 },
-    { 0x00, 0x00, 0xff }, { 0xff, 0x00, 0xff }, { 0x00, 0xff, 0xff }, { 0xff, 0xff, 0xff }
+static uint8_t ansi_colors_4[][3] = {
+    { 0x00, 0x00, 0x00 }, { 0x80, 0x00, 0x00 }, { 0x00, 0x80, 0x00 }, { 0x80, 0x80, 0x00 }, { 0x00, 0x00, 0x80 }, { 0x80, 0x00, 0x80 }, { 0x00, 0x80, 0x80 }, { 0xc0, 0xc0, 0xc0 },
+    { 0x80, 0x80, 0x80 }, { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }, { 0xff, 0xff, 0x00 }, { 0x00, 0x00, 0xff }, { 0xff, 0x00, 0xff }, { 0x00, 0xff, 0xff }, { 0xff, 0xff, 0xff }
 };
 
-static uint32_t ansi_colors_8[][3] = {
+static uint8_t ansi_colors_8[][3] = {
     { 0x00, 0x00, 0x00 }, { 0x80, 0x00, 0x00 }, { 0x00, 0x80, 0x00 }, { 0x80, 0x80, 0x00 },
     { 0x00, 0x00, 0x80 }, { 0x80, 0x00, 0x80 }, { 0x00, 0x80, 0x80 }, { 0xc0, 0xc0, 0xc0 },
     { 0x80, 0x80, 0x80 }, { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }, { 0xff, 0xff, 0x00 },
@@ -152,36 +150,42 @@ static uint32_t ansi_colors_8[][3] = {
 
 /* --------------------------------------------------------------------------- */
 
-#define get_number(v) for ( v = 0; *text && *text >= '0' && *text <= '9'; text++ ) v = v * 10 + *text - '0'; if ( *text == ';' ) text++;
+#define get_number(v) for ( v = 0; *text && *text >= '0' && *text <= '9'; text++ ) v = v * 10 + ( *text ) - '0'; if ( *text == ';' ) text++;
+
+#define ANSI_END()    { stop = 1; break; }
 
 #define PARSE_ANSI() \
     if ( *text == '\e' && *( text + 1 ) == '[' ) { /* Ansi secuence */ \
         text += 2, stop = 0; \
         while ( *text && !stop ) { \
             switch ( *text ) { \
-                case 'm': text++; stop = 1; break; \
+                case 'm': text++; ANSI_END() \
                 case ';': text++; break; \
                 case '0': r = original_r, g = original_g, b = original_b; text++; break; \
-                case '1': \
-                    if ( *( text + 1 ) == ';' && *( text + 2 ) == '3' && *( text + 3 ) >= '0' && *( text + 3 ) <= '7' ) { /* Light colors \e[1;30 to \e[1;37 */ \
-                        idx = 8 + *( text + 3 ) - '0';  r = ansi_colors_4[ idx ][ 0 ], g = ansi_colors_4[ idx ][ 1 ], b = ansi_colors_4[ idx ][ 2 ]; text += 4; \
-                    } else { stop = 1; } \
-                    break; \
                 case '3': \
-                    if ( *( text + 1 ) >= '0' && *( text + 1 ) <= '7' ) { /* Normal colors \e[31 to \e[37 */ \
-                        idx = *( text + 1 ) - '0'; r = ansi_colors_4[ idx ][ 0 ], g = ansi_colors_4[ idx ][ 1 ], b = ansi_colors_4[ idx ][ 2 ]; text += 2; break; \
-                    } else if ( *( text + 1 ) == '8' && *( text + 2 ) == ';' ) { /* Ansi colors \e[38; */ \
-                        text += 3; \
+                    text++; \
+                    if ( *text >= '0' && *text <= '7' ) { /* Normal colors \e[31 to \e[37 */ \
+                        idx = *text++ - '0'; r = ansi_colors_4[ idx ][ 0 ], g = ansi_colors_4[ idx ][ 1 ], b = ansi_colors_4[ idx ][ 2 ]; break; \
+                    } else if ( *text == '8' && *( text + 1 ) == ';' ) { /* Ansi colors \e[38; */ \
+                        text += 2; \
                         switch ( *text ) { \
                             case '2': /* 24 bits mode \e[38;2;r;g;b */ \
-                                text++; if ( *text != ';' ) { stop = 1; break;  } text++; get_number(r); get_number(g); get_number(b); break; \
+                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(r); get_number(g); get_number(b); break; \
                             case '5': /* 8 bits mode \e[38;5;colorindex */ \
-                                text++; if ( *text != ';' ) { stop = 1; break;  } text++; get_number(idx); idx &= 0xff; r = ansi_colors_8[ idx ][ 0 ], g = ansi_colors_8[ idx ][ 1 ], b = ansi_colors_8[ idx ][ 2 ]; break; \
-                            default: stop = 1; break; \
+                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(idx); if ( idx > 255 ) ANSI_END() r = ansi_colors_8[ idx ][ 0 ], g = ansi_colors_8[ idx ][ 1 ], b = ansi_colors_8[ idx ][ 2 ]; break; \
+                            default: ANSI_END() \
                         } \
-                    } else { stop = 1; } \
+                    } else if ( *text == '9' ) { /* default color \e[39; */ \
+                        text++; r = original_r, g = original_g, b = original_b; break; \
+                    } else ANSI_END() \
                     break; \
-                default: stop = 1; break; \
+                case '9': \
+                    text++; \
+                    if ( *text >= '0' && *text <= '7' ) { /* Light colors \e[91 to \e[97 */ \
+                        idx = 8 + *text++ - '0'; r = ansi_colors_4[ idx ][ 0 ], g = ansi_colors_4[ idx ][ 1 ], b = ansi_colors_4[ idx ][ 2 ]; break; \
+                    } else ANSI_END() \
+                    break; \
+                default: ANSI_END() \
             } \
         } \
     }
@@ -191,26 +195,33 @@ static uint32_t ansi_colors_8[][3] = {
         text += 2, stop = 0; \
         while ( *text && !stop ) { \
             switch ( *text ) { \
-                case 'm': text++; stop = 1; break; \
+                case 'm': text++; ANSI_END() \
                 case ';': text++; break; \
                 case '0': text++; break; \
-                case '1': \
-                    if ( *( text + 1 ) == ';' && *( text + 2 ) == '3' && *( text + 3 ) >= '0' && *( text + 3 ) <= '7' ) { /* Light colors \e[1;30 to \e[1;37 */ text += 4; \
-                    } else { stop = 1; } \
-                    break; \
                 case '3': \
-                    if ( *( text + 1 ) >= '0' && *( text + 1 ) <= '7' ) { /* Normal colors \e[31 to \e[37 */  text += 2; break; \
-                    } else if ( *( text + 1 ) == '8' && *( text + 2 ) == ';' ) { /* Ansi colors \e[38; */ text += 3; \
+                    text++; \
+                    if ( *text >= '0' && *text <= '7' ) { /* Normal colors \e[31 to \e[37 */ \
+                        text++; break; \
+                    } else if ( *text == '8' && *( text + 1 ) == ';' ) { /* Ansi colors \e[38; */ \
+                        text += 2; \
                         switch ( *text ) { \
                             case '2': /* 24 bits mode \e[38;2;r;g;b */ \
-                                text++; if ( *text != ';' ) { stop = 1; break;  } text++; get_number(dummy); get_number(dummy); get_number(dummy); break; \
+                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(dummy); get_number(dummy); get_number(dummy); break; \
                             case '5': /* 8 bits mode \e[38;5;colorindex */ \
-                                text++; if ( *text != ';' ) { stop = 1; break;  } text++; get_number(dummy); break; \
-                            default: stop = 1; break; \
+                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(dummy); if ( dummy > 255 ) ANSI_END() \
+                            default: ANSI_END() \
                         } \
-                    } else { stop = 1; } \
+                    } else if ( *text == '9' ) { /* default color \e[39; */ \
+                        text++; break; \
+                    } else ANSI_END() \
                     break; \
-                default: stop = 1; break; \
+                case '9': \
+                    text++; \
+                    if ( *text >= '0' && *text <= '7' ) { /* Light colors \e[91 to \e[97 */ \
+                        text++; break; \
+                    } else ANSI_END() \
+                    break; \
+                default: ANSI_END() \
             } \
         } \
     }
@@ -836,3 +847,54 @@ int64_t gr_text_getrgba( int64_t textid, uint8_t * r, uint8_t * g, uint8_t * b, 
 }
 
 /* --------------------------------------------------------------------------- */
+/* For direct text use                                                         */
+/* --------------------------------------------------------------------------- */
+
+void * gr_alloc_text() {
+    TEXT * t = ( TEXT * ) malloc( sizeof( TEXT ) );
+    if ( !t ) return NULL;
+
+    t->id = -1;
+
+    t->id = -1;
+    t->on = TEXT_TEXT;
+    t->fontid = -1;
+    t->x = 0;
+    t->y = 0;
+    t->z = 0;
+    t->alignment = 0;
+    t->text = 0;
+
+    t->alpha = GLOBYTE( libbggfx, TEXT_ALPHA );
+    t->color_r = GLOBYTE( libbggfx, TEXT_COLORR );
+    t->color_g = GLOBYTE( libbggfx, TEXT_COLORG );
+    t->color_b = GLOBYTE( libbggfx, TEXT_COLORB );
+
+    return ( void * ) t;
+}
+
+/* --------------------------------------------------------------------------- */
+
+void gr_text_setrgba_ptext( void * t, uint8_t r, uint8_t g, uint8_t b, uint8_t a ) {
+    TEXT * text = ( TEXT * ) ( intptr_t ) t;
+    if ( !text ) return;
+    text->color_r = r;
+    text->color_g = g;
+    text->color_b = b;
+    text->alpha = a;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t gr_text_getrgba_ptext( void * t, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a ) {
+    TEXT * text = ( TEXT * ) ( intptr_t ) t;
+    if ( !text ) return -1;
+    if ( r ) * r = text->color_r;
+    if ( g ) * g = text->color_g;
+    if ( b ) * b = text->color_b;
+    if ( a ) * a = text->alpha;
+    return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+

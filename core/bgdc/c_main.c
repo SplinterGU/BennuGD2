@@ -354,7 +354,7 @@ void compile_type() {
     segment_name( s, code );
 
     /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
-    compile_varspace( v, s, 0, 1, 0, NULL, 0, 0, 0, 1 );
+    compile_varspace( v, s, 0, 1, 0, NULL, 0, 0, 0, 1, 0 );
 
     if ( token.code != identifier_end ) compile_error( MSG_NO_END );
 }
@@ -481,14 +481,14 @@ static void import_module( const char * filename ) {
     if ( globals_def && *globals_def ) {
         VARSPACE * v[] = {&local, NULL};
         token_init( *globals_def, -1 );
-        compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0 );
+        compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
     }
 
     locals_def  = ( char ** ) _dlibaddr( library, "locals_def" );
     if ( locals_def && *locals_def ) {
         VARSPACE * v[] = {&global, NULL};
         token_init( *locals_def, -1 );
-        compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0 );
+        compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
     }
 
     functions_exports = ( DLSYSFUNCS * ) _dlibaddr( library, "functions_exports" );
@@ -1001,12 +1001,12 @@ void compile_process() {
             /* Ahora las declaraciones locales, son solo locales al proceso, pero visibles desde todo proceso */
             /* Se permite declarar local/publica una variable que haya sido declarada global, es una variable propia, no es la global */
             VARSPACE * v[] = {&local, proc->privars, NULL};
-            compile_varspace( proc->pubvars, proc->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0 );
+            compile_varspace( proc->pubvars, proc->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
         } else if ( token.code == identifier_private ) {
             /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
             VARSPACE * v[] = {&local, proc->pubvars, NULL};
-            compile_varspace( proc->privars, proc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0 );
+            compile_varspace( proc->privars, proc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
         }
 
         token_next();
@@ -1057,7 +1057,7 @@ void compile_program() {
         else if ( token.type == IDENTIFIER && token.code == identifier_local ) {
             /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             VARSPACE * v[] = { &global, NULL };
-            compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0 );
+            compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && (
                         token.code == identifier_global ||
                         ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) )
@@ -1065,11 +1065,11 @@ void compile_program() {
             /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             VARSPACE * v[] = { &local, NULL };
             if ( block_var ) token_back();
-            compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, block_var != 0, 0 );
+            compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, block_var != 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_private ) {
             /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
             VARSPACE * v[] = { &local, &global, NULL };
-            compile_varspace( mainproc->privars, mainproc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0 );
+            compile_varspace( mainproc->privars, mainproc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_begin ) {
             if ( mainproc->defined ) {
                 /* Hack para poder redefinir el proceso principal */

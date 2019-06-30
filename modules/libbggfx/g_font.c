@@ -301,11 +301,6 @@ static unsigned char default_font[ 256 * 8 ] =
 };
 
 /* --------------------------------------------------------------------------- */
-
-static int align_bitmap_char_left( unsigned char *data, int64_t width, int64_t height, int64_t pitch, int64_t bbp );
-static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t height, int64_t pitch, int64_t bbp );
-
-/* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : gr_font_new
  *
@@ -338,118 +333,6 @@ int64_t gr_font_new( int64_t charset ) {
 
     fonts[ font_count ] = f;
     return font_count++;
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  FUNCTION : gr_font_newfrombitmap
- *
- *  Create a new font using a bitmap as source.
- *  For 1bpp fonts, the bitmap should be in black and white (1 bit per pixel)
- *  with a fixed character size and a character width of 8, 16, 24...
- *
- *  PARAMS :
- *  map         Pointer to the bitmap
- *  charset     Charset
- *  width       Width of each character, in bits (pixels)
- *  height      Height of each character
- *  first       First char
- *  last        Last char
- *  options     Can be 0 or a combination of the following flags:
- *                  NFB_FIXEDWIDTH  Create a fixed width font (the default is a propotional width one)
- *  charmap     Null char terminate string, used for map each character to a glyph, if it is NULL, then use "first" and "last" arguments
- *
- *  RETURN VALUE :
- *      -1 if Error, id otherwise
- *
- */
-
-int64_t gr_font_newfrombitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
-    FONT * f;
-    char * chardata, * charptr;
-    int64_t i, idx, id;
-    int charsize;
-    int w, h, cw, ch;
-
-    if ( ( id = gr_font_new( charset ) ) == -1 ) return -1;
-
-    f = fonts[ id ];
-
-    f->fontmap = map;
-
-    charsize = map->surface->pitch * height;
-
-/*
-    switch ( map->surface->format->BitsPerPixel ) {
-        case    1:
-                linesize = ( width + 7 ) / 8;
-                psz = sizeof( uint8_t );
-                break;
-
-        case    8:
-                linesize = width;
-                psz = sizeof( uint8_t );
-                break;
-
-        case    16:
-                linesize = width * sizeof( uint16_t );
-                psz = sizeof( uint16_t );
-                break;
-
-        case    32:
-                linesize = width * sizeof( uint32_t );
-                psz = sizeof( uint32_t );
-                break;
-    }
-*/
-    ch = map->height / height;
-    cw = map->width / width;
-
-    i = charmap ? 0 : first;
-    idx = 0;
-
-    for ( h = 0; h < ch; h++ ) {
-        if ( (  charmap && !charmap[ i ] ) ||
-             ( !charmap && i > last      ) ) break;
-
-        chardata = map->surface->pixels + h * charsize;
-
-        for ( charptr = chardata, w = 0; w < cw; w++, charptr += map->surface->pitch, i++ ) {
-            int align = 0;
-
-            idx = ( charmap ) ? charmap[ i ] : i;
-
-            if ( options != NFB_FIXEDWIDTH )
-                align = align_bitmap_char_left( ( unsigned char * ) charptr, width, height, map->surface->pitch, map->surface->format->BitsPerPixel );
-
-            f->glyph[ idx ].fontsource.x = w * width + align;
-            f->glyph[ idx ].fontsource.y = h * height;
-            f->glyph[ idx ].fontsource.w = width - align;
-            f->glyph[ idx ].fontsource.h = height;
-            f->glyph[ idx ].xoffset = 0;
-            f->glyph[ idx ].yoffset = 0;
-
-            if ( options != NFB_FIXEDWIDTH ) {
-                int ww = get_bitmap_char_width( map->surface->pixels + map->surface->pitch * f->glyph[ idx ].fontsource.y + f->glyph[ idx ].fontsource.x * map->surface->format->BytesPerPixel,
-                                                width - align,
-                                                height,
-                                                map->surface->pitch,
-                                                map->surface->format->BitsPerPixel );
-                f->glyph[ idx ].fontsource.w = ww;
-                f->glyph[ idx ].xadvance = ww + 1;
-            }
-            else
-                f->glyph[ idx ].xadvance = width + 1;
-        }
-    }
-
-    /* Set a reasonable size for the space */
-
-    f->glyph[ 32 ].xadvance = ( options != NFB_FIXEDWIDTH ) ? width * 65 / 100 : width;
-    f->maxwidth = width;
-    f->maxheight = height;
-
-    return id;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -556,6 +439,95 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
 
 /* --------------------------------------------------------------------------- */
 /*
+ *  FUNCTION : gr_font_new_from_bitmap
+ *
+ *  Create a new font using a bitmap as source.
+ *  For 1bpp fonts, the bitmap should be in black and white (1 bit per pixel)
+ *  with a fixed character size and a character width of 8, 16, 24...
+ *
+ *  PARAMS :
+ *  map         Pointer to the bitmap
+ *  charset     Charset
+ *  width       Width of each character, in bits (pixels)
+ *  height      Height of each character
+ *  first       First char
+ *  last        Last char
+ *  options     Can be 0 or a combination of the following flags:
+ *                  NFB_FIXEDWIDTH  Create a fixed width font (the default is a propotional width one)
+ *  charmap     Null char terminate string, used for map each character to a glyph, if it is NULL, then use "first" and "last" arguments
+ *
+ *  RETURN VALUE :
+ *      -1 if Error, id otherwise
+ *
+ */
+
+int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
+    FONT * f;
+    char * chardata, * charptr;
+    int64_t i, idx, id;
+    int charsize;
+    int w, h, cw, ch;
+
+    if ( ( id = gr_font_new( charset ) ) == -1 ) return -1;
+
+    f = fonts[ id ];
+
+    f->fontmap = map;
+
+    charsize = map->surface->pitch * height;
+
+    ch = map->height / height;
+    cw = map->width / width;
+
+    i = charmap ? 0 : first;
+    idx = 0;
+
+    for ( h = 0; h < ch; h++ ) {
+        if ( (  charmap && !charmap[ i ] ) ||
+             ( !charmap && i > last      ) ) break;
+
+        chardata = map->surface->pixels + h * charsize;
+
+        for ( charptr = chardata, w = 0; w < cw; w++, charptr += map->surface->pitch, i++ ) {
+            int align = 0;
+
+            idx = ( charmap ) ? charmap[ i ] : i;
+
+            if ( options != NFB_FIXEDWIDTH )
+                align = align_bitmap_char_left( ( unsigned char * ) charptr, width, height, map->surface->pitch, map->surface->format->BitsPerPixel );
+
+            f->glyph[ idx ].fontsource.x = w * width + align;
+            f->glyph[ idx ].fontsource.y = h * height;
+            f->glyph[ idx ].fontsource.w = width - align;
+            f->glyph[ idx ].fontsource.h = height;
+            f->glyph[ idx ].xoffset = 0;
+            f->glyph[ idx ].yoffset = 0;
+
+            if ( options != NFB_FIXEDWIDTH ) {
+                int ww = get_bitmap_char_width( map->surface->pixels + map->surface->pitch * f->glyph[ idx ].fontsource.y + f->glyph[ idx ].fontsource.x * map->surface->format->BytesPerPixel,
+                                                width - align,
+                                                height,
+                                                map->surface->pitch,
+                                                map->surface->format->BitsPerPixel );
+                f->glyph[ idx ].fontsource.w = ww;
+                f->glyph[ idx ].xadvance = ww + 1;
+            }
+            else
+                f->glyph[ idx ].xadvance = width + 1;
+        }
+    }
+
+    /* Set a reasonable size for the space */
+
+    f->glyph[ 32 ].xadvance = ( options != NFB_FIXEDWIDTH ) ? width * 65 / 100 : width;
+    f->maxwidth = width;
+    f->maxheight = height;
+
+    return id;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
  *  FUNCTION : gr_font_systemfont
  *
  *  Create the system font. This function should be called once.
@@ -603,7 +575,7 @@ int gr_font_systemfont() {
     if ( fonts[0] ) gr_font_destroy( 0 );
     font_count = 0;
 
-    gr_font_newfrombitmap( map, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
+    gr_font_new_from_bitmap( map, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
     if ( last_count ) font_count = last_count;
 
     return 1;

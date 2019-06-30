@@ -153,4 +153,6 @@
 
 #define MSG_INVALID_INITIALIZER                 "Initializer element is not constant"
 
+#define MSG_INLINE_ASSIGNATION_ERROR            "Inline declaration variables don't allow value assignation"
+
 #endif

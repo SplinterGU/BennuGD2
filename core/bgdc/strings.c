@@ -180,8 +180,8 @@ int64_t string_compile( const char ** source ) {
                     ( *source )++;
                     for ( cc = 0, n = 2; n && ( cx = *( *source ) ) && ( ( cx >= '0' && cx <= '9' ) || ( cx >= 'a' && cx <= 'f' ) || ( cx >= 'A' && cx <= 'F' ) ); n-- ) {
                         if ( cx >= '0' && cx <= '9' ) cc = cc * 16 + cx - '0';
-                        else if ( cx >= 'a' && cx <= 'f' ) cc = cc * 16 + cx - 'a';
-                        else cc = cc * 16 + cx - 'A';
+                        else if ( cx >= 'a' && cx <= 'f' ) cc = cc * 16 + 10 + cx - 'a';
+                        else cc = cc * 16 + 10 + cx - 'A';
                         ( *source )++;
                     }
                     break;
@@ -194,8 +194,12 @@ int64_t string_compile( const char ** source ) {
                 }
             }
             if ( cc ) {
+#if 1
                 conv = convert( cc );
                 string_mem[ string_used++ ] = conv;
+#else
+                string_mem[ string_used++ ] = cc;
+#endif
             }
         } else if ( cc == c ) {  /* Termina la string? */
             ( *source )++;
@@ -210,8 +214,12 @@ int64_t string_compile( const char ** source ) {
             string_mem[ string_used++ ] = '\n';
             ( *source )++;
         } else {
-            conv = convert( cc );
-            string_mem[ string_used++ ] = conv;
+#if 1
+                conv = convert( cc );
+                string_mem[ string_used++ ] = conv;
+#else
+                string_mem[ string_used++ ] = cc;
+#endif
             ( *source )++;
         }
 

@@ -77,10 +77,6 @@ DLVARFIXUP __bgdexport( libmod_gfx, locals_fixup )[] = {
     { "clip_w"                          , NULL, -1, -1 },
     { "clip_h"                          , NULL, -1, -1 },
 
-    { "father"                          , NULL, -1, -1 },
-    { "bigbro"                          , NULL, -1, -1 },
-    { "son"                             , NULL, -1, -1 },
-
     { NULL                              , NULL, -1, -1 }
 };
 
@@ -92,28 +88,13 @@ DLVARFIXUP __bgdexport( libmod_gfx, globals_fixup )[] = {
     { "mouse.x"                         , NULL, -1, -1 },
     { "mouse.y"                         , NULL, -1, -1 },
 
-    { "keyboard.shift_status"           , NULL, -1, -1 },
-
     { NULL                              , NULL, -1, -1 }
 };
 
 /* --------------------------------------------------------------------------- */
 
-/* Bigest priority first execute
-   Lowest priority last execute */
-
-HOOK __bgdexport( libmod_gfx, handler_hooks )[] = {
-#if 0
-    { 1000, m_debug_frame_complete_hook     },
-#endif
-    {    0, NULL                            }
-} ;
-
-/* --------------------------------------------------------------------------- */
-
 void __bgdexport( libmod_gfx, process_exec_hook )( INSTANCE * r ) {
     #include "m_collision_process_exec_hook.h"
-    #include "m_debug_process_exec_hook.h"
 }
 
 /* --------------------------------------------------------------------------- */

@@ -79,7 +79,7 @@ extern int64_t font_count;
 extern void gr_font_destroy( int64_t fontid );
 extern FONT * gr_font_get( int64_t id );
 extern int64_t gr_font_new( int64_t charset );
-extern int64_t gr_font_newfrombitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap );
+extern int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap );
 extern int gr_font_systemfont();
 void gr_font_init();
 
