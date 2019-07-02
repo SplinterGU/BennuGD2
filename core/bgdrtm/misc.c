@@ -300,7 +300,7 @@ void bgdrtm_entry( int argc, char * argv[] ) {
  *
  */
 
-void bgdrtm_exit( int exit_value )
+void bgdrtm_exit()
 {
     int n;
     /* Finalize all modules */
@@ -314,8 +314,6 @@ void bgdrtm_exit( int exit_value )
     __bgdrtm_memregl = munmap( 0, 0x20000 ); __bgdrtm_memregl = NULL;
     close( __bgdrtm_memdev ); __bgdrtm_memdev = -1;
 #endif
-
-    exit( exit_value );
 }
 
 /* --------------------------------------------------------------------------- */

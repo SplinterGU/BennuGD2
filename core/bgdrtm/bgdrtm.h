@@ -40,6 +40,7 @@
 #include "dcb.h"
 #include "xctype.h"
 #include "instance.h"
+#include "watch.h"
 
 /* --------------------------------------------------------------------------- */
 
@@ -91,7 +92,7 @@ extern void mnemonic_dump( int64_t i, int64_t param );
 /* --------------------------------------------------------------------------- */
 
 extern void bgdrtm_entry( int argc, char * argv[] );
-extern void bgdrtm_exit( int n );
+extern void bgdrtm_exit();
 
 /* --------------------------------------------------------------------------- */
 

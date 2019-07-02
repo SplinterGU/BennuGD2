@@ -39,7 +39,7 @@
 
 /* --------------------------------------------------------------------------- */
 
-#define MAX_TEXTS           512
+#define MAX_TEXTS           1024
 
 // Tipos para gr_text_new_var
 
@@ -105,6 +105,10 @@ extern int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * region, int64_t
 extern GRAPH * gr_text_bitmap( int64_t fontid, const char * text, int64_t centered ) ;
 extern void gr_text_setrgba( int64_t textid, uint8_t r, uint8_t g, uint8_t b, uint8_t a );
 extern int64_t gr_text_getrgba( int64_t textid, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a );
+
+extern void * gr_text_alloc();
+extern void gr_text_setrgba_ptext( void * t, uint8_t r, uint8_t g, uint8_t b, uint8_t a );
+extern int64_t gr_text_getrgba_ptext( void * t, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a );
 
 /* --------------------------------------------------------------------------- */
 

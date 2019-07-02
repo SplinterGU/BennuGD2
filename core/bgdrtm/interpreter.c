@@ -74,7 +74,7 @@ static int stack_dump( INSTANCE * r ) {
             i = 0;
             printf( "\n" );
         }
-        printf( "%016"PRIX64, *ptr++ );
+        printf( "%016"PRIX64" ", *ptr++ );
         i++;
     }
 

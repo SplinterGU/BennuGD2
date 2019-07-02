@@ -15,6 +15,7 @@ add_subdirectory(libmod_gfx)
 add_subdirectory(libmod_misc)
 add_subdirectory(libmod_input)
 add_subdirectory(libmod_sound)
+add_subdirectory(libmod_debug)
 
 #tools
 add_subdirectory(moddesc)

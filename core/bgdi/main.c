@@ -72,7 +72,7 @@ static int embedded    = 0;  /* 1 only if this is a stub with an embedded DCB */
  */
 
 int main( int argc, char *argv[] ) {
-    char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0;
+    char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0 = NULL;
     int i, j, ret = -1;
     file * fp = NULL;
     dcb_signature dcb_signature;
@@ -109,6 +109,7 @@ int main( int argc, char *argv[] ) {
                 char * tmp = calloc( 1, strlen( p ) + strlen( appexename ) + 2 );
                 free( appexefullpath );
                 sprintf( tmp, "%s/%s", p, appexename );
+                free( p );
                 appexefullpath = getfullpath( tmp );
                 free( tmp );
             }
@@ -294,7 +295,9 @@ fflush(stdout);
         ret = instance_go_all() ;
     }
 
-    bgdrtm_exit( ret );
+    bgdrtm_exit();
+
+    free( arg0              );
 
     free( appexename        );
     free( appexepath        );

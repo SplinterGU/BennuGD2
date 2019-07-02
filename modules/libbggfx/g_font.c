@@ -513,7 +513,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, in
                 f->glyph[ idx ].xadvance = ww + 1;
             }
             else
-                f->glyph[ idx ].xadvance = width + 1;
+                f->glyph[ idx ].xadvance = width;
         }
     }
 

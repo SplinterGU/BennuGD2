@@ -278,7 +278,7 @@ void process_key_events() {
                 /* KeyDown HotKey */
                 for ( n = 0; n < hotkey_count; n++ ) {
                     if ((( hotkey_list[n].mod & e.key.keysym.mod ) == hotkey_list[n].mod ) &&
-                         ( !hotkey_list[n].scancode || ( hotkey_list[n].scancode == e.key.keysym.scancode ) ) ) {
+                         ( !hotkey_list[n].scancode || ( hotkey_list[n].scancode == e.key.keysym.sym /*e.key.keysym.scancode*/ ) ) ) {
                         ignore_key = hotkey_list[n].callback( e.key.keysym );
                     }
                 }

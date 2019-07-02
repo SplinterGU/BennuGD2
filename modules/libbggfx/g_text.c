@@ -65,6 +65,9 @@ typedef struct _text {
     int64_t _x;
     int64_t _y;
 
+    /* Internals for ANSI/VT100 */
+    watch * watch_colors;
+
 } TEXT;
 
 /* --------------------------------------------------------------------------- */
@@ -73,6 +76,8 @@ TEXT texts[MAX_TEXTS];
 
 int64_t text_nextid = 1;
 int64_t text_count  = 0;
+
+static watch * system_text_color_watch = NULL;
 
 /* --------------------------------------------------------------------------- */
 
@@ -150,9 +155,12 @@ static uint8_t ansi_colors_8[][3] = {
 
 /* --------------------------------------------------------------------------- */
 
-#define get_number(v) for ( v = 0; *text && *text >= '0' && *text <= '9'; text++ ) v = v * 10 + ( *text ) - '0'; if ( *text == ';' ) text++;
+#define get_number(v)       v = 0; while( *text >= '0' && *text <= '9' ) v = v * 10 + ( *text++ ) - '0'; if ( *text == ';' ) text++;
 
-#define ANSI_END()    { stop = 1; break; }
+#define ANSI_END()          { stop = 1; break; }
+
+#define RESET_COLOR()       { watch_reset( working_watch, current_color ); *r = current_color[0]; *g = current_color[1]; *b = current_color[2]; }
+#define SET_COLOR(value)    { watch_set( working_watch, current_color, value ); *r = current_color[0]; *g = current_color[1]; *b = current_color[2]; }
 
 #define PARSE_ANSI() \
     if ( *text == '\e' && *( text + 1 ) == '[' ) { /* Ansi secuence */ \
@@ -161,33 +169,34 @@ static uint8_t ansi_colors_8[][3] = {
             switch ( *text ) { \
                 case 'm': text++; ANSI_END() \
                 case ';': text++; break; \
-                case '0': r = original_r, g = original_g, b = original_b; text++; break; \
+                case '0': RESET_COLOR(); text++; break; \
                 case '3': \
                     text++; \
                     if ( *text >= '0' && *text <= '7' ) { /* Normal colors \e[31 to \e[37 */ \
-                        idx = *text++ - '0'; r = ansi_colors_4[ idx ][ 0 ], g = ansi_colors_4[ idx ][ 1 ], b = ansi_colors_4[ idx ][ 2 ]; break; \
+                        idx = *text++ - '0'; SET_COLOR( ansi_colors_4[ idx ] ); break; \
                     } else if ( *text == '8' && *( text + 1 ) == ';' ) { /* Ansi colors \e[38; */ \
                         text += 2; \
                         switch ( *text ) { \
                             case '2': /* 24 bits mode \e[38;2;r;g;b */ \
-                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(r); get_number(g); get_number(b); break; \
+                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(current_color[0]); get_number(current_color[1]); get_number(current_color[2]); SET_COLOR( current_color ); break; \
                             case '5': /* 8 bits mode \e[38;5;colorindex */ \
-                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(idx); if ( idx > 255 ) ANSI_END() r = ansi_colors_8[ idx ][ 0 ], g = ansi_colors_8[ idx ][ 1 ], b = ansi_colors_8[ idx ][ 2 ]; break; \
+                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(idx); if ( idx > 255 ) ANSI_END(); SET_COLOR( ansi_colors_8[ idx ] ); break; \
                             default: ANSI_END() \
                         } \
                     } else if ( *text == '9' ) { /* default color \e[39; */ \
-                        text++; r = original_r, g = original_g, b = original_b; break; \
+                        text++; RESET_COLOR(); break; \
                     } else ANSI_END() \
                     break; \
                 case '9': \
                     text++; \
                     if ( *text >= '0' && *text <= '7' ) { /* Light colors \e[91 to \e[97 */ \
-                        idx = 8 + *text++ - '0'; r = ansi_colors_4[ idx ][ 0 ], g = ansi_colors_4[ idx ][ 1 ], b = ansi_colors_4[ idx ][ 2 ]; break; \
+                        idx = 8 + *text++ - '0'; SET_COLOR( ansi_colors_4[ idx ] ); break; \
                     } else ANSI_END() \
                     break; \
                 default: ANSI_END() \
             } \
         } \
+        if ( !*text ) break; \
     }
 
 #define SKIP_ANSI() \
@@ -208,7 +217,7 @@ static uint8_t ansi_colors_8[][3] = {
                             case '2': /* 24 bits mode \e[38;2;r;g;b */ \
                                 text++; if ( *text != ';' ) ANSI_END() text++; get_number(dummy); get_number(dummy); get_number(dummy); break; \
                             case '5': /* 8 bits mode \e[38;5;colorindex */ \
-                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(dummy); if ( dummy > 255 ) ANSI_END() \
+                                text++; if ( *text != ';' ) ANSI_END() text++; get_number(dummy); if ( dummy > 255 ) ANSI_END() break; \
                             default: ANSI_END() \
                         } \
                     } else if ( *text == '9' ) { /* default color \e[39; */ \
@@ -224,6 +233,7 @@ static uint8_t ansi_colors_8[][3] = {
                 default: ANSI_END() \
             } \
         } \
+        if ( !*text ) break; \
     }
 
 #define WRITE_TEXT_FNT_CHARMAP(enc) \
@@ -231,7 +241,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     fntclip = &f->glyph[current_char].fontsource; \
-                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, f->fontmap, fntclip, alpha, r, g, b ); \
+                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, f->fontmap, fntclip, alpha, *r, *g, *b ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -241,7 +251,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     ch = f->glyph[current_char].glymap; \
-                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, ch, NULL, alpha, r, g, b ); \
+                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, ch, NULL, alpha, *r, *g, *b ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -372,6 +382,7 @@ static int info_text( void * what, REGION * bbox, int64_t * z, int64_t * drawme 
 
     text->_x = text->x;
     text->_y = text->y;
+
 //    text->_height = gr_text_height_no_margin( text->fontid, ( const unsigned char * ) str );
 
     /* Update the font's maxheight (if needed) */
@@ -450,7 +461,7 @@ void draw_text( void * what, REGION * clip ) {
     FONT * font;
 
     // Splinter
-    if ( !str ) return;
+    if ( !str || !*str ) return;
 
     if ( !( font = gr_font_get( text->fontid ) ) ) {
         gr_text_destroy( text->id );
@@ -503,6 +514,8 @@ int64_t gr_text_new2( int64_t fontid, int64_t x, int64_t y, int64_t z, int64_t a
     texts[textid].color_g = GLOBYTE( libbggfx, TEXT_COLORG );
     texts[textid].color_b = GLOBYTE( libbggfx, TEXT_COLORB );
 
+    texts[textid].watch_colors = watch_create( &texts[textid].color_r, 3 );
+
     texts[textid].objectid = gr_new_object( texts[textid].z, info_text, draw_text, &texts[textid] );
 
     return textid;
@@ -552,7 +565,7 @@ int64_t gr_text_new_var2( int64_t fontid, int64_t x, int64_t y, int64_t z, int64
 /* --------------------------------------------------------------------------- */
 
 void gr_text_move( int64_t textid, int64_t x, int64_t y ) {
-    if ( textid > 0 && textid < text_nextid ) {
+    if ( textid > 0 && textid < text_nextid && texts[textid].on ) {
         texts[textid].x = x;
         texts[textid].y = y;
     }
@@ -561,7 +574,7 @@ void gr_text_move( int64_t textid, int64_t x, int64_t y ) {
 /* --------------------------------------------------------------------------- */
 
 void gr_text_move2( int64_t textid, int64_t x, int64_t y, int64_t z ) {
-    if ( textid > 0 && textid < text_nextid ) {
+    if ( textid > 0 && textid < text_nextid && texts[textid].on ) {
         texts[textid].x = x;
         texts[textid].y = y;
         texts[textid].z = z;
@@ -712,29 +725,33 @@ int64_t gr_text_height( int64_t fontid, const unsigned char * text ) {
 int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, int64_t x, int64_t y, const unsigned char * text ) {
     GRAPH * ch;
     FONT * f;
-    uint8_t current_char, alpha, r, g, b, original_r, original_g, original_b;
+    uint8_t current_char, alpha, *r, *g, *b;
     int64_t flags;
     SDL_Rect * fntclip = NULL;
     int stop = 0, idx;
+    watch * working_watch = NULL;
+    int8_t current_color[3] = { 0 };
 
     if ( !text || !*text ) return -1;
     if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
 
     if ( ptext ) {
-        if ( !( alpha = ( ( TEXT * ) ptext )->alpha ) ) return 0;
-        r = ( ( TEXT * ) ptext )->color_r;
-        g = ( ( TEXT * ) ptext )->color_g;
-        b = ( ( TEXT * ) ptext )->color_b;
+        alpha = ( ( TEXT * ) ptext )->alpha;
+        current_color[ 0 ] = * ( r = &( ( TEXT * ) ptext )->color_r );
+        current_color[ 1 ] = * ( g = &( ( TEXT * ) ptext )->color_g );
+        current_color[ 2 ] = * ( b = &( ( TEXT * ) ptext )->color_b );
+        working_watch = ( ( TEXT * ) ptext )->watch_colors;
+
     } else {
-        if ( !( alpha = GLOBYTE( libbggfx, TEXT_ALPHA ) ) ) return 0;
-        r = GLOBYTE( libbggfx, TEXT_COLORR );
-        g = GLOBYTE( libbggfx, TEXT_COLORG );
-        b = GLOBYTE( libbggfx, TEXT_COLORB );
+        alpha = GLOBYTE( libbggfx, TEXT_ALPHA );
+        current_color[ 0 ] = * ( r = GLOADDR( libbggfx, TEXT_COLORR ) );
+        current_color[ 1 ] = * ( g = GLOADDR( libbggfx, TEXT_COLORG ) );
+        current_color[ 2 ] = * ( b = GLOADDR( libbggfx, TEXT_COLORB ) );
+        if ( !system_text_color_watch ) system_text_color_watch = watch_create( current_color, 3 );
+        working_watch = system_text_color_watch;
     }
 
-    original_r = r;
-    original_g = g;
-    original_b = b;
+    watch_test( working_watch, current_color );
 
     flags = GLOQWORD( libbggfx, TEXT_FLAGS );
 
@@ -826,18 +843,18 @@ GRAPH * gr_text_bitmap( int64_t fontid, const char * text, int64_t alignment ) {
 /* --------------------------------------------------------------------------- */
 
 void gr_text_setrgba( int64_t textid, uint8_t r, uint8_t g, uint8_t b, uint8_t a ) {
-    if ( textid > 0 && textid < text_nextid ) {
-        texts[textid].color_r = r;
-        texts[textid].color_g = g;
-        texts[textid].color_b = b;
-        texts[textid].alpha = a;
+    if ( textid > 0 && textid < text_nextid && texts[textid].on ) {
+        texts[textid].color_r    = r;
+        texts[textid].color_g    = g;
+        texts[textid].color_b    = b;
+        texts[textid].alpha      = a;
     }
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t gr_text_getrgba( int64_t textid, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a ) {
-    if ( textid > 0 && textid < text_nextid ) {
+    if ( textid > 0 && textid < text_nextid && texts[textid].on ) {
         if ( r ) * r = texts[textid].color_r;
         if ( g ) * g = texts[textid].color_g;
         if ( b ) * b = texts[textid].color_b;
@@ -850,7 +867,7 @@ int64_t gr_text_getrgba( int64_t textid, uint8_t * r, uint8_t * g, uint8_t * b, 
 /* For direct text use                                                         */
 /* --------------------------------------------------------------------------- */
 
-void * gr_alloc_text() {
+void * gr_text_alloc() {
     TEXT * t = ( TEXT * ) malloc( sizeof( TEXT ) );
     if ( !t ) return NULL;
 
@@ -870,6 +887,8 @@ void * gr_alloc_text() {
     t->color_g = GLOBYTE( libbggfx, TEXT_COLORG );
     t->color_b = GLOBYTE( libbggfx, TEXT_COLORB );
 
+    t->watch_colors = watch_create( &t->color_r, 3 );
+
     return ( void * ) t;
 }
 
@@ -881,7 +900,7 @@ void gr_text_setrgba_ptext( void * t, uint8_t r, uint8_t g, uint8_t b, uint8_t a
     text->color_r = r;
     text->color_g = g;
     text->color_b = b;
-    text->alpha = a;
+    text->alpha   = a;
 }
 
 /* --------------------------------------------------------------------------- */
