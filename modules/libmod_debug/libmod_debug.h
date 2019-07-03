@@ -36,6 +36,7 @@
 #include "bgdrtm.h"
 #include "bgddl.h"
 
+#include "libbginput.h"
 #include "m_debug.h"
 
 /* --------------------------------------------------------------------------- */

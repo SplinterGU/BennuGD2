@@ -13,4 +13,4 @@ file(GLOB SOURCES_LIBMOD_DEBUG
      )
 
 add_library(mod_debug SHARED ${SOURCES_LIBMOD_DEBUG})
-target_link_libraries(mod_debug ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../bin -lbgdrtm -lbggfx)
+target_link_libraries(mod_debug ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../bin -lbgdrtm -lbggfx -lbginput)
