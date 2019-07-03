@@ -40,7 +40,7 @@
 #include "dlvaracc.h"
 
 // #define __DISABLE_PALETTES__
-int no_draw = 0;
+
 /* --------------------------------------------------------------------------- */
 
 static int inline gr_update_texture( GRAPH * gr ) {
