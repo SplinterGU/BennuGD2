@@ -98,38 +98,45 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
         SDL_TEXTUREACCESS_TARGET
     */
     if ( surface ) {
-#ifdef __DISABLE_PALETTES__
+#ifdef USE_NATIVE_SDL2
+ #ifdef __DISABLE_PALETTES__
         if ( surface->format->format == SDL_PIXELFORMAT_ARGB8888 /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
             gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
         } else {
-            // Set transparent color
-//                 if ( surface->format->BitsPerPixel == 1 )   SDL_SetColorKey( surface, SDL_TRUE, 1 );
-//            else                                             SDL_SetColorKey( surface, SDL_TRUE, 0 );
-
             gr->surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
         }
-#else
-//        if ( surface->format->format != SDL_PIXELFORMAT_ARGB8888 ) {
-            // Set transparent color
-//                 if ( surface->format->BitsPerPixel == 1 )   SDL_SetColorKey( surface, SDL_TRUE, 1 );
-//            else                                             SDL_SetColorKey( surface, SDL_TRUE, 0 );
-//        }
-        // SDL_SetColorKey( surface, SDL_FALSE, 0 ); // Disable Color Key
+ #else
         gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
-#endif
         if ( !gr->surface ) {
             free( gr );
             return NULL;
         }
+ #endif
+#else
+        gr->image = GPU_CopyImageFromSurface( surface );
+        if ( !gr->image ) {
+            fprintf(stderr, "GPU_GetCurrentRenderer %p\n", GPU_GetCurrentRenderer());
+            GPU_ErrorObject e = GPU_PopErrorCode();
+
+            fprintf(stderr, "NEW_BITMAP error creando image from surface %s\n", GPU_GetErrorString(e.error));
+            free( gr );
+            return NULL;
+        }
+#endif
     } else {
+#ifdef USE_NATIVE_SDL2
         gr->surface = NULL;
+#else
+        gr->image = NULL;
+#endif
     }
 
     gr->type = 0;
+#ifdef USE_NATIVE_SDL2
     gr->texture = NULL;
 
     gr->texture_must_update = 0;
-
+#endif
     gr->width = w;
     gr->height = h;
 
@@ -150,7 +157,12 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
 GRAPH * bitmap_clone( GRAPH * map ) {
     GRAPH * gr;
 
+#ifdef USE_NATIVE_SDL2
     if ( !( gr = bitmap_new( 0, map->width, map->height, map->surface ) ) ) return NULL;
+#else
+    if ( !( gr = bitmap_new( 0, map->width, map->height, NULL ) ) ) return NULL;
+    if ( map->image ) gr->image = GPU_CopyImage( map->image );
+#endif
 
     if ( map->cpoints ) {
         gr->cpoints = malloc( sizeof( CPOINT ) * map->ncpoints );
@@ -212,12 +224,20 @@ void bitmap_destroy( GRAPH * map ) {
     if ( !map ) return;
     if ( map->cpoints ) free( map->cpoints );
     if ( map->code > 999 ) bit_clr( map_code_bmp, map->code - 1000 );
+#ifdef USE_NATIVE_SDL2
     if ( map->surface ) SDL_FreeSurface( map->surface );
     if ( map->texture ) SDL_DestroyTexture( map->texture );
+#else
+    GPU_FreeImage( map->image ); // GPU_FreeTarget is implicit
+#endif
     if ( map->nsegments ) {
         int i;
         for ( i = 0; i < map->nsegments; i++ ) {
+#ifdef USE_NATIVE_SDL2
             SDL_DestroyTexture( map->segments[i].texture );
+#else
+            GPU_FreeImage( map->segments[i].image ); // GPU_FreeTarget is implicit
+#endif
         }
     }
     free( map );

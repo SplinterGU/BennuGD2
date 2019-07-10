@@ -91,6 +91,7 @@ int64_t libmod_gfx_out_region( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_get_screen( INSTANCE * my, int64_t * params ) {
     GRAPH * capture = bitmap_get( 0, -1 );
+#ifdef USE_NATIVE_SDL2
     if ( capture ) {
         GRAPH * map = bitmap_clone( capture );
         if ( !map ) return 0;
@@ -98,8 +99,11 @@ int64_t libmod_gfx_get_screen( INSTANCE * my, int64_t * params ) {
         grlib_add_map( 0, map );
         return map->code ;
     }
+#else
+    if ( capture ) return capture->code;
+#endif
     return 0;
- }
+}
 
 /* --------------------------------------------------------------------------- */
 /* Funciones de inicializacion y carga                                         */

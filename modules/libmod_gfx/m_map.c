@@ -123,8 +123,13 @@ int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params ) {
 //            return map->pitch;
 
         case G_DEPTH:           /* g_depth */
+#ifdef USE_NATIVE_SDL2
+            if ( !map->surface ) return -1;
             return map->surface->format->BitsPerPixel;
-
+#else
+            if ( !map->image ) return -1;
+            return map->image->bytes_per_pixel;
+#endif
         case G_CENTER_X:        /* g_center_x */
             if ( map->ncpoints > 0 )
                 if ( map->cpoints[0].x != CPOINT_UNDEFINED )
@@ -534,8 +539,26 @@ extern DECLSPEC int SDLCALL IMG_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst,
 int64_t libmod_gfx_save_png( INSTANCE * my, int64_t * params )
 {
     GRAPH * gr = bitmap_get( params[0], params[1] );
-    if ( !gr || !gr->surface ) return -1;
-    int64_t r = ( int64_t ) IMG_SavePNG( gr->surface, ( char * )string_get( params[2] ) );
+    int64_t r;
+
+    if ( !gr ) {
+        string_discard( params[2] );
+        return -1;
+    }
+#ifdef USE_NATIVE_SDL2
+    if ( !gr->surface )
+#else
+    if ( !gr->image )
+#endif
+    {
+        string_discard( params[2] );
+        return -1;
+    }
+#ifdef USE_NATIVE_SDL2
+    r = ( int64_t ) IMG_SavePNG( gr->surface, ( char * )string_get( params[2] ) );
+#else
+    r = ( int64_t ) GPU_SaveImage( gr->image, ( char * )string_get( params[2] ), GPU_FILE_AUTO );
+#endif
     string_discard( params[2] );
     return r;
 }
@@ -563,6 +586,7 @@ int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
+#ifdef USE_NATIVE_SDL2
     GRAPH * map = bitmap_get( params[0], params[1] );
     int firstcolor = params[2], ncolors = params[3];
     SDL_Color * colors = ( SDL_Color * ) ( intptr_t ) params[4];
@@ -587,13 +611,14 @@ int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
     SDL_FreePalette( palette );
 
     map->texture_must_update = 1;
-
+#endif
     return 0;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_palette( INSTANCE * my, int64_t * params ) {
+#ifdef USE_NATIVE_SDL2
     GRAPH * map = bitmap_get( params[0], params[1] );
     int firstcolor = params[2], ncolors = params[3], i;
     SDL_Color * colors = ( SDL_Color * ) ( intptr_t ) params[4];
@@ -609,7 +634,7 @@ int64_t libmod_gfx_get_palette( INSTANCE * my, int64_t * params ) {
     } else {
         for ( i = 0; ncolors--; i++ ) colors[ i ] = map->surface->format->palette->colors[ firstcolor + i ];
     }
-
+#endif
     return 0;
 }
 

@@ -165,7 +165,12 @@ static void mouse_draw( void * what, REGION * clip ) {
     region = regions[r];
     if ( clip ) region_union( &region, clip );
 
-    SDL_Rect *mouse_map_clip = NULL, _mouse_map_clip;
+#ifdef USE_NATIVE_SDL2
+    SDL_Rect
+#else
+    GPU_Rect
+#endif
+    *mouse_map_clip = NULL, _mouse_map_clip;
 
     _mouse_map_clip.w = GLOINT64( libbginput, MOUSECLIPW );
     _mouse_map_clip.h = GLOINT64( libbginput, MOUSECLIPH );

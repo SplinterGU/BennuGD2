@@ -47,6 +47,7 @@
 void gr_clear( GRAPH * dest ) {
     if ( !dest ) return;
 
+#ifdef USE_NATIVE_SDL2
     if ( !dest->surface ) {
         dest->surface = SDL_CreateRGBSurface(0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !dest->surface ) return;
@@ -56,6 +57,8 @@ void gr_clear( GRAPH * dest ) {
     memset( dest->surface->pixels, '\0', dest->height * dest->surface->pitch );
 
     dest->texture_must_update = 1;
+#else
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -77,6 +80,7 @@ void gr_clear_as( GRAPH * dest, int color ) {
 
     if ( !dest ) return;
 
+#ifdef USE_NATIVE_SDL2
     if ( !dest->surface ) {
         dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !dest->surface ) return;
@@ -130,6 +134,8 @@ void gr_clear_as( GRAPH * dest, int color ) {
     }
 
     dest->texture_must_update = 1;
+#else
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -153,6 +159,7 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
 
     if ( !dest ) return;
 
+#ifdef USE_NATIVE_SDL2
     if ( !dest->surface ) {
         dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !dest->surface ) return;
@@ -248,7 +255,8 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     }
 
     dest->texture_must_update = 1;
-
+#else
+#endif
 }
 
 /* --------------------------------------------------------------------------- */

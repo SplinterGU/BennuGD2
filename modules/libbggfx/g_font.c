@@ -38,7 +38,6 @@
 /* --------------------------------------------------------------------------- */
 
 FONT * fonts[ MAX_FONTS ] = { 0 };
-int64_t font_count = 0;  /* Fuente 0 reservada para sistema */
 
 static unsigned char default_font[ 256 * 8 ] =
 {
@@ -317,22 +316,22 @@ static unsigned char default_font[ 256 * 8 ] =
  */
 
 int64_t gr_font_new( int64_t charset ) {
-    FONT * f = ( FONT * )malloc( sizeof( FONT ) );
+    int fontid;
 
-    if ( f == NULL ) return -1; // No memory
+    for ( fontid = 1; fontid < MAX_FONTS; fontid++ ) if ( !fonts[ fontid ] ) break;
 
-    if ( font_count == MAX_FONTS - 1 ) { // Too much fonts
-        free( f );
-        return -1;
-    }
+    if ( fontid >= MAX_FONTS ) return -1; // Too much fonts
 
-    memset( f, 0, sizeof( FONT ) );
-    f->charset = charset; // CHARSET_CP850
-    f->maxwidth = 0;
-    f->maxheight = 0;
+    fonts[ fontid ] = ( FONT * ) malloc( sizeof( FONT ) );
 
-    fonts[ font_count ] = f;
-    return font_count++;
+    if ( !fonts[ fontid ] ) return -1; // No memory
+
+    memset( fonts[ fontid ], 0, sizeof( FONT ) );
+    fonts[ fontid ]->charset = charset; // CHARSET_CP850
+    fonts[ fontid ]->maxwidth = 0;
+    fonts[ fontid ]->maxheight = 0;
+
+    return fontid;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -397,7 +396,7 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
                 uint8_t * p;
                 while ( height-- ) {
                     p = ( uint8_t * ) ( data + height * pitch );
-                    for ( x = width; x > 0 && !( p[ x >> 3 ] & ( 0x80 >> ( x & 3 ) ) ); x++ );
+                    for ( x = width; x > 0 && !( p[ x >> 3 ] & ( 0x80 >> ( x & 3 ) ) ); x-- );
                     if ( max < x ) max = x;
                 }
                 return ( max < 4 ) ? 4 : max;
@@ -407,7 +406,7 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
                 uint8_t * p;
                 while ( height-- ) {
                     p = ( uint8_t * ) ( data + height * pitch + width - 1 );
-                    for ( x = width; x > 0 && !*p++; x-- );
+                    for ( x = width; x > 0 && !*p--; x-- );
                     if ( max < x ) max = x;
                 }
                 return ( !max ) ? width * 65 / 100 : max;
@@ -416,8 +415,8 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
         case    16: {
                 uint16_t * p;
                 while ( height-- ) {
-                    p = ( uint16_t * ) ( data + height * pitch + width - 1 );
-                    for ( x = width; x > 0 && !*p++; x-- );
+                    p = ( ( uint16_t * ) ( data + height * pitch ) ) + width - 1;
+                    for ( x = width; x > 0 && !*p--; x-- );
                     if ( max < x ) max = x;
                 }
                 return ( !max ) ? width * 65 / 100 : max;
@@ -426,8 +425,8 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
         case    32: {
                 uint32_t * p;
                 while ( height-- ) {
-                    p = ( uint32_t * ) ( data + height * pitch + width - 1 );
-                    for ( x = width; x > 0 && !*p++; x-- );
+                    p = ( ( uint32_t * ) ( data + height * pitch ) ) + width - 1;
+                    for ( x = width; x > 0 && !*p--; x-- );
                     if ( max < x ) max = x;
                 }
                 return ( !max ) ? width * 65 / 100 : max;
@@ -461,20 +460,34 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
  *
  */
 
+#ifdef USE_NATIVE_SDL2
 int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
+#else
+int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
+#endif
     FONT * f;
     char * chardata, * charptr;
-    int64_t i, idx, id;
-    int charsize;
+    int i, idx, id;
+    int charrowsize, charcolsize;
     int w, h, cw, ch;
+    SDL_Surface * surface;
+#ifdef USE_NATIVE_SDL2
+    surface = map->surface;
+#endif
 
     if ( ( id = gr_font_new( charset ) ) == -1 ) return -1;
+
+#ifndef USE_NATIVE_SDL2
+    if ( !source ) surface = GPU_CopySurfaceFromImage( map->image );
+    else surface = source;
+#endif
 
     f = fonts[ id ];
 
     f->fontmap = map;
 
-    charsize = map->surface->pitch * height;
+    charrowsize = surface->pitch * height;
+    charcolsize = surface->format->BytesPerPixel * width;
 
     ch = map->height / height;
     cw = map->width / width;
@@ -486,15 +499,19 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, in
         if ( (  charmap && !charmap[ i ] ) ||
              ( !charmap && i > last      ) ) break;
 
-        chardata = map->surface->pixels + h * charsize;
+        chardata = surface->pixels + h * charrowsize;
 
-        for ( charptr = chardata, w = 0; w < cw; w++, charptr += map->surface->pitch, i++ ) {
+        for ( charptr = chardata, w = 0; w < cw; w++, charptr += charcolsize, i++ ) {
             int align = 0;
 
             idx = ( charmap ) ? charmap[ i ] : i;
 
             if ( options != NFB_FIXEDWIDTH )
-                align = align_bitmap_char_left( ( unsigned char * ) charptr, width, height, map->surface->pitch, map->surface->format->BitsPerPixel );
+                align = align_bitmap_char_left( ( ( unsigned char * ) charptr ),
+                                                    width,
+                                                    height,
+                                                    surface->pitch,
+                                                    surface->format->BitsPerPixel );
 
             f->glyph[ idx ].fontsource.x = w * width + align;
             f->glyph[ idx ].fontsource.y = h * height;
@@ -504,13 +521,28 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, in
             f->glyph[ idx ].yoffset = 0;
 
             if ( options != NFB_FIXEDWIDTH ) {
-                int ww = get_bitmap_char_width( map->surface->pixels + map->surface->pitch * f->glyph[ idx ].fontsource.y + f->glyph[ idx ].fontsource.x * map->surface->format->BytesPerPixel,
+                int delta1 = 0, delta2 = 1,
+                    ww = get_bitmap_char_width( surface->pixels +
+                                                surface->pitch                 * ( ( int ) f->glyph[ idx ].fontsource.y ) +
+                                                surface->format->BytesPerPixel * ( ( int ) f->glyph[ idx ].fontsource.x ),
                                                 width - align,
                                                 height,
-                                                map->surface->pitch,
-                                                map->surface->format->BitsPerPixel );
-                f->glyph[ idx ].fontsource.w = ww;
-                f->glyph[ idx ].xadvance = ww + 1;
+                                                surface->pitch,
+                                                surface->format->BitsPerPixel );
+
+               if ( ww & 1 ) {
+                    if ( ( ww + align ) < width ) {
+                        ww++;
+                        delta2 = 0;
+                    } else if ( align > 0 ) {
+                        f->glyph[ idx ].fontsource.x--;
+                        f->glyph[ idx ].xoffset = -1;
+                        delta1 = 1;
+                    } /* else bad font format */
+                }
+
+                f->glyph[ idx ].fontsource.w = ww + delta1;
+                f->glyph[ idx ].xadvance = ww + delta2;
             }
             else
                 f->glyph[ idx ].xadvance = width;
@@ -523,8 +555,11 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, in
     f->maxwidth = width;
     f->maxheight = height;
 
+    if ( !source ) SDL_FreeSurface( surface );
+
     return id;
 }
+
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -562,29 +597,35 @@ int gr_font_systemfont() {
                                                         gPixelFormat->Bmask,
                                                         gPixelFormat->Amask
                                                     );
+
     if ( !surface ) return 0;
 //    SDL_SetColorKey( surface, SDL_TRUE, 0 );
 
     GRAPH *map = bitmap_new( 0, 0, 0, surface );
-    SDL_FreeSurface( surface );
-    if ( !map ) return 0;
+    if ( !map ) {
+        SDL_FreeSurface( surface );
+        return 0;
+    }
 
     bitmap_add_cpoint( map, 0, 0 );
 
-    int last_count = font_count;
-    if ( fonts[0] ) gr_font_destroy( 0 );
-    font_count = 0;
+    int fontid;
 
-    gr_font_new_from_bitmap( map, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
-    if ( last_count ) font_count = last_count;
+#ifdef USE_NATIVE_SDL2
+    fontid = gr_font_new_from_bitmap( map, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
+#else
+    fontid = gr_font_new_from_bitmap( map, surface, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
+#endif
+
+    SDL_FreeSurface( surface );
+
+    if ( fontid == -1 ) return -1;
+
+    if ( fonts[ 0 ] && fonts[ 0 ] != ( FONT * ) -1 ) gr_font_destroy( 0 );
+    fonts[ 0 ] = fonts[ fontid ];
+    fonts[ fontid ] = NULL;
 
     return 1;
-}
-
-/* --------------------------------------------------------------------------- */
-
-void gr_font_init() {
-    gr_font_systemfont();
 }
 
 /* --------------------------------------------------------------------------- */
@@ -603,17 +644,16 @@ void gr_font_init() {
 
 void gr_font_destroy( int64_t fontid ) {
     int n;
-    if ( fontid < 0 || fontid >= font_count || !fonts[ fontid ] ) return;
+    if ( fontid < 0 || fontid >= MAX_FONTS || !fonts[ fontid ] ) return;
 
     if ( fonts[ fontid ]->fontmap )
         bitmap_destroy( fonts[ fontid ]->fontmap );
     else
-        for ( n = 0; n < MAX_FONTS; n++ )
+        for ( n = 0; n < MAX_GLYPH; n++ )
             bitmap_destroy( fonts[ fontid ]->glyph[ n ].glymap );
 
     free( fonts[ fontid ] );
     fonts[ fontid ] = NULL;
-    while ( font_count > 0 && fonts[ font_count - 1 ] == 0 ) font_count--;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -632,7 +672,14 @@ void gr_font_destroy( int64_t fontid ) {
 
 FONT * gr_font_get( int64_t id ) {
     if ( id < 0 || id >= MAX_FONTS ) return NULL;
+    if ( !id && ( !fonts[ 0 ] || fonts[ 0 ] == ( FONT * ) -1 ) ) gr_font_systemfont();
     return fonts[ id ];
+}
+
+/* --------------------------------------------------------------------------- */
+
+void gr_font_init() {
+    fonts[ 0 ] = ( FONT * ) -1;
 }
 
 /* --------------------------------------------------------------------------- */

@@ -147,6 +147,7 @@ static int64_t gr_read_lib( file * fp ) {
         }
         free( colors );
         SDL_SetPaletteColors( pal, (const SDL_Color *)cl, 0, 256 );
+        free( cl );
     }
 
     uint32_t rmask, gmask, bmask, amask;
@@ -281,8 +282,6 @@ static int64_t gr_font_loadfrom( file * fp ) {
 
     _chardata chardata[256];
 
-    if ( font_count == MAX_FONTS ) return -1;
-
     /* Read the file header */
 
     if ( file_read( fp, header, sizeof( header ) ) != sizeof( header ) ) return -1;
@@ -322,6 +321,7 @@ static int64_t gr_font_loadfrom( file * fp ) {
         }
         free( colors );
         SDL_SetPaletteColors( pal, (const SDL_Color *)cl, 0, 256 );
+        free( cl );
     }
 
     /* Read the character data (detect old format) */
@@ -477,193 +477,6 @@ static int64_t gr_font_loadfrom( file * fp ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/*
- *  FUNCTION : gr_load_bdf
- *
- *  Load a BDF font from disk. This is a very simple loader that ignores
- *  anything that is not relevant to screen display or non-horizontal
- *  writing fonts.
- *
- *  PARAMS :
- *  filename  Name of the BDF file
- *
- *  RETURN VALUE :
- *      ID of the font if succeded or -1 otherwise
- *
- */
-#if 0
-int gr_load_bdf( const char * filename )
-{
-    if ( !filename ) return -1;
-
-    file * fp;
-    char line[2048];
-    uint8_t * ptr, * optr;
-    FONT * font;
-    int id, x, y, i;
-    int error = 0;
-
-    uint8_t nibbleh[256];
-    uint8_t nibblel[256];
-
-    int default_xadvance = 0;
-    int default_yadvance = 0;
-    int in_char = 0;
-    int encoding = -1;
-    int width = 0;
-    int height = 0;
-    int xoffset = 0;
-    int yoffset = 0;
-    int xadvance = 0;
-    int yadvance = 0;
-    int minyoffset = 0;
-    int len;
-
-    /* Arrays used to convert hex ASCII to binary */
-
-    memset( nibbleh, 0, 256 );
-    memset( nibblel, 0, 256 );
-
-    for ( i = '0'; i <= '9'; i++ )
-    {
-        nibbleh[i] = (( i - '0' ) << 4 );
-        nibblel[i] = i - '0';
-    }
-    for ( i = 10; i <= 15; i++ )
-    {
-        nibbleh['A' + i - 10] = ( i << 4 );
-        nibbleh['a' + i - 10] = ( i << 4 );
-        nibblel['A' + i - 10] = i;
-        nibblel['a' + i - 10] = i;
-    }
-
-    /* Open the file and create the font */
-
-    fp = file_open( filename, "r" );
-    if ( !fp ) return -1;
-
-    id = gr_font_new( CHARSET_ISO8859, 1 );
-    if ( id < 0 ) return -1;
-    font = fonts[id];
-    font->maxwidth = 0;
-    font->maxheight = 0;
-
-    /* Process the file, a line each time */
-
-    for ( line[2047] = 0;; )
-    {
-        if ( !( len = file_gets( fp, line, 2047 ) ) ) break;
-        if ( line[len-1] == '\n' ) line[len-1] = '\0';
-
-        /* Handle global-level commands */
-
-        if ( strncmp( line, "DWIDTH ", 7 ) == 0 && !in_char )
-        {
-            default_xadvance = atoi( line + 7 );
-            ptr = ( uint8_t * ) strchr( line + 7, ' ' );
-            if ( ptr ) default_yadvance = atoi( ( char * ) ptr + 1 );
-        }
-        else if ( strncmp( line, "STARTCHAR", 9 ) == 0 )
-        {
-            in_char = 1;
-            encoding = -1;
-            height = 0;
-            xadvance = default_xadvance;
-            yadvance = default_yadvance;
-        }
-        else if ( strncmp( line, "ENDCHAR", 7 ) == 0 )
-        {
-            in_char = 0;
-        }
-
-        /* Handle character-level commands */
-
-        else if ( strncmp( line, "DWIDTH ", 7 ) == 0 && in_char )
-        {
-            xadvance = atoi( line + 7 );
-            ptr = ( uint8_t * ) strchr( line + 7, ' ' );
-            if ( ptr ) yadvance = atoi( ( char * ) ptr + 1 );
-        }
-        else if ( strncmp( line, "ENCODING ", 9 ) == 0 && in_char )
-        {
-            encoding = atoi( line + 9 );
-            if ( encoding == -1 )
-            {
-                ptr = ( uint8_t * ) strchr( line + 7, ' ' );
-                if ( ptr ) encoding = atoi( ( char * ) ptr + 1 );
-            }
-        }
-        else if ( strncmp( line, "BBX ", 4 ) == 0 && in_char )
-        {
-            width = atoi( ( char * ) line + 4 );
-            if ( width & 7 ) width = ( width & ~7 ) + 8;
-            if (( ptr = ( uint8_t * ) strchr( ( char * ) line + 4, ' ' ) ) == NULL ) continue;
-            height = atoi( ( char * ) ptr + 1 );
-            if (( ptr = ( uint8_t * ) strchr( ( char * ) ptr + 1, ' ' ) ) == NULL ) continue;
-            xoffset = atoi( ( char * ) ptr + 1 );
-            if (( ptr = ( uint8_t * ) strchr( ( char * ) ptr + 1, ' ' ) ) == NULL ) continue;
-            yoffset = atoi( ( char * ) ptr + 1 );
-        }
-        else if ( strncmp( line, "BITMAP", 6 ) == 0 )
-        {
-            /* Read bitmap data */
-            if ( encoding >= 0 && encoding < 256 && height > 0 )
-            {
-                font->glyph[encoding].xadvance = xadvance;
-                font->glyph[encoding].yadvance = yadvance;
-                font->glyph[encoding].xoffset  = xoffset;
-                font->glyph[encoding].yoffset  = -yoffset - height;
-
-                if ( minyoffset > -yoffset - height ) minyoffset = -yoffset - height;
-
-                error = 1;
-                font->glyph[encoding].bitmap = bitmap_new( encoding, width, height, 1 );
-                if ( font->glyph[encoding].bitmap == 0 ) break;
-                bitmap_add_cpoint( font->glyph[encoding].bitmap, 0, 0 );
-
-                if ( font->maxwidth < width ) font->maxwidth = width;
-                if ( font->maxheight < height ) font->maxheight = height;
-
-                for ( y = 0; y < height; y++ )
-                {
-                    if ( !( len = file_gets( fp, line, 2047 ) ) ) break;
-                    if ( line[len-1] == '\n' ) line[len-1] = '\0';
-                    ptr  = ( uint8_t * ) line;
-                    optr = ( uint8_t * ) font->glyph[encoding].bitmap->data + font->glyph[encoding].bitmap->pitch * y;
-
-                    for ( x = 0; x < width; x += 8 )
-                    {
-                        if ( !ptr[0] || !ptr[1] ) break;
-                        *optr++ = nibbleh[ptr[0]] | nibblel[ptr[1]];
-                        ptr += 2;
-                    }
-                }
-                if ( y != height ) break;
-                error = 0;
-            }
-        }
-    }
-
-    file_close( fp );
-
-    if ( error )
-    {
-        gr_font_destroy( id );
-        return -1;
-    }
-
-    /* Adjust yoffsets to positive */
-
-    for ( i = 0; i < 256; i++ ) font->glyph[i].yoffset -= minyoffset;
-
-    if ( font->glyph[32].xadvance == 0 ) font->glyph[32].xadvance = font->glyph['j'].xadvance;
-
-//    fonts[font_count] = font;
-    return id /* font_count++ */;
-}
-#endif
-
-/* --------------------------------------------------------------------------- */
 
 static GRAPH * gr_read_map( file * fp ) {
     char header[8], name[32];
@@ -718,6 +531,7 @@ static GRAPH * gr_read_map( file * fp ) {
         }
         free( colors );
         SDL_SetPaletteColors( pal, (const SDL_Color *)cl, 0, 256 );
+        free( cl );
     }
 
     /* Control points */

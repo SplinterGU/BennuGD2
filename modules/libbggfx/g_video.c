@@ -67,9 +67,16 @@ int renderer_height = 0;
 
 //The window we'll be rendering to
 SDL_Window * gWindow = NULL;
+
+#ifdef USE_NATIVE_SDL2
 SDL_Renderer * gRenderer = NULL;
+#else
+GPU_Target * gRenderer = NULL;
+#endif
+
 SDL_RendererInfo gRendererInfo = { 0 };
 SDL_PixelFormat * gPixelFormat = NULL;
+SDL_Surface * gIcon = NULL;
 
 /*
 SDL_RendererInfo
@@ -133,7 +140,16 @@ static void show_renderer_info( SDL_RendererInfo * ri ) {
 /* --------------------------------------------------------------------------- */
 
 int gr_set_icon( GRAPH * map ) {
-    if ( gWindow ) SDL_SetWindowIcon( gWindow, map->surface);
+    if ( gWindow ) {
+#ifdef USE_NATIVE_SDL2
+        gIcon = map->surface;
+#else
+        if ( gIcon ) SDL_FreeSurface( gIcon );
+        gIcon = GPU_CopySurfaceFromImage( map->image );
+#endif
+        SDL_SetWindowIcon( gWindow, gIcon );
+    }
+
     return 1;
 }
 
@@ -176,6 +192,7 @@ int gr_set_mode( int width, int height, int flags ) {
         renderer_height = ( int ) scale_resolution % 10000L ;
     }
 
+#ifdef USE_NATIVE_SDL2
     SDL_SetHint( SDL_HINT_RENDER_VSYNC, waitvsync ? "1" : "0" );
 
     if ( !gWindow ) {
@@ -215,19 +232,53 @@ int gr_set_mode( int width, int height, int flags ) {
     } else {
         SDL_GL_SetSwapInterval( 0 );
     }
+#else
+    if ( !gRenderer ) {
+        // Create Renderer
+        int sdl_flags = SDL_WINDOW_SHOWN;
+        if ( frameless ) sdl_flags |= SDL_WINDOW_BORDERLESS;
+        if ( fullscreen ) sdl_flags |= SDL_WINDOW_FULLSCREEN;
+        if ( grab_input ) sdl_flags |= SDL_WINDOW_INPUT_GRABBED;
 
+/*typedef Uint32 GPU_InitFlagEnum;
+static const GPU_InitFlagEnum GPU_INIT_ENABLE_VSYNC = 0x1;
+static const GPU_InitFlagEnum GPU_INIT_DISABLE_VSYNC = 0x2;
+static const GPU_InitFlagEnum GPU_INIT_DISABLE_DOUBLE_BUFFER = 0x4;
+static const GPU_InitFlagEnum GPU_INIT_DISABLE_AUTO_VIRTUAL_RESOLUTION = 0x8;
+static const GPU_InitFlagEnum GPU_INIT_REQUEST_COMPATIBILITY_PROFILE = 0x10;
+static const GPU_InitFlagEnum GPU_INIT_USE_ROW_BY_ROW_TEXTURE_UPLOAD_FALLBACK = 0x20;
+static const GPU_InitFlagEnum GPU_INIT_USE_COPY_TEXTURE_UPLOAD_FALLBACK = 0x40;
+*/
+
+GPU_SetPreInitFlags(( GPU_GetPreInitFlags() & ~GPU_INIT_ENABLE_VSYNC ) | GPU_INIT_DISABLE_VSYNC);
+
+        gRenderer = GPU_Init( renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
+        if( gRenderer == NULL ) return -1;
+        gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
+
+    } else {
+    }
+
+    if ( !gRenderer ) {
+    }
+
+#endif
     current.w = renderer_width;
     current.h = renderer_height;
 
     //Initialize renderer color
+#ifdef USE_NATIVE_SDL2
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );
+#else
+    GPU_Clear( gRenderer );
+#endif
 
     scr_initialized = 1 ;
 
     SDL_ShowCursor( 0 ) ;
 
+#ifdef USE_NATIVE_SDL2
 //    SDL_GetRendererOutputSize( gRenderer, &renderer_width, &renderer_height );
-
     if ( renderer_width != width || renderer_height != height ) {
         switch ( scale_resolution_aspectratio ) {
             case SRA_PRESERVE:
@@ -254,7 +305,7 @@ int gr_set_mode( int width, int height, int flags ) {
         SDL_RenderSetLogicalSize( gRenderer, width, height );
 
     }
-
+#endif
     scr_width = width;
     scr_height = height;
 
@@ -293,8 +344,12 @@ void gr_video_init() {
 
 void gr_video_exit() {
     if ( gPixelFormat ) SDL_FreeFormat( gPixelFormat );
+#ifdef USE_NATIVE_SDL2
     if ( gRenderer ) SDL_DestroyRenderer( gRenderer );
     if ( gWindow ) SDL_DestroyWindow( gWindow );
+#else
+    GPU_FreeTarget( gRenderer );
+#endif
 
     if ( SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_QuitSubSystem( SDL_INIT_VIDEO );
 }

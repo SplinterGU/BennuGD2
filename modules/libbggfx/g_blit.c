@@ -35,6 +35,11 @@
 
 #include <SDL.h>
 
+#ifndef USE_NATIVE_SDL2
+#include <SDL_gpu.h>
+#endif
+
+
 #include "bgddl.h"
 #include "libbggfx.h"
 #include "dlvaracc.h"
@@ -42,6 +47,8 @@
 // #define __DISABLE_PALETTES__
 
 /* --------------------------------------------------------------------------- */
+
+#ifdef USE_NATIVE_SDL2
 
 static int inline gr_update_texture( GRAPH * gr ) {
     SDL_Surface * surface;
@@ -73,6 +80,7 @@ static int inline gr_update_texture( GRAPH * gr ) {
 
     return 0;
 }
+#endif
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -94,10 +102,10 @@ static int inline gr_update_texture( GRAPH * gr ) {
 int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMode * blend_mode ) {
 
     if ( dest ) {
+#ifdef USE_NATIVE_SDL2
         if ( !dest->surface ) {
             dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
             if ( !dest->surface ) return 1;
-//            SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
         }
 
         if ( !dest->texture ) {
@@ -112,8 +120,20 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
             dest->type = BITMAP_TEXTURE_TARGET;
         }
         else if ( dest->type != BITMAP_TEXTURE_TARGET ) return 1;
+#else
+        if ( !dest->image ) dest->image = GPU_CreateImage( dest->width, dest->height, GPU_FORMAT_RGBA );
+        if ( !dest->image ) {
+            printf ("error creando image destination\n" );
+            return 1;
+        }
+
+        if ( !dest->image->target ) {
+            GPU_LoadTarget( dest->image );
+        }
+#endif
     }
 
+#ifdef USE_NATIVE_SDL2
          if ( flags & B_NOCOLORKEY )    * blend_mode = SDL_BLENDMODE_NONE;  //Disable blending on texture
     else if ( flags & B_ABLEND     )    * blend_mode = SDL_BLENDMODE_ADD;   //Additive blending on texture
     else if ( flags & B_MBLEND     )    * blend_mode = SDL_BLENDMODE_MOD;   //Modulate blending on texture
@@ -121,6 +141,44 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
         * blend_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT);
     }
     else                                * blend_mode = SDL_BLENDMODE_BLEND; //Enable blending on texture
+#else
+#if 0
+/*! Gets the current alpha blending setting. */
+DECLSPEC GPU_bool SDLCALL GPU_GetBlending(GPU_Image* image);
+
+/*! Enables/disables alpha blending for the given image. */
+DECLSPEC void SDLCALL GPU_SetBlending(GPU_Image* image, GPU_bool enable);
+
+/*! Sets the blending component functions. */
+DECLSPEC void SDLCALL GPU_SetBlendFunction(GPU_Image* image, GPU_BlendFuncEnum source_color, GPU_BlendFuncEnum dest_color, GPU_BlendFuncEnum source_alpha, GPU_BlendFuncEnum dest_alpha);
+
+/*! Sets the blending component equations. */
+DECLSPEC void SDLCALL GPU_SetBlendEquation(GPU_Image* image, GPU_BlendEqEnum color_equation, GPU_BlendEqEnum alpha_equation);
+
+/*! Sets the blending mode, if supported by the renderer. */
+DECLSPEC void SDLCALL GPU_SetBlendMode(GPU_Image* image, GPU_BlendPresetEnum mode);
+
+    GPU_BLEND_NORMAL = 0,
+    GPU_BLEND_PREMULTIPLIED_ALPHA = 1,
+    GPU_BLEND_MULTIPLY = 2,
+    GPU_BLEND_ADD = 3,
+    GPU_BLEND_SUBTRACT = 4,
+    GPU_BLEND_MOD_ALPHA = 5,
+    GPU_BLEND_SET_ALPHA = 6,
+    GPU_BLEND_SET = 7,
+    GPU_BLEND_NORMAL_KEEP_ALPHA = 8,
+    GPU_BLEND_NORMAL_ADD_ALPHA = 9,
+    GPU_BLEND_NORMAL_FACTOR_ALPHA = 10
+
+#endif
+#if 0
+         if ( flags & B_NOCOLORKEY )    * blend_mode = GPU_BLEND_NORMAL;    //Disable
+    else if ( flags & B_ABLEND     )    * blend_mode = GPU_BLEND_ADD;       //Additive
+    else if ( flags & B_MBLEND     )    * blend_mode = GPU_BLEND_SUBTRACT;  //Modulate
+    else if ( flags & B_SBLEND     )    * blend_mode = GPU_BLEND_SUBTRACT;  //Substract
+    else                                * blend_mode = SDL_BLENDMODE_BLEND; //Enable blending on texture
+#endif
+#endif
 
     SDL_Rect rect;
 
@@ -141,10 +199,13 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
         }
     }
 
+#ifdef USE_NATIVE_SDL2
     if ( dest ) SDL_SetRenderTarget( gRenderer, dest->texture );
 //    if ( dest ) { SDL_SetRenderTarget( gRenderer, dest->texture ); SDL_SetTextureBlendMode( dest->texture, SDL_BLENDMODE_NONE ); }
 
     SDL_RenderSetClipRect( gRenderer, &rect );
+#else
+#endif
 
     return 0;
 }
@@ -169,8 +230,7 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
  *
  */
 
-void gr_blit(
-                GRAPH * dest,
+void gr_blit(   GRAPH * dest,
                 REGION * clip,
                 double scrx,
                 double scry,
@@ -179,16 +239,24 @@ void gr_blit(
                 double scalex,
                 double scaley,
                 GRAPH * gr,
+#ifdef USE_NATIVE_SDL2
                 SDL_Rect * gr_clip,
+#else
+                GPU_Rect * gr_clip,
+#endif
                 uint8_t alpha,
                 uint8_t color_r,
                 uint8_t color_g,
                 uint8_t color_b
             ) {
-    if ( !gr || !gr->surface ) return;
+    if ( !gr ) return;
+
+#ifdef USE_NATIVE_SDL2
+    if ( !gr->surface ) return;
+#endif
 
     if ( scalex <= 0.0 || scaley <= 0.0 ) return;
-
+#if 0
     if ( !gr->texture && !gr->segments ) {
 
         if ( gr->width > gRendererInfo.max_texture_width || gr->height > gRendererInfo.max_texture_height ) {
@@ -219,8 +287,8 @@ void gr_blit(
                     gr->segments[seg].offy = offy;
                     if ( x + 1 == nsegx )   w = gr->width % gRendererInfo.max_texture_width;
                     else                    w = gRendererInfo.max_texture_width;
-                    gr->segments[seg].w = w;
-                    gr->segments[seg].h = h;
+                    gr->segments[seg].width = w;
+                    gr->segments[seg].height = h;
                     gr->segments[seg].texture = SDL_CreateTexture( gRenderer, SDL_PIXELFORMAT_ARGB8888 /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, w, h );
                     if ( !gr->segments[seg].texture ) {
                         printf ("error creando multi textura RO [%s]\n", SDL_GetError() );
@@ -272,13 +340,13 @@ void gr_blit(
                     gr->segments[seg0 + gr->nsegments * 2].offy = offy2;
                     gr->segments[seg0 + gr->nsegments * 3].offy = offy3;
 
-                    offx1 += gr->segments[seg1].w;
-                    offx2 += gr->segments[seg2].w;
-                    offx3 += gr->segments[seg3].w;
+                    offx1 += gr->segments[seg1].width;
+                    offx2 += gr->segments[seg2].width;
+                    offx3 += gr->segments[seg3].width;
                 }
-                offy1 += gr->segments[seg1].h;
-                offy2 += gr->segments[seg2].h;
-                offy3 += gr->segments[seg3].h;
+                offy1 += gr->segments[seg1].height;
+                offy2 += gr->segments[seg2].height;
+                offy3 += gr->segments[seg3].height;
             }
 
         } else {
@@ -292,8 +360,9 @@ void gr_blit(
         }
         gr->type = BITMAP_TEXTURE_STATIC;
     }
-
     if ( gr->texture && gr->texture_must_update ) gr_update_texture(gr);
+#else
+#endif
 
     SDL_BlendMode blend_mode;
 
@@ -325,6 +394,7 @@ void gr_blit(
     scalex_adjusted = scalex / 100.0;
     scaley_adjusted = scaley / 100.0;
 
+#ifdef USE_NATIVE_SDL2
     if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
         int64_t cx = gr->cpoints[0].x, cy = gr->cpoints[0].y;
 
@@ -337,6 +407,20 @@ void gr_blit(
         centerx = scalex_adjusted * w / 2.0;
         centery = scaley_adjusted * h / 2.0;
     }
+#else
+    if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
+        int64_t cx = gr->cpoints[0].x, cy = gr->cpoints[0].y;
+
+        if ( flags & B_HMIRROR ) cx = gr->width - cx - 1;
+        if ( flags & B_VMIRROR ) cy = gr->height - cy - 1;
+
+        centerx = cx;
+        centery = cy;
+    } else {
+        centerx = w / 2.0;
+        centery = h / 2.0;
+    }
+#endif
 
     if ( gr->segments ) {
         SDL_Texture * tex;
@@ -349,24 +433,31 @@ void gr_blit(
             double  offx = gr->segments[ i ].offx * scalex_adjusted,
                     offy = gr->segments[ i ].offy * scaley_adjusted;
 
+#ifdef USE_NATIVE_SDL2
             tex = gr->segments[ i ].texture;
-
+#else
+#endif
             center.x = centerx - offx;
             center.y = centery - offy;
 
             dstrect.x = scrx - centerx + offx;
             dstrect.y = scry - centery + offy;
-            dstrect.w = scalex_adjusted * gr->segments[ i ].w; // Calculate dest region according texture
-            dstrect.h = scaley_adjusted * gr->segments[ i ].h; // Calculate dest region according texture
+            dstrect.w = scalex_adjusted * gr->segments[ i ].width; // Calculate dest region according texture
+            dstrect.h = scaley_adjusted * gr->segments[ i ].height; // Calculate dest region according texture
 
+#ifdef USE_NATIVE_SDL2
             SDL_SetTextureBlendMode( tex, blend_mode );
             SDL_SetTextureAlphaMod( tex, alpha );
             SDL_SetTextureColorMod( tex, color_r, color_g, color_b );
 
             //Render
             SDL_RenderCopyEx( gRenderer, tex, gr_clip, &dstrect, angle / -1000.0, &center, flip );
+#else
+#endif
+
         }
     } else {
+#ifdef USE_NATIVE_SDL2
         center.x = centerx;
         center.y = centery;
 
@@ -381,9 +472,14 @@ void gr_blit(
 
         //Render
         SDL_RenderCopyEx( gRenderer, gr->texture, gr_clip, &dstrect, angle / -1000.0, &center, flip );
+#else
+        GPU_BlitTransformX( gr->image, gr_clip, dest ? dest->image->target : gRenderer, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
+#endif
     }
 
+#ifdef USE_NATIVE_SDL2
     if ( dest ) SDL_SetRenderTarget( gRenderer, NULL );
+#endif
 
 }
 
@@ -407,8 +503,21 @@ void gr_blit(
  *
  */
 
-static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen_y, int64_t flags, int64_t angle, double scalex, double scaley, SDL_Point * corners, SDL_Rect * map_clip ) {
-    int64_t center_x, center_y, sx = 1, sy = -1;
+static void gr_calculate_corners( GRAPH * dest,
+                                  int64_t screen_x,
+                                  int64_t screen_y,
+                                  int64_t flags,
+                                  int64_t angle,
+                                  double scalex,
+                                  double scaley,
+                                  SDL_Point * corners,
+#ifdef USE_NATIVE_SDL2
+                                  SDL_Rect * map_clip
+#else
+                                  GPU_Rect * map_clip
+#endif
+                                  ) {
+    double center_x, center_y, sx = 1, sy = -1;
     int64_t width = dest->width, height = dest->height;
 
     if ( scalex < 0.0 ) scalex = 0.0;
@@ -480,7 +589,21 @@ static void gr_calculate_corners( GRAPH * dest, int64_t screen_x, int64_t screen
  *
  */
 
-void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * map_clip ) {
+void gr_get_bbox( REGION * dest,
+                  REGION * clip,
+                  double x,
+                  double y,
+                  int64_t flags,
+                  int64_t angle,
+                  double scalex,
+                  double scaley,
+                  GRAPH * gr,
+#ifdef USE_NATIVE_SDL2
+                  SDL_Rect * map_clip
+#else
+                  GPU_Rect * map_clip
+#endif
+    ) {
     SDL_Point corners[4];
     SDL_Point min, max;
     int i;

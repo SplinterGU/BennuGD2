@@ -96,7 +96,12 @@ GRAPH * instance_graph( INSTANCE * i ) {
 void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest ) {
     REGION *region;
     int64_t x, y, r, scalex, scaley;
-    SDL_Rect *map_clip = NULL, _map_clip;
+#ifdef USE_NATIVE_SDL2
+    SDL_Rect
+#else
+    GPU_Rect
+#endif
+    * map_clip = NULL, _map_clip;
 
     r = LOCINT64( libbggfx, i, REGIONID );
     if ( r > 0 && r < MAX_REGIONS ) region = &regions[ r ];
@@ -138,7 +143,12 @@ void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest ) {
 void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAPH * dest ) {
     GRAPH * map;
     int64_t flags, scalex, scaley;
-    SDL_Rect *map_clip = NULL, _map_clip;
+#ifdef USE_NATIVE_SDL2
+    SDL_Rect
+#else
+    GPU_Rect
+#endif
+    *map_clip = NULL, _map_clip;
     uint8_t alpha, color_r, color_g, color_b;
 
     alpha = LOCBYTE( libbggfx, i, ALPHA );
@@ -175,7 +185,12 @@ void draw_instance( void * what, REGION * clip ) {
     GRAPH * map, * map_dst = NULL;
     int64_t flags, scalex, scaley, x, y, r;
     REGION region;
-    SDL_Rect *map_clip = NULL, _map_clip;
+#ifdef USE_NATIVE_SDL2
+    SDL_Rect
+#else
+    GPU_Rect
+#endif
+    *map_clip = NULL, _map_clip;
     uint8_t alpha, color_r, color_g, color_b, c;
 
     alpha = LOCBYTE( libbggfx, i, ALPHA );

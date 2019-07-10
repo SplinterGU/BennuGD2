@@ -1227,12 +1227,21 @@ static void create_debug_sysfont() {
 //    SDL_SetColorKey( surface, SDL_TRUE, 0 );
 
     GRAPH *map = bitmap_new( 0, 0, 0, surface );
-    SDL_FreeSurface( surface );
-    if ( !map ) return;
+    if ( !map ) {
+        SDL_FreeSurface( surface );
+        return;
+    }
 
     bitmap_add_cpoint( map, 0, 0 );
 
+#ifdef USE_NATIVE_SDL2
     debug_sysfont = gr_font_new_from_bitmap( map, CHARSET_CP850, CHARWIDTH, CHARHEIGHT, 0, 0, NFB_FIXEDWIDTH, letters );
+#else
+    debug_sysfont = gr_font_new_from_bitmap( map, surface, CHARSET_CP850, CHARWIDTH, CHARHEIGHT, 0, 0, NFB_FIXEDWIDTH, letters );
+#endif
+
+    SDL_FreeSurface( surface );
+
 }
 
 /* --------------------------------------------------------------------------- */

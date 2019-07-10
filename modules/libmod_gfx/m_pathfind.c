@@ -65,7 +65,7 @@ static node * found = NULL ;
 static int destination_x, destination_y ;
 static int startup_x, startup_y ;
 
-static GRAPH * pf_map = NULL ;
+static SDL_Surface * pf_surface = NULL ;
 
 static int block_if = 1 ;
 
@@ -73,11 +73,11 @@ static int block_if = 1 ;
 
 static double heuristic( int x, int y ) {
     int dx, dy ;
-    uint8_t block = (( uint8_t * ) pf_map->surface->pixels )[ pf_map->surface->pitch * y + x ];
+    uint8_t block = (( uint8_t * ) pf_surface->pixels )[ pf_surface->pitch * y + x ];
 
     if ( x == destination_x && y == destination_y ) return 0 ;
     if ( block >= block_if ) return 1073741824.0 ;
-    if ( x < 0 || y < 0 || x >= ( int ) pf_map->surface->w || y >= ( int ) pf_map->surface->h ) return 1073741824.0 ;
+    if ( x < 0 || y < 0 || x >= ( int ) pf_surface->w || y >= ( int ) pf_surface->h ) return 1073741824.0 ;
 
     dx = abs( destination_x - x ) ;
     dy = abs( destination_y - y ) ;
@@ -223,12 +223,12 @@ static void node_push_succesors( node * parent, int options ) {
 
 /* --------------------------------------------------------------------------- */
 
-static int path_find( GRAPH * bitmap, int sx, int sy, int dx, int dy, int options ) {
+static int path_find( SDL_Surface * surface, int sx, int sy, int dx, int dy, int options ) {
     node * curr, * inext ;
 
     startup_x = sx ;
     startup_y = sy ;
-    pf_map = bitmap ;
+    pf_surface = surface ;
     destination_x = dx ;
     destination_y = dy ;
 /*
@@ -337,8 +337,18 @@ static int path_set_wall( int n ) {
 
 int64_t libmod_gfx_path_find( INSTANCE * my, int64_t * params ) {
     GRAPH * gr = bitmap_get( params[0], params[1] ) ;
-    if ( !gr || !gr->surface || gr->surface->format->BitsPerPixel != 8 ) return 0;
-    return path_find( gr, ( int ) params[2], ( int ) params[3], ( int ) params[4], ( int ) params[5], ( int ) params[6] ) ;
+    if ( !gr ) return 0;
+    SDL_Surface * surface;
+#ifdef USE_NATIVE_SDL2
+    if ( !gr->surface || gr->surface->format->BitsPerPixel != 8 ) return 0;
+    surface = gr->surface;
+#else
+    if ( !gr->image ) return 0;
+    surface = GPU_CopySurfaceFromImage( gr->image ); // Need fix (support other resolutions or add original surface to graph)
+#endif
+    int64_t r = path_find( surface, ( int ) params[2], ( int ) params[3], ( int ) params[4], ( int ) params[5], ( int ) params[6] ) ;
+    SDL_FreeSurface( surface );
+    return r;
 }
 
 /* --------------------------------------------------------------------------- */

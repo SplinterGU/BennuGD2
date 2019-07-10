@@ -29,6 +29,12 @@
 #ifndef __G_VIDEO_H
 #define __G_VIDEO_H
 
+#include <SDL.h>
+
+#ifndef USE_NATIVE_SDL2
+#include <SDL_gpu.h>
+#endif
+
 /* --------------------------------------------------------------------------- */
 /* Graph Mode */
 #define MODE_WINDOW         0x0000
@@ -74,7 +80,11 @@ extern int renderer_width;
 extern int renderer_height;
 
 extern SDL_Window * gWindow;
+#ifdef USE_NATIVE_SDL2
 extern SDL_Renderer * gRenderer;
+#else
+extern GPU_Target * gRenderer;
+#endif
 extern SDL_RendererInfo gRendererInfo;
 extern SDL_PixelFormat * gPixelFormat;
 

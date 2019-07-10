@@ -727,7 +727,12 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
     FONT * f;
     uint8_t current_char, alpha, *r, *g, *b;
     int64_t flags;
-    SDL_Rect * fntclip = NULL;
+#ifdef USE_NATIVE_SDL2
+    SDL_Rect
+#else
+    GPU_Rect
+#endif
+    * fntclip = NULL;
     int stop = 0, idx;
     watch * working_watch = NULL;
     int8_t current_color[3] = { 0 };

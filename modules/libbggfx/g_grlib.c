@@ -295,6 +295,7 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
     if ( !libid ) {
         /* Using (0, -1) we can get the screen bitmap (undocumented bug/feature) */
         if ( mapcode == -1 ) {
+#ifdef USE_NATIVE_SDL2
             if ( scrbitmap && ( scrbitmap->width != renderer_width || scrbitmap->height != renderer_height ) ) {
                 bitmap_destroy( scrbitmap );
                 scrbitmap = NULL;
@@ -328,6 +329,17 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
                     return scrbitmap;
                 }
             }
+#else
+            SDL_Surface * surface = GPU_CopySurfaceFromTarget( gRenderer );
+            if ( !surface ) return NULL;
+
+            GRAPH * bitmap = bitmap_new( 0, 0, 0, surface );
+            if ( bitmap ) {
+                bitmap->code = bitmap_next_code();
+                grlib_add_map( 0, bitmap );
+                return bitmap ;
+            }
+#endif
             return NULL;
         }
     }

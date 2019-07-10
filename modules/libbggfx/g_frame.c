@@ -215,8 +215,12 @@ void gr_draw_frame() {
 //    SDL_RenderSetViewport( gRenderer, NULL );
 
     /* Clear screen */
+#ifdef USE_NATIVE_SDL2
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );
     SDL_RenderClear( gRenderer );
+#else
+    GPU_Clear( gRenderer );
+#endif
 
     GRAPH * background = NULL;
     int64_t background_graph = GLOQWORD( libbggfx, BACKGROUND_GRAPH );
@@ -252,9 +256,12 @@ void gr_draw_frame() {
     if ( fade_on || fade_set ) gr_fade_step();
 
     //Update screen
+#ifdef USE_NATIVE_SDL2
     SDL_RenderPresent( gRenderer );
-
     SDL_RenderSetClipRect( gRenderer, NULL );
+#else
+    GPU_Flip( gRenderer );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */

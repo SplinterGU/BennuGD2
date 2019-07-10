@@ -39,6 +39,7 @@ typedef struct _grlib {
 
 extern GRLIB * syslib;
 
+extern int64_t grlib_newid();
 extern GRAPH * bitmap_get( int64_t libid, int64_t mapcode );
 extern GRLIB * grlib_get( int64_t libid );
 extern void grlib_init();

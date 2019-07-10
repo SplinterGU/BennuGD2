@@ -288,6 +288,7 @@ void scroll_draw( int64_t n, REGION * clipping ) {
 
     dest = scrolls[n].destid ? bitmap_get( scrolls[n].destfile, scrolls[n].destid ) : NULL;
     if ( dest ) {
+#ifdef USE_NATIVE_SDL2
         /* Clear screen */
         SDL_SetRenderTarget( gRenderer, dest->texture );
 
@@ -295,6 +296,7 @@ void scroll_draw( int64_t n, REGION * clipping ) {
         SDL_RenderClear( gRenderer );
 
         SDL_SetRenderTarget( gRenderer, NULL );
+#endif
     }
 
     /* Dibuja el fondo */

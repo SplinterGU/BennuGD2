@@ -46,6 +46,7 @@
  */
 
 int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
+#ifdef USE_NATIVE_SDL2
     if ( !gr || !gr->surface ) return -1;
 
     if ( x < 0 || y < 0 || x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return -1;
@@ -64,6 +65,7 @@ int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
             return ( int64_t ) *( uint32_t * )(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 2 ) );
     }
 
+#endif
     return -1;
 }
 
@@ -88,6 +90,7 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
 
     if ( !gr ) return;
 
+#ifdef USE_NATIVE_SDL2
     if ( !gr->surface ) {
         gr->surface = SDL_CreateRGBSurface( 0, gr->width, gr->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !gr->surface ) return;
@@ -119,7 +122,7 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
             break;
 
     }
-
+#endif
 }
 
 /* --------------------------------------------------------------------------- */

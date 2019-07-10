@@ -78,7 +78,11 @@ void wm_events() {
 */
             //Repaint on exposure
             case    SDL_WINDOWEVENT_EXPOSED:
+#ifdef USE_NATIVE_SDL2
                     SDL_RenderPresent( gRenderer );
+#else
+                    GPU_Flip( gRenderer );
+#endif
                     break;
 
             //Mouse entered window

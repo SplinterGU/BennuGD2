@@ -30,6 +30,9 @@
 #define __BITMAP_H
 
 #include <SDL.h>
+#ifndef USE_NATIVE_SDL2
+#include <SDL_gpu.h>
+#endif
 
 /* --------------------------------------------------------------------------- */
 
@@ -57,16 +60,23 @@ typedef struct _bitmap {
     CPOINT          * cpoints;      /* Pointer to the control points ([0] = center) */
 
     int64_t         type;           /* surface/texture type */
+#ifdef USE_NATIVE_SDL2
     SDL_Surface     * surface;
     SDL_Texture     * texture;
-
     int64_t         texture_must_update;
+#else
+    GPU_Image       * image;
+#endif
 
     int64_t         nsegments;
     struct {
         int64_t         offx, offy;
-        int64_t         w, h;
+        int64_t         width, height;
+#ifdef USE_NATIVE_SDL2
         SDL_Texture     * texture;
+#else
+        GPU_Image       * image;
+#endif
     } * segments;
 } GRAPH;
 
