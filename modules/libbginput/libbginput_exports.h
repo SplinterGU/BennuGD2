@@ -162,7 +162,7 @@ DLCONSTANT  __bgdexport( libbginput, constants_def )[] = {
     { "STAT_NUM"                , TYPE_QWORD    , STAT_NUM          },
     { "STAT_CAPS"               , TYPE_QWORD    , STAT_CAPS         },
     { "STAT_SHIFT"              , TYPE_QWORD    , STAT_SHIFT        },
-#if 0
+
     /* Joys */
     { "JOY_HAT_CENTERED"        , TYPE_QWORD    , SDL_HAT_CENTERED  },
     { "JOY_HAT_UP"              , TYPE_QWORD    , SDL_HAT_UP        },
@@ -173,7 +173,7 @@ DLCONSTANT  __bgdexport( libbginput, constants_def )[] = {
     { "JOY_HAT_RIGHTDOWN"       , TYPE_QWORD    , SDL_HAT_RIGHTDOWN },
     { "JOY_HAT_LEFTUP"          , TYPE_QWORD    , SDL_HAT_LEFTUP    },
     { "JOY_HAT_LEFTDOWN"        , TYPE_QWORD    , SDL_HAT_LEFTDOWN  },
-#endif
+
     { NULL                      , 0             , 0                 }
 } ;
 

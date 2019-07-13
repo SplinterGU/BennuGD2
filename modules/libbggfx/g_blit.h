@@ -46,10 +46,17 @@
 
 /* --------------------------------------------------------------------------- */
 
+
+#ifdef USE_NATIVE_SDL2
+    typedef SDL_BlendMode BLENDMODE;
+#else
+    typedef GPU_BlendPresetEnum BLENDMODE;
+#endif
+
 extern int gr_prepare_renderer( GRAPH * dest,
                      REGION * clip,
                      int64_t flags,
-                     SDL_BlendMode * blend_mode );
+                     BLENDMODE * blend_mode );
 
 #ifdef USE_NATIVE_SDL2
 extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * gr_clip,

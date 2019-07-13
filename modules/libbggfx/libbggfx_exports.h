@@ -67,7 +67,6 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "B_TRANSLUCENT"       , TYPE_QWORD    , B_TRANSLUCENT         },
     { "B_ABLEND"            , TYPE_QWORD    , B_ABLEND              },
     { "B_SBLEND"            , TYPE_QWORD    , B_SBLEND              },
-    { "B_MBLEND"            , TYPE_QWORD    , B_MBLEND              },
     { "B_NOCOLORKEY"        , TYPE_QWORD    , B_NOCOLORKEY          },
 
     { "CPOINT_UNDEFINED"    , TYPE_QWORD    , CPOINT_UNDEFINED      },

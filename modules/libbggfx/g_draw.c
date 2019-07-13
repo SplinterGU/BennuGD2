@@ -47,7 +47,7 @@ uint8_t drawing_color_a = 255;
 
 /* --------------------------------------------------------------------------- */
 
-#define DRAW_PREPARE_RENDERER()    SDL_BlendMode blend_mode; \
+#define DRAW_PREPARE_RENDERER()    BLENDMODE blend_mode; \
     if ( gr_prepare_renderer( dest, clip, drawing_blend_mode, &blend_mode ) ) return; \
     SDL_SetRenderDrawBlendMode( gRenderer, blend_mode ); \
     SDL_SetRenderDrawColor( gRenderer, drawing_color_r, drawing_color_g, drawing_color_b, drawing_color_a )

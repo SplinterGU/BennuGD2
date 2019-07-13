@@ -39,7 +39,6 @@
 #include <SDL_gpu.h>
 #endif
 
-
 #include "bgddl.h"
 #include "libbggfx.h"
 #include "dlvaracc.h"
@@ -92,14 +91,14 @@ static int inline gr_update_texture( GRAPH * gr ) {
  *      dest            Destination bitmap or NULL for screen
  *      clip            Clipping region or NULL for the whole screen
  *      flags           Flags
- *      blend_mode      Ouput SDL_BlendMode
+ *      blend_mode      Ouput BLENDMODE
  *
  *  RETURN VALUE :
  *      None
  *
  */
 
-int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMode * blend_mode ) {
+int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE * blend_mode ) {
 
     if ( dest ) {
 #ifdef USE_NATIVE_SDL2
@@ -136,7 +135,6 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, SDL_BlendMo
 #ifdef USE_NATIVE_SDL2
          if ( flags & B_NOCOLORKEY )    * blend_mode = SDL_BLENDMODE_NONE;  //Disable blending on texture
     else if ( flags & B_ABLEND     )    * blend_mode = SDL_BLENDMODE_ADD;   //Additive blending on texture
-    else if ( flags & B_MBLEND     )    * blend_mode = SDL_BLENDMODE_MOD;   //Modulate blending on texture
     else if ( flags & B_SBLEND     ) {
         * blend_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT);
     }
@@ -171,13 +169,10 @@ DECLSPEC void SDLCALL GPU_SetBlendMode(GPU_Image* image, GPU_BlendPresetEnum mod
     GPU_BLEND_NORMAL_FACTOR_ALPHA = 10
 
 #endif
-#if 0
-         if ( flags & B_NOCOLORKEY )    * blend_mode = GPU_BLEND_NORMAL;    //Disable
+         if ( flags & B_NOCOLORKEY )    * blend_mode = -1;                  //Disable
     else if ( flags & B_ABLEND     )    * blend_mode = GPU_BLEND_ADD;       //Additive
-    else if ( flags & B_MBLEND     )    * blend_mode = GPU_BLEND_SUBTRACT;  //Modulate
     else if ( flags & B_SBLEND     )    * blend_mode = GPU_BLEND_SUBTRACT;  //Substract
-    else                                * blend_mode = SDL_BLENDMODE_BLEND; //Enable blending on texture
-#endif
+    else                                * blend_mode = GPU_BLEND_NORMAL;    //Enable blending on texture
 #endif
 
     SDL_Rect rect;
@@ -364,7 +359,7 @@ void gr_blit(   GRAPH * dest,
 #else
 #endif
 
-    SDL_BlendMode blend_mode;
+    BLENDMODE blend_mode;
 
     if ( gr_prepare_renderer( dest, clip, flags, &blend_mode ) ) return;
 
@@ -378,8 +373,6 @@ void gr_blit(   GRAPH * dest,
         w = gr->width;
         h = gr->height;
     }
-
-    SDL_RendererFlip flip = ( ( flags & B_HMIRROR ) ? SDL_FLIP_HORIZONTAL : 0 ) | ( ( flags & B_VMIRROR ) ? SDL_FLIP_VERTICAL : 0 );
 
     SDL_Rect dstrect;
     double centerx, centery,
@@ -395,6 +388,8 @@ void gr_blit(   GRAPH * dest,
     scaley_adjusted = scaley / 100.0;
 
 #ifdef USE_NATIVE_SDL2
+    SDL_RendererFlip flip = ( ( flags & B_HMIRROR ) ? SDL_FLIP_HORIZONTAL : 0 ) | ( ( flags & B_VMIRROR ) ? SDL_FLIP_VERTICAL : 0 );
+
     if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
         int64_t cx = gr->cpoints[0].x, cy = gr->cpoints[0].y;
 
@@ -409,21 +404,22 @@ void gr_blit(   GRAPH * dest,
     }
 #else
     if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
-        int64_t cx = gr->cpoints[0].x, cy = gr->cpoints[0].y;
-
-        if ( flags & B_HMIRROR ) cx = gr->width - cx - 1;
-        if ( flags & B_VMIRROR ) cy = gr->height - cy - 1;
-
-        centerx = cx;
-        centery = cy;
+        centerx = gr->cpoints[0].x;
+        centery = gr->cpoints[0].y;
     } else {
         centerx = w / 2.0;
         centery = h / 2.0;
     }
+
+    if ( flags & B_HMIRROR ) scalex_adjusted = -scalex_adjusted;
+    if ( flags & B_VMIRROR ) scaley_adjusted = -scaley_adjusted;
 #endif
 
     if ( gr->segments ) {
+#ifdef USE_NATIVE_SDL2
         SDL_Texture * tex;
+#else
+#endif
         int mirror_offset = 0;
 
         if ( flags & B_HMIRROR ) mirror_offset += gr->nsegments;
@@ -473,6 +469,13 @@ void gr_blit(   GRAPH * dest,
         //Render
         SDL_RenderCopyEx( gRenderer, gr->texture, gr_clip, &dstrect, angle / -1000.0, &center, flip );
 #else
+        if ( blend_mode == -1 ) {
+            GPU_SetBlending( gr->image, GPU_FALSE );
+        } else {
+            GPU_SetBlending( gr->image, GPU_TRUE );
+            GPU_SetBlendMode( gr->image, blend_mode );
+        }
+        GPU_SetRGBA( gr->image, color_r, color_g, color_b, alpha );
         GPU_BlitTransformX( gr->image, gr_clip, dest ? dest->image->target : gRenderer, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
 #endif
     }

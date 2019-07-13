@@ -3155,6 +3155,8 @@ static int force_exit_cb( SDL_Keysym k ) {
 static int console_keyboard_handler_cb( SDL_Keysym k ) {
     char cmd[256];
 
+    if ( debug_sysfont == -1 ) create_debug_sysfont();
+
     if ( dcb.data.NSourceFiles ) {
         if (( k.mod & KMOD_LALT ) && k.sym == SDLK_c ) {
             if ( !debugger_show_console ) {
@@ -3368,7 +3370,7 @@ static void console_draw( void * what, REGION * clip ) {
     x = ( scr_width - console_columns * CHARWIDTH ) / 2 ;
     y = -console_lines * CHARHEIGHT + console_y ;
 
-    drawing_blend_mode = 0; drawing_blend_mode = 0; drawing_color_r = 0; drawing_color_g = 0; drawing_color_b = 0x20; drawing_color_a = console_alpha;
+    drawing_blend_mode = 0; drawing_color_r = 0; drawing_color_g = 0; drawing_color_b = 0x20; drawing_color_a = console_alpha;
     draw_box( NULL, NULL, x, y, console_columns * CHARWIDTH, console_lines * CHARHEIGHT );
     drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
 
@@ -3584,7 +3586,6 @@ void m_debug_init() {
         hotkey_add( 0,              0, console_keyboard_handler_cb  );
 
         gr_new_object( -2147483647L - 1, ( OBJ_INFO * ) console_info, ( OBJ_DRAW * ) console_draw, ( void * ) 0 );
-        create_debug_sysfont();
     }
 }
 
