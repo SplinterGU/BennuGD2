@@ -47,12 +47,29 @@ uint8_t drawing_color_a = 255;
 
 /* --------------------------------------------------------------------------- */
 
-#define DRAW_PREPARE_RENDERER()    BLENDMODE blend_mode; \
-    if ( gr_prepare_renderer( dest, clip, drawing_blend_mode, &blend_mode ) ) return; \
-    SDL_SetRenderDrawBlendMode( gRenderer, blend_mode ); \
-    SDL_SetRenderDrawColor( gRenderer, drawing_color_r, drawing_color_g, drawing_color_b, drawing_color_a )
+#ifdef USE_NATIVE_SDL2
+    #define DRAW_PREPARE_RENDERER()    BLENDMODE blend_mode; \
+        if ( gr_prepare_renderer( dest, clip, drawing_blend_mode, &blend_mode ) ) return; \
+        SDL_SetRenderDrawBlendMode( gRenderer, blend_mode ); \
+        SDL_SetRenderDrawColor( gRenderer, drawing_color_r, drawing_color_g, drawing_color_b, drawing_color_a )
 
-#define DRAW_RELEASE_RENDERER() if ( dest ) SDL_SetRenderTarget( gRenderer, NULL )
+    #define DRAW_RELEASE_RENDERER() if ( dest ) SDL_SetRenderTarget( gRenderer, NULL )
+#else
+    #define DRAW_PREPARE_RENDERER()    BLENDMODE blend_mode; \
+        if ( gr_prepare_renderer( dest, clip, drawing_blend_mode, &blend_mode ) ) return; \
+        if ( blend_mode == -1 ) { \
+            GPU_SetShapeBlending( GPU_FALSE ); \
+        } else { \
+            GPU_SetShapeBlending( GPU_TRUE ); \
+            GPU_SetShapeBlendMode( blend_mode ); \
+        } \
+        SDL_Color color; \
+        color.r = drawing_color_r; color.g = drawing_color_g; color.b = drawing_color_b; color.a = drawing_color_a; \
+        GPU_Target * target = dest ? dest->image->target : gRenderer;
+
+    #define DRAW_RELEASE_RENDERER()
+
+#endif
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -74,7 +91,11 @@ void draw_point( GRAPH * dest, REGION * clip, int64_t x, int64_t y ) {
 
     DRAW_PREPARE_RENDERER();
 
+#if USE_NATIVE_SDL2
     SDL_RenderDrawPoint( gRenderer, x, y );
+#else
+    GPU_Pixel( target, ( float ) x, ( float ) y, color );
+#endif
 
     DRAW_RELEASE_RENDERER();
 
@@ -101,7 +122,14 @@ void draw_points( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points
 
     DRAW_PREPARE_RENDERER();
 
+#ifdef USE_NATIVE_SDL2
     SDL_RenderDrawPoints( gRenderer, points, count );
+#else
+    while( count-- ) {
+        GPU_Pixel( target, ( float ) points->x, ( float ) points->y, color );
+        points++;
+    }
+#endif
 
     DRAW_RELEASE_RENDERER();
 
@@ -128,7 +156,11 @@ void draw_line( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t x2, i
 
     DRAW_PREPARE_RENDERER();
 
+#ifdef USE_NATIVE_SDL2
     SDL_RenderDrawLine( gRenderer, x, y, x2, y2 );
+#else
+    GPU_Line( target, ( float ) x, ( float ) y, ( float ) x2, ( float ) y2, color );
+#endif
 
     DRAW_RELEASE_RENDERER();
 
@@ -155,7 +187,14 @@ void draw_lines( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points 
 
     DRAW_PREPARE_RENDERER();
 
+#ifdef USE_NATIVE_SDL2
     SDL_RenderDrawLines( gRenderer, points, count );
+#else
+    while( ( count -= 2 ) > 0 ) {
+        GPU_Line( target, ( float ) points->x, ( float ) points->y, ( float ) (++points)->x, ( float ) points->y, color );
+        points++;
+    }
+#endif
 
     DRAW_RELEASE_RENDERER();
 
@@ -183,6 +222,7 @@ void draw_box( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t w, int
 
     DRAW_PREPARE_RENDERER();
 
+#if USE_NATIVE_SDL2
     SDL_Rect rectangle;
 
     rectangle.x = x;
@@ -191,6 +231,9 @@ void draw_box( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t w, int
     rectangle.h = h;
 
     SDL_RenderFillRect( gRenderer, &rectangle );
+#else
+    GPU_RectangleFilled( target, x, y, x + w + 1, y + h + 1, color );
+#endif
 
     DRAW_RELEASE_RENDERER();
 
@@ -217,7 +260,14 @@ void draw_boxes( GRAPH * dest, REGION * clip, int64_t count, SDL_Rect * rects ) 
 
     DRAW_PREPARE_RENDERER();
 
+#ifdef USE_NATIVE_SDL2
     SDL_RenderFillRects( gRenderer, rects, count );
+#else
+    while( count-- ) {
+        GPU_RectangleFilled( target, rects->x, rects->y, rects->x + rects->w + 1, rects->y + rects->h + 1, color );
+        rects++;
+    }
+#endif
 
     DRAW_RELEASE_RENDERER();
 
@@ -245,6 +295,7 @@ void draw_rectangle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t 
 
     DRAW_PREPARE_RENDERER();
 
+#ifdef USE_NATIVE_SDL2
     SDL_Rect rectangle;
 
     rectangle.x = x;
@@ -253,6 +304,9 @@ void draw_rectangle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t 
     rectangle.h = h;
 
     SDL_RenderDrawRect( gRenderer, &rectangle );
+#else
+    GPU_Rectangle( target, x, y, x + w + 1, y + h + 1, color );
+#endif
 
     DRAW_RELEASE_RENDERER();
 
@@ -279,7 +333,14 @@ void draw_rectangles( GRAPH * dest, REGION * clip, int64_t count, SDL_Rect * rec
 
     DRAW_PREPARE_RENDERER();
 
+#ifdef USE_NATIVE_SDL2
     SDL_RenderDrawRects( gRenderer, rects, count );
+#else
+    while( count-- ) {
+        GPU_Rectangle( target, rects->x, rects->y, rects->x + rects->w + 1, rects->y + rects->h + 1, color );
+        rects++;
+    }
+#endif
 
     DRAW_RELEASE_RENDERER();
 
@@ -311,6 +372,7 @@ void draw_rectangles( GRAPH * dest, REGION * clip, int64_t count, SDL_Rect * rec
 
 void draw_circle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t * cache_size, void ** cache ) {
 
+#ifdef USE_NATIVE_SDL2
     SDL_Point * points;
     int free_on_exit = 1;
     int64_t count = 0;
@@ -362,11 +424,18 @@ void draw_circle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, 
     draw_points( dest, clip, count, points );
 
     if ( free_on_exit ) free( points );
+#else
+    DRAW_PREPARE_RENDERER();
 
+    GPU_Circle( target, ( float ) x, ( float ) y, ( float ) r, color);
+
+    DRAW_RELEASE_RENDERER();
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
+#ifdef USE_NATIVE_SDL2
 static int _sort_circle_points(const void * a, const void * b ) {
 
     SDL_Point * _a = ( SDL_Point *) a;
@@ -380,6 +449,7 @@ static int _sort_circle_points(const void * a, const void * b ) {
     return 0;
 
 }
+#endif
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -399,7 +469,7 @@ static int _sort_circle_points(const void * a, const void * b ) {
  */
 
 void draw_fcircle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t * cache_size, void ** cache ) {
-
+#ifdef USE_NATIVE_SDL2
     SDL_Point * points;
     int free_on_exit = 1;
     int64_t count = 0;
@@ -452,7 +522,13 @@ void draw_fcircle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r,
     draw_lines( dest, clip, count, points );
 
     if ( free_on_exit ) free( points );
+#else
+    DRAW_PREPARE_RENDERER();
 
+    GPU_CircleFilled( target, ( float ) x, ( float ) y, ( float ) r, color);
+
+    DRAW_RELEASE_RENDERER();
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -501,7 +577,7 @@ void draw_bezier( GRAPH * dest, REGION * clip, int64_t x1, int64_t y1, int64_t x
         delta = 1.0f / ( double ) n;
 
         /* Compute finite differences */
-        /* a, b, c are the coefficient of the polynom in t defining the parametric curve */
+        /* a, b, c are the coefficient of the polynom in target defining the parametric curve */
         /* The computation is done independently for x and y */
 
         a = ( double )( -x1 + 3 * x2 - 3 * x3 + x4 );

@@ -450,8 +450,10 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
 
             case DRAWOBJ_POINTS:
             case DRAWOBJ_LINES:
+#ifdef USE_NATIVE_SDL2
             case DRAWOBJ_CIRCLE:
             case DRAWOBJ_FCIRCLE:
+#endif
             case DRAWOBJ_CURVE:
                 if ( dr->data ) {
                     SDL_Point * p = ( SDL_Point * ) dr->data;
@@ -460,6 +462,12 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
                     }
                 }
                 break;
+
+#ifndef USE_NATIVE_SDL2
+            case DRAWOBJ_CIRCLE:
+            case DRAWOBJ_FCIRCLE:
+                break;
+#endif
 
             case DRAWOBJ_RECTS:
             case DRAWOBJ_BOXES:
