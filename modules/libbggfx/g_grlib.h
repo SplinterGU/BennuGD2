@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef __GRLIB_H
-#define __GRLIB_H
+#ifndef __G_GRLIB_H
+#define __G_GRLIB_H
 
 #define MAXLIBS 1024
 

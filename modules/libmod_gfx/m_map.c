@@ -563,8 +563,6 @@ int64_t libmod_gfx_save_png( INSTANCE * my, int64_t * params )
     return r;
 }
 
-/* ---------------------------------------------------------------------- */
-
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {

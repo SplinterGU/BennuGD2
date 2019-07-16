@@ -139,6 +139,7 @@ enum {
 #include "g_fade.h"
 #include "g_scroll.h"
 #include "g_draw.h"
+#include "g_screen.h"
 
 /* --------------------------------------------------------------------------- */
 

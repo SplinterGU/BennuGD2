@@ -2434,7 +2434,7 @@ static void show_list_window() {
     systext_color( 0x000000 ) ;
 
     drawing_blend_mode = 0; drawing_color_r = 0x00; drawing_color_g = 0xC0; drawing_color_b = 0xC0; drawing_color_a = console_alpha;
-    draw_box( NULL, NULL, x, y, WINDOW_LIST_COLS * CHARWIDTH, CHARHEIGHT );
+    draw_rectangle_filled( NULL, NULL, x, y, WINDOW_LIST_COLS * CHARWIDTH, CHARHEIGHT );
 
     switch ( console_list_current ) {
         case    0:
@@ -2457,7 +2457,7 @@ static void show_list_window() {
                     else
                         font_color = COLOR_BLACK, drawing_blend_mode = 0, drawing_color_r = 0xC0, drawing_color_g = 0xC0, drawing_color_b = 0xC0, drawing_color_a = console_alpha;
                 }
-                draw_box( NULL, NULL, x, y, WINDOW_LIST_COLS * CHARWIDTH, CHARHEIGHT );
+                draw_rectangle_filled( NULL, NULL, x, y, WINDOW_LIST_COLS * CHARWIDTH, CHARHEIGHT );
                 systext_puts( x, y, font_color );
                 if ( console_list_x_pos[console_list_current] < strlen( procs[pos + n].name ) )
                     systext_puts( x, y, &procs[pos + n].name[console_list_x_pos[console_list_current]] );
@@ -2496,7 +2496,7 @@ static void show_list_window() {
                         font_color = COLOR_BLACK, drawing_blend_mode = 0, drawing_color_r = 0xC0, drawing_color_g = 0xC0, drawing_color_b = 0xC0, drawing_color_a = console_alpha;
                 }
 
-                draw_box( NULL, NULL, x, y, WINDOW_LIST_COLS * CHARWIDTH, CHARHEIGHT );
+                draw_rectangle_filled( NULL, NULL, x, y, WINDOW_LIST_COLS * CHARWIDTH, CHARHEIGHT );
                 systext_puts( x, y, font_color );
 
                 status[0] = '\0';
@@ -3371,7 +3371,7 @@ static void console_draw( void * what, REGION * clip ) {
     y = -console_lines * CHARHEIGHT + console_y ;
 
     drawing_blend_mode = 0; drawing_color_r = 0; drawing_color_g = 0; drawing_color_b = 0x20; drawing_color_a = console_alpha;
-    draw_box( NULL, NULL, x, y, console_columns * CHARWIDTH, console_lines * CHARHEIGHT );
+    draw_rectangle_filled( NULL, NULL, x, y, console_columns * CHARWIDTH, console_lines * CHARHEIGHT );
     drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
 
     int current_show = 0;
@@ -3492,7 +3492,7 @@ static void console_draw( void * what, REGION * clip ) {
     systext_color( 0xFFFFFF ) ;
 
     drawing_blend_mode = 0; drawing_color_r = 0x40; drawing_color_g = 0x40; drawing_color_b = 0x40; drawing_color_a = console_alpha;
-    draw_box( NULL, NULL, x, y, console_columns * CHARWIDTH, CHARHEIGHT );
+    draw_rectangle_filled( NULL, NULL, x, y, console_columns * CHARWIDTH, CHARHEIGHT );
     drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
 
     systext_puts( x, y, ">" ) ;
@@ -3504,7 +3504,7 @@ static void console_draw( void * what, REGION * clip ) {
 
     systext_color( 0x404040 ) ;
     drawing_blend_mode = 0; drawing_color_r = 0x00; drawing_color_g = 0xC0; drawing_color_b = 0xC0; drawing_color_a = console_alpha;
-    draw_box( NULL, NULL, x, y + CHARHEIGHT, console_columns * CHARWIDTH, CHARHEIGHT );
+    draw_rectangle_filled( NULL, NULL, x, y + CHARHEIGHT, console_columns * CHARWIDTH, CHARHEIGHT );
     drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
 
     if ( !( shiftstatus & 3 ) )

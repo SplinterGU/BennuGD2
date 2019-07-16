@@ -14,35 +14,35 @@ int main(int argc, char* argv[])
 	GPU_Target* screen;
 
 	printRenderers();
-	
+
 	screen = GPU_Init(800, 600, GPU_DEFAULT_INIT_FLAGS);
 	if(screen == NULL)
 		return -1;
-	
+
 	printCurrentRenderer();
-	
+
 	{
 		Uint32 startTime;
 		long frameCount;
 		Uint8 done;
 		SDL_Event event;
-		
+
         int shapeType;
         int numShapeTypes;
         int i;
         #define NUM_COLORS 20
         SDL_Color colors[NUM_COLORS];
-        
+
         #define NUM_PIXELS NUM_COLORS
         int px[NUM_PIXELS];
         int py[NUM_PIXELS];
-        
+
         #define NUM_LINES NUM_COLORS
         int lx1[NUM_LINES];
         int ly1[NUM_LINES];
         int lx2[NUM_LINES];
         int ly2[NUM_LINES];
-        
+
         #define NUM_TRIS NUM_COLORS
         int tx1[NUM_TRIS];
         int ty1[NUM_TRIS];
@@ -50,14 +50,14 @@ int main(int argc, char* argv[])
         int ty2[NUM_TRIS];
         int tx3[NUM_TRIS];
         int ty3[NUM_TRIS];
-        
+
         #define NUM_RECTS NUM_COLORS
         int rx1[NUM_RECTS];
         int ry1[NUM_RECTS];
         int rx2[NUM_RECTS];
         int ry2[NUM_RECTS];
         float rr[NUM_RECTS];
-        
+
         #define NUM_ARCS NUM_COLORS
         int ax[NUM_ARCS];
         int ay[NUM_ARCS];
@@ -65,20 +65,20 @@ int main(int argc, char* argv[])
         float ar2[NUM_ARCS];
         float aa1[NUM_ARCS];
         float aa2[NUM_ARCS];
-        
+
         #define NUM_POLYS NUM_COLORS
         int pn[NUM_POLYS];
         float* pv[NUM_POLYS];
-        
+
         Uint8 blend;
         float thickness;
-        
+
         startTime = SDL_GetTicks();
         frameCount = 0;
-        
+
         shapeType = 0;
         numShapeTypes = 18;
-        
+
         for(i = 0; i < NUM_COLORS; i++)
         {
             colors[i].r = rand()%256;
@@ -86,15 +86,15 @@ int main(int argc, char* argv[])
             colors[i].b = rand()%256;
             GET_ALPHA(colors[i]) = rand()%256;
         }
-        
-        
-        
+
+
+
         for(i = 0; i < NUM_PIXELS; i++)
         {
             px[i] = rand()%screen->w;
             py[i] = rand()%screen->h;
         }
-        
+
         for(i = 0; i < NUM_LINES; i++)
         {
             lx1[i] = rand()%screen->w;
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
             lx2[i] = rand()%screen->w;
             ly2[i] = rand()%screen->h;
         }
-        
+
         for(i = 0; i < NUM_TRIS; i++)
         {
             tx1[i] = rand()%screen->w;
@@ -112,8 +112,8 @@ int main(int argc, char* argv[])
             tx3[i] = rand()%screen->w;
             ty3[i] = rand()%screen->h;
         }
-        
-        
+
+
         for(i = 0; i < NUM_RECTS; i++)
         {
             rx1[i] = rand()%screen->w;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
             ry2[i] = rand()%screen->h;
             rr[i] = rand()%10 + 2;
         }
-        
+
         for(i = 0; i < NUM_ARCS; i++)
         {
             ax[i] = rand()%screen->w;
@@ -132,30 +132,30 @@ int main(int argc, char* argv[])
             aa1[i] = rand()%360;
             aa2[i] = rand()%360;
         }
-        
+
         for(i = 0; i < NUM_POLYS; i++)
         {
             float cx = rand()%screen->w;
             float cy = rand()%screen->h;
             float radius = 20 + rand()%(screen->w/8);
-            
+
             int j;
-            
+
             pn[i] = rand()%8 + 3;
             pv[i] = (float*)malloc(2*pn[i]*sizeof(float));
-            
+
             for(j = 0; j < pn[i]*2; j+=2)
             {
                 pv[i][j] = cx + radius*cos(2*M_PI*(((float)j)/(pn[i]*2))) + rand()%((int)radius/2);
                 pv[i][j+1] = cy + radius*sin(2*M_PI*(((float)j)/(pn[i]*2))) + rand()%((int)radius/2);
             }
         }
-        
+
         blend = 0;
         thickness = 1.0f;
-        
+
         GPU_SetShapeBlending(blend);
-        
+
         done = 0;
         while(!done)
         {
@@ -214,9 +214,9 @@ int main(int argc, char* argv[])
                     }
                 }
             }
-            
+
             GPU_Clear(screen);
-            
+
             switch(shapeType)
             {
                 case 0:
@@ -328,24 +328,24 @@ int main(int argc, char* argv[])
                     }
                     break;
             }
-            
+
             GPU_Flip(screen);
-            
+
             frameCount++;
             if(frameCount%500 == 0)
                 printf("Average FPS: %.2f\n", 1000.0f*frameCount/(SDL_GetTicks() - startTime));
         }
-        
+
         printf("Average FPS: %.2f\n", 1000.0f*frameCount/(SDL_GetTicks() - startTime));
-        
+
         for(i = 0; i < NUM_POLYS; i++)
         {
             free(pv[i]);
         }
 	}
-	
+
 	GPU_Quit();
-	
+
 	return 0;
 }
 

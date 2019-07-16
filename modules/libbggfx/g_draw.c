@@ -38,12 +38,16 @@
 
 /* --------------------------------------------------------------------------- */
 
-int64_t drawing_blend_mode = B_NOCOLORKEY;
+int64_t drawing_blend_mode = 0;
 
 uint8_t drawing_color_r = 255;
 uint8_t drawing_color_g = 255;
 uint8_t drawing_color_b = 255;
 uint8_t drawing_color_a = 255;
+
+#ifndef USE_NATIVE_SDL2
+float drawing_thickness = 1.0f;
+#endif
 
 /* --------------------------------------------------------------------------- */
 
@@ -63,6 +67,7 @@ uint8_t drawing_color_a = 255;
             GPU_SetShapeBlending( GPU_TRUE ); \
             GPU_SetShapeBlendMode( blend_mode ); \
         } \
+        GPU_SetLineThickness( drawing_thickness ); \
         SDL_Color color; \
         color.r = drawing_color_r; color.g = drawing_color_g; color.b = drawing_color_b; color.a = drawing_color_a; \
         GPU_Target * target = dest ? dest->image->target : gRenderer;
@@ -103,40 +108,6 @@ void draw_point( GRAPH * dest, REGION * clip, int64_t x, int64_t y ) {
 
 /* --------------------------------------------------------------------------- */
 /*
- *  FUNCTION : draw_points
- *
- *  Draw multiple points
- *
- *  PARAMS :
- *      dest            Destination bitmap or NULL for screen
- *      clip            Clipping region or NULL for the whole screen
- *      count           Number of points
- *      points          Pointer to SDL_Point with points
- *
- *  RETURN VALUE :
- *      None
- *
- */
-
-void draw_points( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points ) {
-
-    DRAW_PREPARE_RENDERER();
-
-#ifdef USE_NATIVE_SDL2
-    SDL_RenderDrawPoints( gRenderer, points, count );
-#else
-    while( count-- ) {
-        GPU_Pixel( target, ( float ) points->x, ( float ) points->y, color );
-        points++;
-    }
-#endif
-
-    DRAW_RELEASE_RENDERER();
-
-}
-
-/* --------------------------------------------------------------------------- */
-/*
  *  FUNCTION : draw_line
  *
  *  Draw a line
@@ -160,113 +131,6 @@ void draw_line( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t x2, i
     SDL_RenderDrawLine( gRenderer, x, y, x2, y2 );
 #else
     GPU_Line( target, ( float ) x, ( float ) y, ( float ) x2, ( float ) y2, color );
-#endif
-
-    DRAW_RELEASE_RENDERER();
-
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  FUNCTION : draw_lines
- *
- *  Draw multiple line
- *
- *  PARAMS :
- *      dest            Destination bitmap or NULL for screen
- *      clip            Clipping region or NULL for the whole screen
- *      count           Number of points
- *      points          Pointer to SDL_Point with points
- *
- *  RETURN VALUE :
- *      None
- *
- */
-
-void draw_lines( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points ) {
-
-    DRAW_PREPARE_RENDERER();
-
-#ifdef USE_NATIVE_SDL2
-    SDL_RenderDrawLines( gRenderer, points, count );
-#else
-    while( ( count -= 2 ) > 0 ) {
-        GPU_Line( target, ( float ) points->x, ( float ) points->y, ( float ) (++points)->x, ( float ) points->y, color );
-        points++;
-    }
-#endif
-
-    DRAW_RELEASE_RENDERER();
-
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  FUNCTION : draw_box
- *
- *  Draw a filled rectangle
- *
- *  PARAMS :
- *      dest            Destination bitmap or NULL for screen
- *      clip            Clipping region or NULL for the whole screen
- *      x, y            Coordinates of the top-left pixel
- *      w               Width in pixels
- *      h               Height in pixels
- *
- *  RETURN VALUE :
- *      None
- *
- */
-
-void draw_box( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t w, int64_t h ) {
-
-    DRAW_PREPARE_RENDERER();
-
-#if USE_NATIVE_SDL2
-    SDL_Rect rectangle;
-
-    rectangle.x = x;
-    rectangle.y = y;
-    rectangle.w = w;
-    rectangle.h = h;
-
-    SDL_RenderFillRect( gRenderer, &rectangle );
-#else
-    GPU_RectangleFilled( target, x, y, x + w + 1, y + h + 1, color );
-#endif
-
-    DRAW_RELEASE_RENDERER();
-
-}
-
-/* --------------------------------------------------------------------------- */
-/*
- *  FUNCTION : draw_boxes
- *
- *  Draw multiple filled rectangles
- *
- *  PARAMS :
- *      dest            Destination bitmap or NULL for screen
- *      clip            Clipping region or NULL for the whole screen
- *      count           Number of rects
- *      rects           Pointer to SDL_Rect with rects
- *
- *  RETURN VALUE :
- *      None
- *
- */
-
-void draw_boxes( GRAPH * dest, REGION * clip, int64_t count, SDL_Rect * rects ) {
-
-    DRAW_PREPARE_RENDERER();
-
-#ifdef USE_NATIVE_SDL2
-    SDL_RenderFillRects( gRenderer, rects, count );
-#else
-    while( count-- ) {
-        GPU_RectangleFilled( target, rects->x, rects->y, rects->x + rects->w + 1, rects->y + rects->h + 1, color );
-        rects++;
-    }
 #endif
 
     DRAW_RELEASE_RENDERER();
@@ -314,6 +178,114 @@ void draw_rectangle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t 
 
 /* --------------------------------------------------------------------------- */
 /*
+ *  FUNCTION : draw_rectangle_filled
+ *
+ *  Draw a filled rectangle
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      w               Width in pixels
+ *      h               Height in pixels
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_rectangle_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t w, int64_t h ) {
+
+    DRAW_PREPARE_RENDERER();
+
+#if USE_NATIVE_SDL2
+    SDL_Rect rectangle;
+
+    rectangle.x = x;
+    rectangle.y = y;
+    rectangle.w = w;
+    rectangle.h = h;
+
+    SDL_RenderFillRect( gRenderer, &rectangle );
+#else
+    GPU_RectangleFilled( target, x, y, x + w + 1, y + h + 1, color );
+#endif
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_lines
+ *
+ *  Draw multiple line
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      count           Number of points
+ *      points          Pointer to SDL_Point with points
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_lines( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points ) {
+
+    DRAW_PREPARE_RENDERER();
+
+#ifdef USE_NATIVE_SDL2
+    SDL_RenderDrawLines( gRenderer, points, count );
+#else
+    while( ( count -= 2 ) > 0 ) {
+        GPU_Line( target, ( float ) points->x, ( float ) points->y, ( float ) (++points)->x, ( float ) points->y, color );
+        points++;
+    }
+#endif
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+#if ENABLE_MULTIDRAW
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_points
+ *
+ *  Draw multiple points
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      count           Number of points
+ *      points          Pointer to SDL_Point with points
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_points( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points ) {
+
+    DRAW_PREPARE_RENDERER();
+
+#ifdef USE_NATIVE_SDL2
+    SDL_RenderDrawPoints( gRenderer, points, count );
+#else
+    while( count-- ) {
+        GPU_Pixel( target, ( float ) points->x, ( float ) points->y, color );
+        points++;
+    }
+#endif
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
  *  FUNCTION : draw_rectangles
  *
  *  Draw multiple rectangles (non-filled)
@@ -346,6 +318,40 @@ void draw_rectangles( GRAPH * dest, REGION * clip, int64_t count, SDL_Rect * rec
 
 }
 
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_rectangles_filled
+ *
+ *  Draw multiple filled rectangles
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      count           Number of rects
+ *      rects           Pointer to SDL_Rect with rects
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_rectangles_filled( GRAPH * dest, REGION * clip, int64_t count, SDL_Rect * rects ) {
+
+    DRAW_PREPARE_RENDERER();
+
+#ifdef USE_NATIVE_SDL2
+    SDL_RenderFillRects( gRenderer, rects, count );
+#else
+    while( count-- ) {
+        GPU_RectangleFilled( target, rects->x, rects->y, rects->x + rects->w + 1, rects->y + rects->h + 1, color );
+        rects++;
+    }
+#endif
+
+    DRAW_RELEASE_RENDERER();
+
+}
+#endif
 /* --------------------------------------------------------------------------- */
 
 #define setPoint(_x,_y) { \
@@ -453,7 +459,7 @@ static int _sort_circle_points(const void * a, const void * b ) {
 
 /* --------------------------------------------------------------------------- */
 /*
- *  FUNCTION : draw_fcircle
+ *  FUNCTION : draw_circle_filled
  *
  *  Draw a filled circle
  *
@@ -468,7 +474,7 @@ static int _sort_circle_points(const void * a, const void * b ) {
  *
  */
 
-void draw_fcircle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t * cache_size, void ** cache ) {
+void draw_circle_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t * cache_size, void ** cache ) {
 #ifdef USE_NATIVE_SDL2
     SDL_Point * points;
     int free_on_exit = 1;
@@ -633,3 +639,384 @@ void draw_bezier( GRAPH * dest, REGION * clip, int64_t x1, int64_t y1, int64_t x
 }
 
 /* --------------------------------------------------------------------------- */
+
+#ifndef USE_NATIVE_SDL2
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_arc
+ *
+ *  Draw a arc
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      r               Radius
+ *      start_angle     Start angle
+ *      end_angle       End angle
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_arc( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t start_angle, int64_t end_angle ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_Arc( target, ( float ) x, ( float ) y, ( float ) r, start_angle / 1000.0, end_angle / 1000.0, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_arc_filled
+ *
+ *  Draw a filled arc
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      r               Radius
+ *      start_angle     Start angle
+ *      end_angle       End angle
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_arc_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t start_angle, int64_t end_angle ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_ArcFilled( target, ( float ) x, ( float ) y, ( float ) r, start_angle / 1000.0, end_angle / 1000.0, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_ellipse
+ *
+ *  Draw a ellipse
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      rx              X radius of ellipse
+ *      ry              Y radius of ellipse
+ *      degrees         The angle to rotate the ellipse
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_ellipse( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t rx, int64_t ry, int64_t degrees ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_Ellipse( target, ( float ) x, ( float ) y, ( float ) rx, ( float ) ry, ( float ) degrees, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_ellipse_filled
+ *
+ *  Draw a filled ellipse
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      rx              X radius of ellipse
+ *      ry              Y radius of ellipse
+ *      degrees         The angle to rotate the ellipse
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_ellipse_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t rx, int64_t ry, int64_t degrees ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_EllipseFilled( target, ( float ) x, ( float ) y, ( float ) rx, ( float ) ry, ( float ) degrees, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_sector
+ *
+ *  Draw a sector
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      inner_radius    The inner radius of the ring
+ *      outer_radius    The outer radius of the ring
+ *      start_angle     The angle to start from, in degrees.  Measured clockwise from the positive x-axis.
+ *      end_angle       The angle to end at, in degrees.  Measured clockwise from the positive x-axis.
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_sector( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t inner_radius, int64_t outer_radius, int64_t start_angle, int64_t end_angle ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_Sector( target, ( float ) x, ( float ) y, ( float ) inner_radius, ( float ) outer_radius, start_angle / 1000.0, end_angle / 1000.0, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_sector_filled
+ *
+ *  Draw a filled sector
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      inner_radius    The inner radius of the ring
+ *      outer_radius    The outer radius of the ring
+ *      start_angle     The angle to start from, in degrees.  Measured clockwise from the positive x-axis.
+ *      end_angle       The angle to end at, in degrees.  Measured clockwise from the positive x-axis.
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_sector_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t inner_radius, int64_t outer_radius, int64_t start_angle, int64_t end_angle ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_SectorFilled( target, ( float ) x, ( float ) y, ( float ) inner_radius, ( float ) outer_radius, start_angle / 1000.0, end_angle / 1000.0, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_triangle
+ *
+ *  Draw a triangle
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      inner_radius    The inner radius of the ring
+ *      outer_radius    The outer radius of the ring
+ *      start_angle     The angle to start from, in degrees.  Measured clockwise from the positive x-axis.
+ *      end_angle       The angle to end at, in degrees.  Measured clockwise from the positive x-axis.
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_triangle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t x2, int64_t y2, int64_t x3, int64_t y3 ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_Tri( target, ( float ) x, ( float ) y, ( float ) x2, ( float ) y2, ( float ) x3, ( float ) y3, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_triangle_filled
+ *
+ *  Draw a filled triangle
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      inner_radius    The inner radius of the ring
+ *      outer_radius    The outer radius of the ring
+ *      start_angle     The angle to start from, in degrees.  Measured clockwise from the positive x-axis.
+ *      end_angle       The angle to end at, in degrees.  Measured clockwise from the positive x-axis.
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_triangle_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t x2, int64_t y2, int64_t x3, int64_t y3 ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_TriFilled( target, ( float ) x, ( float ) y, ( float ) x2, ( float ) y2, ( float ) x3, ( float ) y3, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_rectangle_round
+ *
+ *  Draw a rectangle_round (non-filled)
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      w               Width in pixels
+ *      h               Height in pixels
+ *      r               The radius of the corners
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_rectangle_round( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t w, int64_t h, int64_t r ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_RectangleRound( target, x, y, x + w + 1, y + h + 1, r, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_rectangle_round_filled
+ *
+ *  Draw a filled rectangle_round
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      x, y            Coordinates of the top-left pixel
+ *      w               Width in pixels
+ *      h               Height in pixels
+ *      r               The radius of the corners
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_rectangle_round_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t w, int64_t h, int64_t r ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_RectangleRoundFilled( target, x, y, x + w + 1, y + h + 1, r, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_polygon
+ *
+ *  Draw a polygon (non-filled)
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      num_vertices    Number of vertices (x and y pairs)
+ *      vertices        An array of vertex positions stored as interlaced x and y coords, e.g. {x1, y1, x2, y2, ...} *
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_polygon( GRAPH * dest, REGION * clip, int nun_vertices, float * vertices ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_Polygon( target, nun_vertices, vertices, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_polygon_filled
+ *
+ *  Draw a filled polygon
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      num_vertices    Number of vertices (x and y pairs)
+ *      vertices        An array of vertex positions stored as interlaced x and y coords, e.g. {x1, y1, x2, y2, ...} *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_polygon_filled( GRAPH * dest, REGION * clip, int nun_vertices, float * vertices ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_PolygonFilled( target, nun_vertices, vertices, color );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : draw_polyline
+ *
+ *  Draw a polyline shape
+ *
+ *  PARAMS :
+ *      dest            Destination bitmap or NULL for screen
+ *      clip            Clipping region or NULL for the whole screen
+ *      num_vertices    Number of vertices (x and y pairs)
+ *      vertices        An array of vertex positions stored as interlaced x and y coords, e.g. {x1, y1, x2, y2, ...}
+ *      close_loop      Make a closed polygon by drawing a line at the end back to the start point
+ *
+ *  RETURN VALUE :
+ *      None
+ *
+ */
+
+void draw_polyline( GRAPH * dest, REGION * clip, int nun_vertices, float * vertices, int close_loop ) {
+
+    DRAW_PREPARE_RENDERER();
+
+    GPU_Polyline( target, nun_vertices, vertices, color, close_loop );
+
+    DRAW_RELEASE_RENDERER();
+
+}
+
+/* --------------------------------------------------------------------------- */
+
+#endif

@@ -286,38 +286,95 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     /* Draw */
 
     FUNC( "DRAWING_COLOR"       , "I"               , TYPE_INT         , libmod_gfx_draw_drawing_color          ),
-    FUNC( "DRAWING_COLOR"       , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_color_id       ),
+    FUNC( "DRAWING_COLOR"       , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_color2         ),
     FUNC( "DRAWING_RGBA"        , "BBBB"            , TYPE_INT         , libmod_gfx_draw_drawing_rgba           ),
-    FUNC( "DRAWING_RGBA"        , "IBBBB"           , TYPE_INT         , libmod_gfx_draw_drawing_rgba_id        ),
+    FUNC( "DRAWING_RGBA"        , "IBBBB"           , TYPE_INT         , libmod_gfx_draw_drawing_rgba2          ),
     FUNC( "DRAWING_BLENDMODE"   , "I"               , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode     ),
-    FUNC( "DRAWING_BLENDMODE"   , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode_id  ),
+    FUNC( "DRAWING_BLENDMODE"   , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode2    ),
+
     FUNC( "DRAWING_Z"           , "I"               , TYPE_INT         , libmod_gfx_draw_drawing_z              ),
-    FUNC( "DRAWING_Z"           , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_z_id           ),
+    FUNC( "DRAWING_Z"           , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_z2             ),
     FUNC( "DRAWING_MAP"         , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_map            ),
+
     FUNC( "DRAW_DELETE"         , "I"               , TYPE_INT         , libmod_gfx_draw_delete_drawing         ),
+
     FUNC( "DRAW_MOVE"           , "III"             , TYPE_INT         , libmod_gfx_draw_move_drawing           ),
+    FUNC( "DRAW_COORDS"         , "IPPP"            , TYPE_INT         , libmod_gfx_draw_getcoords              ),
+
     FUNC( "DRAW_POINT"          , "II"              , TYPE_INT         , libmod_gfx_draw_point                  ),
     FUNC( "DRAW_POINT"          , "III"             , TYPE_INT         , DRWFN_COLOR(point)                     ), // libmod_gfx_draw_point_color
-    FUNC( "DRAW_POINTS"         , "IP"              , TYPE_INT         , libmod_gfx_draw_points                 ),
-    FUNC( "DRAW_POINTS"         , "IPI"             , TYPE_INT         , DRWFN_COLOR(points)                    ), // libmod_gfx_draw_points_color
+
     FUNC( "DRAW_LINE"           , "IIII"            , TYPE_INT         , libmod_gfx_draw_line                   ),
     FUNC( "DRAW_LINE"           , "IIIII"           , TYPE_INT         , DRWFN_COLOR(line)                      ), // libmod_gfx_draw_line_color
+
+    FUNC( "DRAW_RECTANGLE"      , "IIII"            , TYPE_INT         , libmod_gfx_draw_rectangle              ),
+    FUNC( "DRAW_RECTANGLE"      , "IIIII"           , TYPE_INT         , DRWFN_COLOR(rectangle)                 ), // libmod_gfx_draw_rectangle_color
+
+    FUNC( "DRAW_RECTANGLE_FILLED", "IIII"           , TYPE_INT         , libmod_gfx_draw_rectangle_filled       ),
+    FUNC( "DRAW_RECTANGLE_FILLED", "IIIII"          , TYPE_INT         , DRWFN_COLOR(rectangle_filled)          ), // libmod_gfx_draw_rectangle_filled_color
+
+#if ENABLE_MULTIDRAW
+    FUNC( "DRAW_POINTS"         , "IP"              , TYPE_INT         , libmod_gfx_draw_points                 ),
+    FUNC( "DRAW_POINTS"         , "IPI"             , TYPE_INT         , DRWFN_COLOR(points)                    ), // libmod_gfx_draw_points_color
+
     FUNC( "DRAW_LINES"          , "IP"              , TYPE_INT         , libmod_gfx_draw_lines                  ),
     FUNC( "DRAW_LINES"          , "IPI"             , TYPE_INT         , DRWFN_COLOR(lines)                     ), // libmod_gfx_draw_lines_color
-    FUNC( "DRAW_BOX"            , "IIII"            , TYPE_INT         , libmod_gfx_draw_box                    ),
-    FUNC( "DRAW_BOX"            , "IIIII"           , TYPE_INT         , DRWFN_COLOR(box)                       ), // libmod_gfx_draw_box_color
-    FUNC( "DRAW_BOXES"          , "IP"              , TYPE_INT         , libmod_gfx_draw_boxes                  ),
-    FUNC( "DRAW_BOXES"          , "IPI"             , TYPE_INT         , DRWFN_COLOR(boxes)                     ), // libmod_gfx_draw_boxes_color
-    FUNC( "DRAW_RECT"           , "IIII"            , TYPE_INT         , libmod_gfx_draw_rect                   ),
-    FUNC( "DRAW_RECT"           , "IIIII"           , TYPE_INT         , DRWFN_COLOR(rect)                      ), // libmod_gfx_draw_rect_color
-    FUNC( "DRAW_RECTS"          , "IP"              , TYPE_INT         , libmod_gfx_draw_rects                  ),
-    FUNC( "DRAW_RECTS"          , "IPI"             , TYPE_INT         , DRWFN_COLOR(rects)                     ), // libmod_gfx_draw_rects_color
+
+    FUNC( "DRAW_RECTANGLES"     , "IP"              , TYPE_INT         , libmod_gfx_draw_rectangles             ),
+    FUNC( "DRAW_RECTANGLES"     , "IPI"             , TYPE_INT         , DRWFN_COLOR(rectangles)                ), // libmod_gfx_draw_rectangles_color
+
+    FUNC( "DRAW_RECTANGLES_FILLED", "IP"            , TYPE_INT         , libmod_gfx_draw_rectangles_filled      ),
+    FUNC( "DRAW_RECTANGLES_FILLED", "IPI"           , TYPE_INT         , DRWFN_COLOR(rectangles_filled)         ), // libmod_gfx_draw_rectangles_filled_color
+#endif
+
     FUNC( "DRAW_CIRCLE"         , "III"             , TYPE_INT         , libmod_gfx_draw_circle                 ),
     FUNC( "DRAW_CIRCLE"         , "IIII"            , TYPE_INT         , DRWFN_COLOR(circle)                    ), // libmod_gfx_draw_circle_color
-    FUNC( "DRAW_FCIRCLE"        , "III"             , TYPE_INT         , libmod_gfx_draw_fcircle                ),
-    FUNC( "DRAW_FCIRCLE"        , "IIII"            , TYPE_INT         , DRWFN_COLOR(fcircle)                   ), // libmod_gfx_draw_fcircle_color
+    FUNC( "DRAW_CIRCLE_FILLED"  , "III"             , TYPE_INT         , libmod_gfx_draw_circle_filled          ),
+    FUNC( "DRAW_CIRCLE_FILLED"  , "IIII"            , TYPE_INT         , DRWFN_COLOR(circle_filled)             ), // libmod_gfx_draw_circle_filled_color
+
     FUNC( "DRAW_CURVE"          , "IIIIIIIII"       , TYPE_INT         , libmod_gfx_draw_bezier                 ),
     FUNC( "DRAW_CURVE"          , "IIIIIIIIII"      , TYPE_INT         , DRWFN_COLOR(bezier)                    ), // libmod_gfx_draw_bezier_color
+
+#ifndef USE_NATIVE_SDL2
+    FUNC( "DRAW_ARC"            , "IIIII"           , TYPE_INT         , libmod_gfx_draw_arc                    ),
+    FUNC( "DRAW_ARC"            , "IIIIII"          , TYPE_INT         , DRWFN_COLOR(arc)                       ), // libmod_gfx_draw_arc_color
+    FUNC( "DRAW_ARC_FILLED"     , "IIIII"           , TYPE_INT         , libmod_gfx_draw_arc_filled             ),
+    FUNC( "DRAW_ARC_FILLED"     , "IIIIII"          , TYPE_INT         , DRWFN_COLOR(arc_filled)                ), // libmod_gfx_draw_arc_filled_color
+
+    FUNC( "DRAW_ELLIPSE"        , "IIIII"           , TYPE_INT         , libmod_gfx_draw_ellipse                ),
+    FUNC( "DRAW_ELLIPSE"        , "IIIIII"          , TYPE_INT         , DRWFN_COLOR(ellipse)                   ), // libmod_gfx_draw_ellipse_color
+    FUNC( "DRAW_ELLIPSE_FILLED" , "IIIII"           , TYPE_INT         , libmod_gfx_draw_ellipse_filled         ),
+    FUNC( "DRAW_ELLIPSE_FILLED" , "IIIIII"          , TYPE_INT         , DRWFN_COLOR(ellipse_filled)            ), // libmod_gfx_draw_ellipse_filled_color
+
+    FUNC( "DRAW_SECTOR"         , "IIIIII"          , TYPE_INT         , libmod_gfx_draw_sector                 ),
+    FUNC( "DRAW_SECTOR"         , "IIIIIII"         , TYPE_INT         , DRWFN_COLOR(sector)                    ), // libmod_gfx_draw_sector_color
+    FUNC( "DRAW_SECTOR_FILLED"  , "IIIIII"          , TYPE_INT         , libmod_gfx_draw_sector_filled          ),
+    FUNC( "DRAW_SECTOR_FILLED"  , "IIIIIII"         , TYPE_INT         , DRWFN_COLOR(sector_filled)             ), // libmod_gfx_draw_sector_filled_color
+
+    FUNC( "DRAW_TRIANGLE"       , "IIIIII"          , TYPE_INT         , libmod_gfx_draw_triangle               ),
+    FUNC( "DRAW_TRIANGLE"       , "IIIIIII"         , TYPE_INT         , DRWFN_COLOR(triangle)                  ), // libmod_gfx_draw_triangle_color
+    FUNC( "DRAW_TRIANGLE_FILLED", "IIIIII"          , TYPE_INT         , libmod_gfx_draw_triangle_filled        ),
+    FUNC( "DRAW_TRIANGLE_FILLED", "IIIIIII"         , TYPE_INT         , DRWFN_COLOR(triangle_filled)           ), // libmod_gfx_draw_triangle_filled_color
+
+    FUNC( "DRAW_RECTANGLE_ROUND"       , "IIIII"    , TYPE_INT         , libmod_gfx_draw_rectangle_round        ),
+    FUNC( "DRAW_RECTANGLE_ROUND"       , "IIIIII"   , TYPE_INT         , DRWFN_COLOR(rectangle_round)           ), // libmod_gfx_draw_rectangle_round_color
+    FUNC( "DRAW_RECTANGLE_ROUND_FILLED", "IIIII"    , TYPE_INT         , libmod_gfx_draw_rectangle_round_filled ),
+    FUNC( "DRAW_RECTANGLE_ROUND_FILLED", "IIIIII"   , TYPE_INT         , DRWFN_COLOR(rectangle_round_filled)    ), // libmod_gfx_draw_rectangle_round_filled_color
+
+    FUNC( "DRAW_POLYGON"        , "IP"              , TYPE_INT         , libmod_gfx_draw_polygon                ),
+    FUNC( "DRAW_POLYGON"        , "IPI"             , TYPE_INT         , DRWFN_COLOR(polygon)                   ), // libmod_gfx_draw_polygon_color
+    FUNC( "DRAW_POLYGON_FILLED" , "IP"              , TYPE_INT         , libmod_gfx_draw_polygon_filled         ),
+    FUNC( "DRAW_POLYGON_FILLED" , "IPI"             , TYPE_INT         , DRWFN_COLOR(polygon_filled)            ), // libmod_gfx_draw_polygon_filled_color
+
+    FUNC( "DRAW_POLYLINE"       , "IPI"             , TYPE_INT         , libmod_gfx_draw_polyline               ),
+    FUNC( "DRAW_POLYLINE"       , "IPII"            , TYPE_INT         , DRWFN_COLOR(polyline)                  ), // libmod_gfx_draw_ellipse_color
+
+    FUNC( "DRAW_SET_THICKNESS"  , "F"               , TYPE_FLOAT       , libmod_gfx_draw_set_thickness          ),
+    FUNC( "DRAW_SET_THICKNESS"  , "IF"              , TYPE_FLOAT       , libmod_gfx_draw_set_thickness2         ),
+    FUNC( "DRAW_GET_THICKNESS"  , ""                , TYPE_FLOAT       , libmod_gfx_draw_get_thickness          ),
+    FUNC( "DRAW_GET_THICKNESS"  , "I"               , TYPE_FLOAT       , libmod_gfx_draw_get_thickness2         ),
+
+#endif
 
     /* pathfind */
     FUNC( "PATH_FIND"           , "IIIIIII"         , TYPE_INT        , libmod_gfx_path_find                    ),

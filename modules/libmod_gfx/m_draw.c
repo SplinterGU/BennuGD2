@@ -43,17 +43,37 @@
 /* --------------------------------------------------------------------------- */
 
 /* Primitives */
-#define DRAWOBJ_POINT       1
-#define DRAWOBJ_POINTS      2
-#define DRAWOBJ_LINE        3
-#define DRAWOBJ_LINES       4
-#define DRAWOBJ_RECT        5
-#define DRAWOBJ_RECTS       6
-#define DRAWOBJ_BOX         7
-#define DRAWOBJ_BOXES       8
-#define DRAWOBJ_CIRCLE      9
-#define DRAWOBJ_FCIRCLE     10
-#define DRAWOBJ_CURVE       11
+
+enum {
+    DRAWOBJ_POINT = 1,
+    DRAWOBJ_LINE,
+#if ENABLE_MULTIDRAW
+    DRAWOBJ_POINTS,
+    DRAWOBJ_LINES,
+    DRAWOBJ_RECTANGLES,
+    DRAWOBJ_RECTANGLES_FILLED,
+#endif
+    DRAWOBJ_RECTANGLE,
+    DRAWOBJ_RECTANGLE_FILLED,
+    DRAWOBJ_CIRCLE,
+    DRAWOBJ_CIRCLE_FILLED,
+    DRAWOBJ_CURVE,
+#ifndef USE_NATIVE_SDL2
+    DRAWOBJ_ARC,
+    DRAWOBJ_ARC_FILLED,
+    DRAWOBJ_ELLIPSE,
+    DRAWOBJ_ELLIPSE_FILLED,
+    DRAWOBJ_SECTOR,
+    DRAWOBJ_SECTOR_FILLED,
+    DRAWOBJ_TRIANGLE,
+    DRAWOBJ_TRIANGLE_FILLED,
+    DRAWOBJ_RECTANGLE_ROUND,
+    DRAWOBJ_RECTANGLE_ROUND_FILLED,
+    DRAWOBJ_POLYGON,
+    DRAWOBJ_POLYGON_FILLED,
+    DRAWOBJ_POLYLINE
+#endif
+};
 
 typedef struct _drawing_object {
     int64_t type;
@@ -64,6 +84,7 @@ typedef struct _drawing_object {
     int64_t w;
     int64_t h;
 
+    /* [x2, y2], [x3, y3] and [x4, y4] are relatives to [x1, y1] */
     int64_t x2;
     int64_t y2;
     int64_t x3;
@@ -75,13 +96,30 @@ typedef struct _drawing_object {
 
     int64_t radius;
 
+#ifndef USE_NATIVE_SDL2
+    int64_t rx;
+    int64_t ry;
+
+    int64_t inner_radius;
+    int64_t outer_radius;
+
+    int64_t degrees;
+
+    int64_t start_angle;
+    int64_t end_angle;
+
+    int64_t close_loop;
+
+    float thickness;
+#endif
+
     int64_t z;
 
     int64_t preallocated:1; // if data is preallocated, user must release it
 
     int64_t data_size; // count items of objs
     void * data; // objs Rects/Points
-                 // For DRAWOBJ_CIRCLE / DRAWOBJ_FCIRCLE / DRAWOBJ_CURVE is cache
+                 // For DRAWOBJ_CIRCLE / DRAWOBJ_CIRCLE_FILLED / DRAWOBJ_CURVE is cache
 
     /* Private */
 
@@ -114,14 +152,14 @@ static int64_t drawing_z = -256 ;
  *
  *  PARAMS :
  *      dr          Drawing object
- *      bbox        Pointer to a REGION to be filled with the bounding box
+ *      brectangle_filled        Pointer to a REGION to be filled with the bounding rectangle_filled
  *
  *  RETURN VALUE :
  *      1 if the primitive changed since last frame
  *
  */
 
-static int _libmod_gfx_draw_object_info( void * what, REGION * bbox, int64_t * z, int64_t * drawme ) {
+static int _libmod_gfx_draw_object_info( void * what, REGION * brectangle_filled, int64_t * z, int64_t * drawme ) {
 
     REGION newclip;
     int64_t minx, miny, maxx, maxy;
@@ -133,11 +171,59 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * bbox, int64_t * z
 
     * z = dr->z;
 
-    if ( !bbox ) return 1;
+    if ( !brectangle_filled ) return 1;
 
     switch ( dr->type ) {
+#ifndef USE_NATIVE_SDL2
+        case DRAWOBJ_ARC:
+        case DRAWOBJ_ARC_FILLED:
+            newclip.x = dr->x1 - dr->radius;
+            newclip.y = dr->y1 - dr->radius;
+            newclip.x2 = dr->x1 + dr->radius;
+            newclip.y2 = dr->y1 + dr->radius;
+            break;
+
+        case DRAWOBJ_ELLIPSE:
+        case DRAWOBJ_ELLIPSE_FILLED:
+            newclip.x = dr->x1 - dr->rx;
+            newclip.y = dr->y1 - dr->ry;
+            newclip.x2 = dr->x1 + dr->rx;
+            newclip.y2 = dr->y1 + dr->ry;
+            break;
+
+        case DRAWOBJ_SECTOR:
+        case DRAWOBJ_SECTOR_FILLED:
+            newclip.x = dr->x1 - dr->outer_radius;
+            newclip.y = dr->y1 - dr->outer_radius;
+            newclip.x2 = dr->x1 + dr->outer_radius;
+            newclip.y2 = dr->y1 + dr->outer_radius;
+            break;
+
+        case DRAWOBJ_TRIANGLE:
+        case DRAWOBJ_TRIANGLE_FILLED:
+            newclip.x = MIN( dr->x1, MIN( dr->x1 + dr->x2, dr->x1 + dr->x3 ) );
+            newclip.y = MIN( dr->y1, MIN( dr->y1 + dr->y2, dr->y1 + dr->y3 ) );
+            newclip.x2 = MAX( dr->x1, MAX( dr->x1 + dr->x2, dr->x1 + dr->x3 ) );
+            newclip.y2 = MAX( dr->y1, MAX( dr->y1 + dr->y2, dr->y1 + dr->y3 ) );
+            break;
+
+        case DRAWOBJ_RECTANGLE_ROUND:
+        case DRAWOBJ_RECTANGLE_ROUND_FILLED:
+            newclip.x = dr->x1;
+            newclip.y = dr->y1;
+            newclip.x2 = dr->x1 + dr->w;
+            newclip.y2 = dr->y1 + dr->h;
+            break;
+
+        case DRAWOBJ_POLYGON:
+        case DRAWOBJ_POLYGON_FILLED:
+        case DRAWOBJ_POLYLINE:
+            break;
+
+#endif
+
         case DRAWOBJ_CIRCLE:
-        case DRAWOBJ_FCIRCLE:
+        case DRAWOBJ_CIRCLE_FILLED:
             newclip.x = dr->x1 - dr->radius;
             newclip.y = dr->y1 - dr->radius;
             newclip.x2 = dr->x1 + dr->radius;
@@ -147,8 +233,8 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * bbox, int64_t * z
         case DRAWOBJ_CURVE:
             newclip.x = dr->x1;
             newclip.y = dr->y1;
-            newclip.x2 = dr->x4;
-            newclip.y2 = dr->y4;
+            newclip.x2 = dr->x1 + dr->x4;
+            newclip.y2 = dr->y1 + dr->y4;
             break;
 
         case DRAWOBJ_POINT:
@@ -161,29 +247,31 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * bbox, int64_t * z
         case DRAWOBJ_LINE:
             newclip.x = dr->x1;
             newclip.y = dr->y1;
-            newclip.x2 = dr->x2;
-            newclip.y2 = dr->y2;
+            newclip.x2 = dr->x1 + dr->x2;
+            newclip.y2 = dr->y1 + dr->y2;
             break;
 
+#if ENABLE_MULTIDRAW
         // Maybe can be calculated
         case DRAWOBJ_POINTS:
         case DRAWOBJ_LINES:
-        case DRAWOBJ_RECTS:
-        case DRAWOBJ_BOXES:
+        case DRAWOBJ_RECTANGLES:
+        case DRAWOBJ_RECTANGLES_FILLED:
             newclip.x = 0;
             newclip.y = 0;
             newclip.x2 = scr_width;
             newclip.y2 = scr_height;
             break;
-
-        case DRAWOBJ_RECT:
-        case DRAWOBJ_BOX:
+#endif
+        case DRAWOBJ_RECTANGLE:
+        case DRAWOBJ_RECTANGLE_FILLED:
         default:
             newclip.x = dr->x1;
             newclip.y = dr->y1;
             newclip.x2 = dr->x1 + dr->w;
             newclip.y2 = dr->y1 + dr->h;
             break;
+
     }
 
     minx = newclip.x;
@@ -206,8 +294,8 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * bbox, int64_t * z
     newclip.x2 = maxx;
     newclip.y2 = maxy;
 
-    if ( newclip.x != bbox->x || newclip.y != bbox->y || newclip.x2 != bbox->x2 || newclip.y2 != bbox->y2 ) {
-        * bbox = newclip;
+    if ( newclip.x != brectangle_filled->x || newclip.y != brectangle_filled->y || newclip.x2 != brectangle_filled->x2 || newclip.y2 != brectangle_filled->y2 ) {
+        * brectangle_filled = newclip;
         return 0;
     }
 
@@ -239,11 +327,19 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
 
     int64_t old_drawing_blend_mode = drawing_blend_mode;
 
+#ifndef USE_NATIVE_SDL2
+    float old_drawing_thickness = drawing_thickness;
+#endif
+
     drawing_color_r = dr->color_r;
     drawing_color_g = dr->color_g;
     drawing_color_b = dr->color_b;
     drawing_color_a = dr->color_a;
     drawing_blend_mode = dr->blend_mode;
+
+#ifndef USE_NATIVE_SDL2
+    drawing_thickness = dr->thickness;
+#endif
 
     switch ( dr->type ) {
         case DRAWOBJ_POINT:
@@ -251,17 +347,18 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
             break;
 
         case DRAWOBJ_LINE:
-            draw_line( NULL, clip, dr->x1, dr->y1, dr->x2, dr->y2 );
+            draw_line( NULL, clip, dr->x1, dr->y1, dr->x1 + dr->x2, dr->y1 + dr->y2 );
             break;
 
-        case DRAWOBJ_RECT:
+        case DRAWOBJ_RECTANGLE:
             draw_rectangle( NULL, clip, dr->x1, dr->y1, dr->w, dr->h );
             break;
 
-        case DRAWOBJ_BOX:
-            draw_box( NULL, clip, dr->x1, dr->y1, dr->w, dr->h );
+        case DRAWOBJ_RECTANGLE_FILLED:
+            draw_rectangle_filled( NULL, clip, dr->x1, dr->y1, dr->w, dr->h );
             break;
 
+#if ENABLE_MULTIDRAW
         case DRAWOBJ_POINTS:
             draw_points( NULL, clip, dr->data_size, ( SDL_Point * ) dr->data );
             break;
@@ -270,26 +367,85 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
             draw_lines( NULL, clip, dr->data_size, ( SDL_Point * ) dr->data );
             break;
 
-        case DRAWOBJ_RECTS:
+        case DRAWOBJ_RECTANGLES:
             draw_rectangles( NULL, clip, dr->data_size, ( SDL_Rect * ) dr->data );
             break;
 
-        case DRAWOBJ_BOXES:
-            draw_boxes( NULL, clip, dr->data_size, ( SDL_Rect * ) dr->data );
+        case DRAWOBJ_RECTANGLES_FILLED:
+            draw_rectangles_filled( NULL, clip, dr->data_size, ( SDL_Rect * ) dr->data );
             break;
-
+#endif
         case DRAWOBJ_CIRCLE:
             draw_circle( NULL, clip, dr->x1, dr->y1, dr->radius, &dr->data_size, &dr->data );
             break;
 
-        case DRAWOBJ_FCIRCLE:
-            draw_fcircle( NULL, clip, dr->x1, dr->y1, dr->radius, &dr->data_size, &dr->data );
+        case DRAWOBJ_CIRCLE_FILLED:
+            draw_circle_filled( NULL, clip, dr->x1, dr->y1, dr->radius, &dr->data_size, &dr->data );
             break;
 
         case DRAWOBJ_CURVE:
-            draw_bezier( NULL, clip, dr->x1, dr->y1, dr->x2, dr->y2, dr->x3, dr->y3, dr->x4, dr->y4, dr->level, &dr->data_size, &dr->data );
+            draw_bezier( NULL, clip, dr->x1, dr->y1, dr->x1 + dr->x2, dr->y1 + dr->y2, dr->x1 + dr->x3, dr->y1 + dr->y3, dr->x1 + dr->x4, dr->y1 + dr->y4, dr->level, &dr->data_size, &dr->data );
             break;
+
+#ifndef USE_NATIVE_SDL2
+        case DRAWOBJ_ARC:
+            draw_arc( NULL, clip, dr->x1, dr->y1, dr->radius, dr->start_angle, dr->end_angle ) ;
+            break;
+
+        case DRAWOBJ_ARC_FILLED:
+            draw_arc_filled( NULL, clip, dr->x1, dr->y1, dr->radius, dr->start_angle, dr->end_angle ) ;
+            break;
+
+        case DRAWOBJ_ELLIPSE:
+            draw_ellipse( NULL, clip, dr->x1, dr->y1, dr->rx, dr->ry, dr->degrees );
+            break;
+
+        case DRAWOBJ_ELLIPSE_FILLED:
+            draw_ellipse_filled( NULL, clip, dr->x1, dr->y1, dr->rx, dr->ry, dr->degrees );
+            break;
+
+        case DRAWOBJ_SECTOR:
+            draw_sector( NULL, clip, dr->x1, dr->y1, dr->inner_radius, dr->outer_radius, dr->start_angle, dr->end_angle ) ;
+            break;
+
+        case DRAWOBJ_SECTOR_FILLED:
+            draw_sector_filled( NULL, clip, dr->x1, dr->y1, dr->inner_radius, dr->outer_radius, dr->start_angle, dr->end_angle ) ;
+            break;
+
+        case DRAWOBJ_TRIANGLE:
+            draw_triangle( NULL, clip, dr->x1, dr->y1, dr->x1 + dr->x2, dr->y1 + dr->y2, dr->x1 + dr->x3, dr->y1 + dr->y3 ) ;
+            break;
+
+        case DRAWOBJ_TRIANGLE_FILLED:
+            draw_triangle_filled( NULL, clip, dr->x1, dr->y1, dr->x1 + dr->x2, dr->y1 + dr->y2, dr->x1 + dr->x3, dr->y1 + dr->y3 ) ;
+            break;
+
+        case DRAWOBJ_RECTANGLE_ROUND:
+            draw_rectangle_round( NULL, clip, dr->x1, dr->y1, dr->w, dr->h, dr->radius ) ;
+            break;
+
+        case DRAWOBJ_RECTANGLE_ROUND_FILLED:
+            draw_rectangle_round_filled( NULL, clip, dr->x1, dr->y1, dr->w, dr->h, dr->radius ) ;
+            break;
+
+        case DRAWOBJ_POLYGON:
+            draw_polygon( NULL, clip, dr->data_size, ( float * ) dr->data ) ;
+            break;
+
+        case DRAWOBJ_POLYGON_FILLED:
+            draw_polygon_filled( NULL, clip, dr->data_size, ( float * ) dr->data ) ;
+            break;
+
+        case DRAWOBJ_POLYLINE:
+            draw_polyline( NULL, clip, dr->data_size, ( float * ) dr->data, dr->close_loop ) ;
+            break;
+
+#endif
     }
+
+#ifndef USE_NATIVE_SDL2
+    drawing_thickness = old_drawing_thickness;
+#endif
 
     drawing_color_r = old_drawing_color_r;
     drawing_color_g = old_drawing_color_g;
@@ -332,17 +488,26 @@ static int64_t _libmod_gfx_draw_object_new( DRAWING_OBJECT * dr, int64_t z ) {
     dr->blend_mode = drawing_blend_mode;
     dr->z = drawing_z;
 
+#ifndef USE_NATIVE_SDL2
+    dr->thickness = drawing_thickness;
+#endif
+
     dr->preallocated = 0;
 
     switch ( dr->type ) {
+#if ENABLE_MULTIDRAW
         case DRAWOBJ_POINTS:
         case DRAWOBJ_LINES:
-        case DRAWOBJ_RECTS:
-        case DRAWOBJ_BOXES:
+        case DRAWOBJ_RECTANGLES:
+        case DRAWOBJ_RECTANGLES_FILLED:
+#endif
+        case DRAWOBJ_POLYGON:
+        case DRAWOBJ_POLYGON_FILLED:
+        case DRAWOBJ_POLYLINE:
             dr->preallocated = 1;
 
         case DRAWOBJ_CIRCLE:
-        case DRAWOBJ_FCIRCLE:
+        case DRAWOBJ_CIRCLE_FILLED:
         case DRAWOBJ_CURVE:
             break;
 
@@ -440,19 +605,19 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
                 break;
 
             case DRAWOBJ_LINE:
-                dr->x2 += incx;
-                dr->y2 += incy;
                 break;
 
-            case DRAWOBJ_RECT:
-            case DRAWOBJ_BOX:
+            case DRAWOBJ_RECTANGLE:
+            case DRAWOBJ_RECTANGLE_FILLED:
                 break;
 
+#if ENABLE_MULTIDRAW
             case DRAWOBJ_POINTS:
             case DRAWOBJ_LINES:
+#endif
 #ifdef USE_NATIVE_SDL2
             case DRAWOBJ_CIRCLE:
-            case DRAWOBJ_FCIRCLE:
+            case DRAWOBJ_CIRCLE_FILLED:
 #endif
             case DRAWOBJ_CURVE:
                 if ( dr->data ) {
@@ -465,12 +630,13 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
 
 #ifndef USE_NATIVE_SDL2
             case DRAWOBJ_CIRCLE:
-            case DRAWOBJ_FCIRCLE:
+            case DRAWOBJ_CIRCLE_FILLED:
                 break;
 #endif
 
-            case DRAWOBJ_RECTS:
-            case DRAWOBJ_BOXES:
+#if ENABLE_MULTIDRAW
+            case DRAWOBJ_RECTANGLES:
+            case DRAWOBJ_RECTANGLES_FILLED:
                 if ( dr->data ) {
                     SDL_Rect * p = ( SDL_Rect * ) dr->data;
                     for ( i = 0; i < dr->data_size; i++, p++ ) {
@@ -478,6 +644,36 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
                     }
                 }
                 break;
+#endif
+
+#ifndef USE_NATIVE_SDL2
+        case DRAWOBJ_ARC:
+        case DRAWOBJ_ARC_FILLED:
+        case DRAWOBJ_ELLIPSE:
+        case DRAWOBJ_ELLIPSE_FILLED:
+        case DRAWOBJ_SECTOR:
+        case DRAWOBJ_SECTOR_FILLED:
+        case DRAWOBJ_RECTANGLE_ROUND:
+        case DRAWOBJ_RECTANGLE_ROUND_FILLED:
+            break;
+
+        case DRAWOBJ_TRIANGLE:
+        case DRAWOBJ_TRIANGLE_FILLED:
+            break;
+
+        case DRAWOBJ_POLYGON:
+        case DRAWOBJ_POLYGON_FILLED:
+        case DRAWOBJ_POLYLINE:
+            if ( dr->data ) {
+                float * p = ( float * ) dr->data;
+                for ( i = 0; i < dr->data_size; i++, p++ ) {
+                    *p++ += ( float ) incx;
+                    *p += ( float ) incy;
+                }
+            }
+            break;
+
+#endif
         }
     }
 }
@@ -512,7 +708,7 @@ int64_t libmod_gfx_draw_drawing_rgba( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params ) {
+int64_t libmod_gfx_draw_drawing_color2( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     __get_rgba( params[1], &dr->color_r, &dr->color_g, &dr->color_b, &dr->color_a ) ;
@@ -521,7 +717,7 @@ int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_draw_drawing_rgba_id( INSTANCE * my, int64_t * params ) {
+int64_t libmod_gfx_draw_drawing_rgba2( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     dr->color_r = params[1];
@@ -540,13 +736,12 @@ int64_t libmod_gfx_draw_drawing_blend_mode( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_draw_drawing_blend_mode_id( INSTANCE * my, int64_t * params ) {
+int64_t libmod_gfx_draw_drawing_blend_mode2( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     dr->blend_mode = params[1];
     return 1 ;
 }
-
 
 /* --------------------------------------------------------------------------- */
 
@@ -557,7 +752,7 @@ int64_t libmod_gfx_draw_drawing_z( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_draw_drawing_z_id( INSTANCE * my, int64_t * params ) {
+int64_t libmod_gfx_draw_drawing_z2( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     dr->z = params[1];
@@ -587,6 +782,17 @@ int64_t libmod_gfx_draw_move_drawing( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_gfx_draw_getcoords( INSTANCE * my, int64_t * params ) {
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
+    if ( !dr ) return -1;
+    if ( params[1] ) *( int64_t * )( intptr_t )(params[1]) = ( uint8_t ) dr->x1;
+    if ( params[2] ) *( int64_t * )( intptr_t )(params[2]) = ( uint8_t ) dr->y1;
+    if ( params[3] ) *( int64_t * )( intptr_t )(params[3]) = ( uint8_t ) dr->z;
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_draw_point( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
@@ -604,23 +810,6 @@ int64_t libmod_gfx_draw_point( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_draw_points( INSTANCE * my, int64_t * params ) {
-    if ( !drawing_graph ) {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
-        if ( !dr ) return -1;
-
-        dr->type = DRAWOBJ_POINTS;
-        dr->data_size = params[ 0 ];
-        dr->data = ( void * ) ( intptr_t ) params[ 1 ];;
-        return _libmod_gfx_draw_object_new( dr, drawing_z );
-    }
-
-    draw_points( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] );
-    return 1 ;
-}
-
-/* --------------------------------------------------------------------------- */
-
 int64_t libmod_gfx_draw_line( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
@@ -629,12 +818,68 @@ int64_t libmod_gfx_draw_line( INSTANCE * my, int64_t * params ) {
         dr->type = DRAWOBJ_LINE;
         dr->x1 = params[ 0 ];
         dr->y1 = params[ 1 ];
-        dr->x2 = params[ 2 ];
-        dr->y2 = params[ 3 ];
+        dr->x2 = params[ 2 ] - dr->x1;
+        dr->y2 = params[ 3 ] - dr->y1;
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
     draw_line( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ] );
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_rectangle_filled( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_RECTANGLE_FILLED;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->w = params[ 2 ];
+        dr->h = params[ 3 ];
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_rectangle_filled( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_rectangle( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_RECTANGLE;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->w = params[ 2 ];
+        dr->h = params[ 3 ];
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_rectangle( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ] ) ;
+    return 1 ;
+}
+
+#if ENABLE_MULTIDRAW
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_points( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_POINTS;
+        dr->data_size = params[ 0 ];
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_points( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] );
     return 1 ;
 }
 
@@ -647,7 +892,7 @@ int64_t libmod_gfx_draw_lines( INSTANCE * my, int64_t * params ) {
 
         dr->type = DRAWOBJ_LINES;
         dr->data_size = params[ 0 ];
-        dr->data = ( void * ) ( intptr_t ) params[ 1 ];;
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
@@ -657,75 +902,38 @@ int64_t libmod_gfx_draw_lines( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_draw_box( INSTANCE * my, int64_t * params ) {
+int64_t libmod_gfx_draw_rectangles( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
         if ( !dr ) return -1;
 
-        dr->type = DRAWOBJ_BOX;
-        dr->x1 = params[ 0 ];
-        dr->y1 = params[ 1 ];
-        dr->w = params[ 2 ];
-        dr->h = params[ 3 ];
-        return _libmod_gfx_draw_object_new( dr, drawing_z );
-    }
-
-    draw_box( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ] ) ;
-    return 1 ;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_draw_boxes( INSTANCE * my, int64_t * params ) {
-    if ( !drawing_graph ) {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
-        if ( !dr ) return -1;
-
-        dr->type = DRAWOBJ_BOXES;
+        dr->type = DRAWOBJ_RECTANGLES;
         dr->data_size = params[ 0 ];
-        dr->data = ( void * ) ( intptr_t ) params[ 1 ];;
-        return _libmod_gfx_draw_object_new( dr, drawing_z );
-    }
-
-    draw_boxes( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] ) ;
-    return 1 ;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_draw_rect( INSTANCE * my, int64_t * params ) {
-    if ( !drawing_graph ) {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
-        if ( !dr ) return -1;
-
-        dr->type = DRAWOBJ_RECT;
-        dr->x1 = params[ 0 ];
-        dr->y1 = params[ 1 ];
-        dr->w = params[ 2 ];
-        dr->h = params[ 3 ];
-        return _libmod_gfx_draw_object_new( dr, drawing_z );
-    }
-
-    draw_rectangle( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ] ) ;
-    return 1 ;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_draw_rects( INSTANCE * my, int64_t * params ) {
-    if ( !drawing_graph ) {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
-        if ( !dr ) return -1;
-
-        dr->type = DRAWOBJ_RECTS;
-        dr->data_size = params[ 0 ];
-        dr->data = ( void * ) ( intptr_t ) params[ 1 ];;
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
     draw_rectangles( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] ) ;
     return 1 ;
 }
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_rectangles_filled( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_RECTANGLES_FILLED;
+        dr->data_size = params[ 0 ];
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_rectangles_filled( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] ) ;
+    return 1 ;
+}
+#endif
 
 /* --------------------------------------------------------------------------- */
 
@@ -750,12 +958,12 @@ int64_t libmod_gfx_draw_circle( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_draw_fcircle( INSTANCE * my, int64_t * params ) {
+int64_t libmod_gfx_draw_circle_filled( INSTANCE * my, int64_t * params ) {
     if ( !drawing_graph ) {
         DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
         if ( !dr ) return -1;
 
-        dr->type = DRAWOBJ_FCIRCLE;
+        dr->type = DRAWOBJ_CIRCLE_FILLED;
         dr->x1 = params[ 0 ];
         dr->y1 = params[ 1 ];
         dr->radius = params[ 2 ];
@@ -765,7 +973,7 @@ int64_t libmod_gfx_draw_fcircle( INSTANCE * my, int64_t * params ) {
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
-    draw_fcircle( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], NULL, NULL ) ;
+    draw_circle_filled( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], NULL, NULL ) ;
     return 1 ;
 }
 
@@ -779,12 +987,12 @@ int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params ) {
         dr->type = DRAWOBJ_CURVE;
         dr->x1 = params[ 0 ];
         dr->y1 = params[ 1 ];
-        dr->x2 = params[ 2 ];
-        dr->y2 = params[ 3 ];
-        dr->x3 = params[ 4 ];
-        dr->y3 = params[ 5 ];
-        dr->x4 = params[ 6 ];
-        dr->y4 = params[ 7 ];
+        dr->x2 = params[ 2 ] - dr->x1;
+        dr->y2 = params[ 3 ] - dr->y1;
+        dr->x3 = params[ 4 ] - dr->x1;
+        dr->y3 = params[ 5 ] - dr->y1;
+        dr->x4 = params[ 6 ] - dr->x1;
+        dr->y4 = params[ 7 ] - dr->y1;
         dr->level = params[ 8 ];
 
         dr->data_size = 0;
@@ -795,6 +1003,350 @@ int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params ) {
     draw_bezier( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ], params[ 5 ], params[ 6 ], params[ 7 ], params[ 8 ], NULL, NULL );
     return 1;
 }
+
+/* --------------------------------------------------------------------------- */
+
+#ifndef USE_NATIVE_SDL2
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_arc( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_ARC;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->radius = params[ 2 ];
+        dr->start_angle = params[ 3 ];
+        dr->end_angle = params[ 4 ];
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_arc( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_arc_filled( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_ARC_FILLED;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->radius = params[ 2 ];
+        dr->start_angle = params[ 3 ];
+        dr->end_angle = params[ 4 ];
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_arc_filled( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_ellipse( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_ELLIPSE;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->rx = params[ 2 ];
+        dr->ry = params[ 3 ];
+        dr->degrees = params[ 4 ];
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_ellipse( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_ellipse_filled( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_ELLIPSE_FILLED;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->rx = params[ 2 ];
+        dr->ry = params[ 3 ];
+        dr->degrees = params[ 4 ];
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_ellipse_filled( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_sector( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_SECTOR;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->inner_radius = params[ 2 ];
+        dr->outer_radius = params[ 3 ];
+        dr->start_angle = params[ 4 ];
+        dr->end_angle = params[ 5 ];
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_sector( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ], params[ 5 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_sector_filled( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_SECTOR_FILLED;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->inner_radius = params[ 2 ];
+        dr->outer_radius = params[ 3 ];
+        dr->start_angle = params[ 4 ];
+        dr->end_angle = params[ 5 ];
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_sector_filled( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ], params[ 5 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_triangle( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_TRIANGLE;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->x2 = params[ 2 ] - dr->x1;
+        dr->y2 = params[ 3 ] - dr->y1;
+        dr->x3 = params[ 4 ] - dr->x1;
+        dr->y3 = params[ 5 ] - dr->y1;
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_triangle( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ], params[ 5 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_triangle_filled( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_TRIANGLE_FILLED;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->x2 = params[ 2 ] - dr->x1;
+        dr->y2 = params[ 3 ] - dr->y1;
+        dr->x3 = params[ 4 ] - dr->x1;
+        dr->y3 = params[ 5 ] - dr->y1;
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_triangle_filled( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ], params[ 5 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_rectangle_round( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_RECTANGLE_ROUND;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->w = params[ 2 ];
+        dr->h = params[ 3 ];
+        dr->radius = params[ 4 ];
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_rectangle_round( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_rectangle_round_filled( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_RECTANGLE_ROUND_FILLED;
+        dr->x1 = params[ 0 ];
+        dr->y1 = params[ 1 ];
+        dr->w = params[ 2 ];
+        dr->h = params[ 3 ];
+        dr->radius = params[ 4 ];
+
+        dr->data_size = 0;
+        dr->data = NULL;
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_rectangle_round_filled( drawing_graph, 0, params[ 0 ], params[ 1 ], params[ 2 ], params[ 3 ], params[ 4 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_polygon( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_POLYGON;
+        dr->data_size = params[ 0 ];
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];
+        if ( dr->data_size > 0 ) {
+            float * data = ( void * ) ( intptr_t ) params[ 1 ];
+            dr->x1 = data[0];
+            dr->y1 = data[1];
+        }
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_polygon( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_polygon_filled( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_POLYGON_FILLED;
+        dr->data_size = params[ 0 ];
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];
+        if ( dr->data_size > 0 ) {
+            float * data = ( void * ) ( intptr_t ) params[ 1 ];
+            dr->x1 = data[0];
+            dr->y1 = data[1];
+        }
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_polygon_filled( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_polyline( INSTANCE * my, int64_t * params ) {
+    if ( !drawing_graph ) {
+        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        if ( !dr ) return -1;
+
+        dr->type = DRAWOBJ_POLYLINE;
+        dr->data_size = params[ 0 ];
+        dr->data = ( void * ) ( intptr_t ) params[ 1 ];
+        dr->close_loop = params[ 2 ];
+        if ( dr->data_size > 0 ) {
+            float * data = ( void * ) ( intptr_t ) params[ 1 ];
+            dr->x1 = data[0];
+            dr->y1 = data[1];
+        }
+        return _libmod_gfx_draw_object_new( dr, drawing_z );
+    }
+
+    draw_polyline( drawing_graph, 0, params[ 0 ], ( void * ) ( intptr_t ) params[ 1 ], params[ 2 ] ) ;
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_set_thickness( INSTANCE * my, int64_t * params ) {
+    float old = drawing_thickness;
+    drawing_thickness = *( float * ) ( intptr_t ) &params[0];
+    return *( int64_t * ) ( intptr_t ) &old ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_set_thickness2( INSTANCE * my, int64_t * params ) {
+    float old = 1.0f;
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
+    if ( dr ) {
+        old = dr->thickness;
+        dr->thickness = *( float * ) ( intptr_t ) &params[1];
+    }
+    return *( int64_t * ) ( intptr_t ) &old ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_get_thickness( INSTANCE * my, int64_t * params ) {
+    return *( int64_t * ) ( intptr_t ) &drawing_thickness ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_get_thickness2( INSTANCE * my, int64_t * params ) {
+    float val = 1.0f;
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
+    if ( dr ) val = dr->thickness;
+    return *( int64_t * ) ( intptr_t ) &val ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+#endif
 
 /* --------------------------------------------------------------------------- */
 
@@ -822,15 +1374,33 @@ int64_t libmod_gfx_draw_##fn##_color( INSTANCE * my, int64_t * params ) { \
 /* ----------------------------------------------------------------- */
 
 DRWFN_COLOR(point,2)
-DRWFN_COLOR(points,2)
 DRWFN_COLOR(line,4)
+DRWFN_COLOR(rectangle,4)
+DRWFN_COLOR(rectangle_filled,4)
+#if ENABLE_MULTIDRAW
+DRWFN_COLOR(points,2)
 DRWFN_COLOR(lines,2)
-DRWFN_COLOR(box,4)
-DRWFN_COLOR(boxes,2)
-DRWFN_COLOR(rect,4)
-DRWFN_COLOR(rects,2)
+DRWFN_COLOR(rectangles,2)
+DRWFN_COLOR(rectangles_filled,2)
+#endif
 DRWFN_COLOR(circle,3)
-DRWFN_COLOR(fcircle,3)
+DRWFN_COLOR(circle_filled,3)
 DRWFN_COLOR(bezier,9)
+
+#ifndef USE_NATIVE_SDL2
+DRWFN_COLOR(arc,5)
+DRWFN_COLOR(arc_filled,5)
+DRWFN_COLOR(ellipse,5)
+DRWFN_COLOR(ellipse_filled,5)
+DRWFN_COLOR(sector,6)
+DRWFN_COLOR(sector_filled,6)
+DRWFN_COLOR(triangle,6)
+DRWFN_COLOR(triangle_filled,6)
+DRWFN_COLOR(rectangle_round,5)
+DRWFN_COLOR(rectangle_round_filled,5)
+DRWFN_COLOR(polygon,2)
+DRWFN_COLOR(polygon_filled,2)
+DRWFN_COLOR(polyline,3)
+#endif
 
 /* ----------------------------------------------------------------- */

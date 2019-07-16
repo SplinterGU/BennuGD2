@@ -250,8 +250,7 @@ int64_t grlib_add_map( int64_t libid, GRAPH * map ) {
     if ( map->code < 1 || map->code > 999 ) lib = syslib;
     else                                    lib = grlib_get( libid );
 
-    if ( !lib ) return -1;
-    if ( map->code < 0 ) return -1;
+    if ( !lib || map->code < 0 ) return -1;
 
     if ( map->code > 0 ) grlib_unload_map( libid, map->code );
 
@@ -292,57 +291,8 @@ int64_t grlib_add_map( int64_t libid, GRAPH * map ) {
 
 GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
     GRLIB * lib = NULL;
-    if ( !libid ) {
-        /* Using (0, -1) we can get the screen bitmap (undocumented bug/feature) */
-        if ( mapcode == -1 ) {
-#ifdef USE_NATIVE_SDL2
-            if ( scrbitmap && ( scrbitmap->width != renderer_width || scrbitmap->height != renderer_height ) ) {
-                bitmap_destroy( scrbitmap );
-                scrbitmap = NULL;
-            }
 
-            if ( !scrbitmap ) {
-                scrbitmap = bitmap_new( 0, renderer_width, renderer_height, NULL );
-            }
-
-            if ( scrbitmap ) {
-                if ( !scrbitmap->surface ) {
-                    scrbitmap->surface = SDL_CreateRGBSurface(0, scrbitmap->width, scrbitmap->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, 0 /* Force alpha to opaque */ );
-                    SDL_SetColorKey( scrbitmap->surface, SDL_FALSE, 0 );
-                }
-
-                if ( scrbitmap->surface ) {
-                    SDL_Rect rect;
-
-                    rect.x = rect.y = 0;
-                    rect.w = scrbitmap->width;
-                    rect.h = scrbitmap->height;
-
-                    int r = SDL_RenderReadPixels( gRenderer,
-                                                  &rect,
-                                                  0 /*scrbitmap->surface->format->format*/,
-                                                  scrbitmap->surface->pixels,
-                                                  scrbitmap->surface->pitch );
-                    if ( r ) {
-                        printf( "ERROR: %s\n", SDL_GetError() );
-                    }
-                    return scrbitmap;
-                }
-            }
-#else
-            SDL_Surface * surface = GPU_CopySurfaceFromTarget( gRenderer );
-            if ( !surface ) return NULL;
-
-            GRAPH * bitmap = bitmap_new( 0, 0, 0, surface );
-            if ( bitmap ) {
-                bitmap->code = bitmap_next_code();
-                grlib_add_map( 0, bitmap );
-                return bitmap ;
-            }
-#endif
-            return NULL;
-        }
-    }
+    if ( mapcode < 0 ) return NULL;
 
     /* Get the map from the system library
      * (the only one that can have more than 1000 maps)
@@ -355,7 +305,7 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
 
     if ( lib && lib->map_reserved > mapcode && mapcode >= 0 ) return lib->maps[ mapcode ];
 
-    return 0;
+    return NULL;
 }
 
 /* --------------------------------------------------------------------------- */

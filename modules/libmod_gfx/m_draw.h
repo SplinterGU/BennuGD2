@@ -38,40 +38,81 @@
 
 extern int64_t libmod_gfx_draw_drawing_color( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_drawing_rgba( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_drawing_color_id( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_drawing_rgba_id( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_color2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_rgba2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_drawing_blend_mode( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_drawing_blend_mode_id( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_blend_mode2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_drawing_z( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_drawing_z_id( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_drawing_z2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_drawing_map( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_delete_drawing( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_move_drawing( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_getcoords( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_point( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_points( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_line( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_rectangle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_rectangle_filled( INSTANCE * my, int64_t * params );
+#if ENABLE_MULTIDRAW
+extern int64_t libmod_gfx_draw_points( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_lines( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_box( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_boxes( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_rect( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_rects( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_rectangles( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_rectangles_filled( INSTANCE * my, int64_t * params );
+#endif
 extern int64_t libmod_gfx_draw_circle( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_draw_fcircle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_circle_filled( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params );
+
+#ifndef USE_NATIVE_SDL2
+extern int64_t libmod_gfx_draw_arc( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_arc_filled( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_ellipse( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_ellipse_filled( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_sector( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_sector_filled( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_triangle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_triangle_filled( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_rectangle_round( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_rectangle_round_filled( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_polygon( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_polygon_filled( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_polyline( INSTANCE * my, int64_t * params );
+
+extern int64_t libmod_gfx_draw_set_thickness( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_set_thickness2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_get_thickness( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_draw_get_thickness2( INSTANCE * my, int64_t * params );
+#endif
 
 #define EXPORT_DRWFN_COLOR(fn) extern int64_t libmod_gfx_draw_##fn##_color( INSTANCE * my, int64_t * params );
 
 EXPORT_DRWFN_COLOR(point)
-EXPORT_DRWFN_COLOR(points)
 EXPORT_DRWFN_COLOR(line)
+EXPORT_DRWFN_COLOR(rectangle)
+EXPORT_DRWFN_COLOR(rectangle_filled)
+#if ENABLE_MULTIDRAW
+EXPORT_DRWFN_COLOR(points)
 EXPORT_DRWFN_COLOR(lines)
-EXPORT_DRWFN_COLOR(box)
-EXPORT_DRWFN_COLOR(boxes)
-EXPORT_DRWFN_COLOR(rect)
-EXPORT_DRWFN_COLOR(rects)
+EXPORT_DRWFN_COLOR(rectangles_filled)
+EXPORT_DRWFN_COLOR(rectangles)
+#endif
 EXPORT_DRWFN_COLOR(circle)
-EXPORT_DRWFN_COLOR(fcircle)
+EXPORT_DRWFN_COLOR(circle_filled)
 EXPORT_DRWFN_COLOR(bezier)
+#ifndef USE_NATIVE_SDL2
+EXPORT_DRWFN_COLOR(arc)
+EXPORT_DRWFN_COLOR(arc_filled)
+EXPORT_DRWFN_COLOR(ellipse)
+EXPORT_DRWFN_COLOR(ellipse_filled)
+EXPORT_DRWFN_COLOR(sector)
+EXPORT_DRWFN_COLOR(sector_filled)
+EXPORT_DRWFN_COLOR(triangle)
+EXPORT_DRWFN_COLOR(triangle_filled)
+EXPORT_DRWFN_COLOR(rectangle_round)
+EXPORT_DRWFN_COLOR(rectangle_round_filled)
+EXPORT_DRWFN_COLOR(polygon)
+EXPORT_DRWFN_COLOR(polygon_filled)
+EXPORT_DRWFN_COLOR(polyline)
+#endif
 
 #undef EXPORT_DRWFN_COLOR
 
