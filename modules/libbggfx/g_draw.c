@@ -239,9 +239,9 @@ void draw_lines( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points 
 #ifdef USE_NATIVE_SDL2
     SDL_RenderDrawLines( gRenderer, points, count );
 #else
-    while( ( count -= 2 ) > 0 ) {
+    count--;
+    while( count-- ) {
         GPU_Line( target, ( float ) points->x, ( float ) points->y, ( float ) (++points)->x, ( float ) points->y, color );
-        points++;
     }
 #endif
 
