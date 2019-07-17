@@ -47,6 +47,12 @@
 
 /* --------------------------------------------------------------------------- */
 
+#ifndef USE_NATIVE_SDL2
+    GPU_FilterEnum gr_filter_mode = GPU_FILTER_NEAREST;
+#endif
+
+/* --------------------------------------------------------------------------- */
+
 #ifdef USE_NATIVE_SDL2
 
 static int inline gr_update_texture( GRAPH * gr ) {
@@ -248,6 +254,8 @@ void gr_blit(   GRAPH * dest,
 
 #ifdef USE_NATIVE_SDL2
     if ( !gr->surface ) return;
+#else
+    if ( !gr->image ) return;
 #endif
 
     if ( scalex <= 0.0 || scaley <= 0.0 ) return;
@@ -476,7 +484,16 @@ void gr_blit(   GRAPH * dest,
             GPU_SetBlendMode( gr->image, blend_mode );
         }
         GPU_SetRGBA( gr->image, color_r, color_g, color_b, alpha );
-        GPU_BlitTransformX( gr->image, gr_clip, dest ? dest->image->target : gRenderer, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
+
+        if ( gr->image->filter_mode != gr_filter_mode ) GPU_SetImageFilter( gr->image, gr_filter_mode );
+
+        GPU_Target * dst = dest ? dest->image->target : gRenderer;
+
+        if ( clip ) GPU_SetClip( dst, clip->x, clip->y, clip->x2 - clip->x + 1, clip->y2 - clip->y + 1 );
+
+        GPU_BlitTransformX( gr->image, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
+
+        if ( clip ) GPU_UnsetClip( dst );
 #endif
     }
 

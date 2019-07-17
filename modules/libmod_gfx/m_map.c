@@ -128,7 +128,7 @@ int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params ) {
             return map->surface->format->BitsPerPixel;
 #else
             if ( !map->image ) return -1;
-            return map->image->bytes_per_pixel;
+            return 32; // Only 32 bpp is supported
 #endif
         case G_CENTER_X:        /* g_center_x */
             if ( map->ncpoints > 0 )
@@ -569,13 +569,35 @@ int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
     switch( params[0] ) {
         case Q_NEAREST:
         default:
+#ifdef USE_NATIVE_SDL2
             return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
+#else
+            gr_filter_mode  = GPU_FILTER_NEAREST;
+            break;
+#endif
 
         case Q_LINEAR:
+#ifdef USE_NATIVE_SDL2
             return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "linear" );
+#else
+        case Q_BEST:
+            gr_filter_mode  = GPU_FILTER_LINEAR;
+            break;
+#endif
 
+#ifdef USE_NATIVE_SDL2
         case Q_BEST:
             return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
+#else
+            gr_filter_mode  = GPU_FILTER_NEAREST;
+            break;
+#endif
+
+#ifndef USE_NATIVE_SDL2
+        case Q_MIPMAP:
+            gr_filter_mode  = GPU_FILTER_LINEAR_MIPMAP;
+            break;
+#endif
 
     }
     return -1;

@@ -67,9 +67,14 @@
 #define B_CLEAR         0x00000001
 
 /* Texture quality */
-#define Q_NEAREST       0
-#define Q_LINEAR        1
-#define Q_BEST          2
+enum {
+    Q_NEAREST = 0,
+    Q_LINEAR,
+    Q_BEST,
+#ifndef USE_NATIVE_SDL2
+    Q_MIPMAP,
+#endif
+};
 
 /* --------------------------------------------------------------------------- */
 

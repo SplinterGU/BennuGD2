@@ -41,16 +41,15 @@
 #define B_TRANSLUCENT   0x0004
 #define B_ABLEND        0x0010
 #define B_SBLEND        0x0020
-#define B_MBLEND        0x0040
 #define B_NOCOLORKEY    0x0080
 
 /* --------------------------------------------------------------------------- */
-
 
 #ifdef USE_NATIVE_SDL2
     typedef SDL_BlendMode BLENDMODE;
 #else
     typedef GPU_BlendPresetEnum BLENDMODE;
+    extern GPU_FilterEnum gr_filter_mode;
 #endif
 
 extern int gr_prepare_renderer( GRAPH * dest,
@@ -65,7 +64,6 @@ extern void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64
 extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, GPU_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b );
 extern void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, GPU_Rect * map_clip );
 #endif
-
 
 /* --------------------------------------------------------------------------- */
 
