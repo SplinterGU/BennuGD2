@@ -231,14 +231,6 @@ int gr_set_mode( int width, int height, int flags ) {
         show_renderer_info( &gRendererInfo );
 //        printf( "max texture size: %d x %d\n", gRendererInfo.max_texture_width, gRendererInfo.max_texture_height );
     }
-
-    if ( waitvsync ) {
-        if ( SDL_GL_SetSwapInterval( -1 ) == -1 ) {
-            SDL_GL_SetSwapInterval( 1 );
-        }
-    } else {
-        SDL_GL_SetSwapInterval( 0 );
-    }
 #else
     if ( !gRenderer ) {
         // Create Renderer
@@ -246,19 +238,11 @@ int gr_set_mode( int width, int height, int flags ) {
         if ( frameless ) sdl_flags |= SDL_WINDOW_BORDERLESS;
         if ( fullscreen ) sdl_flags |= SDL_WINDOW_FULLSCREEN;
         if ( grab_input ) sdl_flags |= SDL_WINDOW_INPUT_GRABBED;
-
-/*typedef Uint32 GPU_InitFlagEnum;
-static const GPU_InitFlagEnum GPU_INIT_ENABLE_VSYNC = 0x1;
-static const GPU_InitFlagEnum GPU_INIT_DISABLE_VSYNC = 0x2;
-static const GPU_InitFlagEnum GPU_INIT_DISABLE_DOUBLE_BUFFER = 0x4;
-static const GPU_InitFlagEnum GPU_INIT_DISABLE_AUTO_VIRTUAL_RESOLUTION = 0x8;
-static const GPU_InitFlagEnum GPU_INIT_REQUEST_COMPATIBILITY_PROFILE = 0x10;
-static const GPU_InitFlagEnum GPU_INIT_USE_ROW_BY_ROW_TEXTURE_UPLOAD_FALLBACK = 0x20;
-static const GPU_InitFlagEnum GPU_INIT_USE_COPY_TEXTURE_UPLOAD_FALLBACK = 0x40;
+/*
+        GPU_InitFlagEnum GPU_flags = GPU_GetPreInitFlags() & ~( GPU_INIT_ENABLE_VSYNC | GPU_INIT_DISABLE_VSYNC );
+        if ( !waitvsync ) GPU_flags |= GPU_INIT_DISABLE_VSYNC;
+        GPU_SetPreInitFlags( GPU_flags );
 */
-
-GPU_SetPreInitFlags(( GPU_GetPreInitFlags() & ~GPU_INIT_ENABLE_VSYNC ) | GPU_INIT_DISABLE_VSYNC);
-
         gRenderer = GPU_Init( renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
         if( gRenderer == NULL ) return -1;
         gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
@@ -272,6 +256,14 @@ GPU_SetPreInitFlags(( GPU_GetPreInitFlags() & ~GPU_INIT_ENABLE_VSYNC ) | GPU_INI
         GPU_SetViewport( gRenderer, GPU_MakeRect(0, 0, renderer_width, renderer_height) );
         GPU_SetVirtualResolution( gRenderer, renderer_width, renderer_height );
 
+    }
+
+    if ( waitvsync ) {
+        if ( SDL_GL_SetSwapInterval( -1 ) == -1 ) {
+            SDL_GL_SetSwapInterval( 1 );
+        }
+    } else {
+        SDL_GL_SetSwapInterval( 0 );
     }
 
     if ( fullscreen ) {
