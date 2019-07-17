@@ -58,6 +58,9 @@ void gr_clear( GRAPH * dest ) {
 
     dest->texture_must_update = 1;
 #else
+    if ( gr_create_image_and_target( dest ) ) return;
+
+    GPU_Clear( dest->image->target );
 #endif
 }
 
@@ -135,6 +138,13 @@ void gr_clear_as( GRAPH * dest, int color ) {
 
     dest->texture_must_update = 1;
 #else
+    if ( gr_create_image_and_target( dest ) ) return;
+
+    Uint8 r, g, b, a;
+
+    SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
+
+    GPU_ClearRGBA( dest->image->target, r, g, b, a );
 #endif
 }
 
@@ -159,27 +169,27 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
 
     if ( !dest ) return;
 
+    if ( !region ) {
+        x = 0 ;
+        y = 0 ;
+        w = dest->width;
+        h = dest->height;
+    } else {
+        x = MAX( MIN( region->x, region->x2 ), 0 ) ;
+        y = MAX( MIN( region->y, region->y2 ), 0 ) ;
+        w = MIN( MAX( region->x, region->x2 ), dest->width ) + 1 - x ;
+        h = MIN( MAX( region->y, region->y2 ), dest->height ) + 1 - y ;
+    }
+
+    if ( x > dest->width || y > dest->height ) return;
+    if ( ( x + w ) < 0 || ( y + h ) < 0 ) return;
+
 #ifdef USE_NATIVE_SDL2
     if ( !dest->surface ) {
         dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !dest->surface ) return;
 //        SDL_SetColorKey( dest->surface, SDL_TRUE, 0 );
     }
-
-    if ( !region ) {
-        x = 0 ;
-        y = 0 ;
-        w = dest->width - 1 ;
-        h = dest->height - 1 ;
-    } else {
-        x = MAX( MIN( region->x, region->x2 ), 0 ) ;
-        y = MAX( MIN( region->y, region->y2 ), 0 ) ;
-        w = MIN( MAX( region->x, region->x2 ), dest->width - 1 ) - x ;
-        h = MIN( MAX( region->y, region->y2 ), dest->height - 1 ) - y ;
-    }
-
-    if ( x > dest->width || region->y > dest->height ) return;
-    if ( ( x + w ) < 0 || ( y + h ) < 0 ) return;
 
     switch ( dest->surface->format->BitsPerPixel ) {
         case 1: {
@@ -256,6 +266,17 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
 
     dest->texture_must_update = 1;
 #else
+    if ( gr_create_image_and_target( dest ) ) return;
+
+    Uint8 r, g, b, a;
+
+    SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
+
+    GPU_SetClip( dest->image->target, x, y, w, h );
+
+    GPU_ClearRGBA( dest->image->target, r, g, b, a );
+
+    GPU_UnsetClip( dest->image->target );
 #endif
 }
 

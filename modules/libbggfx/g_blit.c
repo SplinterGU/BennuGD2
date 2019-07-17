@@ -88,6 +88,21 @@ static int inline gr_update_texture( GRAPH * gr ) {
 #endif
 
 /* --------------------------------------------------------------------------- */
+
+#ifndef USE_NATIVE_SDL2
+int gr_create_image_and_target( GRAPH * dest ) {
+    if ( !dest ) return 1;
+    if ( !dest->image ) dest->image = GPU_CreateImage( dest->width, dest->height, GPU_FORMAT_RGBA );
+    if ( !dest->image ) {
+        printf ("error creando image destination\n" );
+        return 1;
+    }
+    if ( !dest->image->target ) GPU_LoadTarget( dest->image );
+    return 0;
+}
+#endif
+
+/* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : gr_prepare_renderer
  *
@@ -126,15 +141,7 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE *
         }
         else if ( dest->type != BITMAP_TEXTURE_TARGET ) return 1;
 #else
-        if ( !dest->image ) dest->image = GPU_CreateImage( dest->width, dest->height, GPU_FORMAT_RGBA );
-        if ( !dest->image ) {
-            printf ("error creando image destination\n" );
-            return 1;
-        }
-
-        if ( !dest->image->target ) {
-            GPU_LoadTarget( dest->image );
-        }
+        if ( gr_create_image_and_target( dest ) ) return 1;
 #endif
     }
 
