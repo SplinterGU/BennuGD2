@@ -53,10 +53,10 @@ static int inline gr_update_texture( GRAPH * gr ) {
     SDL_Surface * surface;
 
 #ifndef __DISABLE_PALETTES__
-    if ( gr->surface->format->format == SDL_PIXELFORMAT_ARGB8888 /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
+    if ( gr->surface->format->format == gPixelFormat->format ) {
         surface = gr->surface;
     } else {
-        surface = SDL_ConvertSurfaceFormat(gr->surface, SDL_PIXELFORMAT_ARGB8888, 0);
+        surface = SDL_ConvertSurfaceFormat( gr->surface, gPixelFormat->format, 0 );
         if ( !surface ) return -1;
     }
 #else
@@ -65,10 +65,10 @@ static int inline gr_update_texture( GRAPH * gr ) {
 
     if ( SDL_MUSTLOCK( surface ) ) {
         SDL_LockSurface( surface );
-        SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch);
+        SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch );
         SDL_UnlockSurface( surface );
     } else {
-        SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch);
+        SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch );
     }
 
 #ifndef __DISABLE_PALETTES__
@@ -108,7 +108,7 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE *
         }
 
         if ( !dest->texture ) {
-            dest->texture = SDL_CreateTexture( gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, dest->width, dest->height );
+            dest->texture = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, dest->width, dest->height );
             if ( !dest->texture ) {
                 printf ("error creando textura RW [%s]\n", SDL_GetError() );
                 return 1;
@@ -284,7 +284,7 @@ void gr_blit(   GRAPH * dest,
                     else                    w = gRendererInfo.max_texture_width;
                     gr->segments[seg].width = w;
                     gr->segments[seg].height = h;
-                    gr->segments[seg].texture = SDL_CreateTexture( gRenderer, SDL_PIXELFORMAT_ARGB8888 /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, w, h );
+                    gr->segments[seg].texture = SDL_CreateTexture( gRenderer, gPixelFormat->format /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, w, h );
                     if ( !gr->segments[seg].texture ) {
                         printf ("error creando multi textura RO [%s]\n", SDL_GetError() );
                         return;
@@ -345,7 +345,7 @@ void gr_blit(   GRAPH * dest,
             }
 
         } else {
-            gr->texture = SDL_CreateTexture( gRenderer, SDL_PIXELFORMAT_ARGB8888 /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, gr->width, gr->height );
+            gr->texture = SDL_CreateTexture( gRenderer, gPixelFormat->format /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, gr->width, gr->height );
             if ( !gr->texture ) {
                 printf ("error creando textura RO [%s]\n", SDL_GetError() );
                 return;

@@ -139,6 +139,13 @@ static void show_renderer_info( SDL_RendererInfo * ri ) {
 
 /* --------------------------------------------------------------------------- */
 
+SDL_PixelFormat * get_system_pixel_format( void ) {
+    if ( !gPixelFormat ) gPixelFormat = SDL_AllocFormat( SDL_PIXELFORMAT_RGBA8888 );
+    return gPixelFormat;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int gr_set_icon( GRAPH * map ) {
     if ( gWindow ) {
 #ifdef USE_NATIVE_SDL2
@@ -378,7 +385,7 @@ void gr_video_init() {
 
     SDL_DisableScreenSaver();
 
-    gPixelFormat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
+    ( void ) get_system_pixel_format();
 
     apptitle = appname;
 

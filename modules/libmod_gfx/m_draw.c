@@ -680,11 +680,8 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
 
 /* --------------------------------------------------------------------------- */
 
-static SDL_PixelFormat * pixformat = NULL;
-
 static void __get_rgba( int64_t color, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a ) {
-    if ( !pixformat ) pixformat = SDL_AllocFormat( SDL_PIXELFORMAT_ARGB8888 );
-    SDL_GetRGBA( color, pixformat, r, g, b, a ) ;
+    SDL_GetRGBA( color, gPixelFormat, r, g, b, a ) ;
 }
 
 /* --------------------------------------------------------------------------- */

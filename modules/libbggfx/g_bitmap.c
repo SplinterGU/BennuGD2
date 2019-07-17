@@ -100,10 +100,10 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
     if ( surface ) {
 #ifdef USE_NATIVE_SDL2
  #ifdef __DISABLE_PALETTES__
-        if ( surface->format->format == SDL_PIXELFORMAT_ARGB8888 /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
+        if ( surface->format->format == gPixelFormat->format /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
             gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
         } else {
-            gr->surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+            gr->surface = SDL_ConvertSurfaceFormat(surface, gPixelFormat->format, 0);
         }
  #else
         gr->surface = SDL_ConvertSurface(surface, surface->format, 0);

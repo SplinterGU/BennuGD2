@@ -154,7 +154,7 @@ void gr_fade_step() {
         SDL_Color color;
         color.r = fade_pos_r; color.g = fade_pos_g; color.b = fade_pos_b; color.a = fade_pos_a;
         GPU_SetShapeBlending( GPU_TRUE );
-        if ( region )   GPU_RectangleFilled( gRenderer, region->x, region->y, region->x2, region->y2, color );
+        if ( region )   GPU_RectangleFilled( gRenderer, region->x, region->y, region->x2 + 1, region->y2 + 1, color );
         else            GPU_RectangleFilled( gRenderer, 0.0, 0.0, gRenderer->w, gRenderer->h, color );
         GPU_SetShapeBlending( GPU_FALSE );
 #endif
