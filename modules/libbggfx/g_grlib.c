@@ -292,6 +292,8 @@ int64_t grlib_add_map( int64_t libid, GRAPH * map ) {
 GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
     GRLIB * lib = NULL;
 
+    if ( !lib && !mapcode ) return NULL;
+
     if ( mapcode < 0 ) return NULL;
 
     /* Get the map from the system library

@@ -89,18 +89,23 @@ static int inline gr_update_texture( GRAPH * gr ) {
 
 /* --------------------------------------------------------------------------- */
 
-#ifndef USE_NATIVE_SDL2
-int gr_create_image_and_target( GRAPH * dest ) {
-    if ( !dest ) return 1;
-    if ( !dest->image ) dest->image = GPU_CreateImage( dest->width, dest->height, GPU_FORMAT_RGBA );
-    if ( !dest->image ) {
-        printf ("error creando image destination\n" );
+int gr_create_image_for_graph( GRAPH * gr ) {
+    if ( !gr ) return 1;
+#ifdef USE_NATIVE_SDL2
+    if ( !gr->surface ) {
+        gr->surface = SDL_CreateRGBSurface( 0, gr->width, gr->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
+        if ( !gr->surface ) return 1;
+    }
+#else
+    if ( !gr->image ) gr->image = GPU_CreateImage( gr->width, gr->height, GPU_FORMAT_RGBA );
+    if ( !gr->image ) {
+        printf ("error in image creation\n" );
         return 1;
     }
-    if ( !dest->image->target ) GPU_LoadTarget( dest->image );
+    if ( !gr->image->target ) GPU_LoadTarget( gr->image );
+#endif
     return 0;
 }
-#endif
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -122,16 +127,12 @@ int gr_create_image_and_target( GRAPH * dest ) {
 int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE * blend_mode ) {
 
     if ( dest ) {
+        if ( gr_create_image_for_graph( dest ) ) return 1;
 #ifdef USE_NATIVE_SDL2
-        if ( !dest->surface ) {
-            dest->surface = SDL_CreateRGBSurface( 0, dest->width, dest->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
-            if ( !dest->surface ) return 1;
-        }
-
         if ( !dest->texture ) {
             dest->texture = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, dest->width, dest->height );
             if ( !dest->texture ) {
-                printf ("error creando textura RW [%s]\n", SDL_GetError() );
+                printf ("error in RW texture creation [%s]\n", SDL_GetError() );
                 return 1;
             }
 
@@ -140,8 +141,6 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE *
             dest->type = BITMAP_TEXTURE_TARGET;
         }
         else if ( dest->type != BITMAP_TEXTURE_TARGET ) return 1;
-#else
-        if ( gr_create_image_and_target( dest ) ) return 1;
 #endif
     }
 

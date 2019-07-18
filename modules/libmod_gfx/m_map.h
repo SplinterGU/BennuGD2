@@ -64,7 +64,7 @@ extern int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params )
 extern int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_palette( INSTANCE * my, int64_t * params );
 
-extern int64_t libmod_gfx_save_png( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_map_save( INSTANCE * my, int64_t * params );
 
 extern int64_t gr_load_img( const char * mapname );
 

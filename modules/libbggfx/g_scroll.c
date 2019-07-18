@@ -287,22 +287,14 @@ void scroll_draw( int64_t n, REGION * clipping ) {
     data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libbggfx, SCROLLS ) )[n];
 
     dest = scrolls[n].destid ? bitmap_get( scrolls[n].destfile, scrolls[n].destid ) : NULL;
-    if ( dest ) {
-#ifdef USE_NATIVE_SDL2
-        /* Clear screen */
-        SDL_SetRenderTarget( gRenderer, dest->texture );
-
-        SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );
-        SDL_RenderClear( gRenderer );
-
-        SDL_SetRenderTarget( gRenderer, NULL );
-#endif
-    }
 
     /* Dibuja el fondo */
 
     r = *scrolls[n].region;
     if ( !dest && clipping ) region_union( &r, clipping );
+
+    /* Clear destination */
+    if ( dest ) gr_clear( dest );
 
     if ( back ) {
         if ( back->ncpoints > 0 && back->cpoints[0].x >= 0 ) {

@@ -48,9 +48,19 @@
 int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
 #ifdef USE_NATIVE_SDL2
     if ( !gr || !gr->surface ) return -1;
+#else
+    if ( !gr || !gr->image ) return -1;
+#endif
 
-    if ( x < 0 || y < 0 || x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return -1;
+    if ( x < 0 || y < 0 ) return -1;
 
+#ifdef USE_NATIVE_SDL2
+    if ( x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return -1;
+#else
+    if ( x >= ( int64_t ) gr->image->w || y >= ( int64_t ) gr->image->h ) return -1;
+#endif
+
+#ifdef USE_NATIVE_SDL2
     switch ( gr->surface->format->BitsPerPixel ) {
         case 1:
             return ( int64_t ) (( *( uint8_t * )( gr->surface->pixels + gr->surface->pitch * y + ( x >> 3 ) ) ) & ( 0x80 >> ( x & 7 ) ) ) ? 1 : 0;
@@ -65,8 +75,11 @@ int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
             return ( int64_t ) *( uint32_t * )(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 2 ) );
     }
 
-#endif
     return -1;
+#else
+    SDL_Color c = GPU_GetPixel( gr->image->target, ( Sint16 ) x, ( Sint16 ) y );
+    return SDL_MapRGBA( gPixelFormat, c.r, c.g, c.b, c.a );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -90,15 +103,17 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
 
     if ( !gr ) return;
 
+    if ( x < 0 || y < 0 ) return;
+
+    if ( gr && gr_create_image_for_graph( gr ) ) return;
+
 #ifdef USE_NATIVE_SDL2
-    if ( !gr->surface ) {
-        gr->surface = SDL_CreateRGBSurface( 0, gr->width, gr->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
-        if ( !gr->surface ) return;
-//        SDL_SetColorKey( gr->surface, SDL_TRUE, 0 );
-    }
+    if ( x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return;
+#else
+    if ( x >= ( int64_t ) gr->image->w || y >= ( int64_t ) gr->image->h ) return;
+#endif
 
-    if ( x < 0 || y < 0 || x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return;
-
+#ifdef USE_NATIVE_SDL2
     switch ( gr->surface->format->BitsPerPixel ) {
         case 1:
             if ( color )    *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x >> 3 ) ) |= ( 0x80 >> ( x & 7 ) );
@@ -122,6 +137,10 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
             break;
 
     }
+#else
+    SDL_Color c;
+    SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a ) ;
+    GPU_Pixel( gr->image->target, ( float ) x, ( float ) y, c );
 #endif
 }
 

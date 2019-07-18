@@ -96,7 +96,7 @@ void draw_point( GRAPH * dest, REGION * clip, int64_t x, int64_t y ) {
 
     DRAW_PREPARE_RENDERER();
 
-#if USE_NATIVE_SDL2
+#ifdef USE_NATIVE_SDL2
     SDL_RenderDrawPoint( gRenderer, x, y );
 #else
     GPU_Pixel( target, ( float ) x, ( float ) y, color );
@@ -198,7 +198,7 @@ void draw_rectangle_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, i
 
     DRAW_PREPARE_RENDERER();
 
-#if USE_NATIVE_SDL2
+#ifdef USE_NATIVE_SDL2
     SDL_Rect rectangle;
 
     rectangle.x = x;

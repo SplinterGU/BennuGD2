@@ -52,9 +52,7 @@
     extern GPU_FilterEnum gr_filter_mode;
 #endif
 
-#ifndef USE_NATIVE_SDL2
-extern int gr_create_image_and_target( GRAPH * dest );
-#endif
+extern int gr_create_image_for_graph( GRAPH * gr );
 
 extern int gr_prepare_renderer( GRAPH * dest,
                      REGION * clip,

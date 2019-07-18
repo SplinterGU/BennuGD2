@@ -46,15 +46,13 @@
 
 /* --------------------------------------------------------------------------- */
 /* Maps                                                                        */
-/* --------------------------------------------------------------------------- */
-
 int64_t libmod_gfx_map_get_pixel( INSTANCE * my, int64_t * params ) {
     GRAPH * map = bitmap_get( params[ 0 ], params[ 1 ] );
     if ( !map ) return -1;
     return gr_get_pixel( map, params[ 2 ], params[ 3 ] );
-}
+ }
 
-/* --------------------------------------------------------------------------- */
+ /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_put_pixel( INSTANCE * my, int64_t * params ) {
     GRAPH * map = bitmap_get( params[ 0 ], params[ 1 ] );
@@ -536,7 +534,7 @@ int64_t libmod_gfx_unload_map( INSTANCE * my, int64_t * params ) {
 extern DECLSPEC int SDLCALL IMG_SavePNG(SDL_Surface *surface, const char *file);
 extern DECLSPEC int SDLCALL IMG_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst);
 */
-int64_t libmod_gfx_save_png( INSTANCE * my, int64_t * params )
+int64_t libmod_gfx_map_save( INSTANCE * my, int64_t * params )
 {
     GRAPH * gr = bitmap_get( params[0], params[1] );
     int64_t r;

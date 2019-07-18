@@ -57,6 +57,13 @@ GRAPH * g_get_screen( void ) {
     }
 #else
     surface = GPU_CopySurfaceFromTarget( gRenderer );
+    /* Convert for remove alpha channel */
+    SDL_Surface * surfaceRGB = NULL;
+    SDL_PixelFormat * fmt = SDL_AllocFormat( SDL_PIXELFORMAT_RGB888 );
+    surfaceRGB = SDL_ConvertSurface( surface, fmt, 0 );
+    SDL_FreeSurface( surface );
+    SDL_FreeFormat( fmt );
+    surface = surfaceRGB;
 #endif
     if ( surface ) {
         bitmap = bitmap_new( 0, 0, 0, surface );

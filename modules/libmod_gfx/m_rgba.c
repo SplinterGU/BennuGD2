@@ -71,12 +71,14 @@ int64_t libmod_gfx_get_rgb_map( INSTANCE * my, int64_t * params ) {
 
 #ifdef USE_NATIVE_SDL2
     if ( !map->surface ) return 0;
-
     SDL_GetRGB( params[2], map->surface->format, &r, &g, &b ) ;
+#else
+    SDL_GetRGB( params[2], gPixelFormat, &r, &g, &b ) ;
+#endif
     *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) r;
     *( uint8_t * )( intptr_t )(params[4]) = ( uint8_t ) g;
     *( uint8_t * )( intptr_t )(params[5]) = ( uint8_t ) b;
-#endif
+
     return 1 ;
 }
 
@@ -88,13 +90,14 @@ int64_t libmod_gfx_get_rgba_map( INSTANCE * my, int64_t * params ) {
 
 #ifdef USE_NATIVE_SDL2
     if ( !map->surface ) return 0;
-
     SDL_GetRGBA( params[2], map->surface->format, &r, &g, &b, &a ) ;
+#else
+    SDL_GetRGBA( params[2], gPixelFormat, &r, &g, &b, &a ) ;
+#endif
     *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) r;
     *( uint8_t * )( intptr_t )(params[4]) = ( uint8_t ) g;
     *( uint8_t * )( intptr_t )(params[5]) = ( uint8_t ) b;
     *( uint8_t * )( intptr_t )(params[6]) = ( uint8_t ) a;
-#endif
     return 1 ;
 }
 
@@ -118,7 +121,7 @@ int64_t libmod_gfx_rgb_map( INSTANCE * my, int64_t * params ) {
     if ( !map->surface ) return 0;
     return SDL_MapRGB( map->surface->format, params[2], params[3], params[4] );
 #else
-    return 0;
+    return SDL_MapRGB( gPixelFormat, params[2], params[3], params[4] );
 #endif
 }
 
@@ -130,7 +133,7 @@ int64_t libmod_gfx_rgba_map( INSTANCE * my, int64_t * params ) {
     if ( !map->surface ) return 0;
     return SDL_MapRGBA( map->surface->format, params[2], params[3], params[4], params[5] );
 #else
-    return 0;
+    return SDL_MapRGBA( gPixelFormat, params[2], params[3], params[4], params[5] );
 #endif
 }
 
