@@ -15,4 +15,4 @@ file(GLOB SOURCES_LIBMOD_GFX
      )
 
 add_library(mod_gfx SHARED ${SOURCES_LIBMOD_GFX})
-target_link_libraries(mod_gfx ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} -L../../bin -lbgdrtm -lbggfx -lbgload)
+target_link_libraries(mod_gfx ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} -L../../bin -lbgdrtm -lbggfx -lbgload)

@@ -187,6 +187,8 @@ DECLSPEC void SDLCALL GPU_SetBlendMode(GPU_Image* image, GPU_BlendPresetEnum mod
     else                                * blend_mode = GPU_BLEND_NORMAL;    //Enable blending on texture
 #endif
 
+
+#ifdef USE_NATIVE_SDL2
     SDL_Rect rect;
 
     if ( clip ) {
@@ -206,12 +208,34 @@ DECLSPEC void SDLCALL GPU_SetBlendMode(GPU_Image* image, GPU_BlendPresetEnum mod
         }
     }
 
-#ifdef USE_NATIVE_SDL2
     if ( dest ) SDL_SetRenderTarget( gRenderer, dest->texture );
 //    if ( dest ) { SDL_SetRenderTarget( gRenderer, dest->texture ); SDL_SetTextureBlendMode( dest->texture, SDL_BLENDMODE_NONE ); }
 
     SDL_RenderSetClipRect( gRenderer, &rect );
 #else
+    static REGION _lastClip = { 0, 0, 0, 0 }, * lastClip = NULL;
+    static GRAPH * lastDest = NULL;
+
+    int doClip = 0, doUnClip = 0;
+
+    if ( clip && ( dest != lastDest || !lastClip || lastClip->x != clip->x || lastClip->y != clip->y || lastClip->x2 != clip->x2 || lastClip->y2 != clip->y2 ) ) doClip = 1;
+    if ( dest != lastDest && !clip ) doUnClip = 1;
+    if ( dest == lastDest && !clip && clip != lastClip ) doUnClip = 1;
+
+    GPU_Target * dst = dest ? dest->image->target : gRenderer;
+
+    if ( doUnClip ) {
+        GPU_UnsetClip( dst );
+        lastClip = NULL;
+        lastDest = dest;
+    }
+
+    if ( doClip ) {
+        GPU_SetClip( dst, clip->x, clip->y, clip->x2 - clip->x + 1, clip->y2 - clip->y + 1 );
+        _lastClip = *clip;
+        lastClip = &_lastClip;
+        lastDest = dest;
+    }
 #endif
 
     return 0;
@@ -494,12 +518,7 @@ void gr_blit(   GRAPH * dest,
         if ( gr->image->filter_mode != gr_filter_mode ) GPU_SetImageFilter( gr->image, gr_filter_mode );
 
         GPU_Target * dst = dest ? dest->image->target : gRenderer;
-
-        if ( clip ) GPU_SetClip( dst, clip->x, clip->y, clip->x2 - clip->x + 1, clip->y2 - clip->y + 1 );
-
         GPU_BlitTransformX( gr->image, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
-
-        if ( clip ) GPU_UnsetClip( dst );
 #endif
     }
 

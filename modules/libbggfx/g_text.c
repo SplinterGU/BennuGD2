@@ -735,7 +735,7 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
     * fntclip = NULL;
     int stop = 0, idx;
     watch * working_watch = NULL;
-    int8_t current_color[3] = { 0 };
+    int8_t current_color[3] = { 0, 0, 0 };
 
     if ( !text || !*text ) return -1;
     if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
@@ -752,7 +752,7 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
         current_color[ 0 ] = * ( r = GLOADDR( libbggfx, TEXT_COLORR ) );
         current_color[ 1 ] = * ( g = GLOADDR( libbggfx, TEXT_COLORG ) );
         current_color[ 2 ] = * ( b = GLOADDR( libbggfx, TEXT_COLORB ) );
-        if ( !system_text_color_watch ) system_text_color_watch = watch_create( current_color, 3 );
+        if ( !system_text_color_watch ) system_text_color_watch = watch_create( current_color, sizeof(current_color) );
         working_watch = system_text_color_watch;
     }
 

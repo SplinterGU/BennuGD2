@@ -35,15 +35,15 @@
 /* --------------------------------------------------------------------------- */
 
 watch * watch_create( void * element, int size ) {
-    watch * t = malloc( size );
+    watch * t = malloc( sizeof( watch ) );
     if ( !t ) return NULL;
     t->size = size;
-    if ( !( t->original = malloc( size ) ) ) {
+    if ( !( t->original = ( void * ) malloc( size ) ) ) {
         free( t );
         return NULL;
     }
     t->original = malloc( size );
-    if ( !( t->verify = malloc( size ) ) ) {
+    if ( !( t->verify = ( void * ) malloc( size ) ) ) {
         free( t->original );
         free( t );
         return NULL;

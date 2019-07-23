@@ -77,6 +77,7 @@ int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
 
     return -1;
 #else
+    if ( !gr->image->target ) GPU_LoadTarget( gr->image );
     SDL_Color c = GPU_GetPixel( gr->image->target, ( Sint16 ) x, ( Sint16 ) y );
     return SDL_MapRGBA( gPixelFormat, c.r, c.g, c.b, c.a );
 #endif

@@ -82,8 +82,12 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "ALIGN_BOTTOM_RIGHT"  , TYPE_INT        , ALIGN_BOTTOM_RIGHT    },
 
     /* Pathfind */
-    { "PF_NODIAG"           , TYPE_INT        , PF_NODIAG             }, /* Prohibit the pathfinding from using diagonal paths. */
-    { "PF_REVERSE"          , TYPE_INT        , PF_REVERSE            }, /* Return the path found in reverse order.             */
+    { "PF_DIAG"             , TYPE_INT        , PF_DIAG               }, /* Prohibit the pathfinding from using diagonal paths. */
+
+    { "PF_MANHATTAN"        , TYPE_INT        , PF_HEURISTIC_MANHATTAN},
+    { "PF_EUCLIDEAN"        , TYPE_INT        , PF_HEURISTIC_EUCLIDEAN},
+    { "PF_OCTILE"           , TYPE_INT        , PF_HEURISTIC_OCTILE   },
+    { "PF_CHEBYSHEV"        , TYPE_INT        , PF_HEURISTIC_CHEBYSHEV},
 
     { "TEXT_TEXT"           , TYPE_INT        , TEXT_TEXT             },
     { "TEXT_STRING"         , TYPE_INT        , TEXT_STRING           },
@@ -378,9 +382,11 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 #endif
 
     /* pathfind */
-    FUNC( "PATH_FIND"           , "IIIIIII"         , TYPE_INT        , libmod_gfx_path_find                    ),
-    FUNC( "PATH_GETXY"          , "PP"              , TYPE_INT        , libmod_gfx_path_getxy                   ),
-    FUNC( "PATH_WALL"           , "I"               , TYPE_INT        , libmod_gfx_path_wall                    ),
+    FUNC( "PATH_NEW"            , "II"              , TYPE_POINTER    , libmod_gfx_path_new                     ),
+    FUNC( "PATH_DESTROY"        , "P"               , TYPE_INT        , libmod_gfx_path_destroy                 ),
+    FUNC( "PATH_FIND"           , "PIIIII"          , TYPE_POINTER    , libmod_gfx_path_find                    ),
+    FUNC( "PATH_FIND"           , "PIIIIIII"        , TYPE_POINTER    , libmod_gfx_path_find2                   ),
+    FUNC( "PATH_FREE_RESULTS"   , "P"               , TYPE_INT        , libmod_gfx_path_free_results            ),
 
     FUNC( "TEXTURE_SET_QUALITY" , "I"               , TYPE_INT        , libmod_gfx_set_texture_quality          ),
 

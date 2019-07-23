@@ -398,7 +398,7 @@ void gr_video_exit() {
     if ( gRenderer ) SDL_DestroyRenderer( gRenderer );
     if ( gWindow ) SDL_DestroyWindow( gWindow );
 #else
-    GPU_Quit();
+    if ( gRenderer ) GPU_Quit();
 #endif
 
     if ( SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_QuitSubSystem( SDL_INIT_VIDEO );

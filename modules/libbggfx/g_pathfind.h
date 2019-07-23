@@ -28,19 +28,47 @@
 
 /* --------------------------------------------------------------------------- */
 
-#ifndef __M_PATHFIND_H
-#define __M_PATHFIND_H
+#ifndef __G_PATHFIND_H
+#define __G_PATHFIND_H
 
 #include "bgdrtm.h"
 #include "bgddl.h"
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_path_new( INSTANCE * my, int64_t * params );
-int64_t libmod_gfx_path_destroy( INSTANCE * my, int64_t * params );
-int64_t libmod_gfx_path_find( INSTANCE * my, int64_t * params );
-int64_t libmod_gfx_path_find2( INSTANCE * my, int64_t * params );
-int64_t libmod_gfx_path_free_results( INSTANCE * my, int64_t * params );
+typedef struct _node {
+    int x, y;
+    int64_t f, g, h;
+    int walkable;
+    int opened;
+    int closed;
+    struct _node * parent;
+    struct _node * next, * prev;
+} NODE;
+
+typedef struct {
+    NODE * matrix;
+    int w, h;
+} GRID;
+
+/* --------------------------------------------------------------------------- */
+
+#define PF_DIAG     1
+
+/* --------------------------------------------------------------------------- */
+
+enum {
+    PF_HEURISTIC_MANHATTAN = 0,
+    PF_HEURISTIC_EUCLIDEAN,
+    PF_HEURISTIC_OCTILE,
+    PF_HEURISTIC_CHEBYSHEV
+};
+
+/* --------------------------------------------------------------------------- */
+
+extern GRID * path_new( GRAPH * gr );
+extern int64_t * path_find( GRID * grid, int startX, int startY, int endX, int endY, int options, int weight, int heuristic );
+extern void path_destroy( GRID * grid );
 
 /* --------------------------------------------------------------------------- */
 

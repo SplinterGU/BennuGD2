@@ -140,6 +140,7 @@ enum {
 #include "g_scroll.h"
 #include "g_draw.h"
 #include "g_screen.h"
+#include "g_pathfind.h"
 
 /* --------------------------------------------------------------------------- */
 
