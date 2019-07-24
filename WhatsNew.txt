@@ -1,3 +1,104 @@
+2019-07-23:
+
+- modsound changes:
+    rename:
+        SOUND_INIT          -> SOUNDSYS_INIT
+        SOUND_CLOSE         -> SOUNDSYS_QUIT
+        SONG_LOAD           -> MUSIC_LOAD
+        SONG_UNLOAD         -> MUSIC_UNLOAD
+        SONG_PLAY           -> MUSIC_PLAY
+        SONG_STOP           -> MUSIC_STOP
+        SONG_PAUSE          -> MUSIC_PAUSE
+        SONG_RESUME         -> MUSIC_RESUME
+        SONG_FADE_IN        -> MUSIC_FADE_IN
+        SONG_IS_PLAYING     -> MUSIC_IS_PLAYING
+        SONG_SET_VOLUME     -> MUSIC_SET_VOLUME
+        WAV_LOAD            -> SOUND_LOAD
+        WAV_UNLOAD          -> SOUND_UNLOAD
+        WAV_PLAY            -> SOUND_PLAY
+        WAV_STOP            -> SOUND_STOP
+        WAV_PAUSE           -> SOUND_PAUSE
+        WAV_RESUME          -> SOUND_RESUME
+        WAV_IS_PLAYING      -> SOUND_IS_PLAYING
+        WAV_SET_VOLUME      -> SOUND_SET_VOLUME
+    add:
+        int MUSIC_FADE_IN(  int sound_id, int number_of_loops, int ms, double position )
+            where:
+                number_of_loops -1, mean infinite loops
+                ms,  microsends of fading
+                position, position in seconds
+            return:
+                0 is ok, -1 is any error
+
+        int MUSIC_IS_PAUSED()
+            return:
+                0 or 1, -1 is any error
+
+        int MUSIC_IS_FADING()
+            return:
+                MIX_NO_FADING
+                MIX_FADING_OUT
+                MIX_FADING_IN
+                -1 is any error
+
+        int MUSIC_REWIND()
+            return:
+                0
+
+        int SOUND_PLAY( int sound_id, int number_of_loops, int channel, int ticks )
+            where:
+                number of loops (-1 infinite loops)
+                channel (-1 any channel)
+                ticks, timeout in milliseconds ( -1 no timeout )
+            return:
+                channel is ok
+                -1 is error
+
+        int SOUND_FADE_IN( int sound_id, int number_of_loops, int ms, int channel )
+            where:
+                number of loops (-1 infinite loops)
+                ms, microsends of fading
+                channel (-1 any channel)
+            return:
+                channel is ok
+                -1 is error
+
+
+        int SOUND_FADE_IN( int sound_id, int number_of_loops, int ms, int channel, int ticks )
+            where:
+                number of loops (-1 infinite loops)
+                ms, microsends of fading
+                channel (-1 any channel)
+                ticks, timeout in milliseconds ( -1 no timeout )
+            return:
+                channel is ok
+                -1 is error
+
+
+        int SOUND_FADE_OFF( int channel, int ms )
+            where:
+                channel
+                ms, microsends of fading
+            return:
+                channel
+
+        int SOUND_IS_PAUSED( int channel )
+            where:
+                channel
+            return:
+                0 or 1, -1 is any error
+
+        int SOUND_IS_FADING( int channel )
+            where:
+                channel
+            return:
+                MIX_NO_FADING
+                MIX_FADING_OUT
+                MIX_FADING_IN
+                -1 is any error
+
+
+
 2019-06-27:
 - Add string escape caracters
     SECUENCE    HEX DESCRIPTION
