@@ -274,8 +274,6 @@ main_loop_instance_go:
             case MN_INDEX | MN_BYTE:
             case MN_INDEX | MN_BYTE | MN_UNSIGNED:
             case MN_INDEX | MN_STRING:
-            case MN_INDEX | MN_DOUBLE: /* Add float, I don't know why it was missing (SplinterGU) */
-            case MN_INDEX | MN_FLOAT:  /* Add float, I don't know why it was missing (SplinterGU) */
                 r->stack_ptr[-1] += ptr[1];
                 ptr += 2;
                 break;

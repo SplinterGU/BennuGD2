@@ -2733,11 +2733,16 @@ expresion_result compile_subexpresion() {
 
             right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
 
-            if ( !typedef_is_integer( right.type ) ) compile_error( MSG_INCOMP_TYPES );
+//            if ( !typedef_is_integer( right.type ) ) compile_error( MSG_INCOMP_TYPES );
 
-            if ( typedef_size( pointer_type ) > 1 )
-                codeblock_add( code, MN_ARRAY, ( op == MN_VARADD ? 1 : -1 ) * typedef_size( pointer_type ) );
-            else
+            type = check_integer_types( &base, &right );
+
+            if ( typedef_size( pointer_type ) > 1 ) {
+                codeblock_add( code, MN_PUSH, typedef_size( pointer_type ) );
+                codeblock_add( code, MN_MUL | type, 0 );
+                codeblock_add( code, op | MN_QWORD, 0 );
+//                codeblock_add( code, MN_ARRAY, ( op == MN_VARADD ? 1 : -1 ) * typedef_size( pointer_type ) );
+            } else
                 codeblock_add( code, op, 0 );
 
             res.lvalue     = 1;
@@ -2745,7 +2750,7 @@ expresion_result compile_subexpresion() {
             res.call       = 0;
             res.constant   = 0;
             res.value      = 0;
-            res.type       = typedef_new( TYPE_STRING );
+            res.type       = typedef_new( TYPE_POINTER );
 
             return res;
         }
