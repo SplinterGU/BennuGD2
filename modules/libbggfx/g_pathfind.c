@@ -95,7 +95,7 @@ GRID * path_new( GRAPH * gr ) {
     SDL_Surface * surface;
 
 #ifdef USE_NATIVE_SDL2
-    if ( !gr->surface || surface->format->BitsPerPixel == 1 ) return NULL;
+    if ( !gr->surface || gr->surface->format->BitsPerPixel == 1 ) return NULL;
 #else
     if ( !gr->image ) return NULL;
 #endif

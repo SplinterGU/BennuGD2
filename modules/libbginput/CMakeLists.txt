@@ -7,13 +7,13 @@ set(CMAKE_MODULE_PATH ../../cmake/Modules)
 find_package(SDL2 REQUIRED)
 find_package(SDL_GPU REQUIRED)
 
-add_definitions(-D__LIBBGINPUT)
+add_definitions(-D__LIBBGINPUT $ENV{EXTRA_CFLAGS})
 
 include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbginput ../../modules/libbggfx ${SDL_GPU_INCLUDE_DIR})
 
-file(GLOB SOURCES_LIBBGLOAD
+file(GLOB SOURCES_LIBBGINPUT
      "../../modules/libbginput/*.c"
      )
 
-add_library(bginput SHARED ${SOURCES_LIBBGLOAD})
+add_library(bginput SHARED ${SOURCES_LIBBGINPUT})
 target_link_libraries(bginput ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin -lbggfx -lbgdrtm)

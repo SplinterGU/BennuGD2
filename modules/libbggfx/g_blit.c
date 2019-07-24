@@ -289,7 +289,7 @@ void gr_blit(   GRAPH * dest,
 #endif
 
     if ( scalex <= 0.0 || scaley <= 0.0 ) return;
-#if 0
+#ifdef USE_NATIVE_SDL2
     if ( !gr->texture && !gr->segments ) {
 
         if ( gr->width > gRendererInfo.max_texture_width || gr->height > gRendererInfo.max_texture_height ) {
@@ -518,12 +518,13 @@ void gr_blit(   GRAPH * dest,
         if ( gr->image->filter_mode != gr_filter_mode ) GPU_SetImageFilter( gr->image, gr_filter_mode );
 
         GPU_Target * dst = dest ? dest->image->target : gRenderer;
+
         GPU_BlitTransformX( gr->image, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
 #endif
     }
 
 #ifdef USE_NATIVE_SDL2
-    if ( dest ) SDL_SetRenderTarget( gRenderer, NULL );
+   if ( dest ) SDL_SetRenderTarget( gRenderer, NULL );
 #endif
 
 }

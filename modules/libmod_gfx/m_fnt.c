@@ -103,7 +103,11 @@ int64_t libmod_gfx_fnt_new_charset( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_fnt_new_from_bitmap( INSTANCE * my, int64_t * params ) {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
     if ( !bmp ) return -1;
+#ifndef USE_NATIVE_SDL2
     return gr_font_new_from_bitmap( bmp, NULL, params[2], params[3], params[4], params[5], params[6], params[7], NULL );
+#else
+    return gr_font_new_from_bitmap( bmp, params[2], params[3], params[4], params[5], params[6], params[7], NULL );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -114,7 +118,11 @@ int64_t libmod_gfx_fnt_new_from_bitmap( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_fnt_new_from_bitmap2( INSTANCE * my, int64_t * params ) {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
     if ( !bmp ) return -1;
+#ifndef USE_NATIVE_SDL2
     int64_t ret = gr_font_new_from_bitmap( bmp, NULL, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ) );
+#else
+    int64_t ret = gr_font_new_from_bitmap( bmp, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ) );
+#endif
     string_discard( params[8] );
     return ret;
 }

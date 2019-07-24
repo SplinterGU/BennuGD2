@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ../../cmake/Modules)
 find_package(SDL2 REQUIRED)
 find_package(SDL_GPU REQUIRED)
 
-add_definitions(-D__LIBBGFGX)
+add_definitions(-D__LIBBGFGX $ENV{EXTRA_CFLAGS})
 
 include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbggfx ${SDL_GPU_INCLUDE_DIR})
 

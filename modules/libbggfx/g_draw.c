@@ -249,7 +249,7 @@ void draw_lines( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points 
 
 }
 
-#if ENABLE_MULTIDRAW
+#if defined(ENABLE_MULTIDRAW) || defined(USE_NATIVE_SDL2)
 /* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : draw_points

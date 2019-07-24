@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [verbose]"
+    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [use_sdl2] [verbose]"
     exit 1
 }
 
@@ -11,6 +11,10 @@ BUILD_TYPE=Release
 for i in "$@"
 do
     case $i in
+        use_sdl2)
+            EXTRA_CFLAGS=-DUSE_NATIVE_SDL2
+            ;;
+
         windows)
             TARGET=x86_64-w64-mingw32
             CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2"
@@ -67,6 +71,7 @@ fi
 
 export PKG_CONFIG_PATH
 export TARGET
+export EXTRA_CFLAGS
 
 mkdir -p build/build-$TARGET 2>/dev/null
 

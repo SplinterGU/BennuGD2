@@ -59,8 +59,9 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "Q_NEAREST"           , TYPE_INT        , Q_NEAREST             },
     { "Q_LINEAR"            , TYPE_INT        , Q_LINEAR              },
     { "Q_BEST"              , TYPE_INT        , Q_BEST                },
+#ifndef USE_NATIVE_SDL2
     { "Q_MIPMAP"            , TYPE_INT        , Q_MIPMAP              },
-
+#endif
     { "CHARSET_ISO8859"     , TYPE_INT        , CHARSET_ISO8859       },
     { "CHARSET_CP850"       , TYPE_INT        , CHARSET_CP850         },
 

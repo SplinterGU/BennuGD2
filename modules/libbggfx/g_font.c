@@ -555,8 +555,9 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
     f->maxwidth = width;
     f->maxheight = height;
 
+#ifndef USE_NATIVE_SDL2
     if ( !source ) SDL_FreeSurface( surface );
-
+#endif
     return id;
 }
 

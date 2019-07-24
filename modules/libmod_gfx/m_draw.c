@@ -141,7 +141,7 @@ typedef struct _drawing_object {
 static DRAWING_OBJECT * drawing_objects = NULL;
 
 static GRAPH * drawing_graph = NULL;
-static int64_t drawing_z = -256 ;
+static int64_t drawing_z = 0 ;
 
 /* --------------------------------------------------------------------------- */
 
@@ -501,11 +501,12 @@ static int64_t _libmod_gfx_draw_object_new( DRAWING_OBJECT * dr, int64_t z ) {
         case DRAWOBJ_RECTANGLES:
         case DRAWOBJ_RECTANGLES_FILLED:
 #endif
+#ifndef USE_NATIVE_SDL2
         case DRAWOBJ_POLYGON:
         case DRAWOBJ_POLYGON_FILLED:
         case DRAWOBJ_POLYLINE:
             dr->preallocated = 1;
-
+#endif
         case DRAWOBJ_CIRCLE:
         case DRAWOBJ_CIRCLE_FILLED:
         case DRAWOBJ_CURVE:
