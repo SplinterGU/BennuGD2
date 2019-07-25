@@ -265,6 +265,7 @@ main_loop_instance_go:
                 ptr++;
                 break;
 
+            // array[var] (maybe data type is nonsense)
             case MN_INDEX | MN_QWORD:
             case MN_INDEX | MN_QWORD | MN_UNSIGNED:
             case MN_INDEX | MN_DWORD:
@@ -274,6 +275,8 @@ main_loop_instance_go:
             case MN_INDEX | MN_BYTE:
             case MN_INDEX | MN_BYTE | MN_UNSIGNED:
             case MN_INDEX | MN_STRING:
+            case MN_INDEX | MN_FLOAT:
+            case MN_INDEX | MN_DOUBLE:
                 r->stack_ptr[-1] += ptr[1];
                 ptr += 2;
                 break;
