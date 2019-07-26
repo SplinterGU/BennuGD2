@@ -123,6 +123,7 @@ enum {
 /* --------------------------------------------------------------------------- */
 
 #include "bgdcore.h"
+#include "g_base.h"
 #include "g_bitmap.h"
 #include "g_blit.h"
 #include "g_grlib.h"

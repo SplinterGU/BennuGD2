@@ -95,19 +95,21 @@ GRID * path_new( GRAPH * gr ) {
     if ( !gr ) return NULL;
     SDL_Surface * surface;
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     if ( !gr->surface || gr->surface->format->BitsPerPixel == 1 ) return NULL;
-#else
-    if ( !gr->image ) return NULL;
+#endif
+#ifdef USE_SDL2_GPU
+    if ( !gr->tex ) return NULL;
 #endif
 
     GRID * grid = ( GRID * ) calloc( 1, sizeof( GRID ) );
     if ( !grid ) return NULL;
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     surface = gr->surface;
-#else
-    surface = GPU_CopySurfaceFromImage( gr->image );
+#endif
+#ifdef USE_SDL2_GPU
+    surface = GPU_CopySurfaceFromImage( gr->tex );
     if ( !surface ) {
         free( grid );
         return NULL;
@@ -120,7 +122,7 @@ GRID * path_new( GRAPH * gr ) {
     NODE * matrix = grid->matrix = calloc( grid->w * grid->h, sizeof( NODE ) );
     if ( !grid->matrix ) {
         free( grid );
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
         SDL_FreeSurface( surface );
 #endif
         return NULL;
@@ -183,7 +185,7 @@ GRID * path_new( GRAPH * gr ) {
             break;
         }
     }
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     SDL_FreeSurface( surface );
 #endif
     return ( void * ) grid;

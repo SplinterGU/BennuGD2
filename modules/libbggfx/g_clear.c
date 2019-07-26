@@ -47,11 +47,12 @@
 void gr_clear( GRAPH * dest ) {
     if ( !dest ) return;
     if ( gr_create_image_for_graph( dest ) ) return;
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     memset( dest->surface->pixels, '\0', dest->height * dest->surface->pitch );
     dest->texture_must_update = 1;
-#else
-    GPU_Clear( dest->image->target );
+#endif
+#ifdef USE_SDL2_GPU
+    GPU_Clear( dest->tex->target );
 #endif
 }
 
@@ -74,7 +75,7 @@ void gr_clear_as( GRAPH * dest, int color ) {
     if ( !dest ) return;
     if ( gr_create_image_for_graph( dest ) ) return;
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     if ( !color ) {
         gr_clear( dest );
         return;
@@ -122,10 +123,11 @@ void gr_clear_as( GRAPH * dest, int color ) {
     }
 
     dest->texture_must_update = 1;
-#else
+#endif
+#ifdef USE_SDL2_GPU
     Uint8 r, g, b, a;
     SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
-    GPU_ClearRGBA( dest->image->target, r, g, b, a );
+    GPU_ClearRGBA( dest->tex->target, r, g, b, a );
 #endif
 }
 
@@ -166,7 +168,7 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     if ( ( x + w ) < 0 || ( y + h ) < 0 ) return;
 
     if ( gr_create_image_for_graph( dest ) ) return;
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     switch ( dest->surface->format->BitsPerPixel ) {
         case 1: {
             uint8_t * mem, * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y;
@@ -241,12 +243,13 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     }
 
     dest->texture_must_update = 1;
-#else
+#endif
+#ifdef USE_SDL2_GPU
     Uint8 r, g, b, a;
     SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
-    GPU_SetClip( dest->image->target, x, y, w, h );
-    GPU_ClearRGBA( dest->image->target, r, g, b, a );
-    GPU_UnsetClip( dest->image->target );
+    GPU_SetClip( dest->tex->target, x, y, w, h );
+    GPU_ClearRGBA( dest->tex->target, r, g, b, a );
+    GPU_UnsetClip( dest->tex->target );
 #endif
 }
 

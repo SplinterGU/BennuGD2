@@ -72,12 +72,7 @@ static int64_t inline get_distance( int64_t x1, int64_t y1, int64_t r1, int64_t 
 /* --------------------------------------------------------------------------- */
 
 static int get_bbox( REGION * bbox, INSTANCE * proc ) {
-#ifdef USE_NATIVE_SDL2
-    SDL_Rect
-#else
-    GPU_Rect
-#endif
-    *map_clip = NULL, _map_clip;
+    BGD_Rect *map_clip = NULL, _map_clip;
     int64_t x, y, scalex, scaley;
     GRAPH * b;
 

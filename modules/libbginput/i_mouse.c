@@ -73,8 +73,15 @@ void do_mouse_events() {
     while ( SDL_PeepEvents( &e, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEWHEEL ) > 0 ) {
         switch ( e.type ) {
             case SDL_MOUSEMOTION:
+
+#ifdef USE_SDL2
                 GLOINT64( libbginput, MOUSEX ) = e.motion.x;
                 GLOINT64( libbginput, MOUSEY ) = e.motion.y;
+#endif
+#ifdef USE_SDL2_GPU
+                GLOINT64( libbginput, MOUSEX ) = e.motion.x * scr_width / renderer_width;
+                GLOINT64( libbginput, MOUSEY ) = e.motion.y * scr_height / renderer_height;
+#endif
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
@@ -165,12 +172,7 @@ static void mouse_draw( void * what, REGION * clip ) {
     region = regions[r];
     if ( clip ) region_union( &region, clip );
 
-#ifdef USE_NATIVE_SDL2
-    SDL_Rect
-#else
-    GPU_Rect
-#endif
-    *mouse_map_clip = NULL, _mouse_map_clip;
+    BGD_Rect *mouse_map_clip = NULL, _mouse_map_clip;
 
     _mouse_map_clip.w = GLOINT64( libbginput, MOUSECLIPW );
     _mouse_map_clip.h = GLOINT64( libbginput, MOUSECLIPH );

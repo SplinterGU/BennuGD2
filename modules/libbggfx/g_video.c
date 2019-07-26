@@ -43,6 +43,10 @@
 #include "ddraw.h"
 #endif
 
+#ifdef USE_SDL2_GPU
+#include <GL/gl.h>
+#endif
+
 /* --------------------------------------------------------------------------- */
 
 //GRAPH * icon = NULL ;
@@ -68,7 +72,7 @@ int renderer_height = 0;
 //The window we'll be rendering to
 SDL_Window * gWindow = NULL;
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
 SDL_Renderer * gRenderer = NULL;
 #else
 GPU_Target * gRenderer = NULL;
@@ -77,6 +81,7 @@ GPU_Target * gRenderer = NULL;
 SDL_RendererInfo gRendererInfo = { 0 };
 SDL_PixelFormat * gPixelFormat = NULL;
 SDL_Surface * gIcon = NULL;
+int64_t gMaxTextureSize = 0;
 
 /*
 SDL_RendererInfo
@@ -140,7 +145,13 @@ static void show_renderer_info( SDL_RendererInfo * ri ) {
 /* --------------------------------------------------------------------------- */
 
 SDL_PixelFormat * get_system_pixel_format( void ) {
-    if ( !gPixelFormat ) gPixelFormat = SDL_AllocFormat( SDL_PIXELFORMAT_RGBA8888 );
+#ifdef USE_SDL2
+    #define PIXFMT  SDL_PIXELFORMAT_ARGB8888
+#endif
+#ifdef USE_SDL2_GPU
+    #define PIXFMT  SDL_PIXELFORMAT_RGBA8888
+#endif
+    if ( !gPixelFormat ) gPixelFormat = SDL_AllocFormat( PIXFMT );
     return gPixelFormat;
 }
 
@@ -148,11 +159,12 @@ SDL_PixelFormat * get_system_pixel_format( void ) {
 
 int gr_set_icon( GRAPH * map ) {
     if ( gWindow ) {
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
         gIcon = map->surface;
-#else
+#endif
+#ifdef USE_SDL2_GPU
         if ( gIcon ) SDL_FreeSurface( gIcon );
-        gIcon = GPU_CopySurfaceFromImage( map->image );
+        gIcon = GPU_CopySurfaceFromImage( map->tex );
 #endif
         SDL_SetWindowIcon( gWindow, gIcon );
     }
@@ -199,7 +211,7 @@ int gr_set_mode( int width, int height, int flags ) {
         renderer_height = ( int ) scale_resolution % 10000L ;
     }
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     SDL_SetHint( SDL_HINT_RENDER_VSYNC, waitvsync ? "1" : "0" );
 
     if ( !gWindow ) {
@@ -228,10 +240,12 @@ int gr_set_mode( int width, int height, int flags ) {
             return -1;
         }
         SDL_GetRendererInfo( gRenderer, &gRendererInfo );
+        gMaxTextureSize = gRendererInfo.max_texture_width;
         show_renderer_info( &gRendererInfo );
 //        printf( "max texture size: %d x %d\n", gRendererInfo.max_texture_width, gRendererInfo.max_texture_height );
     }
-#else
+#endif
+#ifdef USE_SDL2_GPU
     if ( !gRenderer ) {
         // Create Renderer
         int sdl_flags = SDL_WINDOW_SHOWN;
@@ -247,6 +261,9 @@ int gr_set_mode( int width, int height, int flags ) {
         if( gRenderer == NULL ) return -1;
         gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
 
+        GLint params = 0;
+        glGetIntegerv( GL_MAX_TEXTURE_SIZE, &params );
+        gMaxTextureSize = ( int64_t ) params;
     } else {
         if ( !fullscreen && GPU_GetFullscreen() ) GPU_SetWindowResolution( 1, 1 ); // Force Update when go to window mode (dirty fix)
         GPU_SetFullscreen( fullscreen ? GPU_TRUE : GPU_FALSE, GPU_FALSE );
@@ -255,7 +272,6 @@ int gr_set_mode( int width, int height, int flags ) {
 
         GPU_SetViewport( gRenderer, GPU_MakeRect(0, 0, renderer_width, renderer_height) );
         GPU_SetVirtualResolution( gRenderer, renderer_width, renderer_height );
-
     }
 
     if ( waitvsync ) {
@@ -280,7 +296,7 @@ int gr_set_mode( int width, int height, int flags ) {
 
 #endif
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     //Initialize renderer color
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );
 #endif
@@ -292,10 +308,11 @@ int gr_set_mode( int width, int height, int flags ) {
     if ( scale_resolution && scale_resolution != -1 && ( renderer_width != width || renderer_height != height ) ) {
         switch ( scale_resolution_aspectratio ) {
             case SRA_PRESERVE:
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
                 SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "letterbox");
                 SDL_RenderSetLogicalSize( gRenderer, width, height );
-#else
+#endif
+#ifdef USE_SDL2_GPU
             {
                 double relw = ( double ) renderer_width / ( double ) width,
                        relh = ( double ) renderer_height / ( double ) height,
@@ -317,10 +334,11 @@ int gr_set_mode( int width, int height, int flags ) {
                 break;
 
             case SRA_OVERSCAN:
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
                 SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "overscan");
                 SDL_RenderSetLogicalSize( gRenderer, width, height );
-#else
+#endif
+#ifdef USE_SDL2_GPU
             {
                 double relw = ( double ) renderer_width / ( double ) width,
                        relh = ( double ) renderer_height / ( double ) height,
@@ -341,13 +359,14 @@ int gr_set_mode( int width, int height, int flags ) {
                 break;
 
             case SRA_FIT:
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
                 // Issues with rotated textures
                 SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "overscan");
                 SDL_RenderSetLogicalSize( gRenderer, width, height );
                 SDL_RenderSetScale( gRenderer, (float) renderer_width / (float) width, (float) renderer_height / (float) height );
                 SDL_RenderSetViewport(gRenderer, NULL); // Fix SDL_RenderSetScale issue
-#else
+#endif
+#ifdef USE_SDL2_GPU
                 GPU_SetViewport( gRenderer, GPU_MakeRect(0, 0, renderer_width, renderer_height) );
                 GPU_SetVirtualResolution( gRenderer, width, height );
 #endif
@@ -394,10 +413,11 @@ void gr_video_init() {
 
 void gr_video_exit() {
     if ( gPixelFormat ) SDL_FreeFormat( gPixelFormat );
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     if ( gRenderer ) SDL_DestroyRenderer( gRenderer );
     if ( gWindow ) SDL_DestroyWindow( gWindow );
-#else
+#endif
+#ifdef USE_SDL2_GPU
     if ( gRenderer ) GPU_Quit();
 #endif
 

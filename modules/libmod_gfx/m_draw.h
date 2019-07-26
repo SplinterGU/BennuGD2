@@ -62,7 +62,7 @@ extern int64_t libmod_gfx_draw_circle( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_circle_filled( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params );
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
 extern int64_t libmod_gfx_draw_arc( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_arc_filled( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_draw_ellipse( INSTANCE * my, int64_t * params );
@@ -98,7 +98,7 @@ EXPORT_DRWFN_COLOR(rectangles)
 EXPORT_DRWFN_COLOR(circle)
 EXPORT_DRWFN_COLOR(circle_filled)
 EXPORT_DRWFN_COLOR(bezier)
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
 EXPORT_DRWFN_COLOR(arc)
 EXPORT_DRWFN_COLOR(arc_filled)
 EXPORT_DRWFN_COLOR(ellipse)

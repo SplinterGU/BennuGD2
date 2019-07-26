@@ -215,10 +215,11 @@ void gr_draw_frame() {
 //    SDL_RenderSetViewport( gRenderer, NULL );
 
     /* Clear screen */
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );
     SDL_RenderClear( gRenderer );
-#else
+#endif
+#ifdef USE_SDL2_GPU
     GPU_Clear( gRenderer );
 #endif
 
@@ -256,10 +257,11 @@ void gr_draw_frame() {
     if ( fade_on || fade_set ) gr_fade_step();
 
     //Update screen
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     SDL_RenderPresent( gRenderer );
     SDL_RenderSetClipRect( gRenderer, NULL );
-#else
+#endif
+#ifdef USE_SDL2_GPU
     GPU_Flip( gRenderer );
 #endif
 }

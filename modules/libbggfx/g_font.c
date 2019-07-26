@@ -460,9 +460,10 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
  *
  */
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
 int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
-#else
+#endif
+#ifdef USE_SDL2_GPU
 int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
 #endif
     FONT * f;
@@ -471,14 +472,14 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
     int charrowsize, charcolsize;
     int w, h, cw, ch;
     SDL_Surface * surface;
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     surface = map->surface;
 #endif
 
     if ( ( id = gr_font_new( charset ) ) == -1 ) return -1;
 
-#ifndef USE_NATIVE_SDL2
-    if ( !source ) surface = GPU_CopySurfaceFromImage( map->image );
+#ifdef USE_SDL2_GPU
+    if ( !source ) surface = GPU_CopySurfaceFromImage( map->tex );
     else surface = source;
 #endif
 
@@ -555,7 +556,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
     f->maxwidth = width;
     f->maxheight = height;
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     if ( !source ) SDL_FreeSurface( surface );
 #endif
     return id;
@@ -612,9 +613,10 @@ int gr_font_systemfont() {
 
     int fontid;
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     fontid = gr_font_new_from_bitmap( map, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
-#else
+#endif
+#ifdef USE_SDL2_GPU
     fontid = gr_font_new_from_bitmap( map, surface, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
 #endif
 

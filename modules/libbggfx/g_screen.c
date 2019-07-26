@@ -38,7 +38,7 @@
 GRAPH * g_get_screen( void ) {
     SDL_Surface * surface = NULL;
     GRAPH * bitmap = NULL;
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     surface = SDL_CreateRGBSurface(0, renderer_width, renderer_height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, 0 /* Force alpha to opaque */ );
     SDL_SetColorKey( surface, SDL_FALSE, 0 );
 
@@ -55,7 +55,8 @@ GRAPH * g_get_screen( void ) {
                                       surface->pixels,
                                       surface->pitch );
     }
-#else
+#endif
+#ifdef USE_SDL2_GPU
     surface = GPU_CopySurfaceFromTarget( gRenderer );
     /* Convert for remove alpha channel */
     SDL_Surface * surfaceRGB = NULL;

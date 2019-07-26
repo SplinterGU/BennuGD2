@@ -38,7 +38,7 @@ extern uint8_t drawing_color_g;
 extern uint8_t drawing_color_b;
 extern uint8_t drawing_color_a;
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
 extern float drawing_thickness;
 #endif
 
@@ -58,7 +58,7 @@ extern void draw_circle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int6
 extern void draw_circle_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t * cache_size, void ** cache );
 extern void draw_bezier( GRAPH * dest, REGION * clip, int64_t x1, int64_t y1, int64_t x2, int64_t y2, int64_t x3, int64_t y3, int64_t x4, int64_t y4, int64_t level, int64_t * cache_size, void ** cache );
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
 extern void draw_arc( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t start_angle, int64_t end_angle );
 extern void draw_arc_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t r, int64_t start_angle, int64_t end_angle );
 extern void draw_ellipse( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t rx, int64_t ry, int64_t degrees );

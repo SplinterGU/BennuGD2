@@ -16,4 +16,7 @@ file(GLOB SOURCES_LIBBGGFX
      )
 
 add_library(bggfx SHARED ${SOURCES_LIBBGGFX})
-target_link_libraries(bggfx ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDL_GPU_LIBRARY} -L../../bin -lbgdrtm)
+if(MINGW)
+set(OGL_LIB -lopengl32)
+endif()
+target_link_libraries(bggfx ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDL_GPU_LIBRARY} -L../../bin -lbgdrtm ${OGL_LIB})

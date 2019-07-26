@@ -58,12 +58,7 @@ typedef struct _font {
     struct _glyph {
         union {
             GRAPH * glymap;
-#ifdef USE_NATIVE_SDL2
-    SDL_Rect
-#else
-    GPU_Rect
-#endif
-                   fontsource; // Used if fontmap
+            BGD_Rect fontsource; // Used if fontmap
         };
         int64_t xoffset;
         int64_t yoffset;
@@ -84,7 +79,7 @@ extern FONT * fonts[MAX_FONTS];
 extern void gr_font_destroy( int64_t fontid );
 extern FONT * gr_font_get( int64_t id );
 extern int64_t gr_font_new( int64_t charset );
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
 extern int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap );
 #else
 extern int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * surface, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap );

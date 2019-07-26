@@ -45,9 +45,10 @@
 
 /* --------------------------------------------------------------------------- */
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     typedef SDL_BlendMode BLENDMODE;
-#else
+#endif
+#ifdef USE_SDL2_GPU
     typedef GPU_BlendPresetEnum BLENDMODE;
     extern GPU_FilterEnum gr_filter_mode;
 #endif
@@ -59,13 +60,8 @@ extern int gr_prepare_renderer( GRAPH * dest,
                      int64_t flags,
                      BLENDMODE * blend_mode );
 
-#ifdef USE_NATIVE_SDL2
-extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b );
-extern void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, SDL_Rect * map_clip );
-#else
-extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, GPU_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b );
-extern void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, GPU_Rect * map_clip );
-#endif
+extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, BGD_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b );
+extern void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, GRAPH * gr, BGD_Rect * map_clip );
 
 /* --------------------------------------------------------------------------- */
 

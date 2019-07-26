@@ -31,7 +31,7 @@
 
 #include <SDL.h>
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
 #include <SDL_gpu.h>
 #endif
 
@@ -79,10 +79,13 @@ extern int64_t scale_resolution_orientation;
 extern int renderer_width;
 extern int renderer_height;
 
+extern int64_t gMaxTextureSize;
+
 extern SDL_Window * gWindow;
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
 extern SDL_Renderer * gRenderer;
-#else
+#endif
+#ifdef USE_SDL2_GPU
 extern GPU_Target * gRenderer;
 #endif
 extern SDL_RendererInfo gRendererInfo;

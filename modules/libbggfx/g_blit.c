@@ -33,12 +33,6 @@
 
 /* --------------------------------------------------------------------------- */
 
-#include <SDL.h>
-
-#ifndef USE_NATIVE_SDL2
-#include <SDL_gpu.h>
-#endif
-
 #include "bgddl.h"
 #include "libbggfx.h"
 #include "dlvaracc.h"
@@ -47,13 +41,13 @@
 
 /* --------------------------------------------------------------------------- */
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     GPU_FilterEnum gr_filter_mode = GPU_FILTER_NEAREST;
 #endif
 
 /* --------------------------------------------------------------------------- */
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
 
 static int inline gr_update_texture( GRAPH * gr ) {
     SDL_Surface * surface;
@@ -66,15 +60,15 @@ static int inline gr_update_texture( GRAPH * gr ) {
         if ( !surface ) return -1;
     }
 #else
-    surface = gr->texture;
+    surface = gr->tex;
 #endif
 
     if ( SDL_MUSTLOCK( surface ) ) {
         SDL_LockSurface( surface );
-        SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch );
+        SDL_UpdateTexture( gr->tex, NULL, surface->pixels, surface->pitch );
         SDL_UnlockSurface( surface );
     } else {
-        SDL_UpdateTexture( gr->texture, NULL, surface->pixels, surface->pitch );
+        SDL_UpdateTexture( gr->tex, NULL, surface->pixels, surface->pitch );
     }
 
 #ifndef __DISABLE_PALETTES__
@@ -91,18 +85,19 @@ static int inline gr_update_texture( GRAPH * gr ) {
 
 int gr_create_image_for_graph( GRAPH * gr ) {
     if ( !gr ) return 1;
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     if ( !gr->surface ) {
         gr->surface = SDL_CreateRGBSurface( 0, gr->width, gr->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !gr->surface ) return 1;
     }
-#else
-    if ( !gr->image ) gr->image = GPU_CreateImage( gr->width, gr->height, GPU_FORMAT_RGBA );
-    if ( !gr->image ) {
+#endif
+#ifdef USE_SDL2_GPU
+    if ( !gr->tex ) gr->tex = GPU_CreateImage( gr->width, gr->height, GPU_FORMAT_RGBA );
+    if ( !gr->tex ) {
         printf ("error in image creation\n" );
         return 1;
     }
-    if ( !gr->image->target ) GPU_LoadTarget( gr->image );
+    if ( !gr->tex->target ) GPU_LoadTarget( gr->tex );
 #endif
     return 0;
 }
@@ -128,10 +123,10 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE *
 
     if ( dest ) {
         if ( gr_create_image_for_graph( dest ) ) return 1;
-#ifdef USE_NATIVE_SDL2
-        if ( !dest->texture ) {
-            dest->texture = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, dest->width, dest->height );
-            if ( !dest->texture ) {
+#ifdef USE_SDL2
+        if ( !dest->tex ) {
+            dest->tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, dest->width, dest->height );
+            if ( !dest->tex ) {
                 printf ("error in RW texture creation [%s]\n", SDL_GetError() );
                 return 1;
             }
@@ -144,14 +139,15 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE *
 #endif
     }
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
          if ( flags & B_NOCOLORKEY )    * blend_mode = SDL_BLENDMODE_NONE;  //Disable blending on texture
     else if ( flags & B_ABLEND     )    * blend_mode = SDL_BLENDMODE_ADD;   //Additive blending on texture
     else if ( flags & B_SBLEND     ) {
         * blend_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT);
     }
     else                                * blend_mode = SDL_BLENDMODE_BLEND; //Enable blending on texture
-#else
+#endif
+#ifdef USE_SDL2_GPU
 #if 0
 /*! Gets the current alpha blending setting. */
 DECLSPEC GPU_bool SDLCALL GPU_GetBlending(GPU_Image* image);
@@ -188,7 +184,7 @@ DECLSPEC void SDLCALL GPU_SetBlendMode(GPU_Image* image, GPU_BlendPresetEnum mod
 #endif
 
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     SDL_Rect rect;
 
     if ( clip ) {
@@ -208,11 +204,12 @@ DECLSPEC void SDLCALL GPU_SetBlendMode(GPU_Image* image, GPU_BlendPresetEnum mod
         }
     }
 
-    if ( dest ) SDL_SetRenderTarget( gRenderer, dest->texture );
-//    if ( dest ) { SDL_SetRenderTarget( gRenderer, dest->texture ); SDL_SetTextureBlendMode( dest->texture, SDL_BLENDMODE_NONE ); }
+    if ( dest ) SDL_SetRenderTarget( gRenderer, dest->tex );
+//    if ( dest ) { SDL_SetRenderTarget( gRenderer, dest->tex ); SDL_SetTextureBlendMode( dest->tex, SDL_BLENDMODE_NONE ); }
 
     SDL_RenderSetClipRect( gRenderer, &rect );
-#else
+#endif
+#ifdef USE_SDL2_GPU
     static REGION _lastClip = { 0, 0, 0, 0 }, * lastClip = NULL;
     static GRAPH * lastDest = NULL;
 
@@ -222,7 +219,7 @@ DECLSPEC void SDLCALL GPU_SetBlendMode(GPU_Image* image, GPU_BlendPresetEnum mod
     if ( dest != lastDest && !clip ) doUnClip = 1;
     if ( dest == lastDest && !clip && clip != lastClip ) doUnClip = 1;
 
-    GPU_Target * dst = dest ? dest->image->target : gRenderer;
+    GPU_Target * dst = dest ? dest->tex->target : gRenderer;
 
     if ( doUnClip ) {
         GPU_UnsetClip( dst );
@@ -270,11 +267,7 @@ void gr_blit(   GRAPH * dest,
                 double scalex,
                 double scaley,
                 GRAPH * gr,
-#ifdef USE_NATIVE_SDL2
-                SDL_Rect * gr_clip,
-#else
-                GPU_Rect * gr_clip,
-#endif
+                BGD_Rect * gr_clip,
                 uint8_t alpha,
                 uint8_t color_r,
                 uint8_t color_g,
@@ -282,74 +275,85 @@ void gr_blit(   GRAPH * dest,
             ) {
     if ( !gr ) return;
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     if ( !gr->surface ) return;
-#else
-    if ( !gr->image ) return;
 #endif
 
     if ( scalex <= 0.0 || scaley <= 0.0 ) return;
-#ifdef USE_NATIVE_SDL2
-    if ( !gr->texture && !gr->segments ) {
 
-        if ( gr->width > gRendererInfo.max_texture_width || gr->height > gRendererInfo.max_texture_height ) {
-            int64_t nsegx = ( gr->width - 1 ) / gRendererInfo.max_texture_width + 1,
-                    nsegy = ( gr->height - 1 ) / gRendererInfo.max_texture_height + 1;
+    /* Create segments if needed */
+
+    if ( !gr->tex && !gr->segments ) {
+        if ( gr->width > gMaxTextureSize || gr->height > gMaxTextureSize ) {
+            int64_t nsegx = ( gr->width - 1 ) / gMaxTextureSize + 1,
+                    nsegy = ( gr->height - 1 ) / gMaxTextureSize + 1;
             int64_t x, y, offx, offy, seg, w, h;
             int64_t total = nsegx * nsegy;
 
-// free old gr->segments
-//            free ( gr->segments );
+#define TEX_SEGMENTS 1
+#ifdef USE_SDL2
+    #undef TEX_SEGMENTS
+    #define TEX_SEGMENTS 4
+#endif
+            gr->segments = calloc( total * TEX_SEGMENTS, sizeof( *( gr->segments ) ) );
 
-            gr->segments = calloc( total * 4, sizeof( *( gr->segments ) ) );
             if ( !gr->segments ) return;
             gr->nsegments = total;
 
             SDL_Surface *auxSurface = NULL;
-            int64_t oldw = 0, oldh = 0;
+            int64_t oldw = -1, oldh = -1;
+
             SDL_Rect srcrect = {0};
 
             for ( y = 0; y < nsegy; y++ ) {
-                offy = y * gRendererInfo.max_texture_height;
-                if ( y + 1 == nsegy )   h = gr->height % gRendererInfo.max_texture_height;
-                else                    h = gRendererInfo.max_texture_height;
+                offy = y * gMaxTextureSize;
+                h = ( y + 1 == nsegy ) ? 1 + gr->height % gMaxTextureSize : gMaxTextureSize;
                 for ( x = 0; x < nsegx; x++ ) {
-                    offx = x * gRendererInfo.max_texture_width;
                     seg = y * nsegx + x;
+                    offx = x * gMaxTextureSize;
+                    w = ( x + 1 == nsegx ) ? 1 + gr->width % gMaxTextureSize : gMaxTextureSize;
                     gr->segments[seg].offx = offx;
                     gr->segments[seg].offy = offy;
-                    if ( x + 1 == nsegx )   w = gr->width % gRendererInfo.max_texture_width;
-                    else                    w = gRendererInfo.max_texture_width;
                     gr->segments[seg].width = w;
                     gr->segments[seg].height = h;
-                    gr->segments[seg].texture = SDL_CreateTexture( gRenderer, gPixelFormat->format /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, w, h );
-                    if ( !gr->segments[seg].texture ) {
-                        printf ("error creando multi textura RO [%s]\n", SDL_GetError() );
-                        return;
-                    }
-
-                    if ( oldw != w || oldh != h ) {
-                        if ( auxSurface ) SDL_FreeSurface( auxSurface );
-                        oldw = w; oldh = h;
-                        auxSurface = SDL_CreateRGBSurface( 0, w, h, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
-                        if ( !auxSurface ) {
-                            printf ("error creando temp surface [%s]\n", SDL_GetError() );
-                            return;
-                        }
-//                        SDL_SetColorKey( auxSurface, SDL_TRUE, 0 );
-                    }
 
                     srcrect.x = offx;
                     srcrect.y = offy;
                     srcrect.w = w;
                     srcrect.h = h;
-
+#ifdef USE_SDL2
+                    gr->segments[seg].tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_STATIC, w, h );
+                    if ( !gr->segments[seg].tex ) {
+                        printf ("error creando multi textura RO [%s]\n", SDL_GetError() );
+                        return;
+                    }
+#endif
+                    if ( oldw != w || oldh != h ) {
+                        if ( auxSurface ) SDL_FreeSurface( auxSurface );
+                        auxSurface = SDL_CreateRGBSurface( 0, w, h, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
+                        if ( !auxSurface ) {
+                            printf ("error creando temp surface [%s]\n", SDL_GetError() );
+                            return;
+                        }
+                        oldw = w; oldh = h;
+                    }
                     SDL_BlitSurface( gr->surface, &srcrect, auxSurface, NULL );
-                    SDL_UpdateTexture( gr->segments[seg].texture, NULL, auxSurface->pixels, auxSurface->pitch);
+#ifdef USE_SDL2
+                    SDL_UpdateTexture( gr->segments[seg].tex, NULL, auxSurface->pixels, auxSurface->pitch );
+#endif
+#ifdef USE_SDL2_GPU
+                    gr->segments[seg].tex = GPU_CopyImageFromSurface( auxSurface );
+                    if ( !gr->segments[seg].tex ) {
+                        SDL_FreeSurface( auxSurface );
+                        printf ("error creando multi textura RO [%s]\n", SDL_GetError() );
+                        return;
+                    }
+#endif
                 }
-                if ( auxSurface ) SDL_FreeSurface( auxSurface );
             }
+            if ( auxSurface ) SDL_FreeSurface( auxSurface );
 
+#ifdef USE_SDL2
             /* calc mirror texture */
             int64_t offy1 = 0, offy2 = 0, offy3 = 0;
             int64_t seg0, seg1, seg2, seg3;
@@ -381,10 +385,12 @@ void gr_blit(   GRAPH * dest,
                 offy2 += gr->segments[seg2].height;
                 offy3 += gr->segments[seg3].height;
             }
-
-        } else {
-            gr->texture = SDL_CreateTexture( gRenderer, gPixelFormat->format /*gr->surface->format->format*/, SDL_TEXTUREACCESS_STATIC, gr->width, gr->height );
-            if ( !gr->texture ) {
+#endif
+        }
+#ifdef USE_SDL2
+        else {
+            gr->tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_STATIC, gr->width, gr->height );
+            if ( !gr->tex ) {
                 printf ("error creando textura RO [%s]\n", SDL_GetError() );
                 return;
             }
@@ -392,16 +398,26 @@ void gr_blit(   GRAPH * dest,
             gr_update_texture(gr);
         }
         gr->type = BITMAP_TEXTURE_STATIC;
-    }
-    if ( gr->texture && gr->texture_must_update ) gr_update_texture(gr);
-#else
 #endif
+    }
+
+#ifdef USE_SDL2
+    if ( gr->tex && gr->texture_must_update ) gr_update_texture(gr);
+#endif
+
+#ifdef USE_SDL2_GPU
+    if ( !gr->tex && !gr->segments ) return;
+#endif
+
+    /* blit */
 
     BLENDMODE blend_mode;
 
     if ( gr_prepare_renderer( dest, clip, flags, &blend_mode ) ) return;
 
+#ifdef USE_SDL2
     SDL_Point center;
+#endif
     int64_t w = 0, h = 0;
 
     if ( gr_clip ) {
@@ -419,28 +435,13 @@ void gr_blit(   GRAPH * dest,
 
     if ( flags & B_TRANSLUCENT ) alpha >>= 1;
 
-    if ( flags & B_HMIRROR ) angle = -angle;
-    if ( flags & B_VMIRROR ) angle = -angle;
-
     scalex_adjusted = scalex / 100.0;
     scaley_adjusted = scaley / 100.0;
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     SDL_RendererFlip flip = ( ( flags & B_HMIRROR ) ? SDL_FLIP_HORIZONTAL : 0 ) | ( ( flags & B_VMIRROR ) ? SDL_FLIP_VERTICAL : 0 );
+#endif
 
-    if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
-        int64_t cx = gr->cpoints[0].x, cy = gr->cpoints[0].y;
-
-        if ( flags & B_HMIRROR ) cx = gr->width - cx - 1;
-        if ( flags & B_VMIRROR ) cy = gr->height - cy - 1;
-
-        centerx = scalex_adjusted * cx;
-        centery = scaley_adjusted * cy;
-    } else {
-        centerx = scalex_adjusted * w / 2.0;
-        centery = scaley_adjusted * h / 2.0;
-    }
-#else
     if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
         centerx = gr->cpoints[0].x;
         centery = gr->cpoints[0].y;
@@ -449,49 +450,86 @@ void gr_blit(   GRAPH * dest,
         centery = h / 2.0;
     }
 
-    if ( flags & B_HMIRROR ) scalex_adjusted = -scalex_adjusted;
-    if ( flags & B_VMIRROR ) scaley_adjusted = -scaley_adjusted;
+    if ( flags & B_HMIRROR ) {
+        angle = -angle;
+#ifdef USE_SDL2
+        centerx = gr->width - centerx - 1;
+#endif
+#ifdef USE_SDL2_GPU
+        scalex_adjusted = -scalex_adjusted;
+#endif
+    }
+    if ( flags & B_VMIRROR ) {
+        angle = -angle;
+#ifdef USE_SDL2
+        centery = gr->height - centery - 1;
+#endif
+#ifdef USE_SDL2_GPU
+        scaley_adjusted = -scaley_adjusted;
+#endif
+    }
+
+#ifdef USE_SDL2
+    centerx *= scalex_adjusted;
+    centery *= scaley_adjusted;
 #endif
 
     if ( gr->segments ) {
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
         SDL_Texture * tex;
-#else
+#endif
+#ifdef USE_SDL2_GPU
+        GPU_Image * tex;
 #endif
         int mirror_offset = 0;
 
+#ifdef USE_SDL2
         if ( flags & B_HMIRROR ) mirror_offset += gr->nsegments;
         if ( flags & B_VMIRROR ) mirror_offset += gr->nsegments * 2;
+#endif
 
         for ( i = mirror_offset; i < mirror_offset + gr->nsegments; i++ ) {
-            double  offx = gr->segments[ i ].offx * scalex_adjusted,
-                    offy = gr->segments[ i ].offy * scaley_adjusted;
+            double  offx = gr->segments[ i ].offx,
+                    offy = gr->segments[ i ].offy;
 
-#ifdef USE_NATIVE_SDL2
-            tex = gr->segments[ i ].texture;
-#else
-#endif
+            tex = gr->segments[ i ].tex;
+#ifdef USE_SDL2
+            offx *= scalex_adjusted,
+            offy *= scaley_adjusted;
+
             center.x = centerx - offx;
             center.y = centery - offy;
 
             dstrect.x = scrx - centerx + offx;
             dstrect.y = scry - centery + offy;
-            dstrect.w = scalex_adjusted * gr->segments[ i ].width; // Calculate dest region according texture
-            dstrect.h = scaley_adjusted * gr->segments[ i ].height; // Calculate dest region according texture
+            dstrect.w = 1 + scalex_adjusted * gr->segments[ i ].width; // Calculate dest region according texture
+            dstrect.h = 1 + scaley_adjusted * gr->segments[ i ].height; // Calculate dest region according texture
 
-#ifdef USE_NATIVE_SDL2
             SDL_SetTextureBlendMode( tex, blend_mode );
             SDL_SetTextureAlphaMod( tex, alpha );
             SDL_SetTextureColorMod( tex, color_r, color_g, color_b );
 
             //Render
             SDL_RenderCopyEx( gRenderer, tex, gr_clip, &dstrect, angle / -1000.0, &center, flip );
-#else
 #endif
+#ifdef USE_SDL2_GPU
+            if ( blend_mode == -1 ) {
+                GPU_SetBlending( tex, GPU_FALSE );
+            } else {
+                GPU_SetBlending( tex, GPU_TRUE );
+                GPU_SetBlendMode( tex, blend_mode );
+            }
+            GPU_SetRGBA( tex, color_r, color_g, color_b, alpha );
 
+            if ( tex->filter_mode != gr_filter_mode ) GPU_SetImageFilter( tex, gr_filter_mode );
+
+            GPU_Target * dst = dest ? dest->tex->target : gRenderer;
+
+            GPU_BlitTransformX( tex, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx - offx, ( float ) centery - offy, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
+#endif
         }
     } else {
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
         center.x = centerx;
         center.y = centery;
 
@@ -500,30 +538,31 @@ void gr_blit(   GRAPH * dest,
         dstrect.w = scalex_adjusted * w;
         dstrect.h = scaley_adjusted * h;
 
-        SDL_SetTextureBlendMode( gr->texture, blend_mode );
-        SDL_SetTextureAlphaMod( gr->texture, alpha );
-        SDL_SetTextureColorMod( gr->texture, color_r, color_g, color_b );
+        SDL_SetTextureBlendMode( gr->tex, blend_mode );
+        SDL_SetTextureAlphaMod( gr->tex, alpha );
+        SDL_SetTextureColorMod( gr->tex, color_r, color_g, color_b );
 
         //Render
-        SDL_RenderCopyEx( gRenderer, gr->texture, gr_clip, &dstrect, angle / -1000.0, &center, flip );
-#else
+        SDL_RenderCopyEx( gRenderer, gr->tex, gr_clip, &dstrect, angle / -1000.0, &center, flip );
+#endif
+#ifdef USE_SDL2_GPU
         if ( blend_mode == -1 ) {
-            GPU_SetBlending( gr->image, GPU_FALSE );
+            GPU_SetBlending( gr->tex, GPU_FALSE );
         } else {
-            GPU_SetBlending( gr->image, GPU_TRUE );
-            GPU_SetBlendMode( gr->image, blend_mode );
+            GPU_SetBlending( gr->tex, GPU_TRUE );
+            GPU_SetBlendMode( gr->tex, blend_mode );
         }
-        GPU_SetRGBA( gr->image, color_r, color_g, color_b, alpha );
+        GPU_SetRGBA( gr->tex, color_r, color_g, color_b, alpha );
 
-        if ( gr->image->filter_mode != gr_filter_mode ) GPU_SetImageFilter( gr->image, gr_filter_mode );
+        if ( gr->tex->filter_mode != gr_filter_mode ) GPU_SetImageFilter( gr->tex, gr_filter_mode );
 
-        GPU_Target * dst = dest ? dest->image->target : gRenderer;
+        GPU_Target * dst = dest ? dest->tex->target : gRenderer;
 
-        GPU_BlitTransformX( gr->image, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
+        GPU_BlitTransformX( gr->tex, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
 #endif
     }
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
    if ( dest ) SDL_SetRenderTarget( gRenderer, NULL );
 #endif
 
@@ -556,12 +595,8 @@ static void gr_calculate_corners( GRAPH * dest,
                                   int64_t angle,
                                   double scalex,
                                   double scaley,
-                                  SDL_Point * corners,
-#ifdef USE_NATIVE_SDL2
-                                  SDL_Rect * map_clip
-#else
-                                  GPU_Rect * map_clip
-#endif
+                                  BGD_Point * corners,
+                                  BGD_Rect * map_clip
                                   ) {
     double center_x, center_y, sx = 1, sy = -1;
     int64_t width = dest->width, height = dest->height;
@@ -644,11 +679,7 @@ void gr_get_bbox( REGION * dest,
                   double scalex,
                   double scaley,
                   GRAPH * gr,
-#ifdef USE_NATIVE_SDL2
-                  SDL_Rect * map_clip
-#else
-                  GPU_Rect * map_clip
-#endif
+                  BGD_Rect * map_clip
     ) {
     SDL_Point corners[4];
     SDL_Point min, max;

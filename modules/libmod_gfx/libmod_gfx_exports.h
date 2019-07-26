@@ -59,7 +59,7 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "Q_NEAREST"           , TYPE_INT        , Q_NEAREST             },
     { "Q_LINEAR"            , TYPE_INT        , Q_LINEAR              },
     { "Q_BEST"              , TYPE_INT        , Q_BEST                },
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     { "Q_MIPMAP"            , TYPE_INT        , Q_MIPMAP              },
 #endif
     { "CHARSET_ISO8859"     , TYPE_INT        , CHARSET_ISO8859       },
@@ -341,7 +341,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "DRAW_CURVE"          , "IIIIIIIII"       , TYPE_INT         , libmod_gfx_draw_bezier                 ),
     FUNC( "DRAW_CURVE"          , "IIIIIIIIII"      , TYPE_INT         , DRWFN_COLOR(bezier)                    ), // libmod_gfx_draw_bezier_color
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     FUNC( "DRAW_ARC"            , "IIIII"           , TYPE_INT         , libmod_gfx_draw_arc                    ),
     FUNC( "DRAW_ARC"            , "IIIIII"          , TYPE_INT         , DRWFN_COLOR(arc)                       ), // libmod_gfx_draw_arc_color
     FUNC( "DRAW_ARC_FILLED"     , "IIIII"           , TYPE_INT         , libmod_gfx_draw_arc_filled             ),

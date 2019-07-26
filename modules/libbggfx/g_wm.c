@@ -78,9 +78,10 @@ void wm_events() {
 */
             //Repaint on exposure
             case    SDL_WINDOWEVENT_EXPOSED:
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
                     SDL_RenderPresent( gRenderer );
-#else
+#endif
+#ifdef USE_SDL2_GPU
                     GPU_Flip( gRenderer );
 #endif
                     break;

@@ -82,15 +82,11 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
         h = surface->h;
     }
 
-    if ( w < 1 || h < 1 ) {
-        return NULL;
-    }
+    if ( w < 1 || h < 1 ) return NULL;
 
     /* Create and fill the struct */
 
-    if ( !( gr = ( GRAPH * ) malloc( sizeof( GRAPH ) ) ) ) {
-        return NULL; // no memory
-    }
+    if ( !( gr = ( GRAPH * ) malloc( sizeof( GRAPH ) ) ) ) return NULL; // no memory
 
     /* Access:
         SDL_TEXTUREACCESS_STATIC
@@ -98,7 +94,7 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
         SDL_TEXTUREACCESS_TARGET
     */
     if ( surface ) {
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
  #ifdef __DISABLE_PALETTES__
         if ( surface->format->format == gPixelFormat->format /*|| surface->format->format == SDL_PIXELFORMAT_RGB565*/ ) {
             gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
@@ -112,31 +108,47 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
             return NULL;
         }
  #endif
-#else
-        gr->image = GPU_CopyImageFromSurface( surface );
-        if ( !gr->image ) {
-            fprintf(stderr, "GPU_GetCurrentRenderer %p\n", GPU_GetCurrentRenderer());
-            GPU_ErrorObject e = GPU_PopErrorCode();
+#endif
+#ifdef USE_SDL2_GPU
+        // If bitmap is largest that max texture size then copy texture for slice it in the blitter
+        if ( w > gMaxTextureSize || h > gMaxTextureSize ) {
+            gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
+            if ( !gr->surface ) {
+                free( gr );
+                return NULL;
+            }
+            gr->tex = NULL;
+        } else {
+            gr->tex = GPU_CopyImageFromSurface( surface );
+            if ( !gr->tex ) {
+                fprintf(stderr, "GPU_GetCurrentRenderer %p\n", GPU_GetCurrentRenderer());
+                GPU_ErrorObject e = GPU_PopErrorCode();
 
-            fprintf(stderr, "NEW_BITMAP error creando image from surface %s\n", GPU_GetErrorString(e.error));
+                fprintf(stderr, "NEW_BITMAP error creando image from surface %s\n", GPU_GetErrorString(e.error));
+                free( gr );
+                return NULL;
+            }
+        }
+#endif
+    } else {
+        gr->surface = NULL;
+#ifdef USE_SDL2_GPU
+        gr->tex = NULL;
+        // If bitmap is largest that max texture size then return with error
+        if ( width > gMaxTextureSize || height > gMaxTextureSize ) {
             free( gr );
             return NULL;
         }
 #endif
-    } else {
-#ifdef USE_NATIVE_SDL2
-        gr->surface = NULL;
-#else
-        gr->image = NULL;
-#endif
     }
 
     gr->type = 0;
-#ifdef USE_NATIVE_SDL2
-    gr->texture = NULL;
 
+#ifdef USE_SDL2
+    gr->tex = NULL;
     gr->texture_must_update = 0;
 #endif
+
     gr->width = w;
     gr->height = h;
 
@@ -157,11 +169,9 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
 GRAPH * bitmap_clone( GRAPH * map ) {
     GRAPH * gr;
 
-#ifdef USE_NATIVE_SDL2
     if ( !( gr = bitmap_new( 0, map->width, map->height, map->surface ) ) ) return NULL;
-#else
-    if ( !( gr = bitmap_new( 0, map->width, map->height, NULL ) ) ) return NULL;
-    if ( map->image ) gr->image = GPU_CopyImage( map->image );
+#ifdef USE_SDL2_GPU
+    if ( map->tex ) gr->tex = GPU_CopyImage( map->tex );
 #endif
 
     if ( map->cpoints ) {
@@ -224,19 +234,21 @@ void bitmap_destroy( GRAPH * map ) {
     if ( !map ) return;
     if ( map->cpoints ) free( map->cpoints );
     if ( map->code > 999 ) bit_clr( map_code_bmp, map->code - 1000 );
-#ifdef USE_NATIVE_SDL2
     if ( map->surface ) SDL_FreeSurface( map->surface );
-    if ( map->texture ) SDL_DestroyTexture( map->texture );
-#else
-    GPU_FreeImage( map->image ); // GPU_FreeTarget is implicit
+#ifdef USE_SDL2
+    if ( map->tex ) SDL_DestroyTexture( map->tex );
+#endif
+#ifdef USE_SDL2_GPU
+    GPU_FreeImage( map->tex ); // GPU_FreeTarget is implicit
 #endif
     if ( map->nsegments ) {
         int i;
         for ( i = 0; i < map->nsegments; i++ ) {
-#ifdef USE_NATIVE_SDL2
-            SDL_DestroyTexture( map->segments[i].texture );
-#else
-            GPU_FreeImage( map->segments[i].image ); // GPU_FreeTarget is implicit
+#ifdef USE_SDL2
+            SDL_DestroyTexture( map->segments[i].tex );
+#endif
+#ifdef USE_SDL2_GPU
+            GPU_FreeImage( map->segments[i].tex ); // GPU_FreeTarget is implicit
 #endif
         }
     }

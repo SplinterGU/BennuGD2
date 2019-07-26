@@ -121,11 +121,12 @@ int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params ) {
 //            return map->pitch;
 
         case G_DEPTH:           /* g_depth */
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
             if ( !map->surface ) return -1;
             return map->surface->format->BitsPerPixel;
-#else
-            if ( !map->image ) return -1;
+#endif
+#ifdef USE_SDL2_GPU
+            if ( !map->tex ) return -1;
             return 32; // Only 32 bpp is supported
 #endif
         case G_CENTER_X:        /* g_center_x */
@@ -543,19 +544,21 @@ int64_t libmod_gfx_map_save( INSTANCE * my, int64_t * params )
         string_discard( params[2] );
         return -1;
     }
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     if ( !gr->surface )
-#else
-    if ( !gr->image )
+#endif
+#ifdef USE_SDL2_GPU
+    if ( !gr->tex )
 #endif
     {
         string_discard( params[2] );
         return -1;
     }
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     r = ( int64_t ) IMG_SavePNG( gr->surface, ( char * )string_get( params[2] ) );
-#else
-    r = ( int64_t ) GPU_SaveImage( gr->image, ( char * )string_get( params[2] ), GPU_FILE_AUTO );
+#endif
+#ifdef USE_SDL2_GPU
+    r = ( int64_t ) GPU_SaveImage( gr->tex, ( char * )string_get( params[2] ), GPU_FILE_AUTO );
 #endif
     string_discard( params[2] );
     return r;
@@ -567,31 +570,34 @@ int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
     switch( params[0] ) {
         case Q_NEAREST:
         default:
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
             return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
-#else
+#endif
+#ifdef USE_SDL2_GPU
             gr_filter_mode  = GPU_FILTER_NEAREST;
             break;
 #endif
 
         case Q_LINEAR:
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
             return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "linear" );
-#else
+#endif
+#ifdef USE_SDL2_GPU
         case Q_BEST:
             gr_filter_mode  = GPU_FILTER_LINEAR;
             break;
 #endif
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
         case Q_BEST:
             return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
-#else
+#endif
+#ifdef USE_SDL2_GPU
             gr_filter_mode  = GPU_FILTER_NEAREST;
             break;
 #endif
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
         case Q_MIPMAP:
             gr_filter_mode  = GPU_FILTER_LINEAR_MIPMAP;
             break;
@@ -604,7 +610,7 @@ int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     GRAPH * map = bitmap_get( params[0], params[1] );
     int firstcolor = params[2], ncolors = params[3];
     SDL_Color * colors = ( SDL_Color * ) ( intptr_t ) params[4];
@@ -636,7 +642,7 @@ int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_palette( INSTANCE * my, int64_t * params ) {
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     GRAPH * map = bitmap_get( params[0], params[1] );
     int firstcolor = params[2], ncolors = params[3], i;
     SDL_Color * colors = ( SDL_Color * ) ( intptr_t ) params[4];

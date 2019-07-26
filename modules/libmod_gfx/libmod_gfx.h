@@ -71,7 +71,7 @@ enum {
     Q_NEAREST = 0,
     Q_LINEAR,
     Q_BEST,
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     Q_MIPMAP,
 #endif
 };

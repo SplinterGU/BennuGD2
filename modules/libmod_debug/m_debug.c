@@ -1234,9 +1234,10 @@ static void create_debug_sysfont() {
 
     bitmap_add_cpoint( map, 0, 0 );
 
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
     debug_sysfont = gr_font_new_from_bitmap( map, CHARSET_CP850, CHARWIDTH, CHARHEIGHT, 0, 0, NFB_FIXEDWIDTH, letters );
-#else
+#endif
+#ifdef USE_SDL2_GPU
     debug_sysfont = gr_font_new_from_bitmap( map, surface, CHARSET_CP850, CHARWIDTH, CHARHEIGHT, 0, 0, NFB_FIXEDWIDTH, letters );
 #endif
 

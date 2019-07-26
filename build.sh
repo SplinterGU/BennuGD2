@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [use_sdl2] [verbose]"
+    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [use_sdl2] [use_sdl2_gpu] [verbose]"
     exit 1
 }
 
@@ -12,7 +12,11 @@ for i in "$@"
 do
     case $i in
         use_sdl2)
-            EXTRA_CFLAGS=-DUSE_NATIVE_SDL2
+            EXTRA_CFLAGS="-DUSE_SDL2"
+            ;;
+
+        use_sdl2_gpu)
+            EXTRA_CFLAGS="-DUSE_SDL2_GPU"
             ;;
 
         windows)
@@ -67,6 +71,11 @@ done
 if [ "$TARGET" == "" ]
 then
     show_help
+fi
+
+if [ "$EXTRA_CFLAGS" == "" ]
+then
+    EXTRA_CFLAGS="-DUSE_SDL2_GPU"
 fi
 
 export PKG_CONFIG_PATH

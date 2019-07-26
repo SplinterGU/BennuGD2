@@ -58,7 +58,7 @@ enum {
     DRAWOBJ_CIRCLE,
     DRAWOBJ_CIRCLE_FILLED,
     DRAWOBJ_CURVE,
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     DRAWOBJ_ARC,
     DRAWOBJ_ARC_FILLED,
     DRAWOBJ_ELLIPSE,
@@ -96,7 +96,7 @@ typedef struct _drawing_object {
 
     int64_t radius;
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     int64_t rx;
     int64_t ry;
 
@@ -174,7 +174,7 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * brectangle_filled
     if ( !brectangle_filled ) return 1;
 
     switch ( dr->type ) {
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
         case DRAWOBJ_ARC:
         case DRAWOBJ_ARC_FILLED:
             newclip.x = dr->x1 - dr->radius;
@@ -327,7 +327,7 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
 
     int64_t old_drawing_blend_mode = drawing_blend_mode;
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     float old_drawing_thickness = drawing_thickness;
 #endif
 
@@ -337,7 +337,7 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
     drawing_color_a = dr->color_a;
     drawing_blend_mode = dr->blend_mode;
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     drawing_thickness = dr->thickness;
 #endif
 
@@ -387,7 +387,7 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
             draw_bezier( NULL, clip, dr->x1, dr->y1, dr->x1 + dr->x2, dr->y1 + dr->y2, dr->x1 + dr->x3, dr->y1 + dr->y3, dr->x1 + dr->x4, dr->y1 + dr->y4, dr->level, &dr->data_size, &dr->data );
             break;
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
         case DRAWOBJ_ARC:
             draw_arc( NULL, clip, dr->x1, dr->y1, dr->radius, dr->start_angle, dr->end_angle ) ;
             break;
@@ -443,7 +443,7 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
 #endif
     }
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     drawing_thickness = old_drawing_thickness;
 #endif
 
@@ -488,7 +488,7 @@ static int64_t _libmod_gfx_draw_object_new( DRAWING_OBJECT * dr, int64_t z ) {
     dr->blend_mode = drawing_blend_mode;
     dr->z = drawing_z;
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
     dr->thickness = drawing_thickness;
 #endif
 
@@ -501,7 +501,7 @@ static int64_t _libmod_gfx_draw_object_new( DRAWING_OBJECT * dr, int64_t z ) {
         case DRAWOBJ_RECTANGLES:
         case DRAWOBJ_RECTANGLES_FILLED:
 #endif
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
         case DRAWOBJ_POLYGON:
         case DRAWOBJ_POLYGON_FILLED:
         case DRAWOBJ_POLYLINE:
@@ -616,7 +616,7 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
             case DRAWOBJ_POINTS:
             case DRAWOBJ_LINES:
 #endif
-#ifdef USE_NATIVE_SDL2
+#ifdef USE_SDL2
             case DRAWOBJ_CIRCLE:
             case DRAWOBJ_CIRCLE_FILLED:
 #endif
@@ -629,7 +629,7 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
                 }
                 break;
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
             case DRAWOBJ_CIRCLE:
             case DRAWOBJ_CIRCLE_FILLED:
                 break;
@@ -647,7 +647,7 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
                 break;
 #endif
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
         case DRAWOBJ_ARC:
         case DRAWOBJ_ARC_FILLED:
         case DRAWOBJ_ELLIPSE:
@@ -1004,7 +1004,7 @@ int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
 
 /* --------------------------------------------------------------------------- */
 
@@ -1385,7 +1385,7 @@ DRWFN_COLOR(circle,3)
 DRWFN_COLOR(circle_filled,3)
 DRWFN_COLOR(bezier,9)
 
-#ifndef USE_NATIVE_SDL2
+#ifdef USE_SDL2_GPU
 DRWFN_COLOR(arc,5)
 DRWFN_COLOR(arc_filled,5)
 DRWFN_COLOR(ellipse,5)
