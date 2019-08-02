@@ -101,7 +101,12 @@ enum {
     CLIPX,
     CLIPY,
     CLIPW,
-    CLIPH
+    CLIPH,
+    CSHAPE,
+    CBOX_X,
+    CBOX_Y,
+    CBOX_WIDTH,
+    CBOX_HEIGHT
 };
 
 /* Globals */

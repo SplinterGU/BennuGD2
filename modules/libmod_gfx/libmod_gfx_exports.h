@@ -44,74 +44,136 @@
 /* ----------------------------------------------------------------- */
 
 DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
-    { "G_WIDE"              , TYPE_INT        , G_WIDE                },    /* Obsolete */
-    { "G_WIDTH"             , TYPE_INT        , G_WIDTH               },
-    { "G_HEIGHT"            , TYPE_INT        , G_HEIGHT              },
-    { "G_CENTER_X"          , TYPE_INT        , G_CENTER_X            },
-    { "G_X_CENTER"          , TYPE_INT        , G_X_CENTER            },
-    { "G_CENTER_Y"          , TYPE_INT        , G_CENTER_Y            },
-    { "G_Y_CENTER"          , TYPE_INT        , G_Y_CENTER            },
-    { "G_PITCH"             , TYPE_INT        , G_PITCH               },
-    { "G_DEPTH"             , TYPE_INT        , G_DEPTH               },
+    { "G_WIDE"              , TYPE_INT          , G_WIDE                                },    /* Obsolete */
+    { "G_WIDTH"             , TYPE_INT          , G_WIDTH                               },
+    { "G_HEIGHT"            , TYPE_INT          , G_HEIGHT                              },
+    { "G_CENTER_X"          , TYPE_INT          , G_CENTER_X                            },
+    { "G_X_CENTER"          , TYPE_INT          , G_X_CENTER                            },
+    { "G_CENTER_Y"          , TYPE_INT          , G_CENTER_Y                            },
+    { "G_Y_CENTER"          , TYPE_INT          , G_Y_CENTER                            },
+    { "G_PITCH"             , TYPE_INT          , G_PITCH                               },
+    { "G_DEPTH"             , TYPE_INT          , G_DEPTH                               },
 
-    { "B_CLEAR"             , TYPE_INT        , B_CLEAR               },
+    { "B_CLEAR"             , TYPE_INT          , B_CLEAR                               },
 
-    { "Q_NEAREST"           , TYPE_INT        , Q_NEAREST             },
-    { "Q_LINEAR"            , TYPE_INT        , Q_LINEAR              },
-    { "Q_BEST"              , TYPE_INT        , Q_BEST                },
+    { "Q_NEAREST"           , TYPE_INT          , Q_NEAREST                             },
+    { "Q_LINEAR"            , TYPE_INT          , Q_LINEAR                              },
+    { "Q_BEST"              , TYPE_INT          , Q_BEST                                },
 #ifdef USE_SDL2_GPU
-    { "Q_MIPMAP"            , TYPE_INT        , Q_MIPMAP              },
+    { "Q_MIPMAP"            , TYPE_INT          , Q_MIPMAP                              },
 #endif
-    { "CHARSET_ISO8859"     , TYPE_INT        , CHARSET_ISO8859       },
-    { "CHARSET_CP850"       , TYPE_INT        , CHARSET_CP850         },
+    { "CHARSET_ISO8859"     , TYPE_INT          , CHARSET_ISO8859                       },
+    { "CHARSET_CP850"       , TYPE_INT          , CHARSET_CP850                         },
 
-    { "NFB_VARIABLEWIDTH"   , TYPE_INT        , 0                     },
-    { "NFB_FIXEDWIDTH"      , TYPE_INT        , NFB_FIXEDWIDTH        },
+    { "NFB_VARIABLEWIDTH"   , TYPE_INT          , 0                                     },
+    { "NFB_FIXEDWIDTH"      , TYPE_INT          , NFB_FIXEDWIDTH                        },
 
     /* Text */
-    { "ALL_TEXT"            , TYPE_INT        , 0                     },
+    { "ALL_TEXT"            , TYPE_INT          , 0                                     },
 
     /* Texts align */
-    { "ALIGN_TOP_LEFT"      , TYPE_INT        , ALIGN_TOP_LEFT        },
-    { "ALIGN_TOP"           , TYPE_INT        , ALIGN_TOP             },
-    { "ALIGN_TOP_RIGHT"     , TYPE_INT        , ALIGN_TOP_RIGHT       },
-    { "ALIGN_CENTER_LEFT"   , TYPE_INT        , ALIGN_CENTER_LEFT     },
-    { "ALIGN_CENTER"        , TYPE_INT        , ALIGN_CENTER          },
-    { "ALIGN_CENTER_RIGHT"  , TYPE_INT        , ALIGN_CENTER_RIGHT    },
-    { "ALIGN_BOTTOM_LEFT"   , TYPE_INT        , ALIGN_BOTTOM_LEFT     },
-    { "ALIGN_BOTTOM"        , TYPE_INT        , ALIGN_BOTTOM          },
-    { "ALIGN_BOTTOM_RIGHT"  , TYPE_INT        , ALIGN_BOTTOM_RIGHT    },
+    { "ALIGN_TOP_LEFT"      , TYPE_INT          , ALIGN_TOP_LEFT                        },
+    { "ALIGN_TOP"           , TYPE_INT          , ALIGN_TOP                             },
+    { "ALIGN_TOP_RIGHT"     , TYPE_INT          , ALIGN_TOP_RIGHT                       },
+    { "ALIGN_CENTER_LEFT"   , TYPE_INT          , ALIGN_CENTER_LEFT                     },
+    { "ALIGN_CENTER"        , TYPE_INT          , ALIGN_CENTER                          },
+    { "ALIGN_CENTER_RIGHT"  , TYPE_INT          , ALIGN_CENTER_RIGHT                    },
+    { "ALIGN_BOTTOM_LEFT"   , TYPE_INT          , ALIGN_BOTTOM_LEFT                     },
+    { "ALIGN_BOTTOM"        , TYPE_INT          , ALIGN_BOTTOM                          },
+    { "ALIGN_BOTTOM_RIGHT"  , TYPE_INT          , ALIGN_BOTTOM_RIGHT                    },
 
     /* Pathfind */
-    { "PF_DIAG"             , TYPE_INT        , PF_DIAG               }, /* Prohibit the pathfinding from using diagonal paths. */
+    { "PF_DIAG"             , TYPE_INT          , PF_DIAG                               }, /* Allow the pathfinding from using diagonal paths. */
 
-    { "PF_MANHATTAN"        , TYPE_INT        , PF_HEURISTIC_MANHATTAN},
-    { "PF_EUCLIDEAN"        , TYPE_INT        , PF_HEURISTIC_EUCLIDEAN},
-    { "PF_OCTILE"           , TYPE_INT        , PF_HEURISTIC_OCTILE   },
-    { "PF_CHEBYSHEV"        , TYPE_INT        , PF_HEURISTIC_CHEBYSHEV},
+    { "PF_MANHATTAN"        , TYPE_INT          , PF_HEURISTIC_MANHATTAN                },
+    { "PF_EUCLIDEAN"        , TYPE_INT          , PF_HEURISTIC_EUCLIDEAN                },
+    { "PF_OCTILE"           , TYPE_INT          , PF_HEURISTIC_OCTILE                   },
+    { "PF_CHEBYSHEV"        , TYPE_INT          , PF_HEURISTIC_CHEBYSHEV                },
 
-    { "TEXT_TEXT"           , TYPE_INT        , TEXT_TEXT             },
-    { "TEXT_STRING"         , TYPE_INT        , TEXT_STRING           },
-    { "TEXT_INT"            , TYPE_INT        , TEXT_INT              },
-    { "TEXT_QWORD"          , TYPE_INT        , TEXT_QWORD            },
-    { "TEXT_INT32"          , TYPE_INT        , TEXT_INT32            },
-    { "TEXT_DWORD"          , TYPE_INT        , TEXT_DWORD            },
-    { "TEXT_SHORT"          , TYPE_INT        , TEXT_SHORT            },
-    { "TEXT_WORD"           , TYPE_INT        , TEXT_WORD             },
-    { "TEXT_SBYTE"          , TYPE_INT        , TEXT_SBYTE            },
-    { "TEXT_BYTE"           , TYPE_INT        , TEXT_BYTE             },
-    { "TEXT_CHAR"           , TYPE_INT        , TEXT_CHAR             },
-    { "TEXT_DOUBLE"         , TYPE_INT        , TEXT_DOUBLE           },
-    { "TEXT_FLOAT"          , TYPE_INT        , TEXT_FLOAT            },
-    { "TEXT_POINTER"        , TYPE_INT        , TEXT_POINTER          },
-    { "TEXT_CHARARRAY"      , TYPE_INT        , TEXT_CHARARRAY        },
+    { "TEXT_TEXT"           , TYPE_INT          , TEXT_TEXT                             },
+    { "TEXT_STRING"         , TYPE_INT          , TEXT_STRING                           },
+    { "TEXT_INT"            , TYPE_INT          , TEXT_INT                              },
+    { "TEXT_QWORD"          , TYPE_INT          , TEXT_QWORD                            },
+    { "TEXT_INT32"          , TYPE_INT          , TEXT_INT32                            },
+    { "TEXT_DWORD"          , TYPE_INT          , TEXT_DWORD                            },
+    { "TEXT_SHORT"          , TYPE_INT          , TEXT_SHORT                            },
+    { "TEXT_WORD"           , TYPE_INT          , TEXT_WORD                             },
+    { "TEXT_SBYTE"          , TYPE_INT          , TEXT_SBYTE                            },
+    { "TEXT_BYTE"           , TYPE_INT          , TEXT_BYTE                             },
+    { "TEXT_CHAR"           , TYPE_INT          , TEXT_CHAR                             },
+    { "TEXT_DOUBLE"         , TYPE_INT          , TEXT_DOUBLE                           },
+    { "TEXT_FLOAT"          , TYPE_INT          , TEXT_FLOAT                            },
+    { "TEXT_POINTER"        , TYPE_INT          , TEXT_POINTER                          },
+    { "TEXT_CHARARRAY"      , TYPE_INT          , TEXT_CHARARRAY                        },
 
-    { NULL                  , 0               , 0                     }
+    { "SHAPE_BOX"           , TYPE_INT          , BITMAP_CB_SHAPE_BOX                   },
+    { "SHAPE_CIRCLE"        , TYPE_INT          , BITMAP_CB_SHAPE_CIRCLE                },
+    { "GRAPH_SIZE"          , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_SIZE           },
+    { "GRAPH_WIDTH"         , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_WIDTH          },
+    { "GRAPH_HEIGHT"        , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_HEIGHT         },
+    { "GRAPH_MIN_SIZE"      , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_MIN_SIZE       },
+    { "GRAPH_MAX_SIZE"      , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE       },
+    { "GRAPH_AVERAGE_SIZE"  , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE   },
+
+    { "POINT_UNDEFINED"     , TYPE_INT          , POINT_UNDEFINED                       },
+
+    { NULL                  , 0                 , 0                                     }
 } ;
 
 #endif
 
 /* --------------------------------------------------------------------------- */
+
+char * __bgdexport( libmod_gfx, types_def ) =
+    /* m_draw */
+    "TYPE G_POINT\n"
+    "   INT x;\n"
+    "   INT y;\n"
+    "END\n"
+
+    "TYPE G_POINTW\n"
+    "   INT32 x;\n"
+    "   INT32 y;\n"
+    "END\n"
+
+    "TYPE G_POINTF\n"
+    "   FLOAT x;\n"
+    "   FLOAT y;\n"
+    "END\n"
+
+    "TYPE G_POINTD\n"
+    "   DOUBLE x;\n"
+    "   DOUBLE y;\n"
+    "END\n"
+
+    "TYPE G_RECT\n"
+    "   INT x;\n"
+    "   INT y;\n"
+    "   INT w;\n"
+    "   INT h;\n"
+    "END\n"
+
+    "TYPE G_RECTW\n"
+    "   INT32 x;\n"
+    "   INT32 y;\n"
+    "   INT32 w;\n"
+    "   INT32 h;\n"
+    "END\n"
+
+    "TYPE G_RECTF\n"
+    "   FLOAT x;\n"
+    "   FLOAT y;\n"
+    "   FLOAT w;\n"
+    "   FLOAT h;\n"
+    "END\n"
+
+    "TYPE G_RECTD\n"
+    "   DOUBLE x;\n"
+    "   DOUBLE y;\n"
+    "   DOUBLE w;\n"
+    "   DOUBLE h;\n"
+    "END\n"
+    ;
 
 char * __bgdexport( libmod_gfx, locals_def ) =
     /* f_gproc */
@@ -120,21 +182,9 @@ char * __bgdexport( libmod_gfx, locals_def ) =
     "   INT id_scan;\n"
     "   INT context;\n"
     "END\n"
-    ;
 
-char * __bgdexport( libmod_gfx, types_def ) =
-    /* m_draw */
-    "TYPE G_POINT\n"
-    "   INT32 x;\n"
-    "   INT32 y;\n"
-    "END\n"
-
-    "TYPE G_RECT\n"
-    "   INT32 x;\n"
-    "   INT32 y;\n"
-    "   INT32 w;\n"
-    "   INT32 h;\n"
-    "END\n"
+    "INT cshape = SHAPE_BOX;\n"
+    "G_RECT cbox = POINT_UNDEFINED, POINT_UNDEFINED, GRAPH_SIZE, GRAPH_SIZE;\n"
     ;
 
 /* --------------------------------------------------------------------------- */
@@ -153,8 +203,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "GET_REAL_POINT"      , "IPP"             , TYPE_INT        , libmod_gfx_get_real_point       ),
 
     FUNC( "COLLISION"           , "I"               , TYPE_INT        , libmod_gfx_collision            ),
-    FUNC( "COLLISION_BOX"       , "I"               , TYPE_INT        , libmod_gfx_collision_box        ),
-    FUNC( "COLLISION_CIRCLE"    , "I"               , TYPE_INT        , libmod_gfx_collision_circle     ),
+//    FUNC( "COLLISION_BOX"       , "I"               , TYPE_INT        , libmod_gfx_collision_box        ),
+//    FUNC( "COLLISION_CIRCLE"    , "I"               , TYPE_INT        , libmod_gfx_collision_circle     ),
 
     /* scroll */
     FUNC( "SCROLL_START"        , "IIIIIIIII"       , TYPE_INT        , libmod_gfx_scroll_start2        ),

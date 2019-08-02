@@ -48,7 +48,7 @@
 /* Statics                                                                     */
 /* --------------------------------------------------------------------------- */
 
-static int64_t inline __get_angle( INSTANCE * a, INSTANCE * b ) {
+static inline int64_t __get_angle( INSTANCE * a, INSTANCE * b ) {
     if ( !a || !b ) return -1;
 
     double dx = ( double ) ( LOCINT64( libmod_gfx, b, COORDX ) - LOCINT64( libmod_gfx, a, COORDX ) );
@@ -65,7 +65,7 @@ static int64_t inline __get_angle( INSTANCE * a, INSTANCE * b ) {
 
 /* --------------------------------------------------------------------------- */
 
-static int64_t inline __get_distance( INSTANCE * a, INSTANCE * b ) {
+static inline int64_t __get_distance( INSTANCE * a, INSTANCE * b ) {
     if ( !a || !b ) return -1;
 
     int64_t x1 = LOCINT64( libmod_gfx, a, COORDX ), y1 = LOCINT64( libmod_gfx, a, COORDY ) ;

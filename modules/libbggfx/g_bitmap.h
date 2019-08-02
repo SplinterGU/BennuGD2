@@ -43,11 +43,41 @@
 #define BITMAP_TEXTURE_STREAMING    4           // SDL_TEXTUREACCESS_STREAMING
 #define BITMAP_TEXTURE_TARGET       8           // SDL_TEXTUREACCESS_TARGET
 
-#define CPOINT_UNDEFINED            32767       /* It's enough if X is set to this value */
+#define CPOINT_UNDEFINED            0x7fff   /* It's enough if X is set to this value */
+#define POINT_UNDEFINED             0x7ffffff
+
+/* --------------------------------------------------------------------------- */
+
+#define BITMAP_CB_SHAPE_BOX                     0
+#define BITMAP_CB_SHAPE_CIRCLE                  1
+
+#define BITMAP_CB_CIRCLE_GRAPH_SIZE             0
+#define BITMAP_CB_CIRCLE_GRAPH_WIDTH            -1
+#define BITMAP_CB_CIRCLE_GRAPH_HEIGHT           -2
+#define BITMAP_CB_CIRCLE_GRAPH_MIN_SIZE         -3
+#define BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE         -4
+#define BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE     -5
 
 /* --------------------------------------------------------------------------- */
 
 typedef SDL_Point CPOINT;
+
+typedef struct {
+        int64_t code;
+        int64_t shape;  // BITMAP_CB_SHAPE_BOX | BITMAP_CB_SHAPE_CIRCLE
+        int64_t x;
+        int64_t y;
+        int64_t width;  // > 0 value
+                        // 0 image size (width and height) (for circle is image min)
+                        // for BITMAP_CB_SHAPE_CIRCLE (radius):
+                        //     -1 image width / 2
+                        //     -2 image height / 2
+                        //     -3 image min (width or height) / 2
+                        //     -4 image max (width or height) / 2
+                        //     -5 image average size (width + height) / 4
+        int64_t height; // > 0 value
+                        // 0 image size (width and height)
+} CBOX;
 
 typedef struct {
     int64_t         code;           /* Identifier of the graphic (in the graphic library) */
@@ -58,6 +88,9 @@ typedef struct {
 
     uint64_t        ncpoints;       /* Number of control points */
     CPOINT          * cpoints;      /* Pointer to the control points ([0] = center) */
+
+    uint64_t        ncboxes;        /* Number of control boxes */
+    CBOX            * cboxes;
 
     int64_t         type;           /* surface/texture type */
 
@@ -82,6 +115,7 @@ typedef struct {
         GPU_Image       * tex;
 #endif
     } * segments;
+
 } GRAPH;
 
 /* --------------------------------------------------------------------------- */
@@ -93,6 +127,10 @@ extern void bitmap_destroy( GRAPH * map );
 extern void bitmap_add_cpoint( GRAPH * map, int64_t x, int64_t y );
 extern void bitmap_set_cpoint( GRAPH * map, uint64_t point, int64_t x, int64_t y );
 extern int64_t bitmap_next_code();
+
+extern void bitmap_set_cbox( GRAPH * map, int64_t code, int64_t shape, int64_t x, int64_t y, int64_t width, int64_t height );
+extern CBOX * bitmap_get_cbox( GRAPH * map, int64_t pos );
+extern CBOX * bitmap_get_cbox_by_code( GRAPH * map, int64_t code );
 
 /* --------------------------------------------------------------------------- */
 

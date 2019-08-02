@@ -252,14 +252,12 @@ int draw_instance_info( void * what, REGION * region, int64_t * z, int64_t * dra
     LOCQWORD( libbggfx, i, GRAPHPTR ) = ( int64_t ) ( intptr_t ) ( graph = instance_graph( i ) );
     if ( !graph ) return 0;
 
-    int status;
-
     /* Update key */
     * z = LOCINT64( libbggfx, i, COORDZ );
 
     /* Si tiene grafico o xgraph o (ctype == 0 y esta corriendo o congelado) */
 
-    if ( LOCQWORD( libbggfx, i, CTYPE ) == C_SCREEN && ( ( status = LOCQWORD( libbggfx, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) == STATUS_RUNNING || status == STATUS_FROZEN ) ) * drawme = 1;
+    if ( LOCQWORD( libbggfx, i, CTYPE ) == C_SCREEN && ( LOCQWORD( libbggfx, i, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) ) ) * drawme = 1;
 
     return 1;
 }

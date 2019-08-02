@@ -158,6 +158,9 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
     gr->ncpoints = 0;
     gr->cpoints = NULL;
 
+    gr->ncboxes = 0;
+    gr->cboxes = NULL;
+
     gr->nsegments = 0;
     gr->segments = NULL;
 
@@ -176,8 +179,22 @@ GRAPH * bitmap_clone( GRAPH * map ) {
 
     if ( map->cpoints ) {
         gr->cpoints = malloc( sizeof( CPOINT ) * map->ncpoints );
+        if ( !gr->cpoints ) {
+            bitmap_destroy( gr );
+            return NULL;
+        }
         memcpy( gr->cpoints, map->cpoints, sizeof( CPOINT ) * map->ncpoints );
         gr->ncpoints = map->ncpoints;
+    }
+
+    if ( map->cboxes ) {
+        gr->cboxes = malloc( sizeof( CBOX ) * map->ncboxes );
+        if ( !gr->cboxes ) {
+            bitmap_destroy( gr );
+            return NULL;
+        }
+        memcpy( gr->cboxes, map->cboxes, sizeof( CBOX ) * map->ncboxes );
+        gr->ncboxes = map->ncboxes;
     }
 
     memcpy( gr->name, map->name, sizeof( map->name ) );
@@ -233,6 +250,7 @@ void bitmap_set_cpoint( GRAPH * map, uint64_t point, int64_t x, int64_t y ) {
 void bitmap_destroy( GRAPH * map ) {
     if ( !map ) return;
     if ( map->cpoints ) free( map->cpoints );
+    if ( map->cboxes ) free( map->cboxes );
     if ( map->code > 999 ) bit_clr( map_code_bmp, map->code - 1000 );
     if ( map->surface ) SDL_FreeSurface( map->surface );
 #ifdef USE_SDL2
@@ -306,6 +324,52 @@ int64_t bitmap_next_code() {
     bit_set( map_code_bmp, map_code_last );
     return 1000 + map_code_last++;
 
+}
+
+/* --------------------------------------------------------------------------- */
+
+static inline CBOX * __bitmap_search_cbox( GRAPH * map, int64_t code ) {
+    CBOX * p = map->cboxes;
+    int i = map->ncboxes;
+    while( i-- ) {
+        if ( p->code == code ) return p;
+        p++;
+    }
+    return NULL;
+}
+
+/* --------------------------------------------------------------------------- */
+
+void bitmap_set_cbox( GRAPH * map, int64_t code, int64_t shape, int64_t x, int64_t y, int64_t width, int64_t height ) {
+    CBOX * p;
+    uint64_t n;
+
+    p = __bitmap_search_cbox( map, code );
+    if ( !p ) {
+        map->cboxes = ( CBOX * ) realloc( map->cboxes, ( map->ncboxes + 1 ) * sizeof( CBOX ) );
+        p = &map->cboxes[ map->ncboxes ];
+        map->ncboxes++;
+    }
+
+    p->code   = code;
+    p->shape  = shape;
+    p->x      = x;
+    p->y      = y;
+    p->width  = width;
+    p->height = height;
+}
+
+/* --------------------------------------------------------------------------- */
+
+CBOX * bitmap_get_cbox( GRAPH * map, int64_t pos ) {
+    if ( pos < 0 || pos >= map->ncboxes ) return NULL;
+    return &map->cboxes[ pos ];
+}
+
+/* --------------------------------------------------------------------------- */
+
+CBOX * bitmap_get_cbox_by_code( GRAPH * map, int64_t code ) {
+    return __bitmap_search_cbox( map, code );
 }
 
 /* --------------------------------------------------------------------------- */

@@ -703,3 +703,413 @@ int64_t gr_load_fpg( const char * libname ) {
 }
 
 /* --------------------------------------------------------------------------- */
+#if 0
+
+/* --------------------------------------------------------------------------- */
+
+int gr_save_map( GRAPH * gr, char * filename )
+{
+    int c, st = 0;
+    MAP_HEADER mh ;
+    uint8_t gamma[576];
+    uint16_t cpoints;
+
+    if ( !gr ) return 0;
+
+    file * fp = file_open( filename, "wb" );
+    if ( !fp ) return 0;
+
+    switch ( gr->format->depth )
+    {
+        case    8:
+            strcpy( ( char * ) mh.magic, MAP_MAGIC );
+            break;
+
+        case    32:
+            strcpy( ( char * ) mh.magic, M32_MAGIC );
+            break;
+
+        case    16:
+            strcpy( ( char * ) mh.magic, M16_MAGIC );
+            break;
+
+        case    1:
+            strcpy( ( char * ) mh.magic, M01_MAGIC );
+            break;
+    }
+
+    mh.version = 0x00;
+    mh.width = gr->width;
+    mh.height = gr->height;
+    mh.code = gr->code ;
+    strncpy( ( char * ) mh.name, gr->name, 32 );
+
+    file_write( fp, &mh, sizeof( MAP_HEADER ) ) ;
+
+    if ( gr->format->depth == 8 )
+    {
+        if ( gr->format->palette )
+        {
+            file_write( fp, gr->format->palette->rgb, 768 ) ;
+        }
+        else if ( sys_pixel_format->palette )
+        {
+            file_write( fp, sys_pixel_format->palette->rgb, 768 ) ;
+        }
+        else
+        {
+            file_write( fp, default_palette, 768 ) ;
+        }
+        memset( gamma, '\0', sizeof( gamma ) );
+        file_write( fp, gamma, sizeof( gamma ) ) ;
+    }
+
+    cpoints = gr->ncpoints;
+    file_writeUint16( fp, &cpoints );
+
+    for ( c = 0 ; c < gr->ncpoints ; c++ )
+    {
+        file_writeUint16( fp, ( uint16_t * ) &gr->cpoints[c].x ) ;
+        file_writeUint16( fp, ( uint16_t * ) &gr->cpoints[c].y ) ;
+    }
+
+    for ( c = 0 ; c < gr->height ; c++ )
+    {
+        uint8_t * line = ( uint8_t * )gr->data + gr->pitch * c;
+
+        switch ( gr->format->depth )
+        {
+            case    32:
+                st = file_writeUint32A( fp, ( uint32_t * )line, gr->width );
+                break;
+
+            case    16:
+                st = file_writeUint16A( fp, ( uint16_t * )line, gr->width );
+                break;
+
+            case    8:
+            case    1:
+                st = file_write( fp, line, gr->widthb );
+                break;
+        }
+
+        if ( !st ) break;
+    }
+
+    file_close( fp ) ;
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : gr_font_save
+ *
+ *  Write a font to disk, in FNT/FNX format
+ *
+ *  PARAMS :
+ *  fontid   ID of the font to save
+ *  filename  Name of the file to create
+ *
+ *  RETURN VALUE :
+ *      1 if succeded or 0 otherwise
+ *
+ */
+
+int gr_font_save( int fontid, const char * filename )
+{
+    if ( !filename ) return 0;
+
+    file * file;
+    int n;
+    uint32_t y;
+    long offset;
+    uint8_t * block = NULL ;
+    uint8_t * lineptr;
+
+    FONT * font;
+    uint8_t header[8];
+    _chardata chardata[256] ;
+    int palette_saved = 0;
+
+    if ( fontid < 0 || fontid > MAX_FONTS || !fonts[fontid] ) return 0;
+
+    font = fonts[fontid];
+
+    /* Open the file */
+
+    file = file_open( filename, "wb0" );
+    if ( !file ) return 0;
+
+    /* Write the header */
+
+    strcpy( ( char * ) header, FNX_MAGIC );
+    header[7] = font->bpp;
+    file_write( file, &header, 8 );
+
+    /* Write the character information */
+
+    memset( chardata, 0, sizeof( chardata ) );
+    offset = 8 + 4 + (( font->bpp == 8 ) ? 576 + 768 : 0 ) + sizeof( chardata );
+
+    for ( n = 0 ; n < 256 ; n++ )
+    {
+        chardata[n].xadvance   = font->glyph[n].xadvance;
+        chardata[n].yadvance   = font->glyph[n].yadvance;
+
+        if ( font->glyph[n].bitmap )
+        {
+            /* Write the palette */
+            if ( !palette_saved && font->bpp == 8 )
+            {
+                uint8_t   colors[256][3];
+                uint8_t * block = calloc( 576, 1 ) ;
+                rgb_component * gpal = NULL;
+                int k;
+
+                if ( font->glyph[n].bitmap->format->palette )
+                    gpal = font->glyph[n].bitmap->format->palette->rgb;
+                else if ( sys_pixel_format->palette )
+                    gpal = sys_pixel_format->palette->rgb;
+                else
+                    gpal = ( rgb_component * ) default_palette;
+
+                /* Generate palette info */
+                for ( k = 0 ; k < 256 ; k++ )
+                {
+                    colors[k][0] = gpal[k].r >> 2 ;
+                    colors[k][1] = gpal[k].g >> 2 ;
+                    colors[k][2] = gpal[k].b >> 2 ;
+                }
+
+                file_write( file, &colors, sizeof(colors) ) ;
+                file_write( file, block, 576 ) ;
+                free( block ) ;
+                palette_saved = 1;
+            }
+
+            chardata[n].width      = font->glyph[n].bitmap->width;
+            chardata[n].height     = font->glyph[n].bitmap->height;
+            chardata[n].xadvance   = font->glyph[n].xadvance;
+            chardata[n].yadvance   = font->glyph[n].yadvance;
+            chardata[n].xoffset    = font->glyph[n].xoffset;
+            chardata[n].yoffset    = font->glyph[n].yoffset;
+            chardata[n].fileoffset = offset;
+
+            offset += font->glyph[n].bitmap->widthb * chardata[n].height;
+        }
+
+        ARRANGE_DWORD( &chardata[n].xadvance );
+        ARRANGE_DWORD( &chardata[n].yadvance );
+        ARRANGE_DWORD( &chardata[n].width );
+        ARRANGE_DWORD( &chardata[n].width );
+        ARRANGE_DWORD( &chardata[n].xoffset );
+        ARRANGE_DWORD( &chardata[n].yoffset );
+        ARRANGE_DWORD( &chardata[n].fileoffset );
+    }
+
+    file_writeSint32( file, &font->charset );
+
+    file_write( file, &chardata, sizeof( chardata ) );
+
+    /* Write the character bitmaps */
+
+    for ( n = 0 ; n < 256 ; n++ )
+    {
+        if ( font->glyph[n].bitmap )
+        {
+            GRAPH * gr = font->glyph[n].bitmap;
+
+            if ( gr->format->depth != font->bpp )
+            {
+                file_close( file );
+                return 0;
+            }
+
+            if ( gr->format->depth > 8 )
+            {
+                if (( block = malloc( gr->widthb ) ) == NULL )
+                {
+                    file_close( file );
+                    return 0;
+                }
+            }
+
+            lineptr = gr->data;
+
+            for ( y = 0 ; y < gr->height ; y++, lineptr += gr->pitch )
+            {
+                if ( gr->format->depth > 8 )
+                {
+                    memcpy( block, lineptr, gr->widthb );
+                    if ( gr->format->depth == 16 )
+                    {
+                        ARRANGE_WORDS( block, ( int )gr->width );
+/*                        gr_convert16_ScreenTo565(( uint16_t * )block, gr->width ); */
+                        file_write( file, block, gr->widthb );
+                    }
+                    else if ( gr->format->depth == 32 )
+                    {
+                        file_writeUint32A( file, ( uint32_t * ) block, gr->width );
+                    }
+                }
+                else
+                {
+                    file_write( file, lineptr, gr->widthb );
+                }
+            }
+
+            if ( gr->format->depth > 8 ) free( block );
+        }
+    }
+
+    file_close( file );
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : gr_save_fpg
+ *
+ *  Save a FPG file
+ *
+ *  PARAMS :
+ *  filename  Name of the file
+ *
+ *  RETURN VALUE :
+ *      1 if succeded
+ *      >= 0 error
+ *
+ */
+
+int gr_save_fpg( int libid, const char * filename )
+{
+    file  * fp;
+    GRLIB * lib;
+    int     n, y, c;
+    int     bpp;
+    int     nmaps;
+    uint8_t header[8];
+    rgb_component * palette = NULL;
+
+    /* Get the library and open the file */
+/*
+    if ( !libid )
+        lib = syslib ;
+    else
+*/
+        lib = grlib_get( libid );
+
+    if ( !lib ) return 0;
+
+    /* Guess the FPG depth */
+
+    nmaps = lib->map_reserved < 1000 ? lib->map_reserved : 1000;
+
+    for ( bpp = n = 0 ; n < nmaps ; n++ ) {
+        if ( lib->maps[n] ) {
+            if ( bpp && lib->maps[n]->format->depth != bpp ) return 0; /* save_fpg: don't allow save maps with differents bpp */
+            bpp = lib->maps[n]->format->depth;
+            if ( !palette && bpp == 8 && lib->maps[n]->format->palette ) palette = lib->maps[n]->format->palette->rgb;
+        }
+    }
+
+    if ( bpp == 32 ) strcpy( ( char * ) header, F32_MAGIC );
+    else if ( bpp == 16 ) strcpy( ( char * ) header, F16_MAGIC );
+    else if ( bpp == 8 ) strcpy( ( char * ) header, FPG_MAGIC );
+    else if ( bpp == 1 ) strcpy( ( char * ) header, F01_MAGIC );
+    else return 0; /* No maps for save */
+
+    /* Create fpg */
+
+    fp = file_open( filename, "wb" );
+    if ( !fp ) return 0;
+
+    /* Write the header */
+
+    header[7] = 0x00; /* Version */
+    file_write( fp, header, sizeof( header ) );
+
+    /* Write the color palette */
+
+    if ( bpp == 8 ) {
+        uint8_t colors[256][3] ;
+        uint8_t gamma[576];
+
+        if ( !palette ) {
+            if ( sys_pixel_format->palette )
+                palette = sys_pixel_format->palette->rgb;
+            else
+                palette = ( rgb_component * ) default_palette;
+        }
+
+        for ( n = 0 ; n < 256 ; n++ ) {
+            colors[n][0] = palette[n].r >> 2 ;
+            colors[n][1] = palette[n].g >> 2 ;
+            colors[n][2] = palette[n].b >> 2 ;
+        }
+
+        file_write( fp, &colors, 768 ) ;
+        memset( gamma, '\0', sizeof( gamma ) );
+        file_write( fp, gamma, sizeof( gamma ) ) ;
+    }
+
+    /* Write each map */
+
+    for ( n = 0 ; n < nmaps ; n++ ) {
+        GRAPH * gr = lib->maps[n];
+
+        if ( gr ) {
+            /* Write the bitmap header */
+
+            chunk.code = n;
+            chunk.regsize = 0;
+            chunk.width = gr->width;
+            chunk.height = gr->height;
+            chunk.flags = gr->ncpoints;
+            chunk.fpname[0] = 0;
+            strncpy( chunk.name,  gr->name,  sizeof( chunk.name ) );
+
+            ARRANGE_DWORD( &chunk.code );
+            ARRANGE_DWORD( &chunk.regsize );
+            ARRANGE_DWORD( &chunk.width );
+            ARRANGE_DWORD( &chunk.height );
+            ARRANGE_DWORD( &chunk.flags );
+
+            file_write( fp, &chunk, sizeof( chunk ) );
+
+            /* Write the control points */
+
+            for ( c = 0 ; c < gr->ncpoints ; c++ ) {
+                file_writeSint16( fp, &gr->cpoints[c].x );
+                file_writeSint16( fp, &gr->cpoints[c].y );
+            }
+
+            /* Write the bitmap pixel data */
+
+            for ( y = 0 ; y < gr->height ; y++ ) {
+                switch( bpp ) {
+                    case    32:
+                            file_writeUint32A( fp, ( uint32_t * ) ( ( uint8_t * )gr->data + gr->pitch*y), gr->width );
+                            break;
+
+                    case    16:
+                            file_writeUint16A( fp, ( uint16_t * ) ( ( uint8_t * )gr->data + gr->pitch*y), gr->width );
+                            break;
+
+                    case    8:
+                    case    1:
+                            file_write( fp, ( uint8_t * )gr->data + gr->pitch*y, gr->widthb );
+                            break;
+                }
+            }
+        }
+    }
+
+    file_close( fp );
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+#endif

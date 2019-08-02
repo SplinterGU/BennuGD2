@@ -49,7 +49,7 @@
 
 #ifdef USE_SDL2
 
-static int inline gr_update_texture( GRAPH * gr ) {
+static inline int gr_update_texture( GRAPH * gr ) {
     SDL_Surface * surface;
 
 #ifndef __DISABLE_PALETTES__

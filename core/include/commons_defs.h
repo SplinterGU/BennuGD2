@@ -33,11 +33,11 @@
 
 /* Instances Status, used in local STATUS var */
 
-#define STATUS_DEAD             0
-#define STATUS_KILLED           1
-#define STATUS_RUNNING          2
-#define STATUS_SLEEPING         3
-#define STATUS_FROZEN           4
+#define STATUS_DEAD             0x0001
+#define STATUS_KILLED           0x0002
+#define STATUS_RUNNING          0x0004
+#define STATUS_SLEEPING         0x0008
+#define STATUS_FROZEN           0x0010
 #define STATUS_PAUSED_MASK      0x4000
 #define STATUS_WAITING_MASK     0x8000
 

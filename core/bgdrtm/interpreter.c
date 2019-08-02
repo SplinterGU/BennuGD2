@@ -107,7 +107,7 @@ int64_t instance_go_all() {
                         for ( n = 0; n < process_exec_hook_count; n++ )
                             process_exec_hook_list[n]( i );
                     /* Hook */
-                } else if ( status != STATUS_KILLED && status != STATUS_DEAD ) { /* STATUS_SLEEPING OR STATUS_FROZEN OR STATUS_WAITING_MASK OR STATUS_PAUSED_MASK */
+                } else if ( status & ~( STATUS_KILLED | STATUS_DEAD ) ) { /* STATUS_SLEEPING OR STATUS_FROZEN OR STATUS_WAITING_MASK OR STATUS_PAUSED_MASK */
                     i = instance_next_by_priority();
                     continue;
                 }
@@ -213,7 +213,7 @@ main_loop_instance_go:
     while ( !must_exit ) {
         /* If I was killed or I'm waiting status, then exit */
         status = LOCQWORD( r, STATUS );
-        if (( status & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) == STATUS_KILLED || ( status & STATUS_WAITING_MASK ) ) {
+        if ( status & ( STATUS_KILLED | STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) {
             r->codeptr = ptr;
             return_value = LOCQWORD( r, PROCESS_ID );
             goto break_all;
@@ -346,13 +346,7 @@ main_loop_instance_go:
                 /* If the process is a function in a frame, save the stack and leave */
                 /* If the process/function still running, then it is in a FRAME.
                    If the process/function is running code, then it his status is RUNNING */
-                if ( child_is_alive &&
-                        (
-                            (( status = LOCQWORD( r, STATUS ) ) & STATUS_WAITING_MASK ) ||
-                             ( status & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK )) == STATUS_FROZEN ||
-                             ( status & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK )) == STATUS_SLEEPING
-                        )
-                   ) {
+                if ( child_is_alive && LOCQWORD( r, STATUS ) & ( STATUS_WAITING_MASK | STATUS_FROZEN | STATUS_SLEEPING ) ) {
                     /* I go to sleep and return from this process/function */
                     i->called_by   = r;
 
@@ -2655,7 +2649,7 @@ break_all:
 
         /* The process should be destroyed immediately, it is a function-type one */
         /* Run ONEXIT */
-        if (( LOCQWORD( r, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK )) != STATUS_DEAD && r->exitcode ) {
+        if ( ( LOCQWORD( r, STATUS ) & STATUS_DEAD ) && r->exitcode ) {
             LOCQWORD( r, STATUS ) = ( STATUS_DEAD | ( LOCQWORD( r, STATUS ) & STATUS_PAUSED_MASK ) );
             r->codeptr = r->code + r->exitcode;
             ptr = r->codeptr;

@@ -267,7 +267,6 @@ void scroll_draw( int64_t n, REGION * clipping ) {
     static int64_t proclist_reserved = 0;
     int64_t proclist_count;
     REGION r;
-    int64_t status;
 
     GRAPH * graph, * back, * dest = NULL;
 
@@ -345,7 +344,7 @@ void scroll_draw( int64_t n, REGION * clipping ) {
     proclist_count = 0;
     while ( i ) {
         if ( LOCQWORD( libbggfx, i, CTYPE ) == C_SCROLL &&
-            (( status = ( LOCQWORD( libbggfx, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) ) == STATUS_RUNNING || status == STATUS_FROZEN )
+             ( LOCQWORD( libbggfx, i, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) )
            ) {
             if ( LOCQWORD( libbggfx, i, CNUMBER ) && !( LOCQWORD( libbggfx, i, CNUMBER ) & ( 1 << n ) ) ) {
                 i = i->next;
