@@ -289,6 +289,7 @@ static int __get_proc_info(
 
     int m;
     pci->region_radius = 0;
+    double scale = MAX( pci->scale_x, pci->scale_y );
 
     for ( i = 0; i < pci->ncboxes; i++ ) {
         m = 0;
@@ -335,7 +336,7 @@ static int __get_proc_info(
                 m = MAX( pci->cboxes->cbox.x + pci->cboxes[i].cbox.width, pci->cboxes->cbox.y + pci->cboxes[i].cbox.width );
                 break;
         }
-        pci->region_radius = MAX( pci->region_radius, m );
+        pci->region_radius = MAX( pci->region_radius, m * scale );
     }
     return 1;
 
@@ -467,13 +468,9 @@ static inline int __check_collision( __proc_col_info * pciA, __proc_col_info * p
                     break;
             }
 
-            if ( collision1 && collision2 ) {
-                free( pciB->cboxes );
-                return 1;
-            }
+            if ( collision1 && collision2 ) return 1;
         }
     }
-    free( pciB->cboxes );
     return 0;
 }
 
@@ -483,6 +480,7 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
 //    int ( *colfunc )( INSTANCE *, REGION *, INSTANCE * );
     INSTANCE * ptr, ** ctx;
   __proc_col_info pci, pciB;
+  int collision = 0;
 
 //    if ( id == -1 ) return ( check_collision_with_mouse( my, colltype ) ) ? 1 : 0;
 
@@ -497,15 +495,15 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
     /* Checks only for a single instance */
     if ( id >= FIRST_INSTANCE_ID ) {
         ptr = instance_get( id );
-        if ( ptr &&
-             ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) &&
-             LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) &&
-             ptr != my &&
-             __get_proc_info( ptr, &pciB ) && in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius  ) && __check_collision( &pci, &pciB ) )
-        {
-            return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+        if ( ptr && ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
+            collision = 0;
+            if ( __get_proc_info( ptr, &pciB ) ) {
+                collision = in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius ) && __check_collision( &pci, &pciB ) ;
+                free( pciB.cboxes );
+            }
         }
-        return 0;
+        free( pci.cboxes );
+        return ( collision ) ? LOCQWORD( libmod_gfx, ptr, PROCESS_ID ) : 0;
     }
 
     /* we must use full list of instances or get types from it */
@@ -520,17 +518,22 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         }
 
         while ( ptr ) {
-            if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) &&
-                 LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) &&
-                 ptr != my &&
-             __get_proc_info( ptr, &pciB ) && in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius  ) && __check_collision( &pci, &pciB ) )
-            {
+            if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
+                collision = 0;
+                if ( __get_proc_info( ptr, &pciB ) ) {
+                    collision = in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius ) && __check_collision( &pci, &pciB ) ;
+                    free( pciB.cboxes );
+                }
+            }
+            if ( collision ) {
                 LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                free( pci.cboxes );
                 return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
             }
             ptr = ptr->next;
         }
         LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
+        free( pci.cboxes );
         return 0;
     }
 
@@ -543,17 +546,22 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
     }
 
     while ( ( ptr = instance_get_by_type( id, ctx ) ) ) {
-        if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) &&
-             LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) &&
-             ptr != my &&
-             __get_proc_info( ptr, &pciB ) && in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius  ) && __check_collision( &pci, &pciB ) )
-        {
+        if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
+            collision = 0;
+            if ( __get_proc_info( ptr, &pciB ) ) {
+                collision = in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius ) && __check_collision( &pci, &pciB ) ;
+                free( pciB.cboxes );
+            }
+        }
+        if ( collision ) {
             LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+            free( pci.cboxes );
             return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
         }
     }
 
     LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) = 0;
+    free( pci.cboxes );
     return 0;
 }
 
