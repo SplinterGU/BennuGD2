@@ -129,8 +129,9 @@ extern void bitmap_set_cpoint( GRAPH * map, uint64_t point, int64_t x, int64_t y
 extern int64_t bitmap_next_code();
 
 extern void bitmap_set_cbox( GRAPH * map, int64_t code, int64_t shape, int64_t x, int64_t y, int64_t width, int64_t height );
-extern CBOX * bitmap_get_cbox( GRAPH * map, int64_t pos );
-extern CBOX * bitmap_get_cbox_by_code( GRAPH * map, int64_t code );
+extern CBOX * bitmap_get_cbox( GRAPH * map, int64_t code );
+extern void bitmap_remove_cbox( GRAPH * map, int64_t code );
+extern CBOX * bitmap_get_cbox_by_pos( GRAPH * map, int64_t pos );
 
 /* --------------------------------------------------------------------------- */
 

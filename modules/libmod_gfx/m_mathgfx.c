@@ -139,107 +139,67 @@ int64_t libmod_gfx_get_dist2( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
     GRAPH * b ;
-    int64_t x, y, r, centerx, centery, px = 0, py = 0, rx = 0, ry = 0 ;
-    int64_t _angle = 0, angle = 0;
+    int64_t x, y, sx = 1, sy = -1, angle = 0, idx = params[0], size_x, size_y, flags;
+    double centerx, centery, dx = 0, dy = 0, px, py;
 
     b = instance_graph( my ) ;
-    if ( !b )  return 0 ;
+    if ( !b ) return 0 ;
 
-    /* Point 0 is the graphic center, but it may be not defined */
-    if ( params[0] == 0 && ( b->ncpoints == 0 || b->cpoints[0].x == CPOINT_UNDEFINED ) ) {
-        if ( b->ncpoints == 0 ) {
-            bitmap_add_cpoint( b, b->width / 2, b->height / 2 );
-        } else {
-            b->cpoints[0].x = b->width / 2;
-            b->cpoints[0].y = b->height / 2;
-        }
-    } else
-        if (( uint64_t )params[0] >= b->ncpoints || params[0] < 0)
-            return 0 ;
-
-    if ( b->cpoints[params[0]].x == CPOINT_UNDEFINED && b->cpoints[params[0]].y == CPOINT_UNDEFINED )
-        return 0;
-
-    r = LOCINT64( libmod_gfx, my, REGIONID ) ;
-    if ( r < 0 || r >= MAX_REGIONS ) r = 0 ;
-
-    if ( b->cpoints[0].x != CPOINT_UNDEFINED && b->cpoints[0].y != CPOINT_UNDEFINED ) {
-        centerx = b->cpoints[0].x ;
-        centery = b->cpoints[0].y ;
-    } else {
-        centerx = b->width / 2 ;
-        centery = b->height / 2 ;
-    }
-
-    if ( LOCINT64( libmod_gfx, my, ANGLE ) != 0 && !LOCQWORD( libmod_gfx, my, XGRAPH ) ) {
-        _angle = angle = LOCINT64( libmod_gfx, my, ANGLE ) ;
-    }
-
-    if ( params[0] > 0 ) {
-        px = b->cpoints[params[0]].x - centerx ;
-        py = b->cpoints[params[0]].y - centery ;
-
-        if ( LOCQWORD( libmod_gfx, my, FLAGS ) & B_HMIRROR ) {
-            if (_angle) {
-                py = (centery - b->cpoints[params[0]].y) ;
-                angle = 90000 + ( 90000 - angle );
-            } else
-                px = (centerx - b->cpoints[params[0]].x) ;
-        }
-
-        if ( LOCQWORD( libmod_gfx, my, FLAGS ) & B_VMIRROR ) {
-            if (_angle) {
-                px = (centerx - b->cpoints[params[0]].x) ;
-                angle = 360000 + ( 180000 - angle );
-            } else
-                py = (centery - b->cpoints[params[0]].y) ;
-        }
-    }
-
-    if ( LOCINT64( libmod_gfx, my, GRAPHSIZEX ) == 100 && LOCINT64( libmod_gfx, my, GRAPHSIZEY ) == 100 ) {
-        if ( LOCINT64( libmod_gfx, my, GRAPHSIZE ) > 0 ) {
-            // Corrected a bug from the casting that rounded to 0
-            px = ( int64_t ) ( px * ( LOCINT64( libmod_gfx, my, GRAPHSIZE ) / 100.0 ) ) ;
-            py = ( int64_t ) ( py * ( LOCINT64( libmod_gfx, my, GRAPHSIZE ) / 100.0 ) ) ;
-        }
-    } else {
-        // Adding size_x/size_y control
-        if ( LOCINT64( libmod_gfx, my, GRAPHSIZEX ) > 0 )
-            px = ( int64_t ) ( px * ( LOCINT64( libmod_gfx, my, GRAPHSIZEX ) / 100.0 ) ) ;
-
-        if ( LOCINT64( libmod_gfx, my, GRAPHSIZEY ) > 0 )
-            py = ( int64_t ) ( py * ( LOCINT64( libmod_gfx, my, GRAPHSIZEY ) / 100.0 ) ) ;
-    }
-
-    if ( angle ) {
-        double cos_angle = cos_deg( -angle );
-        double sin_angle = sin_deg( -angle );
-
-        rx = ( int64_t ) ( ( double )px * cos_angle - ( double )py * sin_angle ) ;
-        ry = ( int64_t ) ( ( double )px * sin_angle + ( double )py * cos_angle ) ;
-
-        px = rx ;
-        py = ry ;
-    }
+    if ( !( idx >= 0 && idx < b->ncpoints ) ) return 0 ;
 
     x = LOCINT64( libmod_gfx, my, COORDX ) ;
     y = LOCINT64( libmod_gfx, my, COORDY ) ;
 
-    RESOLXY( libmod_gfx, my, x, y );
-
-    rx = x + px ;
-    ry = y + py ;
-
-    if ( LOCINT64( libmod_gfx, my, RESOLUTION ) > 0 ) {
-        rx *= LOCINT64( libmod_gfx, my, RESOLUTION );
-        ry *= LOCINT64( libmod_gfx, my, RESOLUTION );
-    } else if ( LOCINT64( libmod_gfx, my, RESOLUTION ) < 0 ) {
-        rx /= -LOCINT64( libmod_gfx, my, RESOLUTION );
-        ry /= -LOCINT64( libmod_gfx, my, RESOLUTION );
+    if ( !idx ) {
+        *( int64_t * )( intptr_t )params[1] = x ;
+        *( int64_t * )( intptr_t )params[2] = y ;
+        return 1;
     }
 
-    *( int64_t * )( intptr_t )params[1] = rx ;
-    *( int64_t * )( intptr_t )params[2] = ry ;
+    if ( b->cpoints[idx].x == CPOINT_UNDEFINED || b->cpoints[idx].y == CPOINT_UNDEFINED ) return 0;
+
+    RESOLXY( libmod_gfx, my, x, y );
+
+    if ( b->ncpoints && b->cpoints[0].x != CPOINT_UNDEFINED ) {
+        centerx = b->cpoints[0].x ;
+        centery = b->cpoints[0].y ;
+    } else {
+        centerx = b->width / 2.0;
+        centery = b->height / 2.0;
+    }
+
+    if ( !LOCQWORD( libmod_gfx, my, XGRAPH ) ) angle = LOCINT64( libmod_gfx, my, ANGLE );
+
+    flags = LOCQWORD( libmod_gfx, my, FLAGS );
+
+    if ( flags & B_HMIRROR ) sx = -1;
+    if ( flags & B_VMIRROR ) sy = 1;
+
+    size_x = LOCINT64( libmod_gfx, my, GRAPHSIZEX );
+    size_y = LOCINT64( libmod_gfx, my, GRAPHSIZEY );
+    if ( size_x == 100 && size_y == 100 ) size_x = size_y = LOCINT64( libmod_gfx, my, GRAPHSIZE );
+
+    dx = ( b->cpoints[idx].x - centerx ) * size_x;
+    dy = ( b->cpoints[idx].y - centery ) * size_y;
+
+    double cos_angle = cos_deg( angle );
+    double sin_angle = sin_deg( angle );
+
+    px = x + ( dx * cos_angle + dy * sin_angle ) * sx / 100.0 ;
+    py = y + ( dx * sin_angle - dy * cos_angle ) * sy / 100.0 ;
+
+    int64_t resolution = LOCINT64( libmod_gfx, my, RESOLUTION );
+
+    if ( resolution > 0 ) {
+        px *= resolution;
+        py *= resolution;
+    } else if ( resolution < 0 ) {
+        px /= -resolution;
+        py /= -resolution;
+    }
+
+    *( int64_t * )( intptr_t )params[1] = px ;
+    *( int64_t * )( intptr_t )params[2] = py ;
 
     return 1 ;
 }

@@ -357,19 +357,42 @@ void bitmap_set_cbox( GRAPH * map, int64_t code, int64_t shape, int64_t x, int64
     p->y      = y;
     p->width  = width;
     p->height = height;
+    printf("%"PRId64" %s %"PRId64" %"PRId64" %"PRId64" %"PRId64"\n",
+        p->code,
+        p->shape == BITMAP_CB_SHAPE_BOX ? "BOX" : "CIRCLE" ,
+        p->x,
+        p->y,
+        p->width,
+        p->height
+        );
 }
 
 /* --------------------------------------------------------------------------- */
 
-CBOX * bitmap_get_cbox( GRAPH * map, int64_t pos ) {
+CBOX * bitmap_get_cbox( GRAPH * map, int64_t code ) {
+    return __bitmap_search_cbox( map, code );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void bitmap_remove_cbox( GRAPH * map, int64_t code ) {
+    CBOX * p = map->cboxes;
+    int i = map->ncboxes;
+    while( i-- ) {
+        if ( p->code == code ) {
+            if ( i ) memmove( p, p + 1, sizeof( CBOX ) * i );
+            map->ncboxes--;
+            return;
+        }
+        p++;
+    }
+}
+
+/* --------------------------------------------------------------------------- */
+
+CBOX * bitmap_get_cbox_by_pos( GRAPH * map, int64_t pos ) {
     if ( pos < 0 || pos >= map->ncboxes ) return NULL;
     return &map->cboxes[ pos ];
-}
-
-/* --------------------------------------------------------------------------- */
-
-CBOX * bitmap_get_cbox_by_code( GRAPH * map, int64_t code ) {
-    return __bitmap_search_cbox( map, code );
 }
 
 /* --------------------------------------------------------------------------- */

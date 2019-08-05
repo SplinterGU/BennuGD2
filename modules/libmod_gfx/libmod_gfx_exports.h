@@ -325,6 +325,12 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "POINT_SET"           , "IIIII"           , TYPE_INT        , libmod_gfx_set_point            ),
     FUNC( "CENTER_SET"          , "IIII"            , TYPE_INT        , libmod_gfx_set_center           ),
 
+    /* Control boxes */
+    FUNC( "BOX_SET"             , "IIIIIIII"        , TYPE_INT        , libmod_gfx_set_box              ),
+    FUNC( "BOX_GET"             , "IIIPPPPP"        , TYPE_INT        , libmod_gfx_get_box              ),
+    FUNC( "BOX_REMOVE"          , "III"             , TYPE_INT        , libmod_gfx_remove_box           ),
+    FUNC( "BOX_GET_BY_POS"      , "IIIPPPPP"        , TYPE_INT        , libmod_gfx_get_box_by_pos       ),
+
     /* Fonts */
     FUNC( "FNT_NEW"             , ""                , TYPE_INT        , libmod_gfx_fnt_new              ),
     FUNC( "FNT_NEW"             , "I"               , TYPE_INT        , libmod_gfx_fnt_new_charset      ),

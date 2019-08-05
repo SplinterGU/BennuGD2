@@ -70,11 +70,11 @@ int64_t libmod_gfx_graphic_set( INSTANCE * my, int64_t * params ) {
     if ( !map ) return 0;
 
     switch ( params[2] ) {
-        case 2:     /* g_center_x */
+        case G_CENTER_X:     /* g_center_x */
             bitmap_set_cpoint( map, 0, params[3], ( map->ncpoints ) ? ( map->cpoints[0].y ) : ( map->height / 2 ) );
             return 1;
 
-        case 3:     /* g_center_y */
+        case G_CENTER_Y:     /* g_center_y */
             bitmap_set_cpoint( map, 0, ( map->ncpoints ) ? ( map->cpoints[0].x ) : ( map->width / 2 ), params[3] );
             return 1;
     }
@@ -184,6 +184,72 @@ int64_t libmod_gfx_get_point( INSTANCE * my, int64_t * params ) {
 
     *( int64_t * )( intptr_t )params[3] = bmp->cpoints[params[2]].x;
     *( int64_t * )( intptr_t )params[4] = bmp->cpoints[params[2]].y;
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_set_box( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp;
+
+    bmp = bitmap_get( params[0], params[1] );
+    if ( !bmp ) return 0;
+
+    bitmap_set_cbox( bmp, params[2], params[3], params[4], params[5], params[6], params[7] );
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_box( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp;
+
+    bmp = bitmap_get( params[0], params[1] );
+    if ( !bmp ) return 0;
+
+    CBOX * cbox = bitmap_get_cbox( bmp, params[2] );
+    if ( !cbox ) return 0;
+
+    *( int64_t * )( intptr_t )params[3] = cbox->shape;
+    *( int64_t * )( intptr_t )params[4] = cbox->x;
+    *( int64_t * )( intptr_t )params[5] = cbox->y;
+    *( int64_t * )( intptr_t )params[6] = cbox->width;
+    *( int64_t * )( intptr_t )params[7] = cbox->height;
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_remove_box( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp;
+
+    bmp = bitmap_get( params[0], params[1] );
+    if ( !bmp ) return 0;
+
+    bitmap_remove_cbox( bmp, params[2] );
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_box_by_pos( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp;
+
+    bmp = bitmap_get( params[0], params[1] );
+    if ( !bmp ) return 0;
+
+    CBOX * cbox = bitmap_get_cbox_by_pos( bmp, params[2] );
+    if ( !cbox ) return 0;
+
+    *( int64_t * )( intptr_t )params[3] = cbox->shape;
+    *( int64_t * )( intptr_t )params[4] = cbox->x;
+    *( int64_t * )( intptr_t )params[5] = cbox->y;
+    *( int64_t * )( intptr_t )params[6] = cbox->width;
+    *( int64_t * )( intptr_t )params[7] = cbox->height;
+
     return 1;
 }
 

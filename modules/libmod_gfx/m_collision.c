@@ -65,7 +65,7 @@ typedef struct {
     double  scale_y;
     int64_t ncboxes;
     __cbox_info * cboxes;
-    int64_t region_radius;
+    double region_radius;
 } __proc_col_info;
 
 /* --------------------------------------------------------------------------- */
@@ -76,7 +76,7 @@ typedef struct {
 /* --------------------------------------------------------------------------- */
 // scale must be with decimal points
 
-static inline void __calculate_shape( __proc_col_info * pci )
+static /* inline */ void __calculate_shape( __proc_col_info * pci )
 {
     int i;
     double sx = 1, sy = -1;
@@ -124,7 +124,7 @@ static inline void __calculate_shape( __proc_col_info * pci )
 
 /* --------------------------------------------------------------------------- */
 
-static inline void __normalize_circle( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
+static /* inline */ void __normalize_circle( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
     double cos_angle;
     double sin_angle;
     double x1;
@@ -145,7 +145,7 @@ static inline void __normalize_circle( double * vertices, int64_t x, int64_t y, 
 
 /* --------------------------------------------------------------------------- */
 
-static inline void __normalize_box( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
+static /* inline */ void __normalize_box( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
     double cos_angle;
     double sin_angle;
     double x1, x2, x3, x4;
@@ -178,7 +178,7 @@ static inline void __normalize_box( double * vertices, int64_t x, int64_t y, int
 
 /* --------------------------------------------------------------------------- */
 
-static inline void __get_vertices_proyection( double * normalized_vertices, BGD_Box * limits ) {
+static /* inline */ void __get_vertices_proyection( double * normalized_vertices, BGD_Box * limits ) {
     limits->x = limits->x2 = *normalized_vertices++;
     limits->y = limits->y2 = *normalized_vertices++;
 
@@ -199,7 +199,7 @@ static inline void __get_vertices_proyection( double * normalized_vertices, BGD_
 
 /* --------------------------------------------------------------------------- */
 
-static inline void __calculate_box_limits( __proc_col_info * pci ) {
+static /* inline */ void __calculate_box_limits( __proc_col_info * pci ) {
     int i;
 
     for ( i = 0; i < pci->ncboxes; i++ ) {
@@ -274,6 +274,15 @@ static int __get_proc_info(
         pci->ncboxes = graph->ncboxes;
         for ( i = 0; i < pci->ncboxes; i++ ) {
             pci->cboxes[i].cbox = graph->cboxes[i];
+if ( pci->cboxes[i].cbox.code != -1 )
+        printf("* %"PRId64" %s %"PRId64" %"PRId64" %"PRId64" %"PRId64"\n",
+            pci->cboxes[i].cbox.code,
+            pci->cboxes[i].cbox.shape == BITMAP_CB_SHAPE_BOX ? "BOX" : "CIRCLE" ,
+            pci->cboxes[i].cbox.x,
+            pci->cboxes[i].cbox.y,
+            pci->cboxes[i].cbox.width,
+            pci->cboxes[i].cbox.height
+            );
         }
     } else { // No graph cbox defined, use a virtual cbox
         pci->cboxes = malloc( sizeof( __cbox_info ) );
@@ -287,29 +296,28 @@ static int __get_proc_info(
         pci->cboxes->cbox.height = LOCINT64( libmod_gfx, proc, CBOX_HEIGHT );
     }
 
-    int m;
+    int m = 0;
     pci->region_radius = 0;
     double scale = MAX( pci->scale_x, pci->scale_y );
 
     for ( i = 0; i < pci->ncboxes; i++ ) {
-        m = 0;
         switch ( pci->cboxes[i].cbox.shape ) {
             case BITMAP_CB_SHAPE_BOX:
             default:
-                pci->cboxes[i].cbox.x = pci->cboxes->cbox.x == POINT_UNDEFINED ? 0 : pci->cboxes->cbox.x;
-                pci->cboxes[i].cbox.y = pci->cboxes->cbox.y == POINT_UNDEFINED ? 0 : pci->cboxes->cbox.y;
+                pci->cboxes[i].cbox.x = pci->cboxes[i].cbox.x == POINT_UNDEFINED ? 0 : pci->cboxes[i].cbox.x;
+                pci->cboxes[i].cbox.y = pci->cboxes[i].cbox.y == POINT_UNDEFINED ? 0 : pci->cboxes[i].cbox.y;
                 pci->cboxes[i].cbox.width = ( pci->cboxes[i].cbox.width < 1 ) ? pci->width : pci->cboxes[i].cbox.width;
                 pci->cboxes[i].cbox.height = ( pci->cboxes[i].cbox.height < 1 ) ? pci->height : pci->cboxes[i].cbox.height;
-                m = MAX( pci->cboxes->cbox.x + pci->cboxes[i].cbox.width, pci->cboxes->cbox.y + pci->cboxes[i].cbox.height );
+                m = MAX( pci->cboxes[i].cbox.x + pci->cboxes[i].cbox.width, pci->cboxes[i].cbox.y + pci->cboxes[i].cbox.height );
                 break;
 
             case BITMAP_CB_SHAPE_CIRCLE:
-                pci->cboxes[i].cbox.x = pci->cboxes->cbox.x == POINT_UNDEFINED ? pci->center_x : pci->cboxes->cbox.x;
-                pci->cboxes[i].cbox.y = pci->cboxes->cbox.y == POINT_UNDEFINED ? pci->center_y : pci->cboxes->cbox.y;
+                pci->cboxes[i].cbox.x = pci->cboxes[i].cbox.x == POINT_UNDEFINED ? pci->center_x : pci->cboxes[i].cbox.x;
+                pci->cboxes[i].cbox.y = pci->cboxes[i].cbox.y == POINT_UNDEFINED ? pci->center_y : pci->cboxes[i].cbox.y;
 
                 // Width is radius
                 if ( pci->cboxes[i].cbox.width < 1 ) {
-                    switch ( pci->cboxes->cbox.width ) {
+                    switch ( pci->cboxes[i].cbox.width ) {
                         case BITMAP_CB_CIRCLE_GRAPH_SIZE:
                         case BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE:
                         default:
@@ -333,18 +341,30 @@ static int __get_proc_info(
                             break;
                     }
                 }
-                m = MAX( pci->cboxes->cbox.x + pci->cboxes[i].cbox.width, pci->cboxes->cbox.y + pci->cboxes[i].cbox.width );
+                m = MAX( pci->cboxes[i].cbox.x + pci->cboxes[i].cbox.width, pci->cboxes[i].cbox.y + pci->cboxes[i].cbox.width );
                 break;
         }
         pci->region_radius = MAX( pci->region_radius, m * scale );
+if ( pci->cboxes[i].cbox.code != -1 )
+        printf("** %"PRId64" %s %"PRId64" %"PRId64" %"PRId64" %"PRId64"\n",
+            pci->cboxes[i].cbox.code,
+            pci->cboxes[i].cbox.shape == BITMAP_CB_SHAPE_BOX ? "BOX" : "CIRCLE" ,
+            pci->cboxes[i].cbox.x,
+            pci->cboxes[i].cbox.y,
+            pci->cboxes[i].cbox.width,
+            pci->cboxes[i].cbox.height
+            );
+
     }
+if ( pci->cboxes[0].cbox.code != -1 )
+    printf("** %f\n", pci->region_radius);
     return 1;
 
 }
 
 /* --------------------------------------------------------------------------- */
 
-static inline int __is_collision_box_circle( BGD_Box * limits, int64_t radius, double * normalized_vertices ) {
+static /* inline */ int __is_collision_box_circle( BGD_Box * limits, int64_t radius, double * normalized_vertices ) {
     double closest_x, closest_y;
 
     // Find the unrotated closest x point from center of unrotated circle
@@ -371,7 +391,7 @@ static inline int __is_collision_box_circle( BGD_Box * limits, int64_t radius, d
 /* --------------------------------------------------------------------------- */
 /*  pciA is precalculated, is collider */
 
-static inline int __check_collision( __proc_col_info * pciA, __proc_col_info * pciB ) {
+static /* inline */ int __check_collision( __proc_col_info * pciA, __proc_col_info * pciB ) {
     int i, ii, collision1, collision2;
     BGD_Box proyection;
     int64_t shapeA, shapeB;
