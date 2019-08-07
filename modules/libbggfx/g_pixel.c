@@ -146,7 +146,8 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
 #ifdef USE_SDL2_GPU
     SDL_Color c;
     SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a ) ;
-    GPU_Pixel( gr->tex->target, ( float ) x, ( float ) y, c );
+    // +1 for GPU_Pixel bug???
+    GPU_Pixel( gr->tex->target, ( float ) x, ( float ) y + 1, c );
 #endif
 }
 

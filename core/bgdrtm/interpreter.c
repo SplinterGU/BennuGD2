@@ -42,8 +42,6 @@
 #include "offsets.h"
 #include "xstrings.h"
 
-#include <assert.h>
-
 /* ---------------------------------------------------------------------- */
 /* Interpreter's main module                                              */
 /* ---------------------------------------------------------------------- */
@@ -307,8 +305,19 @@ main_loop_instance_go:
 
                 /* Process uses FRAME or locals, must create an instance */
                 i = instance_new( proc, r );
-
-                assert ( i );
+                /* Can't create instante, return -1 */
+                if ( !i ) {
+                    r->stack_ptr -= proc->params;
+                    if ( *ptr == MN_CALL ) {
+                        r->stack[0] |= STACK_RETURN_VALUE;
+                        *r->stack_ptr = -1;
+                        r->stack_ptr++;
+                    } else {
+                        r->stack[0] &= ~STACK_RETURN_VALUE;
+                    }
+                    ptr += 2;
+                    break;
+                }
 
                 for ( n = 0; n < proc->params; n++ )
                     PRIQWORD( i, sizeof( uint64_t ) * n ) = r->stack_ptr[-proc->params+n];

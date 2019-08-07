@@ -130,15 +130,11 @@ int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params ) {
             return 32; // Only 32 bpp is supported
 #endif
         case G_CENTER_X:        /* g_center_x */
-            if ( map->ncpoints > 0 )
-                if ( map->cpoints[0].x != CPOINT_UNDEFINED )
-                    return map->cpoints[0].x;
+            if ( map->ncpoints > 0 && map->cpoints[0].x != CPOINT_UNDEFINED ) return map->cpoints[0].x;
             return map->width / 2;
 
         case G_CENTER_Y:        /* g_center_y */
-            if ( map->ncpoints > 0 )
-                if ( map->cpoints[0].y != CPOINT_UNDEFINED )
-                    return map->cpoints[0].y;
+            if ( map->ncpoints > 0 && map->cpoints[0].y != CPOINT_UNDEFINED ) return map->cpoints[0].y;
             return map->height / 2;
     }
 

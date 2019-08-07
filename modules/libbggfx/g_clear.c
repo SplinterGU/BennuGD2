@@ -160,8 +160,8 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     } else {
         x = MAX( MIN( region->x, region->x2 ), 0 ) ;
         y = MAX( MIN( region->y, region->y2 ), 0 ) ;
-        w = MIN( MAX( region->x, region->x2 ), dest->width ) + 1 - x ;
-        h = MIN( MAX( region->y, region->y2 ), dest->height ) + 1 - y ;
+        w = MIN( MAX( region->x, region->x2 ) + 1, dest->width ) - x ;
+        h = MIN( MAX( region->y, region->y2 ) + 1, dest->height ) - y ;
     }
 
     if ( x > dest->width || y > dest->height ) return;

@@ -106,7 +106,10 @@ enum {
     CBOX_X,
     CBOX_Y,
     CBOX_WIDTH,
-    CBOX_HEIGHT
+    CBOX_HEIGHT,
+    COLLIDER_CBOX,
+    COLLIDED_ID,
+    COLLIDED_CBOX
 };
 
 /* Globals */

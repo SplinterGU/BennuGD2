@@ -65,8 +65,8 @@ typedef struct {
     double  scale_y;
     int64_t ncboxes;
     __cbox_info * cboxes;
-    double region_radius;
-} __proc_col_info;
+//    double region_radius;
+} __obj_col_info;
 
 /* --------------------------------------------------------------------------- */
 
@@ -76,47 +76,47 @@ typedef struct {
 /* --------------------------------------------------------------------------- */
 // scale must be with decimal points
 
-static /* inline */ void __calculate_shape( __proc_col_info * pci )
+static inline void __calculate_shape( __obj_col_info * oci )
 {
     int i;
     double sx = 1, sy = -1;
 
-    if ( pci->scale_x < 0.0 ) pci->scale_x = 0.0;
-    if ( pci->scale_y < 0.0 ) pci->scale_y = 0.0;
+    if ( oci->scale_x < 0.0 ) oci->scale_x = 0.0;
+    if ( oci->scale_y < 0.0 ) oci->scale_y = 0.0;
 
-    if ( pci->flags & B_HMIRROR ) sx = -1;
-    if ( pci->flags & B_VMIRROR ) sy = 1;
+    if ( oci->flags & B_HMIRROR ) sx = -1;
+    if ( oci->flags & B_VMIRROR ) sy = 1;
 
-    double cos_angle = cos_deg( pci->angle );
-    double sin_angle = sin_deg( pci->angle );
+    double cos_angle = cos_deg( oci->angle );
+    double sin_angle = sin_deg( oci->angle );
 
     double  lef_x, top_y, rig_x, bot_y,
             delta_x, delta_y;
 
-    for ( i = 0; i < pci->ncboxes; i++ ) {
-        switch ( pci->cboxes[i].cbox.shape ) {
+    for ( i = 0; i < oci->ncboxes; i++ ) {
+        switch ( oci->cboxes[i].cbox.shape ) {
             case BITMAP_CB_SHAPE_BOX:
-                lef_x = pci->scale_x * -( pci->center_x + pci->cboxes[i].cbox.x );
-                rig_x = pci->scale_x * pci->cboxes[i].cbox.width + lef_x;
-                top_y = pci->scale_y * -( pci->center_y + pci->cboxes[i].cbox.y );
-                bot_y = pci->scale_y * pci->cboxes[i].cbox.height + top_y;
+                lef_x = oci->scale_x * ( oci->cboxes[i].cbox.x - oci->center_x );
+                rig_x = oci->scale_x * ( oci->cboxes[i].cbox.width - 1 ) + lef_x;
+                top_y = oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y );
+                bot_y = oci->scale_y * ( oci->cboxes[i].cbox.height - 1 ) + top_y;
 
-                pci->cboxes[i].vertices[0] = ( lef_x * cos_angle + top_y * sin_angle ) * sx + pci->x;
-                pci->cboxes[i].vertices[1] = ( lef_x * sin_angle - top_y * cos_angle ) * sy + pci->y;
-                pci->cboxes[i].vertices[2] = ( rig_x * cos_angle + top_y * sin_angle ) * sx + pci->x;
-                pci->cboxes[i].vertices[3] = ( rig_x * sin_angle - top_y * cos_angle ) * sy + pci->y;
-                pci->cboxes[i].vertices[4] = ( rig_x * cos_angle + bot_y * sin_angle ) * sx + pci->x;
-                pci->cboxes[i].vertices[5] = ( rig_x * sin_angle - bot_y * cos_angle ) * sy + pci->y;
-                pci->cboxes[i].vertices[6] = ( lef_x * cos_angle + bot_y * sin_angle ) * sx + pci->x;
-                pci->cboxes[i].vertices[7] = ( lef_x * sin_angle - bot_y * cos_angle ) * sy + pci->y;
+                oci->cboxes[i].vertices[0] = ( lef_x * cos_angle + top_y * sin_angle ) * sx + oci->x;
+                oci->cboxes[i].vertices[1] = ( lef_x * sin_angle - top_y * cos_angle ) * sy + oci->y;
+                oci->cboxes[i].vertices[2] = ( rig_x * cos_angle + top_y * sin_angle ) * sx + oci->x;
+                oci->cboxes[i].vertices[3] = ( rig_x * sin_angle - top_y * cos_angle ) * sy + oci->y;
+                oci->cboxes[i].vertices[4] = ( rig_x * cos_angle + bot_y * sin_angle ) * sx + oci->x;
+                oci->cboxes[i].vertices[5] = ( rig_x * sin_angle - bot_y * cos_angle ) * sy + oci->y;
+                oci->cboxes[i].vertices[6] = ( lef_x * cos_angle + bot_y * sin_angle ) * sx + oci->x;
+                oci->cboxes[i].vertices[7] = ( lef_x * sin_angle - bot_y * cos_angle ) * sy + oci->y;
                 break;
 
             case BITMAP_CB_SHAPE_CIRCLE:
-                delta_x = pci->scale_x * ( pci->center_x + pci->cboxes[i].cbox.x );
-                delta_y = pci->scale_y * ( pci->center_y + pci->cboxes[i].cbox.y );
+                delta_x = oci->scale_x * ( oci->cboxes[i].cbox.x - oci->center_x );
+                delta_y = oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y );
 
-                pci->cboxes[i].vertices[0] = ( cos_angle * delta_x + sin_angle * delta_y ) * sx + pci->x;
-                pci->cboxes[i].vertices[1] = ( sin_angle * delta_x - cos_angle * delta_y ) * sy + pci->y;
+                oci->cboxes[i].vertices[0] = ( cos_angle * delta_x + sin_angle * delta_y ) * sx + oci->x;
+                oci->cboxes[i].vertices[1] = ( sin_angle * delta_x - cos_angle * delta_y ) * sy + oci->y;
                 break;
         }
     }
@@ -124,7 +124,7 @@ static /* inline */ void __calculate_shape( __proc_col_info * pci )
 
 /* --------------------------------------------------------------------------- */
 
-static /* inline */ void __normalize_circle( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
+static inline void __normalize_circle( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
     double cos_angle;
     double sin_angle;
     double x1;
@@ -145,7 +145,7 @@ static /* inline */ void __normalize_circle( double * vertices, int64_t x, int64
 
 /* --------------------------------------------------------------------------- */
 
-static /* inline */ void __normalize_box( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
+static inline void __normalize_box( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
     double cos_angle;
     double sin_angle;
     double x1, x2, x3, x4;
@@ -178,7 +178,7 @@ static /* inline */ void __normalize_box( double * vertices, int64_t x, int64_t 
 
 /* --------------------------------------------------------------------------- */
 
-static /* inline */ void __get_vertices_proyection( double * normalized_vertices, BGD_Box * limits ) {
+static inline void __get_vertices_proyection( double * normalized_vertices, BGD_Box * limits ) {
     limits->x = limits->x2 = *normalized_vertices++;
     limits->y = limits->y2 = *normalized_vertices++;
 
@@ -199,25 +199,24 @@ static /* inline */ void __get_vertices_proyection( double * normalized_vertices
 
 /* --------------------------------------------------------------------------- */
 
-static /* inline */ void __calculate_box_limits( __proc_col_info * pci ) {
+static inline void __calculate_box_limits( __obj_col_info * oci ) {
     int i;
-
-    for ( i = 0; i < pci->ncboxes; i++ ) {
-        if ( pci->cboxes[i].cbox.shape == BITMAP_CB_SHAPE_BOX ) {
-            if ( pci->flags & B_HMIRROR ) {
-                pci->cboxes[i].limits.x2 = pci->x + pci->scale_x * ( pci->center_x + pci->cboxes[i].cbox.x );
-                pci->cboxes[i].limits.x = pci->cboxes[i].limits.x2 - pci->scale_x * pci->cboxes[i].cbox.width;
+    for ( i = 0; i < oci->ncboxes; i++ ) {
+        if ( oci->cboxes[i].cbox.shape == BITMAP_CB_SHAPE_BOX ) {
+            if ( oci->flags & B_HMIRROR ) {
+                oci->cboxes[i].limits.x2 = oci->x + oci->scale_x * ( oci->center_x - oci->cboxes[i].cbox.x );
+                oci->cboxes[i].limits.x = oci->cboxes[i].limits.x2 - oci->scale_x * ( oci->cboxes[i].cbox.width - 1 );
             } else {
-                pci->cboxes[i].limits.x = pci->x - pci->scale_x * ( pci->center_x + pci->cboxes[i].cbox.x );
-                pci->cboxes[i].limits.x2 = pci->cboxes[i].limits.x + pci->scale_x * pci->cboxes[i].cbox.width;
+                oci->cboxes[i].limits.x = oci->x + oci->scale_x * ( oci->cboxes[i].cbox.x - oci->center_x );
+                oci->cboxes[i].limits.x2 = oci->cboxes[i].limits.x + oci->scale_x * ( oci->cboxes[i].cbox.width - 1 );
             }
 
-            if ( pci->flags & B_VMIRROR ) {
-                pci->cboxes[i].limits.y2 = pci->y + pci->scale_y * ( pci->center_y + pci->cboxes[i].cbox.y );
-                pci->cboxes[i].limits.y = pci->cboxes[i].limits.y2 - pci->scale_y * pci->cboxes[i].cbox.height;
+            if ( oci->flags & B_VMIRROR ) {
+                oci->cboxes[i].limits.y2 = oci->y + oci->scale_y * ( oci->center_y - oci->cboxes[i].cbox.y );
+                oci->cboxes[i].limits.y = oci->cboxes[i].limits.y2 - oci->scale_y * ( oci->cboxes[i].cbox.height - 1 );
             } else {
-                pci->cboxes[i].limits.y = pci->y - pci->scale_y * ( pci->center_y + pci->cboxes[i].cbox.y );
-                pci->cboxes[i].limits.y2 = pci->cboxes[i].limits.y + pci->scale_y * pci->cboxes[i].cbox.height;
+                oci->cboxes[i].limits.y = oci->y + oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y );
+                oci->cboxes[i].limits.y2 = oci->cboxes[i].limits.y + oci->scale_y * ( oci->cboxes[i].cbox.height - 1 );
             }
         }
     }
@@ -227,144 +226,151 @@ static /* inline */ void __calculate_box_limits( __proc_col_info * pci ) {
 
 static int __get_proc_info(
         INSTANCE * proc,
-        __proc_col_info * pci // Box
+        __obj_col_info * oci // Box
 ) {
     GRAPH * graph;
 
     graph = instance_graph( proc );
     if ( !graph ) return 0;
 
-    pci->scale_x = LOCINT64( libmod_gfx, proc, GRAPHSIZEX );
-    pci->scale_y = LOCINT64( libmod_gfx, proc, GRAPHSIZEY );
-    if ( pci->scale_x == 100 && pci->scale_y == 100 ) pci->scale_x = pci->scale_y = LOCINT64( libmod_gfx, proc, GRAPHSIZE );
+    oci->scale_x = LOCINT64( libmod_gfx, proc, GRAPHSIZEX );
+    oci->scale_y = LOCINT64( libmod_gfx, proc, GRAPHSIZEY );
+    if ( oci->scale_x == 100 && oci->scale_y == 100 ) oci->scale_x = oci->scale_y = LOCINT64( libmod_gfx, proc, GRAPHSIZE );
 
-    pci->scale_x /= 100.0;
-    pci->scale_y /= 100.0;
+    oci->scale_x /= 100.0;
+    oci->scale_y /= 100.0;
 
-    pci->x = LOCINT64( libmod_gfx, proc, COORDX );
-    pci->y = LOCINT64( libmod_gfx, proc, COORDY );
+    oci->x = LOCINT64( libmod_gfx, proc, COORDX );
+    oci->y = LOCINT64( libmod_gfx, proc, COORDY );
 
-    RESOLXY( libmod_gfx, proc, pci->x, pci->y );
+    RESOLXY( libmod_gfx, proc, oci->x, oci->y );
 
-    pci->width  = LOCINT64( libmod_gfx, proc, CLIPW );
-    pci->height = LOCINT64( libmod_gfx, proc, CLIPH );
+    oci->width  = LOCINT64( libmod_gfx, proc, CLIPW );
+    oci->height = LOCINT64( libmod_gfx, proc, CLIPH );
 
-    if ( !pci->width || !pci->height ) {
-        pci->width  = graph->width;
-        pci->height = graph->height;
+    if ( !oci->width || !oci->height ) {
+        oci->width  = graph->width;
+        oci->height = graph->height;
     }
 
     /* Calculate the graphic center */
 
     if ( graph->ncpoints && graph->cpoints[0].x != CPOINT_UNDEFINED ) {
-        pci->center_x = graph->cpoints[0].x;
-        pci->center_y = graph->cpoints[0].y;
+        oci->center_x = graph->cpoints[0].x;
+        oci->center_y = graph->cpoints[0].y;
     } else {
-        pci->center_x = pci->width  / 2.0;
-        pci->center_y = pci->height / 2.0;
+        oci->center_x = oci->width  / 2.0;
+        oci->center_y = oci->height / 2.0;
     }
 
-    pci->angle = LOCINT64( libmod_gfx, proc, ANGLE );
-    pci->flags = LOCQWORD( libmod_gfx, proc, FLAGS );
+    oci->angle = LOCINT64( libmod_gfx, proc, ANGLE );
+    oci->flags = LOCQWORD( libmod_gfx, proc, FLAGS );
 
     int i;
     if ( graph->ncboxes ) {
-        pci->cboxes = malloc( graph->ncboxes * sizeof( __cbox_info ) );
-        if ( !pci->cboxes ) return 0;
-        pci->ncboxes = graph->ncboxes;
-        for ( i = 0; i < pci->ncboxes; i++ ) {
-            pci->cboxes[i].cbox = graph->cboxes[i];
-if ( pci->cboxes[i].cbox.code != -1 )
-        printf("* %"PRId64" %s %"PRId64" %"PRId64" %"PRId64" %"PRId64"\n",
-            pci->cboxes[i].cbox.code,
-            pci->cboxes[i].cbox.shape == BITMAP_CB_SHAPE_BOX ? "BOX" : "CIRCLE" ,
-            pci->cboxes[i].cbox.x,
-            pci->cboxes[i].cbox.y,
-            pci->cboxes[i].cbox.width,
-            pci->cboxes[i].cbox.height
-            );
-        }
+        oci->cboxes = malloc( graph->ncboxes * sizeof( __cbox_info ) );
+        if ( !oci->cboxes ) return 0;
+        oci->ncboxes = graph->ncboxes;
+        for ( i = 0; i < oci->ncboxes; i++ ) oci->cboxes[i].cbox = graph->cboxes[i];
     } else { // No graph cbox defined, use a virtual cbox
-        pci->cboxes = malloc( sizeof( __cbox_info ) );
-        if ( !pci->cboxes ) return 0;
-        pci->ncboxes = 1;
-        pci->cboxes->cbox.code   = -1;
-        pci->cboxes->cbox.shape  = LOCINT64( libmod_gfx, proc, CSHAPE );
-        pci->cboxes->cbox.x      = LOCINT64( libmod_gfx, proc, CBOX_X );
-        pci->cboxes->cbox.y      = LOCINT64( libmod_gfx, proc, CBOX_Y );
-        pci->cboxes->cbox.width  = LOCINT64( libmod_gfx, proc, CBOX_WIDTH );
-        pci->cboxes->cbox.height = LOCINT64( libmod_gfx, proc, CBOX_HEIGHT );
+        oci->cboxes = malloc( sizeof( __cbox_info ) );
+        if ( !oci->cboxes ) return 0;
+        oci->ncboxes = 1;
+        oci->cboxes->cbox.code   = -1;
+        oci->cboxes->cbox.shape  = LOCINT64( libmod_gfx, proc, CSHAPE );
+        oci->cboxes->cbox.x      = LOCINT64( libmod_gfx, proc, CBOX_X );
+        oci->cboxes->cbox.y      = LOCINT64( libmod_gfx, proc, CBOX_Y );
+        oci->cboxes->cbox.width  = LOCINT64( libmod_gfx, proc, CBOX_WIDTH );
+        oci->cboxes->cbox.height = LOCINT64( libmod_gfx, proc, CBOX_HEIGHT );
     }
 
-    int m = 0;
-    pci->region_radius = 0;
-    double scale = MAX( pci->scale_x, pci->scale_y );
-
-    for ( i = 0; i < pci->ncboxes; i++ ) {
-        switch ( pci->cboxes[i].cbox.shape ) {
+    for ( i = 0; i < oci->ncboxes; i++ ) {
+        switch ( oci->cboxes[i].cbox.shape ) {
             case BITMAP_CB_SHAPE_BOX:
             default:
-                pci->cboxes[i].cbox.x = pci->cboxes[i].cbox.x == POINT_UNDEFINED ? 0 : pci->cboxes[i].cbox.x;
-                pci->cboxes[i].cbox.y = pci->cboxes[i].cbox.y == POINT_UNDEFINED ? 0 : pci->cboxes[i].cbox.y;
-                pci->cboxes[i].cbox.width = ( pci->cboxes[i].cbox.width < 1 ) ? pci->width : pci->cboxes[i].cbox.width;
-                pci->cboxes[i].cbox.height = ( pci->cboxes[i].cbox.height < 1 ) ? pci->height : pci->cboxes[i].cbox.height;
-                m = MAX( pci->cboxes[i].cbox.x + pci->cboxes[i].cbox.width, pci->cboxes[i].cbox.y + pci->cboxes[i].cbox.height );
+                oci->cboxes[i].cbox.x = oci->cboxes[i].cbox.x == POINT_UNDEFINED ? 0 : oci->cboxes[i].cbox.x;
+                oci->cboxes[i].cbox.y = oci->cboxes[i].cbox.y == POINT_UNDEFINED ? 0 : oci->cboxes[i].cbox.y;
+                oci->cboxes[i].cbox.width = ( oci->cboxes[i].cbox.width < 1 ) ? oci->width : oci->cboxes[i].cbox.width;
+                oci->cboxes[i].cbox.height = ( oci->cboxes[i].cbox.height < 1 ) ? oci->height : oci->cboxes[i].cbox.height;
                 break;
 
             case BITMAP_CB_SHAPE_CIRCLE:
-                pci->cboxes[i].cbox.x = pci->cboxes[i].cbox.x == POINT_UNDEFINED ? pci->center_x : pci->cboxes[i].cbox.x;
-                pci->cboxes[i].cbox.y = pci->cboxes[i].cbox.y == POINT_UNDEFINED ? pci->center_y : pci->cboxes[i].cbox.y;
+                oci->cboxes[i].cbox.x = oci->cboxes[i].cbox.x == POINT_UNDEFINED ? oci->center_x : oci->cboxes[i].cbox.x;
+                oci->cboxes[i].cbox.y = oci->cboxes[i].cbox.y == POINT_UNDEFINED ? oci->center_y : oci->cboxes[i].cbox.y;
 
                 // Width is radius
-                if ( pci->cboxes[i].cbox.width < 1 ) {
-                    switch ( pci->cboxes[i].cbox.width ) {
+                if ( oci->cboxes[i].cbox.width < 1 ) {
+                    switch ( oci->cboxes[i].cbox.width ) {
                         case BITMAP_CB_CIRCLE_GRAPH_SIZE:
                         case BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE:
                         default:
-                            pci->cboxes[i].cbox.width = ( pci->width + pci->height ) / 4;
+                            oci->cboxes[i].cbox.width = 0.5 + ( oci->width + oci->height ) / 4.0;
                             break;
 
                         case BITMAP_CB_CIRCLE_GRAPH_WIDTH:
-                            pci->cboxes[i].cbox.width = pci->width / 2;
+                            oci->cboxes[i].cbox.width = 0.5 + oci->width / 2.0;
                             break;
 
                         case BITMAP_CB_CIRCLE_GRAPH_HEIGHT:
-                            pci->cboxes[i].cbox.width = pci->height / 2;
+                            oci->cboxes[i].cbox.width = 0.5 + oci->height / 2.0;
                             break;
 
                         case BITMAP_CB_CIRCLE_GRAPH_MIN_SIZE:
-                            pci->cboxes[i].cbox.width = MIN( pci->width, pci->height ) / 2;
+                            oci->cboxes[i].cbox.width = 0.5 + MIN( oci->width, oci->height ) / 2.0;
                             break;
 
                         case BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE:
-                            pci->cboxes[i].cbox.width = MAX( pci->width, pci->height ) / 2;
+                            oci->cboxes[i].cbox.width = 0.5 + MAX( oci->width, oci->height ) / 2.0;
                             break;
                     }
                 }
-                m = MAX( pci->cboxes[i].cbox.x + pci->cboxes[i].cbox.width, pci->cboxes[i].cbox.y + pci->cboxes[i].cbox.width );
                 break;
         }
-        pci->region_radius = MAX( pci->region_radius, m * scale );
-if ( pci->cboxes[i].cbox.code != -1 )
-        printf("** %"PRId64" %s %"PRId64" %"PRId64" %"PRId64" %"PRId64"\n",
-            pci->cboxes[i].cbox.code,
-            pci->cboxes[i].cbox.shape == BITMAP_CB_SHAPE_BOX ? "BOX" : "CIRCLE" ,
-            pci->cboxes[i].cbox.x,
-            pci->cboxes[i].cbox.y,
-            pci->cboxes[i].cbox.width,
-            pci->cboxes[i].cbox.height
-            );
-
     }
-if ( pci->cboxes[0].cbox.code != -1 )
-    printf("** %f\n", pci->region_radius);
+
     return 1;
 
 }
 
 /* --------------------------------------------------------------------------- */
 
-static /* inline */ int __is_collision_box_circle( BGD_Box * limits, int64_t radius, double * normalized_vertices ) {
+static int __get_mouse_info( __obj_col_info * oci ) {
+
+    oci->scale_x /= 1.0;
+    oci->scale_y /= 1.0;
+
+    oci->x = GLOINT64( libmod_gfx, MOUSEX );
+    oci->y = GLOINT64( libmod_gfx, MOUSEY );
+
+    oci->width  = 1;
+    oci->height = 1;
+
+    /* Calculate the graphic center */
+
+    oci->center_x = 0;
+    oci->center_y = 0;
+
+    oci->angle = 0;
+    oci->flags = 0;
+
+    oci->cboxes = malloc( sizeof( __cbox_info ) );
+    if ( !oci->cboxes ) return 0;
+    oci->ncboxes = 1;
+    oci->cboxes->cbox.code   = -1;
+    oci->cboxes->cbox.shape  = BITMAP_CB_SHAPE_BOX;
+    oci->cboxes->cbox.x      = 0;
+    oci->cboxes->cbox.y      = 0;
+    oci->cboxes->cbox.width  = 1;
+    oci->cboxes->cbox.height = 1;
+
+//    oci->region_radius = 1;
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+static inline int __is_collision_box_circle( BGD_Box * limits, int64_t radius, double * normalized_vertices ) {
     double closest_x, closest_y;
 
     // Find the unrotated closest x point from center of unrotated circle
@@ -378,137 +384,159 @@ static /* inline */ int __is_collision_box_circle( BGD_Box * limits, int64_t rad
     else                                            closest_y = normalized_vertices[1];
 
     return in_radius( closest_x, closest_y, normalized_vertices[0], normalized_vertices[1], radius );
-/*
-    double dx, dy;
 
-    dx = ( closest_x - normalized_vertices[0] );
-    dy = ( closest_y - normalized_vertices[1] );
-
-    return ( dx * dx ) + ( dy * dy ) < radius * radius;
-*/
 }
 
 /* --------------------------------------------------------------------------- */
-/*  pciA is precalculated, is collider */
 
-static /* inline */ int __check_collision( __proc_col_info * pciA, __proc_col_info * pciB ) {
-    int i, ii, collision1, collision2;
-    BGD_Box proyection;
+static inline int __is_collision_circle_circle( int64_t radiusA, double * verticesA, int64_t radiusB, double * verticesB ) {
+
+    return in_radius2( verticesA[0], verticesA[1], verticesB[0], verticesB[1], radiusA, radiusB );
+}
+
+/* --------------------------------------------------------------------------- */
+/*  ociA is precalculated, is collider */
+
+static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * ociB, int64_t * cbox_code ) {
+    int i, ii, collisionA, collisionB;
     int64_t shapeA, shapeB;
-
-    double normalized_vertices[8];
+    BGD_Box proyectionA, proyectionB;
+    double normalized_verticesA[8], normalized_verticesB[8], normalized_verticesC[8];
 
     // Get real vertices
-    __calculate_shape( pciB );
-    __calculate_box_limits( pciB );
+    __calculate_shape( ociB );
+    __calculate_box_limits( ociB );
 
-    for ( i = 0; i < pciB->ncboxes; i++ ) {
-        shapeB = pciB->cboxes[i].cbox.shape;
-        switch ( shapeB ) {
+    for ( i = 0; i < ociA->ncboxes; i++ ) {
+        shapeA = ociA->cboxes[i].cbox.shape;
+        switch ( shapeA ) {
             case BITMAP_CB_SHAPE_BOX:
-                // Normalize to Box axis
-                __normalize_box( pciB->cboxes[i].vertices, pciA->x, pciA->y, pciA->angle, pciA->flags, normalized_vertices );
-
-                // Get limits
-                __get_vertices_proyection( normalized_vertices, &proyection );
+                __normalize_box( ociA->cboxes[i].vertices, ociB->x, ociB->y, ociB->angle, ociB->flags, normalized_verticesA ); // Normalize to Box axis
+                __get_vertices_proyection( normalized_verticesA, &proyectionA ); // Get limits
                 break;
 
             case BITMAP_CB_SHAPE_CIRCLE:
-                // Normalize to Box axis
-                __normalize_circle( pciB->cboxes[i].vertices, pciA->x, pciA->y, pciA->angle, pciA->flags, normalized_vertices );
+                __normalize_circle( ociA->cboxes[i].vertices, ociB->x, ociB->y, ociB->angle, ociB->flags, normalized_verticesA ); // Normalize to Box axis
                 break;
         }
 
         /* ***** Iterate ***** */
-
-        for ( ii = 0; ii < pciA->ncboxes; ii++ ) {
-            collision1 = 0;
-            shapeA = pciA->cboxes[ii].cbox.shape;
-            switch ( shapeA ) {
+        /* A vs each B */
+        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+            collisionA = collisionB = 0;
+            shapeB = ociB->cboxes[ii].cbox.shape;
+            switch ( shapeB ) {
                 case BITMAP_CB_SHAPE_BOX:
-                    switch ( shapeB ) {
+                    switch ( shapeA ) {
                         case BITMAP_CB_SHAPE_BOX:
-                            collision1 = !( proyection.x > pciA->cboxes[ii].limits.x2 || proyection.x2 < pciA->cboxes[ii].limits.x || proyection.y > pciA->cboxes[ii].limits.y2 || proyection.y2 < pciA->cboxes[ii].limits.y );
+                            collisionA = !( proyectionA.x > ociB->cboxes[ii].limits.x2 || proyectionA.x2 < ociB->cboxes[ii].limits.x || proyectionA.y > ociB->cboxes[ii].limits.y2 || proyectionA.y2 < ociB->cboxes[ii].limits.y );
+                            // If not collisionA then don't need check for second box
+                            if ( collisionA ) {
+                                __normalize_box( ociB->cboxes[ii].vertices, ociA->x, ociA->y, ociA->angle, ociA->flags, normalized_verticesB ); // Normalize to Box axis
+                                __get_vertices_proyection( normalized_verticesB, &proyectionB ); // Get limits
+                                collisionB = !( proyectionB.x > ociA->cboxes[i].limits.x2 || proyectionB.x2 < ociA->cboxes[i].limits.x || proyectionB.y > ociA->cboxes[i].limits.y2 || proyectionB.y2 < ociA->cboxes[i].limits.y );
+                            }
                             break;
 
                         case BITMAP_CB_SHAPE_CIRCLE:
-                            collision1 = __is_collision_box_circle( &pciA->cboxes[ii].limits, pciB->cboxes[i].cbox.width * pciB->scale_x, normalized_vertices );
+                            collisionB = __is_collision_box_circle( &ociB->cboxes[ii].limits, ociA->cboxes[i].cbox.width * ociA->scale_x, normalized_verticesA );
                             break;
                     }
                     break;
 
                 case BITMAP_CB_SHAPE_CIRCLE:
-                    switch ( shapeB ) {
+                    switch ( shapeA ) {
                         case BITMAP_CB_SHAPE_BOX:
-                            // Normalize to Box axis
-                            __normalize_circle( pciA->cboxes[ii].vertices, pciB->x, pciB->y, pciB->angle, pciB->flags, normalized_vertices );
-                            collision1 = __is_collision_box_circle( &pciB->cboxes[i].limits, pciA->cboxes[ii].cbox.width * pciA->scale_x, normalized_vertices );
+                            __normalize_circle( ociB->cboxes[ii].vertices, ociA->x, ociA->y, ociA->angle, ociA->flags, normalized_verticesB );
+                            collisionB = __is_collision_box_circle( &ociA->cboxes[i].limits, ociB->cboxes[ii].cbox.width * ociB->scale_x, normalized_verticesB ); // Normalize to Box axis
                             break;
 
                         case BITMAP_CB_SHAPE_CIRCLE:
+                            collisionB = __is_collision_circle_circle( ociA->cboxes[i].cbox.width * ociA->scale_x, ociA->cboxes[i].vertices, ociB->cboxes[ii].cbox.width * ociB->scale_x, ociB->cboxes[ii].vertices );
                             break;
                     }
                     break;
             }
 
-            if ( !collision1 ) continue; // Don't need check for second box if 1 box collision fail
-
-            /* ***** 2nd Box ***** */
-
-            collision2 = 0;
-
-            switch ( shapeA ) {
-                case BITMAP_CB_SHAPE_BOX:
-                    switch ( shapeB ) {
-                        case BITMAP_CB_SHAPE_BOX:
-                            // Normalize to Box axis
-                            __normalize_box( pciA->cboxes[ii].vertices, pciB->x, pciB->y, pciB->angle, pciB->flags, normalized_vertices );
-
-                            // Get limits
-                            __get_vertices_proyection( normalized_vertices, &proyection );
-
-                            collision2 = !( proyection.x > pciB->cboxes[i].limits.x2 || proyection.x2 < pciB->cboxes[i].limits.x || proyection.y > pciB->cboxes[i].limits.y2 || proyection.y2 < pciB->cboxes[i].limits.y );
-                            break;
-
-                        case BITMAP_CB_SHAPE_CIRCLE:
-                            // Normalize to Box axis
-                            __normalize_circle( pciA->cboxes[i].vertices, pciB->x, pciB->y, pciB->angle, pciB->flags, normalized_vertices );
-                            break;
-                    }
-                    break;
-
-                case BITMAP_CB_SHAPE_CIRCLE:
-                    switch ( shapeB ) {
-                        case BITMAP_CB_SHAPE_BOX:
-                            break;
-
-                        case BITMAP_CB_SHAPE_CIRCLE:
-                            break;
-                    }
-                    break;
+            if ( collisionB ) {
+                cbox_code[0] = ociA->cboxes[i].cbox.code;
+                cbox_code[1] = ociB->cboxes[ii].cbox.code;
+                return 1;
             }
-
-            if ( collision1 && collision2 ) return 1;
         }
     }
+
     return 0;
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int64_t __collision( INSTANCE * my, int64_t id ) {
-//    int ( *colfunc )( INSTANCE *, REGION *, INSTANCE * );
     INSTANCE * ptr, ** ctx;
-  __proc_col_info pci, pciB;
-  int collision = 0;
+    __obj_col_info oci, ociB;
+    int collision = 0;
+    int64_t cbox_code[2];
 
-//    if ( id == -1 ) return ( check_collision_with_mouse( my, colltype ) ) ? 1 : 0;
-
-    if ( !__get_proc_info( my, &pci ) ) return 0;
+    if ( !__get_proc_info( my, &oci ) ) return 0;
 
     // Get real vertices
-    __calculate_shape( &pci );
-    __calculate_box_limits( &pci );
+    __calculate_shape( &oci );
+    __calculate_box_limits( &oci );
+
+    /* Checks collision with mouse */
+    if ( id == -1 ) {
+        collision = 0;
+        if ( __get_mouse_info( &ociB ) ) {
+            if ( LOCQWORD( libmod_gfx, my, CTYPE ) == C_SCROLL ) {
+                SCROLL_EXTRA_DATA * data;
+                scrolldata  * scroll;
+                int i;
+
+                if ( GLOEXISTS( libmod_gfx, SCROLLS ) ) {
+                    int64_t cnumber = LOCQWORD( libmod_gfx, my, CNUMBER );
+                    if ( !cnumber ) cnumber = 0xffffffff;
+
+                    for ( i = 0; i < 10 && !collision; i++ ) {
+                        data = &(( SCROLL_EXTRA_DATA * ) & GLOQWORD( libmod_gfx, SCROLLS ) )[i];
+                        scroll = ( scrolldata * ) ( intptr_t ) data->reserved[0];
+
+                        if ( scroll && scroll->active && ( cnumber & ( 1 << i ) ) ) {
+                            REGION * r = scroll->region;
+
+                            ociB.x += scroll->posx0 + r->x;
+                            ociB.y += scroll->posy0 + r->y;
+
+                            collision = __check_collision( &oci, &ociB, cbox_code ) ;
+
+                            ociB.x -= scroll->posx0 + r->x;
+                            ociB.y -= scroll->posy0 + r->y;
+                        }
+                    }
+                }
+
+                free( ociB.cboxes );
+                free( oci.cboxes );
+
+                if ( collision ) {
+                    LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
+                    LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
+                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                    return 1;
+                }
+                return 0;
+            }
+            collision = __check_collision( &oci, &ociB, cbox_code ) ;
+            free( ociB.cboxes );
+        }
+        free( oci.cboxes );
+        if ( collision ) {
+            LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
+            LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
+            LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+            return 1;
+        }
+        return 0;
+    }
 
     int64_t ctype = LOCQWORD( libmod_gfx, my, CTYPE );
 
@@ -517,13 +545,19 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         ptr = instance_get( id );
         if ( ptr && ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
             collision = 0;
-            if ( __get_proc_info( ptr, &pciB ) ) {
-                collision = in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius ) && __check_collision( &pci, &pciB ) ;
-                free( pciB.cboxes );
+            if ( __get_proc_info( ptr, &ociB ) ) {
+                collision = __check_collision( &oci, &ociB, cbox_code ) ;
+                free( ociB.cboxes );
             }
         }
-        free( pci.cboxes );
-        return ( collision ) ? LOCQWORD( libmod_gfx, ptr, PROCESS_ID ) : 0;
+        free( oci.cboxes );
+        if ( collision ) {
+            LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+            LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+            LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+            return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
+        }
+        return 0;
     }
 
     /* we must use full list of instances or get types from it */
@@ -540,20 +574,23 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         while ( ptr ) {
             if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
                 collision = 0;
-                if ( __get_proc_info( ptr, &pciB ) ) {
-                    collision = in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius ) && __check_collision( &pci, &pciB ) ;
-                    free( pciB.cboxes );
+                if ( __get_proc_info( ptr, &ociB ) ) {
+                    collision = __check_collision( &oci, &ociB, cbox_code ) ;
+                    free( ociB.cboxes );
                 }
             }
             if ( collision ) {
                 LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                free( pci.cboxes );
-                return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                free( oci.cboxes );
+                LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+                LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
             }
             ptr = ptr->next;
         }
         LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
-        free( pci.cboxes );
+        free( oci.cboxes );
         return 0;
     }
 
@@ -568,20 +605,23 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
     while ( ( ptr = instance_get_by_type( id, ctx ) ) ) {
         if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
             collision = 0;
-            if ( __get_proc_info( ptr, &pciB ) ) {
-                collision = in_radius2( pci.x, pci.y, pciB.x, pciB.y, pci.region_radius, pciB.region_radius ) && __check_collision( &pci, &pciB ) ;
-                free( pciB.cboxes );
+            if ( __get_proc_info( ptr, &ociB ) ) {
+                collision = __check_collision( &oci, &ociB, cbox_code ) ;
+                free( ociB.cboxes );
             }
         }
         if ( collision ) {
             LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-            free( pci.cboxes );
-            return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+            free( oci.cboxes );
+            LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+            LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+            LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+            return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
         }
     }
 
     LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) = 0;
-    free( pci.cboxes );
+    free( oci.cboxes );
     return 0;
 }
 

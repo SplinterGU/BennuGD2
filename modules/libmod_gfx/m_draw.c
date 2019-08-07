@@ -177,10 +177,10 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * brectangle_filled
 #ifdef USE_SDL2_GPU
         case DRAWOBJ_ARC:
         case DRAWOBJ_ARC_FILLED:
-            newclip.x = dr->x1 - dr->radius;
-            newclip.y = dr->y1 - dr->radius;
-            newclip.x2 = dr->x1 + dr->radius;
-            newclip.y2 = dr->y1 + dr->radius;
+            newclip.x = dr->x1 - dr->radius + 1;
+            newclip.y = dr->y1 - dr->radius + 1;
+            newclip.x2 = dr->x1 + dr->radius - 1;
+            newclip.y2 = dr->y1 + dr->radius - 1;
             break;
 
         case DRAWOBJ_ELLIPSE:
@@ -193,10 +193,10 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * brectangle_filled
 
         case DRAWOBJ_SECTOR:
         case DRAWOBJ_SECTOR_FILLED:
-            newclip.x = dr->x1 - dr->outer_radius;
-            newclip.y = dr->y1 - dr->outer_radius;
-            newclip.x2 = dr->x1 + dr->outer_radius;
-            newclip.y2 = dr->y1 + dr->outer_radius;
+            newclip.x = dr->x1 - dr->outer_radius + 1;
+            newclip.y = dr->y1 - dr->outer_radius + 1;
+            newclip.x2 = dr->x1 + dr->outer_radius - 1;
+            newclip.y2 = dr->y1 + dr->outer_radius - 1;
             break;
 
         case DRAWOBJ_TRIANGLE:
@@ -211,8 +211,8 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * brectangle_filled
         case DRAWOBJ_RECTANGLE_ROUND_FILLED:
             newclip.x = dr->x1;
             newclip.y = dr->y1;
-            newclip.x2 = dr->x1 + dr->w;
-            newclip.y2 = dr->y1 + dr->h;
+            newclip.x2 = dr->x1 + dr->w - 1;
+            newclip.y2 = dr->y1 + dr->h - 1;
             break;
 
         case DRAWOBJ_POLYGON:
@@ -268,8 +268,8 @@ static int _libmod_gfx_draw_object_info( void * what, REGION * brectangle_filled
         default:
             newclip.x = dr->x1;
             newclip.y = dr->y1;
-            newclip.x2 = dr->x1 + dr->w;
-            newclip.y2 = dr->y1 + dr->h;
+            newclip.x2 = dr->x1 + dr->w - 1;
+            newclip.y2 = dr->y1 + dr->h - 1;
             break;
 
     }

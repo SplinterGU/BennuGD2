@@ -101,7 +101,8 @@ void draw_point( GRAPH * dest, REGION * clip, int64_t x, int64_t y ) {
     SDL_RenderDrawPoint( gRenderer, x, y );
 #endif
 #ifdef USE_SDL2_GPU
-    GPU_Pixel( target, ( float ) x, ( float ) y, color );
+    // +1 for GPU_Pixel bug???
+    GPU_Pixel( target, ( float ) x, ( float ) y + 1, color );
 #endif
 
     DRAW_RELEASE_RENDERER();
@@ -173,7 +174,7 @@ void draw_rectangle( GRAPH * dest, REGION * clip, int64_t x, int64_t y, int64_t 
     SDL_RenderDrawRect( gRenderer, &rectangle );
 #endif
 #ifdef USE_SDL2_GPU
-    GPU_Rectangle( target, x, y, x + w + 1, y + h + 1, color );
+    GPU_Rectangle( target, x, y, x + w, y + h, color );
 #endif
 
     DRAW_RELEASE_RENDERER();
@@ -213,7 +214,7 @@ void draw_rectangle_filled( GRAPH * dest, REGION * clip, int64_t x, int64_t y, i
     SDL_RenderFillRect( gRenderer, &rectangle );
 #endif
 #ifdef USE_SDL2_GPU
-    GPU_RectangleFilled( target, x, y, x + w + 1, y + h + 1, color );
+    GPU_RectangleFilled( target, x, y, x + w, y + h, color );
 #endif
 
     DRAW_RELEASE_RENDERER();
@@ -317,7 +318,7 @@ void draw_rectangles( GRAPH * dest, REGION * clip, int64_t count, SDL_Rect * rec
 #endif
 #ifdef USE_SDL2_GPU
     while( count-- ) {
-        GPU_Rectangle( target, rects->x, rects->y, rects->x + rects->w + 1, rects->y + rects->h + 1, color );
+        GPU_Rectangle( target, rects->x, rects->y, rects->x + rects->w, rects->y + rects->h, color );
         rects++;
     }
 #endif
@@ -352,7 +353,7 @@ void draw_rectangles_filled( GRAPH * dest, REGION * clip, int64_t count, SDL_Rec
 #endif
 #ifdef USE_SDL2_GPU
     while( count-- ) {
-        GPU_RectangleFilled( target, rects->x, rects->y, rects->x + rects->w + 1, rects->y + rects->h + 1, color );
+        GPU_RectangleFilled( target, rects->x, rects->y, rects->x + rects->w, rects->y + rects->h, color );
         rects++;
     }
 #endif
@@ -912,7 +913,7 @@ void draw_rectangle_round( GRAPH * dest, REGION * clip, int64_t x, int64_t y, in
 
     DRAW_PREPARE_RENDERER();
 
-    GPU_RectangleRound( target, x, y, x + w + 1, y + h + 1, r, color );
+    GPU_RectangleRound( target, x, y, x + w, y + h, r, color );
 
     DRAW_RELEASE_RENDERER();
 
@@ -941,7 +942,7 @@ void draw_rectangle_round_filled( GRAPH * dest, REGION * clip, int64_t x, int64_
 
     DRAW_PREPARE_RENDERER();
 
-    GPU_RectangleRoundFilled( target, x, y, x + w + 1, y + h + 1, r, color );
+    GPU_RectangleRoundFilled( target, x, y, x + w, y + h, r, color );
 
     DRAW_RELEASE_RENDERER();
 

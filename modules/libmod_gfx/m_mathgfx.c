@@ -161,8 +161,8 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
     RESOLXY( libmod_gfx, my, x, y );
 
     if ( b->ncpoints && b->cpoints[0].x != CPOINT_UNDEFINED ) {
-        centerx = b->cpoints[0].x ;
-        centery = b->cpoints[0].y ;
+        centerx = b->cpoints[0].x;
+        centery = b->cpoints[0].y;
     } else {
         centerx = b->width / 2.0;
         centery = b->height / 2.0;

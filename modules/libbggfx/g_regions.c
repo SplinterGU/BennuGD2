@@ -57,17 +57,11 @@ REGION regions[ MAX_REGIONS ];
 
 void region_define( int64_t region, int64_t x, int64_t y, int64_t width, int64_t height ) {
     if ( region < 1 || region >= MAX_REGIONS ) return;
-#if 1
+
     regions[ region ].x = MAX( x, 0 );
     regions[ region ].y = MAX( y, 0 );
     regions[ region ].x2 = x + MAX( width  - 1, 0 );
     regions[ region ].y2 = y + MAX( height - 1, 0 );
-#else
-    regions[ region ].x = MAX( x, 0 );
-    regions[ region ].y = MAX( y, 0 );
-    regions[ region ].x2 = MIN( scr_width, x + width ) - 1;
-    regions[ region ].y2 = MIN( scr_height, y + height ) - 1;
-#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -149,17 +143,12 @@ int region_is_out( REGION * a, REGION * b ) {
 
 REGION * region_new( int64_t x, int64_t y, int64_t width, int64_t height ) {
     REGION * region = malloc( sizeof( REGION ) );
-#if 1
+
     region->x = x;
     region->y = y;
-    region->x2 = ( x + width ) - 1;
-    region->y2 = ( y + height ) - 1;
-#else
-    region->x = MAX( x, 0 );
-    region->y = MAX( y, 0 );
-    region->x2 = MIN( scr_width, x + width ) - 1;
-    region->y2 = MIN( scr_height, y + height ) - 1;
-#endif
+    region->x2 = x + width - 1;
+    region->y2 = y + height - 1;
+
     return region;
 }
 

@@ -453,7 +453,7 @@ void gr_blit(   GRAPH * dest,
     if ( flags & B_HMIRROR ) {
         angle = -angle;
 #ifdef USE_SDL2
-        centerx = gr->width - centerx - 1;
+        centerx = gr->width - 1 - centerx;
 #endif
 #ifdef USE_SDL2_GPU
         scalex_adjusted = -scalex_adjusted;
@@ -462,7 +462,7 @@ void gr_blit(   GRAPH * dest,
     if ( flags & B_VMIRROR ) {
         angle = -angle;
 #ifdef USE_SDL2
-        centery = gr->height - centery - 1;
+        centery = gr->height - 1 - centery;
 #endif
 #ifdef USE_SDL2_GPU
         scaley_adjusted = -scaley_adjusted;
@@ -635,10 +635,10 @@ static void gr_calculate_corners( GRAPH * dest,
     double lef_x, top_y, rig_x, bot_y;
 
     lef_x = - ( scalex * center_x );
-    rig_x =   ( scalex * ( width - center_x ) );
+    rig_x =   ( scalex * ( width - 1 - center_x ) );
 
     top_y = - ( scaley * center_y );
-    bot_y =   ( scaley * ( height - center_y ) );
+    bot_y =   ( scaley * ( height - 1 - center_y ) );
 
     corners[0].x = ( lef_x * cos_angle + top_y * sin_angle ) * sx + x0;
     corners[0].y = ( lef_x * sin_angle - top_y * cos_angle ) * sy + y0;

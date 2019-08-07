@@ -185,6 +185,11 @@ char * __bgdexport( libmod_gfx, locals_def ) =
 
     "INT cshape = SHAPE_BOX;\n"
     "G_RECT cbox = POINT_UNDEFINED, POINT_UNDEFINED, GRAPH_SIZE, GRAPH_SIZE;\n"
+    "STRUCT collision_info\n"
+    "   INT collider_cbox;\n"
+    "   INT collided_id;\n"
+    "   INT collided_cbox;\n"
+    "END\n"
     ;
 
 /* --------------------------------------------------------------------------- */
