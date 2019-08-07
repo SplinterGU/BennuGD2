@@ -52,8 +52,8 @@ static int hotkey_count = 0;
 /* ---------------------------------------------------------------------- */
 
 /* Publicas */
-key_equiv key_table[127];           /* Now we have a search table with equivs */
-const Uint8 * keystate = NULL;      /* Pointer to key states */
+key_equiv key_table[SDL_NUM_SCANCODES]; /* Now we have a search table with equivs */
+const Uint8 * keystate = NULL;          /* Pointer to key states */
 
 /* ---------------------------------------------------------------------- */
 
@@ -221,6 +221,50 @@ void hotkey_add( int64_t mod, int64_t scancode, HOTKEY_CALLBACK callback ) {
 
 /* ---------------------------------------------------------------------- */
 
+static struct {
+    int64_t ascii;
+    int64_t scancode;
+} keyring [64];
+static int keyring_start = 0, keyring_tail = 0;
+static int64_t scancode = 0;
+
+/* ---------------------------------------------------------------------- */
+
+static void process_key( SDL_Event *e, int64_t ascii, int keypress ) {
+    int n;
+    SDL_Keymod m;
+    int ignore_key = 0;
+
+    /* KeyDown HotKey */
+    for ( n = 0; n < hotkey_count; n++ ) {
+        if ((( hotkey_list[n].mod & e->key.keysym.mod ) == hotkey_list[n].mod ) &&
+             ( !hotkey_list[n].scancode || ( hotkey_list[n].scancode == e->key.keysym.sym ) ) ) {
+            if ( ascii ) e->key.keysym.sym = ascii;
+            ignore_key = hotkey_list[n].callback( e->key.keysym );
+        }
+    }
+    /* KeyDown HotKey */
+
+    if ( ignore_key ) return;
+
+    /* Save key */
+
+    int k = e->key.keysym.scancode;
+
+    if ( !keypress ) {
+        GLOQWORD( libbginput, SCANCODE ) = scancode = k;
+        GLOQWORD( libbginput, ASCII ) = ascii;
+        keypress = 1;
+    } else {
+        keyring[keyring_tail].scancode = k;
+        keyring[keyring_tail].ascii = ascii;
+        if ( ++keyring_tail == 64 ) keyring_tail = 0;
+    }
+
+}
+
+/* ---------------------------------------------------------------------- */
+
 /*
  *  FUNCTION : process_key_events
  *
@@ -235,17 +279,12 @@ void hotkey_add( int64_t mod, int64_t scancode, HOTKEY_CALLBACK callback ) {
  */
 
 void process_key_events() {
-    SDL_Event e;
+    SDL_Event e, keydown_e;
     SDL_Keymod m;
-    int k, asc;
+    int k, ascii;
     int pressed;
     key_equiv * curr;
     int keypress;
-    static struct {
-        int64_t ascii;
-        int64_t scancode;
-    } keyring [64];
-    static int keyring_start = 0, keyring_tail = 0;
     int ignore_key, n;
 
     /* Update events */
@@ -258,8 +297,8 @@ void process_key_events() {
     /* must check all the linked equivs */
 
     pressed = 0;
-    if ( GLOQWORD( libbginput,  SCANCODE ) ) {
-        curr = &key_table[GLOQWORD( libbginput, SCANCODE )];
+    if ( scancode ) {
+        curr = &key_table[scancode];
         while ( curr != NULL && pressed == 0 ) {
             if ( keystate[curr->sdlk_equiv] ) pressed = 1;
             curr = curr->next;
@@ -268,55 +307,43 @@ void process_key_events() {
 
     if ( !pressed ) {
         GLOQWORD( libbginput, ASCII ) = 0;
-        GLOQWORD( libbginput, SCANCODE ) = 0;
+        GLOQWORD( libbginput, SCANCODE ) = scancode = 0;
     }
 
-    while ( SDL_PeepEvents( &e, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_KEYDOWN ) > 0 ) {
+    int ready = 0;
+
+    /* Process most event types */
+    while ( SDL_PeepEvents( &e, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_TEXTINPUT ) > 0 ) {
         switch ( e.type ) {
             case SDL_KEYDOWN:
-                ignore_key = 0;
-                /* KeyDown HotKey */
-                for ( n = 0; n < hotkey_count; n++ ) {
-                    if ((( hotkey_list[n].mod & e.key.keysym.mod ) == hotkey_list[n].mod ) &&
-                         ( !hotkey_list[n].scancode || ( hotkey_list[n].scancode == e.key.keysym.sym /*e.key.keysym.scancode*/ ) ) ) {
-                        ignore_key = hotkey_list[n].callback( e.key.keysym );
-                    }
+                if ( ready ) process_key( &keydown_e, ascii, keypress );
+
+                keydown_e = e;
+                ascii = 0;
+                ready = 1;
+
+                // process, non ascii
+                if ( e.key.keysym.sym < ' ' || e.key.keysym.sym > '~' ) ascii = e.key.keysym.sym;
+                break;
+
+            case SDL_TEXTINPUT: // this handles text input events
+                for ( int i = 0; i < SDL_TEXTINPUTEVENT_TEXT_SIZE; i++ ) {
+                    char c = e.text.text[i];
+                    // cancel if a non-ascii char is encountered
+                    if ( c < ' ' || c > '~' ) break;
+                    if ( ready ) process_key( &keydown_e, win_to_dos[c], keypress );
+                    ready = 0;
+                    ascii = 0;
                 }
-                /* KeyDown HotKey */
-
-                if ( ignore_key ) break;
-
-                /* Save key */
-
-                k = e.key.keysym.scancode;
-                m = e.key.keysym.mod;
-
-                if ( e.key.keysym.sym <= 0xff ) {
-                    asc = win_to_dos[e.key.keysym.sym];
-
-                    /* ascii case detection */
-                    if ( asc >= 'a' && asc <= 'z' && ( ( ( m & KMOD_SHIFT ) != 0 ) ^ ( ( m & KMOD_CAPS ) != 0 ) ) ) asc -= 0x20;
-                } else {
-                    asc = 0; /* NON PRINTABLE */
-                }
-
-                if ( !keypress ) {
-                    GLOQWORD( libbginput, SCANCODE ) = k;
-                    GLOQWORD( libbginput, ASCII ) = asc;
-                    keypress = 1;
-                } else {
-                    keyring[keyring_tail].scancode = k;
-                    keyring[keyring_tail].ascii = asc;
-                    if ( ++keyring_tail == 64 ) keyring_tail = 0;
-                }
-
                 break;
         }
     }
 
+    if ( ready ) process_key( &keydown_e, ascii, keypress );
+
     if ( !keypress && keyring_start != keyring_tail ) {
         GLOQWORD( libbginput, ASCII ) = keyring[keyring_start].ascii;
-        GLOQWORD( libbginput, SCANCODE ) = keyring[keyring_start].scancode;
+        GLOQWORD( libbginput, SCANCODE ) = scancode = keyring[keyring_start].scancode;
         if ( ++keyring_start == 64 ) keyring_start = 0;
     }
 
@@ -346,6 +373,8 @@ void key_init() {
     int64_t * ptr = equivs;
 
     if ( !SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_InitSubSystem( SDL_INIT_VIDEO );
+
+    SDL_EventState(SDL_TEXTEDITING, SDL_DISABLE);
 
     memset( key_table, 0, sizeof( key_table ) );
 

@@ -625,6 +625,24 @@ static uint8_t sysfont[] = {
                                 0b00011000,
                                 0b00000000,
 
+                                0b01110000,
+                                0b10001000,
+                                0b10001000,
+                                0b10111000,
+                                0b10101000,
+                                0b10110000,
+                                0b10000000,
+                                0b01110000,
+
+                                0b00000000,
+                                0b01001000,
+                                0b11111100,
+                                0b01001000,
+                                0b01001000,
+                                0b01001000,
+                                0b11111100,
+                                0b01001000,
+
                                 0b00000000,
                                 0b00000000,
                                 0b01110000,
@@ -913,6 +931,15 @@ static uint8_t sysfont[] = {
                                 0b01100000,
                                 0b00000000,
 
+                                0b00100000,
+                                0b00100000,
+                                0b00100000,
+                                0b00000000,
+                                0b00100000,
+                                0b00100000,
+                                0b00100000,
+                                0b00000000,
+
                                 0b00000000,
                                 0b00000000,
                                 0b00000000,
@@ -1030,6 +1057,24 @@ static uint8_t sysfont[] = {
                                 0b01110000,
                                 0b00000000,
 
+                                0b01100110, //
+                                0b11011000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+
+                                0b00100000, //
+                                0b01010000,
+                                0b10001000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+
                                 0b01010000,
                                 0b01010000,
                                 0b00000000,
@@ -1041,6 +1086,15 @@ static uint8_t sysfont[] = {
 
                                 0b00010000,
                                 0b00100000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+
+                                0b00100000,
+                                0b00010000,
                                 0b00000000,
                                 0b00000000,
                                 0b00000000,
@@ -1194,7 +1248,7 @@ static uint8_t sysfont[] = {
 
                             };
 
-static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%abcdefghijklmnopqrstuvwxyz[](){}-><_,\\/+*!¡?¿\"'\x01\x02\x03ÁÉÍÓÚÑáéíóúñ\xff" ;
+static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|-><_,\\/+*!¡?¿~^\"'`\x01\x02\x03ÁÉÍÓÚÑáéíóúñ\xff" ;
 
 static int64_t debug_sysfont = -1;
 
@@ -1395,7 +1449,7 @@ static void console_getkey( int sym ) {
         }
     }
 
-    if ( sym >= SDLK_SPACE && sym <= SDLK_z && strlen( console_input ) < sizeof( console_input ) - 3 ) {
+    if ( sym >= ' ' && sym <= '~' && strlen( console_input ) < sizeof( console_input ) - 3 ) {
         buffer[0] = sym ;
         buffer[1] = 0 ;
         strcat( console_input, buffer ) ;
@@ -3391,6 +3445,8 @@ static void console_draw( void * what, REGION * clip ) {
                 int xo = ( scr_width - rl ) / 2;
                 int yo = ( ( console_y < 1 ) ? 2 : console_y + CHARHEIGHT * 2 + 1 ) + CHARHEIGHT * current_show;
 
+                systext_color( 0 ) ;
+
                 systext_puts( xo - 1, yo - 1, res );
                 systext_puts( xo - 1, yo    , res );
                 systext_puts( xo - 1, yo + 1, res );
@@ -3408,7 +3464,10 @@ static void console_draw( void * what, REGION * clip ) {
         }
     }
 
-    if ( console_y <= 0 ) return ;
+    if ( console_y <= 0 ) {
+        drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
+        return ;
+    }
 
     int64_t shiftstatus = GLOINT64( libmod_debug, SHIFTSTATUS ) ;
 
