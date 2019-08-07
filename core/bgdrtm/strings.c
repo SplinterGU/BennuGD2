@@ -623,10 +623,9 @@ int64_t string_uitoa( uint64_t n ) {
 /* Compare two strings using strcmp and return the result                   */
 /****************************************************************************/
 
-int string_comp( int64_t code1, int64_t code2 ) {
+int64_t string_comp( int64_t code1, int64_t code2 ) {
     const char * str1 = string_get( code1 );
     const char * str2 = string_get( code2 );
-
     return strcmp( str1, str2 );
 }
 
@@ -916,7 +915,7 @@ int64_t string_format( double number, int dec, char point, char thousands ) {
  *      Result of the comparison
  */
 
-int string_casecmp( int64_t code1, int64_t code2 ) {
+int64_t string_casecmp( int64_t code1, int64_t code2 ) {
     unsigned char * str1 = ( unsigned char * ) string_get( code1 );
     unsigned char * str2 = ( unsigned char * ) string_get( code2 );
 

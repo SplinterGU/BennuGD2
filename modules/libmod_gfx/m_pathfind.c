@@ -42,7 +42,7 @@
 /* Funciones de búsqueda de caminos */
 
 int64_t libmod_gfx_path_new( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) path_new( bitmap_get( ( int ) params[0], ( int ) params[1] ) );
+    return ( int64_t ) ( intptr_t ) path_new( bitmap_get( ( int ) params[0], ( int ) params[1] ) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -55,19 +55,19 @@ int64_t libmod_gfx_path_destroy( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_path_find( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) path_find( ( GRID * ) ( intptr_t ) params[0], ( int ) params[1], ( int ) params[2], ( int ) params[3], ( int ) params[4], ( int ) params[5], 1, PF_HEURISTIC_MANHATTAN );
+    return ( int64_t ) ( intptr_t ) path_find( ( GRID * ) ( intptr_t ) params[0], ( int ) params[1], ( int ) params[2], ( int ) params[3], ( int ) params[4], ( int ) params[5], 1, PF_HEURISTIC_MANHATTAN );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_path_find2( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) path_find( ( GRID * ) ( intptr_t ) params[0], ( int ) params[1], ( int ) params[2], ( int ) params[3], ( int ) params[4], ( int ) params[5], ( int ) params[6], ( int ) params[7] );
+    return ( int64_t ) ( intptr_t ) path_find( ( GRID * ) ( intptr_t ) params[0], ( int ) params[1], ( int ) params[2], ( int ) params[3], ( int ) params[4], ( int ) params[5], ( int ) params[6], ( int ) params[7] );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_path_free_results( INSTANCE * my, int64_t * params ) {
-    free( ( void * ) params[0] );
+    free( ( void * ) ( intptr_t ) params[0] );
     return 1;
 }
 
