@@ -513,10 +513,8 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                         }
                     }
                 }
-
                 free( ociB.cboxes );
                 free( oci.cboxes );
-
                 if ( collision ) {
                     LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
@@ -544,19 +542,19 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
     if ( id >= FIRST_INSTANCE_ID ) {
         ptr = instance_get( id );
         if ( ptr && ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
-            collision = 0;
             if ( __get_proc_info( ptr, &ociB ) ) {
                 collision = __check_collision( &oci, &ociB, cbox_code ) ;
                 free( ociB.cboxes );
+                if ( collision ) {
+                    free( oci.cboxes );
+                    LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+                    LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                    return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
+                }
             }
         }
         free( oci.cboxes );
-        if ( collision ) {
-            LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
-            LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-            LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
-            return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
-        }
         return 0;
     }
 
@@ -573,19 +571,18 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
 
         while ( ptr ) {
             if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
-                collision = 0;
                 if ( __get_proc_info( ptr, &ociB ) ) {
                     collision = __check_collision( &oci, &ociB, cbox_code ) ;
                     free( ociB.cboxes );
+                    if ( collision ) {
+                        LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                        free( oci.cboxes );
+                        LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+                        LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                        LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                        return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
+                    }
                 }
-            }
-            if ( collision ) {
-                LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                free( oci.cboxes );
-                LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
-                LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
-                return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
             }
             ptr = ptr->next;
         }
@@ -604,19 +601,18 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
 
     while ( ( ptr = instance_get_by_type( id, ctx ) ) ) {
         if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
-            collision = 0;
             if ( __get_proc_info( ptr, &ociB ) ) {
                 collision = __check_collision( &oci, &ociB, cbox_code ) ;
                 free( ociB.cboxes );
+                if ( collision ) {
+                    LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                    free( oci.cboxes );
+                    LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+                    LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                    return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
+                }
             }
-        }
-        if ( collision ) {
-            LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-            free( oci.cboxes );
-            LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
-            LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-            LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
-            return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
         }
     }
 
