@@ -142,6 +142,7 @@ enum {
 #include "g_draw.h"
 #include "g_screen.h"
 #include "g_pathfind.h"
+#include "g_shaders.h"
 
 /* --------------------------------------------------------------------------- */
 

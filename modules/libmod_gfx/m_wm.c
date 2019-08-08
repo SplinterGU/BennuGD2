@@ -49,6 +49,7 @@
 
 int64_t libmod_gfx_set_title( INSTANCE * my, int64_t * params ) {
     gr_set_caption( ( char * )string_get( params[0] ) ) ;
+    string_discard( params[0] );
     return 1 ;
 }
 

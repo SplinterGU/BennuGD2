@@ -51,6 +51,7 @@
 #include "m_text.h"
 #include "m_wm.h"
 #include "m_draw.h"
+#include "m_shaders.h"
 
 /* --------------------------------------------------------------------------- */
 

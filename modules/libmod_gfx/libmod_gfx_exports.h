@@ -455,8 +455,32 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "MAP_SET_PALETTE"     , "IIIIP"           , TYPE_INT        , libmod_gfx_set_palette                  ),
     FUNC( "MAP_GET_PALETTE"     , "IIIIP"           , TYPE_INT        , libmod_gfx_get_palette                  ),
 
+    /* shaders */
 
-    FUNC( NULL                  , NULL              , 0             , NULL                                      )
+    FUNC( "SHADER_CREATE"        , "SSSSSS"         , TYPE_POINTER    , libmod_gfx_shader_create                ),
+    FUNC( "SHADER_ACTIVATE"      , "P"              , TYPE_INT        , libmod_gfx_shader_activate              ),
+    FUNC( "SHADER_DEACTIVATE"    , ""               , TYPE_INT        , libmod_gfx_shader_deactivate            ),
+    FUNC( "SHADER_GETLOCATION"   , "PS"             , TYPE_INT        , libmod_gfx_shader_getlocation           ),
+    FUNC( "SHADER_SETSHADERIMAGE", "IIII"           , TYPE_INT        , libmod_gfx_shader_setshaderimage        ),
+    FUNC( "SHADER_SETVALUEI"     , "Ii"             , TYPE_INT        , libmod_gfx_shader_setvaluei             ),
+    FUNC( "SHADER_SETVALUEIV"    , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalueiv            ),
+    FUNC( "SHADER_SETVALUE2IV"   , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue2iv           ),
+    FUNC( "SHADER_SETVALUE3IV"   , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue3iv           ),
+    FUNC( "SHADER_SETVALUE4IV"   , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue4iv           ),
+    FUNC( "SHADER_SETVALUEUI"    , "Ii"             , TYPE_INT        , libmod_gfx_shader_setvalueui            ),
+    FUNC( "SHADER_SETVALUEUIV"   , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalueuiv           ),
+    FUNC( "SHADER_SETVALUE2UIV"  , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue2uiv          ),
+    FUNC( "SHADER_SETVALUE3UIV"  , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue3uiv          ),
+    FUNC( "SHADER_SETVALUE4UIV"  , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue4uiv          ),
+    FUNC( "SHADER_SETVALUEF"     , "IF"             , TYPE_INT        , libmod_gfx_shader_setvaluef             ),
+    FUNC( "SHADER_SETVALUEFV"    , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvaluefv            ),
+    FUNC( "SHADER_SETVALUE2FV"   , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue2fv           ),
+    FUNC( "SHADER_SETVALUE3FV"   , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue3fv           ),
+    FUNC( "SHADER_SETVALUE4FV"   , "IIP"            , TYPE_INT        , libmod_gfx_shader_setvalue4fv           ),
+    FUNC( "SHADER_SETVALUEMATRIX", "IIP"            , TYPE_INT        , libmod_gfx_shader_setvaluematrix        ),
+    FUNC( "SHADER_FREE"          , "P"              , TYPE_INT        , libmod_gfx_shader_free                  ),
+
+    FUNC( NULL                  , NULL              , 0               , NULL                                    )
 };
 
 /* --------------------------------------------------------------------------- */
