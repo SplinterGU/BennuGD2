@@ -38,27 +38,38 @@ typedef struct {
 /* --------------------------------------------------------------------------- */
 
 extern BGD_SHADER * shader_create( char * vertex, char * fragment, const char * position_name, const char * texcoord_name, const char * color_name, const char * modelViewMatrix_name );
+extern void shader_free( BGD_SHADER * shader );
+
 extern void shader_activate( BGD_SHADER * shader );
 extern void shader_deactivate( void );
-extern int shader_getlocation( BGD_SHADER * shader, const char * name );
+
+extern int shader_getattributelocation( BGD_SHADER * shader, const char * name );
+extern int shader_getuniformlocation( BGD_SHADER * shader, const char * name );
 extern void shader_setshaderimage( GRAPH * image, int location, int image_unit );
-extern void shader_setvaluei( int location, int value );
-extern void shader_setvalueiv( int location, int nvalues, int * values );
-extern void shader_setvalue2iv( int location, int nvalues, int * values );
-extern void shader_setvalue3iv( int location, int nvalues, int * values );
-extern void shader_setvalue4iv( int location, int nvalues, int * values );
-extern void shader_setvalueui( int location, unsigned int value );
-extern void shader_setvalueuiv( int location, int nvalues, unsigned int * values );
-extern void shader_setvalue2uiv( int location, int nvalues, unsigned int * values );
-extern void shader_setvalue3uiv( int location, int nvalues, unsigned int * values );
-extern void shader_setvalue4uiv( int location, int nvalues, unsigned int * values );
-extern void shader_setvaluef( int location, float value );
-extern void shader_setvaluefv( int location, int nvalues, float * values );
-extern void shader_setvalue2fv( int location, int nvalues, float * values );
-extern void shader_setvalue3fv( int location, int nvalues, float * values );
-extern void shader_setvalue4fv( int location, int nvalues, float * values );
-extern void shader_setvaluematrix( int location, int num_matrices, int num_rows, int num_columns, GPU_bool transpose, float * values );
-extern void shader_free( BGD_SHADER * shader );
+
+extern void shader_setattributei( int location, int value );
+extern void shader_setattributeiv( int location, int nvalues, int * values );
+extern void shader_setattributeui( int location, unsigned int value );
+extern void shader_setattributeuiv( int location, int nvalues, unsigned int * values );
+extern void shader_setattributef( int location, float value );
+extern void shader_setattributefv( int location, int nvalues, float * values );
+
+extern void shader_setuniformi( int location, int value );
+extern void shader_setuniformiv( int location, int nvalues, int * values );
+extern void shader_setuniform2iv( int location, int nvalues, int * values );
+extern void shader_setuniform3iv( int location, int nvalues, int * values );
+extern void shader_setuniform4iv( int location, int nvalues, int * values );
+extern void shader_setuniformui( int location, unsigned int value );
+extern void shader_setuniformuiv( int location, int nvalues, unsigned int * values );
+extern void shader_setuniform2uiv( int location, int nvalues, unsigned int * values );
+extern void shader_setuniform3uiv( int location, int nvalues, unsigned int * values );
+extern void shader_setuniform4uiv( int location, int nvalues, unsigned int * values );
+extern void shader_setuniformf( int location, float value );
+extern void shader_setuniformfv( int location, int nvalues, float * values );
+extern void shader_setuniform2fv( int location, int nvalues, float * values );
+extern void shader_setuniform3fv( int location, int nvalues, float * values );
+extern void shader_setuniform4fv( int location, int nvalues, float * values );
+extern void shader_setuniformmatrix( int location, int num_matrices, int num_rows, int num_columns, GPU_bool transpose, float * values );
 
 /* --------------------------------------------------------------------------- */
 

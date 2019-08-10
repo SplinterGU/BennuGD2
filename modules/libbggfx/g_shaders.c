@@ -131,7 +131,14 @@ void shader_deactivate( void ) {
 
 /* --------------------------------------------------------------------------- */
 
-int shader_getlocation( BGD_SHADER * shader, const char * name ) {
+int shader_getattributelocation( BGD_SHADER * shader, const char * name ) {
+    if ( !shader ) return -1;
+    return ( int ) GPU_GetAttributeLocation( shader->shader, name );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int shader_getuniformlocation( BGD_SHADER * shader, const char * name ) {
     if ( !shader ) return -1;
     return ( int ) GPU_GetUniformLocation( shader->shader, name );
 }
@@ -144,97 +151,133 @@ void shader_setshaderimage( GRAPH * image, int location, int image_unit ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvaluei( int location, int value ) {
+void shader_setattributei( int location, int value ) {
+    GPU_SetAttributei( location, value );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void shader_setattributeiv( int location, int nvalues, int * values ) {
+    GPU_SetAttributeiv( location, nvalues, values );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void shader_setattributeui( int location, unsigned int value ) {
+    GPU_SetAttributeui( location, value );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void shader_setattributeuiv( int location, int nvalues, unsigned int * values ) {
+    GPU_SetAttributeuiv( location, nvalues, values );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void shader_setattributef( int location, float value ) {
+    GPU_SetAttributef( location, value );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void shader_setattributefv( int location, int nvalues, float * values ) {
+    GPU_SetAttributefv( location, nvalues, values );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void shader_setuniformi( int location, int value ) {
     GPU_SetUniformi( location, value );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalueiv( int location, int nvalues, int * values ) {
+void shader_setuniformiv( int location, int nvalues, int * values ) {
     GPU_SetUniformiv( location, 1, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue2iv( int location, int nvalues, int * values ) {
+void shader_setuniform2iv( int location, int nvalues, int * values ) {
     GPU_SetUniformiv( location, 2, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue3iv( int location, int nvalues, int * values ) {
+void shader_setuniform3iv( int location, int nvalues, int * values ) {
     GPU_SetUniformiv( location, 3, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue4iv( int location, int nvalues, int * values ) {
+void shader_setuniform4iv( int location, int nvalues, int * values ) {
     GPU_SetUniformiv( location, 4, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalueui( int location, unsigned int value ) {
+void shader_setuniformui( int location, unsigned int value ) {
     GPU_SetUniformui( location, value );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalueuiv( int location, int nvalues, unsigned int * values ) {
+void shader_setuniformuiv( int location, int nvalues, unsigned int * values ) {
     GPU_SetUniformuiv( location, 1, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue2uiv( int location, int nvalues, unsigned int * values ) {
+void shader_setuniform2uiv( int location, int nvalues, unsigned int * values ) {
     GPU_SetUniformuiv( location, 2, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue3uiv( int location, int nvalues, unsigned int * values ) {
+void shader_setuniform3uiv( int location, int nvalues, unsigned int * values ) {
     GPU_SetUniformuiv( location, 3, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue4uiv( int location, int nvalues, unsigned int * values ) {
+void shader_setuniform4uiv( int location, int nvalues, unsigned int * values ) {
     GPU_SetUniformuiv( location, 4, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvaluef( int location, float value ) {
+void shader_setuniformf( int location, float value ) {
     GPU_SetUniformf( location, value );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvaluefv( int location, int nvalues, float * values ) {
+void shader_setuniformfv( int location, int nvalues, float * values ) {
     GPU_SetUniformfv( location, 1, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue2fv( int location, int nvalues, float * values ) {
+void shader_setuniform2fv( int location, int nvalues, float * values ) {
     GPU_SetUniformfv( location, 2, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue3fv( int location, int nvalues, float * values ) {
+void shader_setuniform3fv( int location, int nvalues, float * values ) {
     GPU_SetUniformfv( location, 3, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvalue4fv( int location, int nvalues, float * values ) {
+void shader_setuniform4fv( int location, int nvalues, float * values ) {
     GPU_SetUniformfv( location, 4, nvalues, values );
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setvaluematrix( int location, int num_matrices, int num_rows, int num_columns, GPU_bool transpose, float * values ) {
+void shader_setuniformmatrix( int location, int num_matrices, int num_rows, int num_columns, GPU_bool transpose, float * values ) {
     GPU_SetUniformMatrixfv( location,  num_matrices,  num_rows,  num_columns,  transpose, values );
 }
 

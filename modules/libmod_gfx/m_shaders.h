@@ -33,26 +33,39 @@
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_shader_create( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_free(  INSTANCE * my, int64_t * params );
+
 extern int64_t libmod_gfx_shader_activate( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_shader_deactivate( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_getlocation( INSTANCE * my, int64_t * params );
+
+extern int64_t libmod_gfx_shader_getattributelocation( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_getuniformlocation( INSTANCE * my, int64_t * params );
+
 extern int64_t libmod_gfx_shader_setshaderimage( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvaluei( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalueiv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue2iv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue3iv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue4iv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalueui( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalueuiv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue2uiv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue3uiv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue4uiv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvaluef( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvaluefv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue2fv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue3fv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvalue4fv( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_setvaluematrix( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_shader_free(  INSTANCE * my, int64_t * params );
+
+extern int64_t libmod_gfx_shader_setattributei( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setattributeiv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setattributeui( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setattributeuiv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setattributef( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setattributefv( INSTANCE * my, int64_t * params );
+
+extern int64_t libmod_gfx_shader_setuniformi( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniformiv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform2iv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform3iv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform4iv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniformui( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniformuiv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform2uiv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform3uiv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform4uiv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniformf( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniformfv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform2fv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform3fv( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_setuniform4fv( INSTANCE * my, int64_t * params );
+
+extern int64_t libmod_gfx_shader_setuniformmatrix( INSTANCE * my, int64_t * params );
 
 #endif
