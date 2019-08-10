@@ -255,12 +255,16 @@ static int __get_proc_info(
 
     /* Calculate the graphic center */
 
-    if ( graph->ncpoints && graph->cpoints[0].x != CPOINT_UNDEFINED ) {
-        oci->center_x = graph->cpoints[0].x;
-        oci->center_y = graph->cpoints[0].y;
-    } else {
-        oci->center_x = oci->width  / 2.0;
-        oci->center_y = oci->height / 2.0;
+    oci->center_x = LOCINT64( libmod_gfx, proc, GRAPHCENTERX ) ;
+    oci->center_y = LOCINT64( libmod_gfx, proc, GRAPHCENTERY ) ;
+    if ( oci->center_x == POINT_UNDEFINED || oci->center_y == POINT_UNDEFINED ) {
+        if ( graph->ncpoints && graph->cpoints[0].x != CPOINT_UNDEFINED ) {
+            oci->center_x = graph->cpoints[0].x;
+            oci->center_y = graph->cpoints[0].y;
+        } else {
+            oci->center_x = oci->width  / 2.0;
+            oci->center_y = oci->height / 2.0;
+        }
     }
 
     oci->angle = LOCINT64( libmod_gfx, proc, ANGLE );

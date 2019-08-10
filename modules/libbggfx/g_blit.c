@@ -266,6 +266,8 @@ void gr_blit(   GRAPH * dest,
                 int64_t angle,
                 double scalex,
                 double scaley,
+                double centerx,
+                double centery,
                 GRAPH * gr,
                 BGD_Rect * gr_clip,
                 uint8_t alpha,
@@ -429,8 +431,7 @@ void gr_blit(   GRAPH * dest,
     }
 
     SDL_Rect dstrect;
-    double centerx, centery,
-           scalex_adjusted, scaley_adjusted;
+    double scalex_adjusted, scaley_adjusted;
     int i;
 
     if ( flags & B_TRANSLUCENT ) alpha >>= 1;
@@ -442,12 +443,14 @@ void gr_blit(   GRAPH * dest,
     SDL_RendererFlip flip = ( ( flags & B_HMIRROR ) ? SDL_FLIP_HORIZONTAL : 0 ) | ( ( flags & B_VMIRROR ) ? SDL_FLIP_VERTICAL : 0 );
 #endif
 
-    if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
-        centerx = gr->cpoints[0].x;
-        centery = gr->cpoints[0].y;
-    } else {
-        centerx = w / 2.0;
-        centery = h / 2.0;
+    if ( centerx == POINT_UNDEFINED || centery == POINT_UNDEFINED ) {
+        if ( gr->ncpoints && gr->cpoints[0].x != CPOINT_UNDEFINED ) {
+            centerx = gr->cpoints[0].x;
+            centery = gr->cpoints[0].y;
+        } else {
+            centerx = w / 2.0;
+            centery = h / 2.0;
+        }
     }
 
     if ( flags & B_HMIRROR ) {
@@ -595,10 +598,12 @@ static void gr_calculate_corners( GRAPH * dest,
                                   int64_t angle,
                                   double scalex,
                                   double scaley,
+                                  double centerx,
+                                  double centery,
                                   BGD_Point * corners,
                                   BGD_Rect * map_clip
                                   ) {
-    double center_x, center_y, sx = 1, sy = -1;
+    double sx = 1, sy = -1;
     int64_t width = dest->width, height = dest->height;
 
     if ( scalex < 0.0 ) scalex = 0.0;
@@ -611,12 +616,14 @@ static void gr_calculate_corners( GRAPH * dest,
 
     /* Calculate the graphic center */
 
-    if ( dest->ncpoints && dest->cpoints[0].x != CPOINT_UNDEFINED ) {
-        center_x = dest->cpoints[0].x;
-        center_y = dest->cpoints[0].y;
-    } else {
-        center_x = width  / 2.0;
-        center_y = height / 2.0;
+    if ( centerx == POINT_UNDEFINED || centery == POINT_UNDEFINED ) {
+        if ( dest->ncpoints && dest->cpoints[0].x != CPOINT_UNDEFINED ) {
+            centerx = dest->cpoints[0].x;
+            centery = dest->cpoints[0].y;
+        } else {
+            centerx = width  / 2.0;
+            centery = height / 2.0;
+        }
     }
 
     if ( flags & B_HMIRROR ) sx = -1;
@@ -634,11 +641,11 @@ static void gr_calculate_corners( GRAPH * dest,
 
     double lef_x, top_y, rig_x, bot_y;
 
-    lef_x = - ( scalex * center_x );
-    rig_x =   ( scalex * ( width - 1 - center_x ) );
+    lef_x = - ( scalex * centerx );
+    rig_x =   ( scalex * ( width - 1 - centerx ) );
 
-    top_y = - ( scaley * center_y );
-    bot_y =   ( scaley * ( height - 1 - center_y ) );
+    top_y = - ( scaley * centery );
+    bot_y =   ( scaley * ( height - 1 - centery ) );
 
     corners[0].x = ( lef_x * cos_angle + top_y * sin_angle ) * sx + x0;
     corners[0].y = ( lef_x * sin_angle - top_y * cos_angle ) * sy + y0;
@@ -678,6 +685,8 @@ void gr_get_bbox( REGION * dest,
                   int64_t angle,
                   double scalex,
                   double scaley,
+                  double centerx,
+                  double centery,
                   GRAPH * gr,
                   BGD_Rect * map_clip
     ) {
@@ -687,7 +696,7 @@ void gr_get_bbox( REGION * dest,
 
     /* Calculate the coordinates of each corner in the graphic */
 
-    gr_calculate_corners( gr, x, y, flags, angle, scalex, scaley, corners, map_clip );
+    gr_calculate_corners( gr, x, y, flags, angle, scalex, scaley, centerx, centery, corners, map_clip );
 
     /* Calculate the bounding box */
 

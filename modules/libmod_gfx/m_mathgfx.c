@@ -160,12 +160,16 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
 
     RESOLXY( libmod_gfx, my, x, y );
 
-    if ( b->ncpoints && b->cpoints[0].x != CPOINT_UNDEFINED ) {
-        centerx = b->cpoints[0].x;
-        centery = b->cpoints[0].y;
-    } else {
-        centerx = b->width / 2.0;
-        centery = b->height / 2.0;
+    centerx = LOCINT64( libmod_gfx, my, GRAPHCENTERX ) ;
+    centery = LOCINT64( libmod_gfx, my, GRAPHCENTERY ) ;
+    if ( centerx == POINT_UNDEFINED || centery == POINT_UNDEFINED ) {
+        if ( b->ncpoints && b->cpoints[0].x != CPOINT_UNDEFINED ) {
+            centerx = b->cpoints[0].x;
+            centery = b->cpoints[0].y;
+        } else {
+            centerx = b->width / 2.0;
+            centery = b->height / 2.0;
+        }
     }
 
     if ( !LOCQWORD( libmod_gfx, my, XGRAPH ) ) angle = LOCINT64( libmod_gfx, my, ANGLE );

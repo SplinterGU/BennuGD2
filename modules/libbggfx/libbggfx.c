@@ -107,14 +107,16 @@ DLVARFIXUP __bgdexport( libbggfx, locals_fixup )[] = {
     { "id"                              , NULL, -1, -1 },       // 19           PROCESS_ID
     { "render_file"                     , NULL, -1, -1 },       // 20           RENDER_FILEID,
     { "render_graph"                    , NULL, -1, -1 },       // 21           RENDER_GRAPHID
-    { "clip_x"                          , NULL, -1, -1 },       // 22           CLIP_X
-    { "clip_y"                          , NULL, -1, -1 },       // 23           CLIP_Y
-    { "clip_w"                          , NULL, -1, -1 },       // 24           CLIP_W
-    { "clip_h"                          , NULL, -1, -1 },       // 25           CLIP_H
-    { "alpha"                           , NULL, -1, -1 },       // 26           ALPHA
-    { "color_r"                         , NULL, -1, -1 },       // 27           COLOR_R
-    { "color_g"                         , NULL, -1, -1 },       // 28           COLOR_G
-    { "color_b"                         , NULL, -1, -1 },       // 29           COLOR_B
+    { "clip.x"                          , NULL, -1, -1 },       // 22           CLIP.X
+    { "clip.y"                          , NULL, -1, -1 },       // 23           CLIP.Y
+    { "clip.w"                          , NULL, -1, -1 },       // 24           CLIP.W
+    { "clip.h"                          , NULL, -1, -1 },       // 25           CLIP.H
+    { "center.x"                        , NULL, -1, -1 },       // 26           CENTER.X
+    { "center.y"                        , NULL, -1, -1 },       // 27           CENTER.Y
+    { "alpha"                           , NULL, -1, -1 },       // 28           ALPHA
+    { "color_r"                         , NULL, -1, -1 },       // 29           COLOR_R
+    { "color_g"                         , NULL, -1, -1 },       // 30           COLOR_G
+    { "color_b"                         , NULL, -1, -1 },       // 31           COLOR_B
 
     { NULL                              , NULL, -1, -1 }
 };

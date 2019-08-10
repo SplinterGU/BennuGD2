@@ -72,10 +72,13 @@ DLVARFIXUP __bgdexport( libmod_gfx, locals_fixup )[] = {
     { "resolution"                      , NULL, -1, -1 },
     { "xgraph"                          , NULL, -1, -1 },
 
-    { "clip_x"                          , NULL, -1, -1 },
-    { "clip_y"                          , NULL, -1, -1 },
-    { "clip_w"                          , NULL, -1, -1 },
-    { "clip_h"                          , NULL, -1, -1 },
+    { "clip.x"                          , NULL, -1, -1 },
+    { "clip.y"                          , NULL, -1, -1 },
+    { "clip.w"                          , NULL, -1, -1 },
+    { "clip.h"                          , NULL, -1, -1 },
+
+    { "center.x"                        , NULL, -1, -1 },
+    { "center.y"                        , NULL, -1, -1 },
 
     { "cshape"                          , NULL, -1, -1 },
     { "cbox.x"                          , NULL, -1, -1 },

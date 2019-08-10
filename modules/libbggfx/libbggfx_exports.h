@@ -71,6 +71,8 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
 
     { "CPOINT_UNDEFINED"    , TYPE_QWORD    , CPOINT_UNDEFINED      },
 
+    { "POINT_UNDEFINED"     , TYPE_INT      , POINT_UNDEFINED       },
+
     /*
     { "BITMAP_STATIC"       , TYPE_QWORD    , BITMAP_STATIC         },
     { "BITMAP_STREAMING"    , TYPE_QWORD    , BITMAP_STREAMING      },
@@ -93,6 +95,59 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
 
     { NULL                  , 0             , 0                     }
 } ;
+
+/* --------------------------------------------------------------------------- */
+
+char * __bgdexport( libbggfx, types_def ) =
+    /* m_draw */
+    "TYPE G_POINT\n"
+    "   INT x;\n"
+    "   INT y;\n"
+    "END\n"
+
+    "TYPE G_POINTW\n"
+    "   INT32 x;\n"
+    "   INT32 y;\n"
+    "END\n"
+
+    "TYPE G_POINTF\n"
+    "   FLOAT x;\n"
+    "   FLOAT y;\n"
+    "END\n"
+
+    "TYPE G_POINTD\n"
+    "   DOUBLE x;\n"
+    "   DOUBLE y;\n"
+    "END\n"
+
+    "TYPE G_RECT\n"
+    "   INT x;\n"
+    "   INT y;\n"
+    "   INT w;\n"
+    "   INT h;\n"
+    "END\n"
+
+    "TYPE G_RECTW\n"
+    "   INT32 x;\n"
+    "   INT32 y;\n"
+    "   INT32 w;\n"
+    "   INT32 h;\n"
+    "END\n"
+
+    "TYPE G_RECTF\n"
+    "   FLOAT x;\n"
+    "   FLOAT y;\n"
+    "   FLOAT w;\n"
+    "   FLOAT h;\n"
+    "END\n"
+
+    "TYPE G_RECTD\n"
+    "   DOUBLE x;\n"
+    "   DOUBLE y;\n"
+    "   DOUBLE w;\n"
+    "   DOUBLE h;\n"
+    "END\n"
+    ;
 
 /* --------------------------------------------------------------------------- */
 /* Definicion de variables globales (usada en tiempo de compilacion) */
@@ -206,10 +261,8 @@ char * __bgdexport( libbggfx, locals_def ) =
     "INT render_file=0;\n"
     "INT render_graph=0;\n"
 
-    "INT clip_x=0;\n"
-    "INT clip_y=0;\n"
-    "INT clip_w=0;\n"
-    "INT clip_h=0;\n"
+    "G_RECT clip = 0, 0, 0, 0;\n"
+    "G_POINT center = POINT_UNDEFINED, POINT_UNDEFINED;\n"
 
     "BYTE alpha=255;\n"
     "BYTE color_r=255;\n"

@@ -239,6 +239,8 @@ void gr_draw_frame() {
                  GLOQWORD( libbggfx, BACKGROUND_ANGLE ),
                  sizex,
                  sizey,
+                 POINT_UNDEFINED,
+                 POINT_UNDEFINED,
                  background,
                  NULL,
                  255,

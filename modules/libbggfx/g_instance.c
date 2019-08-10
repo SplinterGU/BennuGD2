@@ -97,6 +97,7 @@ void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest ) {
     REGION *region;
     int64_t x, y, r, scalex, scaley;
     BGD_Rect * map_clip = NULL, _map_clip;
+    double centerx, centery;
 
     r = LOCINT64( libbggfx, i, REGIONID );
     if ( r > 0 && r < MAX_REGIONS ) region = &regions[ r ];
@@ -120,6 +121,9 @@ void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest ) {
         map_clip = &_map_clip;
     }
 
+    centerx = LOCINT64( libbggfx, i, GRAPHCENTERX );
+    centery = LOCINT64( libbggfx, i, GRAPHCENTERY );
+
     gr_get_bbox( dest,
                  region,
                  x,
@@ -128,6 +132,8 @@ void instance_get_bbox( INSTANCE * i, GRAPH * gr, REGION * dest ) {
                  LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ),
                  scalex,
                  scaley,
+                 centerx,
+                 centery,
                  gr,
                  map_clip
                );
@@ -140,6 +146,7 @@ void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAP
     int64_t flags, scalex, scaley;
     BGD_Rect *map_clip = NULL, _map_clip;
     uint8_t alpha, color_r, color_g, color_b;
+    double centerx, centery;
 
     alpha = LOCBYTE( libbggfx, i, ALPHA );
 
@@ -155,6 +162,9 @@ void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAP
     scaley = LOCINT64( libbggfx, i, GRAPHSIZEY );
     if ( scalex == 100 && scaley == 100 ) scalex = scaley = LOCINT64( libbggfx, i, GRAPHSIZE );
 
+    centerx = LOCINT64( libbggfx, i, GRAPHCENTERX );
+    centery = LOCINT64( libbggfx, i, GRAPHCENTERY );
+
     _map_clip.w = LOCINT64( libbggfx, i, CLIPW );
     _map_clip.h = LOCINT64( libbggfx, i, CLIPH );
 
@@ -164,7 +174,7 @@ void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAP
         map_clip = &_map_clip;
     }
 
-    gr_blit( dest, region, x, y, flags, LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ), scalex, scaley, map, map_clip, alpha, color_r, color_g, color_b );
+    gr_blit( dest, region, x, y, flags, LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ), scalex, scaley, centerx, centery, map, map_clip, alpha, color_r, color_g, color_b );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -177,6 +187,7 @@ void draw_instance( void * what, REGION * clip ) {
     REGION region;
     BGD_Rect *map_clip = NULL, _map_clip;
     uint8_t alpha, color_r, color_g, color_b, c;
+    double centerx, centery;
 
     alpha = LOCBYTE( libbggfx, i, ALPHA );
 
@@ -196,6 +207,9 @@ void draw_instance( void * what, REGION * clip ) {
     scalex = LOCINT64( libbggfx, i, GRAPHSIZEX );
     scaley = LOCINT64( libbggfx, i, GRAPHSIZEY );
     if ( scalex == 100 && scaley == 100 ) scalex = scaley = LOCINT64( libbggfx, i, GRAPHSIZE );
+
+    centerx = LOCINT64( libbggfx, i, GRAPHCENTERX );
+    centery = LOCINT64( libbggfx, i, GRAPHCENTERY );
 
     x = LOCINT64( libbggfx, i, COORDX );
     y = LOCINT64( libbggfx, i, COORDY );
@@ -224,7 +238,7 @@ void draw_instance( void * what, REGION * clip ) {
         map_clip = &_map_clip;
     }
 
-    gr_blit( map_dst, &region, x, y, flags, LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ), scalex, scaley, map, map_clip, alpha, color_r, color_g, color_b );
+    gr_blit( map_dst, &region, x, y, flags, LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ), scalex, scaley, centerx, centery, map, map_clip, alpha, color_r, color_g, color_b );
 
 }
 

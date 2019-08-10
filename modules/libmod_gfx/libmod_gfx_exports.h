@@ -115,65 +115,12 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "GRAPH_MAX_SIZE"      , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE       },
     { "GRAPH_AVERAGE_SIZE"  , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE   },
 
-    { "POINT_UNDEFINED"     , TYPE_INT          , POINT_UNDEFINED                       },
-
     { NULL                  , 0                 , 0                                     }
 } ;
 
 #endif
 
 /* --------------------------------------------------------------------------- */
-
-char * __bgdexport( libmod_gfx, types_def ) =
-    /* m_draw */
-    "TYPE G_POINT\n"
-    "   INT x;\n"
-    "   INT y;\n"
-    "END\n"
-
-    "TYPE G_POINTW\n"
-    "   INT32 x;\n"
-    "   INT32 y;\n"
-    "END\n"
-
-    "TYPE G_POINTF\n"
-    "   FLOAT x;\n"
-    "   FLOAT y;\n"
-    "END\n"
-
-    "TYPE G_POINTD\n"
-    "   DOUBLE x;\n"
-    "   DOUBLE y;\n"
-    "END\n"
-
-    "TYPE G_RECT\n"
-    "   INT x;\n"
-    "   INT y;\n"
-    "   INT w;\n"
-    "   INT h;\n"
-    "END\n"
-
-    "TYPE G_RECTW\n"
-    "   INT32 x;\n"
-    "   INT32 y;\n"
-    "   INT32 w;\n"
-    "   INT32 h;\n"
-    "END\n"
-
-    "TYPE G_RECTF\n"
-    "   FLOAT x;\n"
-    "   FLOAT y;\n"
-    "   FLOAT w;\n"
-    "   FLOAT h;\n"
-    "END\n"
-
-    "TYPE G_RECTD\n"
-    "   DOUBLE x;\n"
-    "   DOUBLE y;\n"
-    "   DOUBLE w;\n"
-    "   DOUBLE h;\n"
-    "END\n"
-    ;
 
 char * __bgdexport( libmod_gfx, locals_def ) =
     /* f_gproc */

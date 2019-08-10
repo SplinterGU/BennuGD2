@@ -110,6 +110,8 @@ enum {
     CLIPY,
     CLIPW,
     CLIPH,
+    GRAPHCENTERX,
+    GRAPHCENTERY,
     ALPHA,
     COLORR,
     COLORG,

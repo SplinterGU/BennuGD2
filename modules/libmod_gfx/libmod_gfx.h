@@ -103,6 +103,8 @@ enum {
     CLIPY,
     CLIPW,
     CLIPH,
+    GRAPHCENTERX,
+    GRAPHCENTERY,
     CSHAPE,
     CBOX_X,
     CBOX_Y,

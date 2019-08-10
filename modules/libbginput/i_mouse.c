@@ -184,7 +184,6 @@ static void mouse_draw( void * what, REGION * clip ) {
     }
 
     int64_t sizex = GLOINT64( libbginput, MOUSESIZEX ), sizey = GLOINT64( libbginput, MOUSESIZEY );
-
     if ( sizex == 100 && sizey == 100 ) sizex = sizey = GLOINT64( libbginput, MOUSESIZE );
 
     gr_blit(    0,
@@ -195,6 +194,8 @@ static void mouse_draw( void * what, REGION * clip ) {
                 GLOINT64( libbginput, MOUSEANGLE ),
                 sizex,
                 sizey,
+                GLOINT64( libbginput, MOUSECENTERX ),
+                GLOINT64( libbginput, MOUSECENTERY ),
                 mouse_map,
                 mouse_map_clip,
                 GLOBYTE( libbginput, MOUSEALPHA ),

@@ -241,7 +241,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     fntclip = &f->glyph[current_char].fontsource; \
-                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, f->fontmap, fntclip, alpha, *r, *g, *b ); \
+                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, f->fontmap, fntclip, alpha, *r, *g, *b ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -251,7 +251,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     ch = f->glyph[current_char].glymap; \
-                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, ch, NULL, alpha, *r, *g, *b ); \
+                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, ch, NULL, alpha, *r, *g, *b ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }

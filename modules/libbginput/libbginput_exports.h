@@ -201,12 +201,8 @@ char * __bgdexport( libbginput, globals_def ) =
     "   INT left, middle, right, x1, x2;\n"
     "   INT wheelup, wheeldown;\n"
     "   INT wheelright, wheelleft;\n"
-
-    "   INT clip_x=0;\n"
-    "   INT clip_y=0;\n"
-    "   INT clip_w=0;\n"
-    "   INT clip_h=0;\n"
-
+    "   G_RECT clip=0,0,0,0;\n"
+    "   G_POINT center=POINT_UNDEFINED,POINT_UNDEFINED;\n"
     "   BYTE alpha=255;\n"
     "   BYTE color_r=255;\n"
     "   BYTE color_g=255;\n"
