@@ -64,8 +64,7 @@ int64_t libmod_gfx_text_write2( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_text_write_in_map( INSTANCE * my, int64_t * params ) {
     const char * text = string_get( params[1] );
     GRAPH * gr;
-    if ( !text ) return 0;
-    gr = gr_text_bitmap( params[0], text, params[2] );
+    gr = text ? gr_text_bitmap( params[0], text, params[2] ) : NULL;
     string_discard( params[1] );
     if ( !gr ) return 0;
     return gr->code;

@@ -507,7 +507,7 @@ int64_t gr_text_new2( int64_t fontid, int64_t x, int64_t y, int64_t z, int64_t a
     texts[textid].y = y;
     texts[textid].z = z;
     texts[textid].alignment = alignment;
-    texts[textid].text = text ? strdup( text ) : 0;
+    texts[textid].text = text ? strdup( text ) : NULL;
 
     texts[textid].alpha = GLOBYTE( libbggfx, TEXT_ALPHA );
     texts[textid].color_r = GLOBYTE( libbggfx, TEXT_COLORR );
@@ -588,7 +588,7 @@ void gr_text_destroy( int64_t textid ) {
         for ( textid = 1; textid < text_nextid; textid++ ) {
             if ( texts[textid].on ) {
                 gr_destroy_object( texts[textid].objectid );
-                if ( texts[textid].text ) free( texts[textid].text );
+                free( texts[textid].text );
                 texts[textid].on = 0;
             }
         }
@@ -600,7 +600,7 @@ void gr_text_destroy( int64_t textid ) {
         if ( !texts[textid].on ) return;
 
         gr_destroy_object( texts[textid].objectid );
-        if ( texts[textid].text ) free( texts[textid].text );
+        free( texts[textid].text );
         texts[textid].on = 0;
         if ( textid == text_nextid - 1 ) {
             while ( text_nextid > 1 && !texts[text_nextid-1].on ) text_nextid--;
@@ -880,7 +880,7 @@ void * gr_text_alloc() {
     t->y = 0;
     t->z = 0;
     t->alignment = 0;
-    t->text = 0;
+    t->text = NULL;
 
     t->alpha = GLOBYTE( libbggfx, TEXT_ALPHA );
     t->color_r = GLOBYTE( libbggfx, TEXT_COLORR );

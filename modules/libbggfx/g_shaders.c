@@ -34,6 +34,7 @@
 /* --------------------------------------------------------------------------- */
 
 BGD_SHADER * shader_create( char * vertex, char * fragment, const char * position_name, const char * texcoord_name, const char * color_name, const char * modelViewMatrix_name ) {
+#ifdef USE_SDL2_GPU
     uint32_t vertex_shader = 0, frags_shader = 0;
     char * source = NULL, * source2 = NULL;
     int header_size;
@@ -115,178 +116,241 @@ BGD_SHADER * shader_create( char * vertex, char * fragment, const char * positio
     GPU_ActivateShaderProgram( shader->shader, &shader->block );
 
     return shader;
+#else
+    return NULL;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_activate( BGD_SHADER * shader ) {
+#ifdef USE_SDL2_GPU
     GPU_ActivateShaderProgram( shader ? shader->shader : 0, shader ? &shader->block : NULL );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_deactivate( void ) {
+#ifdef USE_SDL2_GPU
     GPU_DeactivateShaderProgram();
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 int shader_getattributelocation( BGD_SHADER * shader, const char * name ) {
+#ifdef USE_SDL2_GPU
     if ( !shader ) return -1;
     return ( int ) GPU_GetAttributeLocation( shader->shader, name );
+#else
+    return -1;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 int shader_getuniformlocation( BGD_SHADER * shader, const char * name ) {
+#ifdef USE_SDL2_GPU
     if ( !shader ) return -1;
     return ( int ) GPU_GetUniformLocation( shader->shader, name );
+#else
+    return -1;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setshaderimage( GRAPH * image, int location, int image_unit ) {
+#ifdef USE_SDL2_GPU
     GPU_SetShaderImage( image->tex, location, image_unit );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setattributei( int location, int value ) {
+#ifdef USE_SDL2_GPU
     GPU_SetAttributei( location, value );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setattributeiv( int location, int nvalues, int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetAttributeiv( location, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setattributeui( int location, unsigned int value ) {
+#ifdef USE_SDL2_GPU
     GPU_SetAttributeui( location, value );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setattributeuiv( int location, int nvalues, unsigned int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetAttributeuiv( location, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setattributef( int location, float value ) {
+#ifdef USE_SDL2_GPU
     GPU_SetAttributef( location, value );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setattributefv( int location, int nvalues, float * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetAttributefv( location, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniformi( int location, int value ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformi( location, value );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniformiv( int location, int nvalues, int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformiv( location, 1, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform2iv( int location, int nvalues, int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformiv( location, 2, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform3iv( int location, int nvalues, int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformiv( location, 3, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform4iv( int location, int nvalues, int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformiv( location, 4, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniformui( int location, unsigned int value ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformui( location, value );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniformuiv( int location, int nvalues, unsigned int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformuiv( location, 1, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform2uiv( int location, int nvalues, unsigned int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformuiv( location, 2, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform3uiv( int location, int nvalues, unsigned int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformuiv( location, 3, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform4uiv( int location, int nvalues, unsigned int * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformuiv( location, 4, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniformf( int location, float value ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformf( location, value );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniformfv( int location, int nvalues, float * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformfv( location, 1, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform2fv( int location, int nvalues, float * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformfv( location, 2, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform3fv( int location, int nvalues, float * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformfv( location, 3, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_setuniform4fv( int location, int nvalues, float * values ) {
+#ifdef USE_SDL2_GPU
     GPU_SetUniformfv( location, 4, nvalues, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniformmatrix( int location, int num_matrices, int num_rows, int num_columns, GPU_bool transpose, float * values ) {
-    GPU_SetUniformMatrixfv( location,  num_matrices,  num_rows,  num_columns,  transpose, values );
+void shader_setuniformmatrix( int location, int num_matrices, int num_rows, int num_columns, int transpose, float * values ) {
+#ifdef USE_SDL2_GPU
+    GPU_SetUniformMatrixfv( location, num_matrices, num_rows, num_columns, ( GPU_bool ) transpose, values );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 void shader_free( BGD_SHADER * shader ) {
+#ifdef USE_SDL2_GPU
     if ( !shader ) return;
     GPU_FreeShaderProgram( shader->shader );
     free( shader );
+#endif
 }
 
 /* --------------------------------------------------------------------------- */

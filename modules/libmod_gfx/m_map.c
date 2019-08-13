@@ -185,6 +185,17 @@ int64_t libmod_gfx_get_point( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_gfx_get_point_total( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp;
+
+    bmp = bitmap_get( params[0], params[1] );
+    if ( !bmp ) return 0;
+
+    return bmp->ncpoints;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_set_box( INSTANCE * my, int64_t * params ) {
     GRAPH * bmp;
 

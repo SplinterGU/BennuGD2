@@ -44,6 +44,7 @@ extern int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_set_point( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_set_center( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_point( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_get_point_total( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_set_box( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_box( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_remove_box( INSTANCE * my, int64_t * params );

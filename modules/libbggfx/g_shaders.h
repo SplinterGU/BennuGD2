@@ -30,10 +30,14 @@
 
 /* --------------------------------------------------------------------------- */
 
+#ifdef USE_SDL2_GPU
 typedef struct {
     uint32_t shader;
     GPU_ShaderBlock block;
 } BGD_SHADER;
+#else
+typedef void BGD_SHADER;
+#endif
 
 /* --------------------------------------------------------------------------- */
 
@@ -69,7 +73,7 @@ extern void shader_setuniformfv( int location, int nvalues, float * values );
 extern void shader_setuniform2fv( int location, int nvalues, float * values );
 extern void shader_setuniform3fv( int location, int nvalues, float * values );
 extern void shader_setuniform4fv( int location, int nvalues, float * values );
-extern void shader_setuniformmatrix( int location, int num_matrices, int num_rows, int num_columns, GPU_bool transpose, float * values );
+extern void shader_setuniformmatrix( int location, int num_matrices, int num_rows, int num_columns, int transpose, float * values );
 
 /* --------------------------------------------------------------------------- */
 

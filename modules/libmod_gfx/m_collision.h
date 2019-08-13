@@ -35,7 +35,6 @@
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_collision( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_collision_box( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_collision_circle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_collision2( INSTANCE * my, int64_t * params );
 
 #endif

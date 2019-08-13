@@ -152,11 +152,11 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "GET_DIST"            , "I"               , TYPE_INT        , libmod_gfx_get_dist             ),
     FUNC( "GET_DIST"            , "II"              , TYPE_INT        , libmod_gfx_get_dist2            ),
 
+    FUNC( "GET_REAL_POINT"      , "IIPP"            , TYPE_INT        , libmod_gfx_get_real_point2      ),
     FUNC( "GET_REAL_POINT"      , "IPP"             , TYPE_INT        , libmod_gfx_get_real_point       ),
 
+    FUNC( "COLLISION"           , "II"              , TYPE_INT        , libmod_gfx_collision2           ),
     FUNC( "COLLISION"           , "I"               , TYPE_INT        , libmod_gfx_collision            ),
-//    FUNC( "COLLISION_BOX"       , "I"               , TYPE_INT        , libmod_gfx_collision_box        ),
-//    FUNC( "COLLISION_CIRCLE"    , "I"               , TYPE_INT        , libmod_gfx_collision_circle     ),
 
     /* scroll */
     FUNC( "SCROLL_START"        , "IIIIIIIII"       , TYPE_INT        , libmod_gfx_scroll_start2        ),
@@ -276,6 +276,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "POINT_GET"           , "IIIPP"           , TYPE_INT        , libmod_gfx_get_point            ),
     FUNC( "POINT_SET"           , "IIIII"           , TYPE_INT        , libmod_gfx_set_point            ),
     FUNC( "CENTER_SET"          , "IIII"            , TYPE_INT        , libmod_gfx_set_center           ),
+    FUNC( "POINT_GET_TOTAL"     , "II"              , TYPE_INT        , libmod_gfx_get_point_total       ),
 
     /* Control boxes */
     FUNC( "BOX_SET"             , "IIIIIIII"        , TYPE_INT        , libmod_gfx_set_box              ),

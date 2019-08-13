@@ -234,7 +234,7 @@ int64_t libmod_gfx_shader_setuniform4fv( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setuniformmatrix( INSTANCE * my, int64_t * params ) {
-    shader_setuniformmatrix( ( int ) params[ 0 ], ( int ) params[ 1 ], ( int ) params[ 2 ], ( int ) params[ 3 ], ( GPU_bool ) params[ 4 ], ( float * ) params[ 5 ] );
+    shader_setuniformmatrix( ( int ) params[ 0 ], ( int ) params[ 1 ], ( int ) params[ 2 ], ( int ) params[ 3 ], ( int ) params[ 4 ], ( float * ) params[ 5 ] );
 }
 
 /* --------------------------------------------------------------------------- */

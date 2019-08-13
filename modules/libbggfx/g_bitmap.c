@@ -357,16 +357,7 @@ void bitmap_set_cbox( GRAPH * map, int64_t code, int64_t shape, int64_t x, int64
     p->y      = y;
     p->width  = width;
     p->height = height;
-/*
-    printf("%"PRId64" %s %"PRId64" %"PRId64" %"PRId64" %"PRId64"\n",
-        p->code,
-        p->shape == BITMAP_CB_SHAPE_BOX ? "BOX" : "CIRCLE" ,
-        p->x,
-        p->y,
-        p->width,
-        p->height
-        );
-        */
+
 }
 
 /* --------------------------------------------------------------------------- */

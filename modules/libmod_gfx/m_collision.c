@@ -65,13 +65,14 @@ typedef struct {
     double  scale_y;
     int64_t ncboxes;
     __cbox_info * cboxes;
-//    double region_radius;
 } __obj_col_info;
 
 /* --------------------------------------------------------------------------- */
 
 #define in_radius(x,y,x2,y2,radius)             ((x-x2)*(x-x2)+(y-y2)*(y-y2))<((radius)*(radius))
 #define in_radius2(x,y,x2,y2,radius,radius2)    ((x-x2)*(x-x2)+(y-y2)*(y-y2))<((radius+radius2)*(radius+radius2))
+
+#define FREE(a) free(a);a=NULL
 
 /* --------------------------------------------------------------------------- */
 // scale must be with decimal points
@@ -233,9 +234,9 @@ static int __get_proc_info(
     graph = instance_graph( proc );
     if ( !graph ) return 0;
 
-    oci->scale_x = LOCINT64( libmod_gfx, proc, GRAPHSIZEX );
-    oci->scale_y = LOCINT64( libmod_gfx, proc, GRAPHSIZEY );
-    if ( oci->scale_x == 100 && oci->scale_y == 100 ) oci->scale_x = oci->scale_y = LOCINT64( libmod_gfx, proc, GRAPHSIZE );
+    oci->scale_x = ( double ) LOCINT64( libmod_gfx, proc, GRAPHSIZEX );
+    oci->scale_y = ( double ) LOCINT64( libmod_gfx, proc, GRAPHSIZEY );
+    if ( oci->scale_x == 100.0 && oci->scale_y == 100.0 ) oci->scale_x = oci->scale_y = ( double ) LOCINT64( libmod_gfx, proc, GRAPHSIZE );
 
     oci->scale_x /= 100.0;
     oci->scale_y /= 100.0;
@@ -340,8 +341,8 @@ static int __get_proc_info(
 
 static int __get_mouse_info( __obj_col_info * oci ) {
 
-    oci->scale_x /= 1.0;
-    oci->scale_y /= 1.0;
+    oci->scale_x = 1.0;
+    oci->scale_y = 1.0;
 
     oci->x = GLOINT64( libmod_gfx, MOUSEX );
     oci->y = GLOINT64( libmod_gfx, MOUSEY );
@@ -366,8 +367,6 @@ static int __get_mouse_info( __obj_col_info * oci ) {
     oci->cboxes->cbox.y      = 0;
     oci->cboxes->cbox.width  = 1;
     oci->cboxes->cbox.height = 1;
-
-//    oci->region_radius = 1;
 
     return 1;
 }
@@ -477,20 +476,33 @@ static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * oci
 
 static int64_t __collision( INSTANCE * my, int64_t id ) {
     INSTANCE * ptr, ** ctx;
-    __obj_col_info oci, ociB;
+    __obj_col_info * oci, * ociB;
     int collision = 0;
     int64_t cbox_code[2];
 
-    if ( !__get_proc_info( my, &oci ) ) return 0;
+    oci = malloc(sizeof(__obj_col_info));
+    if ( !oci ) return 0;
+
+    ociB = malloc(sizeof(__obj_col_info));
+    if ( !ociB ) {
+        FREE( oci );
+        return 0;
+    }
+
+    if ( !__get_proc_info( my, oci ) ) {
+        FREE( oci );
+        FREE( ociB );
+        return 0;
+    }
 
     // Get real vertices
-    __calculate_shape( &oci );
-    __calculate_box_limits( &oci );
+    __calculate_shape( oci );
+    __calculate_box_limits( oci );
 
     /* Checks collision with mouse */
     if ( id == -1 ) {
         collision = 0;
-        if ( __get_mouse_info( &ociB ) ) {
+        if ( __get_mouse_info( ociB ) ) {
             if ( LOCQWORD( libmod_gfx, my, CTYPE ) == C_SCROLL ) {
                 SCROLL_EXTRA_DATA * data;
                 scrolldata  * scroll;
@@ -507,18 +519,18 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                         if ( scroll && scroll->active && ( cnumber & ( 1 << i ) ) ) {
                             REGION * r = scroll->region;
 
-                            ociB.x += scroll->posx0 + r->x;
-                            ociB.y += scroll->posy0 + r->y;
+                            ociB->x += scroll->posx0 + r->x;
+                            ociB->y += scroll->posy0 + r->y;
 
-                            collision = __check_collision( &oci, &ociB, cbox_code ) ;
+                            collision = __check_collision( oci, ociB, cbox_code ) ;
 
-                            ociB.x -= scroll->posx0 + r->x;
-                            ociB.y -= scroll->posy0 + r->y;
+                            ociB->x -= scroll->posx0 + r->x;
+                            ociB->y -= scroll->posy0 + r->y;
                         }
                     }
                 }
-                free( ociB.cboxes );
-                free( oci.cboxes );
+                FREE( ociB->cboxes ); FREE( ociB );
+                FREE( oci->cboxes ); FREE( oci );
                 if ( collision ) {
                     LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
@@ -527,10 +539,11 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                 }
                 return 0;
             }
-            collision = __check_collision( &oci, &ociB, cbox_code ) ;
-            free( ociB.cboxes );
+            collision = __check_collision( oci, ociB, cbox_code ) ;
+            FREE( ociB->cboxes );
         }
-        free( oci.cboxes );
+        FREE( ociB );
+        free( oci->cboxes ); free( oci );
         if ( collision ) {
             LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
             LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
@@ -546,11 +559,12 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
     if ( id >= FIRST_INSTANCE_ID ) {
         ptr = instance_get( id );
         if ( ptr && ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
-            if ( __get_proc_info( ptr, &ociB ) ) {
-                collision = __check_collision( &oci, &ociB, cbox_code ) ;
-                free( ociB.cboxes );
+            if ( __get_proc_info( ptr, ociB ) ) {
+                collision = __check_collision( oci, ociB, cbox_code ) ;
+                FREE( ociB->cboxes );
                 if ( collision ) {
-                    free( oci.cboxes );
+                    FREE( ociB );
+                    FREE( oci->cboxes ); FREE( oci );
                     LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
                     LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
@@ -558,7 +572,8 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                 }
             }
         }
-        free( oci.cboxes );
+        FREE( ociB );
+        FREE( oci->cboxes ); FREE( oci );
         return 0;
     }
 
@@ -575,12 +590,13 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
 
         while ( ptr ) {
             if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
-                if ( __get_proc_info( ptr, &ociB ) ) {
-                    collision = __check_collision( &oci, &ociB, cbox_code ) ;
-                    free( ociB.cboxes );
+                if ( __get_proc_info( ptr, ociB ) ) {
+                    collision = __check_collision( oci, ociB, cbox_code ) ;
+                    FREE( ociB->cboxes );
                     if ( collision ) {
+                        FREE( ociB );
+                        FREE( oci->cboxes ); FREE( oci );
                         LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                        free( oci.cboxes );
                         LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
                         LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
                         LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
@@ -590,8 +606,9 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
             }
             ptr = ptr->next;
         }
+        FREE( ociB );
+        FREE( oci->cboxes ); FREE( oci );
         LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
-        free( oci.cboxes );
         return 0;
     }
 
@@ -605,12 +622,13 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
 
     while ( ( ptr = instance_get_by_type( id, ctx ) ) ) {
         if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
-            if ( __get_proc_info( ptr, &ociB ) ) {
-                collision = __check_collision( &oci, &ociB, cbox_code ) ;
-                free( ociB.cboxes );
+            if ( __get_proc_info( ptr, ociB ) ) {
+                collision = __check_collision( oci, ociB, cbox_code ) ;
+                FREE( ociB->cboxes );
                 if ( collision ) {
+                    FREE( ociB );
+                    FREE( oci->cboxes ); FREE( oci );
                     LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                    free( oci.cboxes );
                     LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
                     LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
@@ -619,9 +637,9 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
             }
         }
     }
-
+    FREE( ociB );
+    FREE( oci->cboxes ); FREE( oci );
     LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) = 0;
-    free( oci.cboxes );
     return 0;
 }
 
@@ -629,6 +647,14 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
 
 int64_t libmod_gfx_collision( INSTANCE * my, int64_t * params ) {
     return __collision( my, params[ 0 ] );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_collision2( INSTANCE * my, int64_t * params ) {
+    my = instance_get( params[ 0 ] );
+    if ( !my ) return 0;
+    return __collision( my, params[ 1 ] );
 }
 
 /* --------------------------------------------------------------------------- */

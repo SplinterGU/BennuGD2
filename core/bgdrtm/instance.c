@@ -366,7 +366,7 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
     r->called_by = NULL;
 
     r->stack = malloc( father->stack[0] );
-    memmove(r->stack, father->stack, (int64_t)( intptr_t )father->stack_ptr - (int64_t)( intptr_t )father->stack);
+    memmove(r->stack, father->stack, ( void * ) father->stack_ptr - ( void * ) father->stack );
     r->stack_ptr = &r->stack[1];
 
     /* Initialize list pointers */
@@ -573,11 +573,12 @@ void instance_destroy( INSTANCE * r ) {
     instance_remove_from_list_by_type( r, LOCQWORD( r, PROCESS_TYPE ) );
     instance_remove_from_list_by_priority( r );
 
-    if ( r->stack ) free( r->stack );
+    free( r->stack );
 
-    if ( r->locdata ) free( r->locdata );
-    if ( r->pubdata ) free( r->pubdata );
-    if ( r->pridata ) free( r->pridata );
+    free( r->locdata );
+    free( r->pubdata );
+    free( r->pridata );
+
     free( r );
 }
 

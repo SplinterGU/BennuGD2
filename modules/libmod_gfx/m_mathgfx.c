@@ -209,3 +209,11 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_real_point2( INSTANCE * my, int64_t * params ) {
+    my = instance_get( params[0] );
+    if ( !my ) return 0;
+    return libmod_gfx_get_real_point( my, &params[1] );
+}
+
+/* --------------------------------------------------------------------------- */

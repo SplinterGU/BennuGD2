@@ -187,7 +187,7 @@ int64_t instance_go( INSTANCE * r ) {
         printf( "\n>>> Instance:%s ProcID:%" PRId64 " StackUsed:%" PRId64 "/%" PRId64 "\n", r->proc->name,
                                                                  LOCQWORD( r, PROCESS_ID ),
                                                                  ( int64_t )
-                                                                 ( r->stack_ptr - r->stack ) / sizeof( r->stack[0] ),
+                                                                 ( ( void * ) r->stack_ptr - ( void * ) r->stack ) / sizeof( r->stack[0] ),
                                                                  ( r->stack[0] & ~STACK_RETURN_VALUE )
               );
     }

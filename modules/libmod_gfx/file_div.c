@@ -234,6 +234,7 @@ static int64_t gr_read_lib( file * fp ) {
             }
 
             if ( !st ) {
+                free( cpoints );
                 SDL_FreeSurface( surface );
                 if ( pal ) SDL_FreePalette( pal );
                 grlib_destroy( libid );
@@ -242,12 +243,14 @@ static int64_t gr_read_lib( file * fp ) {
         }
 
         GRAPH *gr = bitmap_new( chunk.code, 0, 0, surface );
-        SDL_FreeSurface( surface );
         if ( !gr ) {
+            free( cpoints );
+            SDL_FreeSurface( surface );
             if ( pal ) SDL_FreePalette( pal );
             grlib_destroy( libid );
             return -1;
         }
+        SDL_FreeSurface( surface );
 
         memcpy( gr->name, chunk.name, sizeof( chunk.name ) );
         gr->name[31] = 0;
