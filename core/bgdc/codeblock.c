@@ -262,7 +262,8 @@ void codeblock_stepback(CODEBLOCK * c) {
 }
 
 CODEBLOCK_POS codeblock_pos(CODEBLOCK * c) {
-	CODEBLOCK_POS p;
+	CODEBLOCK_POS p = { 0 };
+    if ( !c ) return p;
 	p.current = c->current;
 	p.previous = c->previous;
 	p.previous2 = c->previous2;
@@ -270,6 +271,7 @@ CODEBLOCK_POS codeblock_pos(CODEBLOCK * c) {
 }
 
 void codeblock_setpos(CODEBLOCK * c, CODEBLOCK_POS p) {
+    if ( !c ) return;
 	c->current = p.current;
 	c->previous = p.previous;
 	c->previous2 = p.previous2;

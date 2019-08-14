@@ -405,7 +405,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     /* shaders */
 
-    FUNC( "SHADER_CREATE"               , "SSSSSS"         , TYPE_POINTER    , libmod_gfx_shader_create                ),
+    FUNC( "SHADER_CREATE"               , "SS"             , TYPE_POINTER    , libmod_gfx_shader_create                ),
     FUNC( "SHADER_FREE"                 , "P"              , TYPE_INT        , libmod_gfx_shader_free                  ),
 
     FUNC( "SHADER_ACTIVATE"             , "P"              , TYPE_INT        , libmod_gfx_shader_activate              ),

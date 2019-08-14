@@ -44,19 +44,10 @@
 
 int64_t libmod_gfx_shader_create( INSTANCE * my, int64_t * params ) {
     BGD_SHADER * shader = shader_create(( char * ) string_get( params[ 0 ] ),
-                                        ( char * ) string_get( params[ 1 ] ),
-                                        ( const char * ) string_get( params[ 2 ] ),
-                                        ( const char * ) string_get( params[ 3 ] ),
-                                        ( const char * ) string_get( params[ 4 ] ),
-                                        ( const char * ) string_get( params[ 5 ] )
+                                        ( char * ) string_get( params[ 1 ] )
                                        );
     string_discard( params[ 0 ] );
     string_discard( params[ 1 ] );
-    string_discard( params[ 2 ] );
-    string_discard( params[ 3 ] );
-    string_discard( params[ 4 ] );
-    string_discard( params[ 5 ] );
-
     return ( int64_t ) ( intptr_t ) shader;
 }
 

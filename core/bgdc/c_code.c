@@ -585,11 +585,13 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
 
     if ( !here ) {
         /* Splinter, se agrega localidad... */
-        here = proc->privars;
-        var = varspace_search( here, token.code );
-        if ( !var ) {
-            here = proc->pubvars;
+        if ( proc ) {
+            here = proc->privars;
             var = varspace_search( here, token.code );
+            if ( !var ) {
+                here = proc->pubvars;
+                var = varspace_search( here, token.code );
+            }
         }
         if ( !var ) {
             here = &local;

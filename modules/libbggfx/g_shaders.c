@@ -33,7 +33,7 @@
 
 /* --------------------------------------------------------------------------- */
 
-BGD_SHADER * shader_create( char * vertex, char * fragment, const char * position_name, const char * texcoord_name, const char * color_name, const char * modelViewMatrix_name ) {
+BGD_SHADER * shader_create( char * vertex, char * fragment ) {
 #ifdef USE_SDL2_GPU
     uint32_t vertex_shader = 0, frags_shader = 0;
     char * source = NULL, * source2 = NULL;
@@ -41,16 +41,14 @@ BGD_SHADER * shader_create( char * vertex, char * fragment, const char * positio
     const char * header = "";
     BGD_SHADER * shader = malloc( sizeof( BGD_SHADER ) );
 
-    if ( !shader ) {
-        printf("memory error!\n");
-        return NULL;
-    }
+    if ( !shader ) return NULL;
 
     GPU_Renderer * renderer = GPU_GetCurrentRenderer();
 
     // Get size from header
     if ( renderer->shader_language == GPU_LANGUAGE_GLSL ) {
-        if ( renderer->max_shader_version >= 120 ) header = "#version 120\n";
+        if ( renderer->max_shader_version >= 130 ) header = "#version 130\n";
+        else if ( renderer->max_shader_version >= 120 ) header = "#version 120\n";
         else header = "#version 110\n";  // Maybe this is good enough?
     } else if( renderer->shader_language == GPU_LANGUAGE_GLSLES ) header = "#version 100\nprecision mediump int;\nprecision mediump float;\n";
 
@@ -59,7 +57,6 @@ BGD_SHADER * shader_create( char * vertex, char * fragment, const char * positio
     // Allocate source buffer
     source = ( char * ) malloc( header_size + strlen( vertex ) + 1 );
     if ( !source ) {
-        printf("memory error 2!\n");
         free( shader );
         return NULL;
     }
@@ -70,7 +67,7 @@ BGD_SHADER * shader_create( char * vertex, char * fragment, const char * positio
 
     // Compile the shader
     if ( !( vertex_shader = GPU_CompileShader( GPU_VERTEX_SHADER, source ) ) ) {
-        printf("ERROR compile 1: %s\n", GPU_GetShaderMessage());
+        printf("ERROR compiling vertex shader: %s\n", GPU_GetShaderMessage());
         free( source );
         free( shader );
         return NULL;
@@ -79,7 +76,6 @@ BGD_SHADER * shader_create( char * vertex, char * fragment, const char * positio
     // Allocate source buffer
     source2 = ( char * ) realloc( source, header_size + strlen( fragment ) + 1 );
     if ( !source2 ) {
-        printf("memory error 3!\n");
         GPU_FreeShader( vertex_shader );
         free( source );
         free( shader );
@@ -92,7 +88,7 @@ BGD_SHADER * shader_create( char * vertex, char * fragment, const char * positio
 
     // Compile the shader
     if ( !( frags_shader = GPU_CompileShader( GPU_FRAGMENT_SHADER, source2 ) ) ) {
-        printf("ERROR compile 2: %s\n", GPU_GetShaderMessage());
+        printf("ERROR compiling fragment shader: %s\n", GPU_GetShaderMessage());
         GPU_FreeShader( vertex_shader );
         free( source2 );
         free( shader );
@@ -110,9 +106,7 @@ BGD_SHADER * shader_create( char * vertex, char * fragment, const char * positio
         return NULL;
     }
 
-
-    // example: "gpu_Vertex", "gpu_TexCoord", "gpu_Color", "gpu_ModelViewProjectionMatrix"
-    shader->block = GPU_LoadShaderBlock( shader->shader, position_name, texcoord_name, color_name, modelViewMatrix_name );
+    shader->block = GPU_LoadShaderBlock( shader->shader, "bgd_Vertex", "bgd_TexCoord", "bgd_Color", "bgd_ModelViewProjectionMatrix" );
     GPU_ActivateShaderProgram( shader->shader, &shader->block );
 
     return shader;

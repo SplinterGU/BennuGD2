@@ -41,7 +41,7 @@ typedef void BGD_SHADER;
 
 /* --------------------------------------------------------------------------- */
 
-extern BGD_SHADER * shader_create( char * vertex, char * fragment, const char * position_name, const char * texcoord_name, const char * color_name, const char * modelViewMatrix_name );
+extern BGD_SHADER * shader_create( char * vertex, char * fragment );
 extern void shader_free( BGD_SHADER * shader );
 
 extern void shader_activate( BGD_SHADER * shader );
