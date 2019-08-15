@@ -152,6 +152,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "GET_DIST"            , "I"               , TYPE_INT        , libmod_gfx_get_dist             ),
     FUNC( "GET_DIST"            , "II"              , TYPE_INT        , libmod_gfx_get_dist2            ),
 
+    FUNC( "GET_REAL_POINT"      , "IIIPP"           , TYPE_INT        , libmod_gfx_get_real_point3      ),
     FUNC( "GET_REAL_POINT"      , "IIPP"            , TYPE_INT        , libmod_gfx_get_real_point2      ),
     FUNC( "GET_REAL_POINT"      , "IPP"             , TYPE_INT        , libmod_gfx_get_real_point       ),
 
@@ -280,9 +281,16 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     /* Control boxes */
     FUNC( "BOX_SET"             , "IIIIIIII"        , TYPE_INT        , libmod_gfx_set_box              ),
+    FUNC( "BOX_SET"             , "IIIIII"          , TYPE_INT        , libmod_gfx_set_box2             ), // use my instance_graph
     FUNC( "BOX_GET"             , "IIIPPPPP"        , TYPE_INT        , libmod_gfx_get_box              ),
+    FUNC( "BOX_GET"             , "IPPPPP"          , TYPE_INT        , libmod_gfx_get_box2             ), // use my instance_graph
     FUNC( "BOX_REMOVE"          , "III"             , TYPE_INT        , libmod_gfx_remove_box           ),
-    FUNC( "BOX_GET_BY_POS"      , "IIIPPPPP"        , TYPE_INT        , libmod_gfx_get_box_by_pos       ),
+    FUNC( "BOX_REMOVE"          , "I"               , TYPE_INT        , libmod_gfx_remove_box2          ), // use my instance_graph
+    FUNC( "BOX_GET_BY_POS"      , "IIIPPPPPP"       , TYPE_INT        , libmod_gfx_get_box_by_pos       ),
+    FUNC( "BOX_GET_BY_POS"      , "IPPPPPP"         , TYPE_INT        , libmod_gfx_get_box_by_pos2      ), // use my instance_graph
+    FUNC( "BOX_GET_REAL_VERTEX" , "IIIIPP"          , TYPE_INT        , libmod_gfx_get_real_box_vertex2 ), // with instance
+    FUNC( "BOX_GET_REAL_VERTEX" , "IIIPP"           , TYPE_INT        , libmod_gfx_get_real_box_vertex  ), // use my instance, but need graph
+    FUNC( "BOX_GET_REAL_VERTEX" , "IPP"             , TYPE_INT        , libmod_gfx_get_real_box_vertex3 ), // use my instance_graph
 
     /* Fonts */
     FUNC( "FNT_NEW"             , ""                , TYPE_INT        , libmod_gfx_fnt_new              ),

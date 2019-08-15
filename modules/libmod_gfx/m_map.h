@@ -45,10 +45,17 @@ extern int64_t libmod_gfx_set_point( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_set_center( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_point( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_point_total( INSTANCE * my, int64_t * params );
+
 extern int64_t libmod_gfx_set_box( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_box( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_remove_box( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_box_by_pos( INSTANCE * my, int64_t * params );
+
+extern int64_t libmod_gfx_set_box2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_get_box2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_remove_box2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_get_box_by_pos2( INSTANCE * my, int64_t * params );
+
 extern int64_t libmod_gfx_map_clear( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_clear2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_map_clear3( INSTANCE * my, int64_t * params );

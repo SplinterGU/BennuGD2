@@ -46,36 +46,40 @@
 
 /* --------------------------------------------------------------------------- */
 /* Maps                                                                        */
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_map_get_pixel( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[ 0 ], params[ 1 ] );
-    if ( !map ) return -1;
-    return gr_get_pixel( map, params[ 2 ], params[ 3 ] );
+    GRAPH * graph = bitmap_get( params[ 0 ], params[ 1 ] );
+    if ( !graph ) return -1;
+    return gr_get_pixel( graph, params[ 2 ], params[ 3 ] );
  }
 
  /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_put_pixel( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[ 0 ], params[ 1 ] );
-    if ( !map ) return 0;
-    gr_put_pixel( map, params[ 2 ], params[ 3 ], params[ 4 ] );
+    GRAPH * graph = bitmap_get( params[ 0 ], params[ 1 ] );
+    if ( !graph ) return 0;
+    gr_put_pixel( graph, params[ 2 ], params[ 3 ], params[ 4 ] );
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
+/* Map Properties                                                              */
+/* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_graphic_set( INSTANCE * my, int64_t * params ) {
-    GRAPH * map;
+    GRAPH * graph;
 
-    map = bitmap_get( params[0], params[1] );
-    if ( !map ) return 0;
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
 
     switch ( params[2] ) {
         case G_CENTER_X:     /* g_center_x */
-            bitmap_set_cpoint( map, 0, params[3], ( map->ncpoints ) ? ( map->cpoints[0].y ) : ( map->height / 2 ) );
+            bitmap_set_cpoint( graph, 0, params[3], ( graph->ncpoints ) ? ( graph->cpoints[0].y ) : ( graph->height / 2 ) );
             return 1;
 
         case G_CENTER_Y:     /* g_center_y */
-            bitmap_set_cpoint( map, 0, ( map->ncpoints ) ? ( map->cpoints[0].x ) : ( map->width / 2 ), params[3] );
+            bitmap_set_cpoint( graph, 0, ( graph->ncpoints ) ? ( graph->cpoints[0].x ) : ( graph->width / 2 ), params[3] );
             return 1;
     }
     return 1;
@@ -84,7 +88,7 @@ int64_t libmod_gfx_graphic_set( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params ) {
-    GRAPH * map;
+    GRAPH * graph;
 
     if ( !params[0] && !params[1] ) {
         switch ( params[2] ) {
@@ -107,102 +111,106 @@ int64_t libmod_gfx_graphic_info( INSTANCE * my, int64_t * params ) {
         return 0;
     }
 
-    map = bitmap_get( params[0], params[1] );
-    if ( !map ) return 0;
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
 
     switch ( params[2] ) {
         case G_WIDTH:           /* g_wide */
-            return map->width;
+            return graph->width;
 
         case G_HEIGHT:          /* g_height */
-            return map->height;
+            return graph->height;
 
 //        case G_PITCH:           /* g_pitch */
-//            return map->pitch;
+//            return graph->pitch;
 
         case G_DEPTH:           /* g_depth */
 #ifdef USE_SDL2
-            if ( !map->surface ) return -1;
-            return map->surface->format->BitsPerPixel;
+            if ( !graph->surface ) return -1;
+            return graph->surface->format->BitsPerPixel;
 #endif
 #ifdef USE_SDL2_GPU
-            if ( !map->tex ) return -1;
+            if ( !graph->tex ) return -1;
             return 32; // Only 32 bpp is supported
 #endif
         case G_CENTER_X:        /* g_center_x */
-            if ( map->ncpoints > 0 && map->cpoints[0].x != CPOINT_UNDEFINED ) return map->cpoints[0].x;
-            return map->width / 2;
+            if ( graph->ncpoints > 0 && graph->cpoints[0].x != CPOINT_UNDEFINED ) return graph->cpoints[0].x;
+            return graph->width / 2;
 
         case G_CENTER_Y:        /* g_center_y */
-            if ( map->ncpoints > 0 && map->cpoints[0].y != CPOINT_UNDEFINED ) return map->cpoints[0].y;
-            return map->height / 2;
+            if ( graph->ncpoints > 0 && graph->cpoints[0].y != CPOINT_UNDEFINED ) return graph->cpoints[0].y;
+            return graph->height / 2;
     }
 
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
+/* Control Points                                                              */
+/* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_set_point( INSTANCE * my, int64_t * params ) {
-    GRAPH * bmp = bitmap_get( params[0], params[1] );
-    if ( !bmp || params[2] < 0 || params[2] > 999 ) return -1;
-    bitmap_set_cpoint( bmp, ( uint32_t )params[2], params[3], params[4] );
+    GRAPH * graph = bitmap_get( params[0], params[1] );
+    if ( !graph || params[2] < 0 || params[2] > 999 ) return -1;
+    bitmap_set_cpoint( graph, ( uint32_t )params[2], params[3], params[4] );
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_set_center( INSTANCE * my, int64_t * params ) {
-    GRAPH * bmp = bitmap_get( params[0], params[1] );
-    if ( !bmp ) return -1;
-    bitmap_set_cpoint( bmp, 0, params[2], params[3] );
+    GRAPH * graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return -1;
+    bitmap_set_cpoint( graph, 0, params[2], params[3] );
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_point( INSTANCE * my, int64_t * params ) {
-    GRAPH * bmp;
+    GRAPH * graph;
 
-    bmp = bitmap_get( params[0], params[1] );
-    if ( !bmp ) return 0;
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
 
     /* Use the center as control point if it is not there */
-    if ( params[2] == 0 && ( bmp->ncpoints == 0 || bmp->cpoints[0].x == CPOINT_UNDEFINED ) ) {
-        *( int64_t * )( intptr_t )params[3] = bmp->width / 2;
-        *( int64_t * )( intptr_t )params[4] = bmp->height / 2;
+    if ( params[2] == 0 && ( graph->ncpoints == 0 || graph->cpoints[0].x == CPOINT_UNDEFINED ) ) {
+        *( int64_t * )( intptr_t )params[3] = graph->width / 2;
+        *( int64_t * )( intptr_t )params[4] = graph->height / 2;
         return 1;
     }
 
-    if (( uint64_t )params[2] >= bmp->ncpoints || params[2] < 0 ) return 0;
+    if (( uint64_t )params[2] >= graph->ncpoints || params[2] < 0 ) return 0;
 
-    if ( bmp->cpoints[params[2]].x == CPOINT_UNDEFINED && bmp->cpoints[params[2]].y == CPOINT_UNDEFINED ) return 0;
+    if ( graph->cpoints[params[2]].x == CPOINT_UNDEFINED && graph->cpoints[params[2]].y == CPOINT_UNDEFINED ) return 0;
 
-    *( int64_t * )( intptr_t )params[3] = bmp->cpoints[params[2]].x;
-    *( int64_t * )( intptr_t )params[4] = bmp->cpoints[params[2]].y;
+    *( int64_t * )( intptr_t )params[3] = graph->cpoints[params[2]].x;
+    *( int64_t * )( intptr_t )params[4] = graph->cpoints[params[2]].y;
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_point_total( INSTANCE * my, int64_t * params ) {
-    GRAPH * bmp;
+    GRAPH * graph;
 
-    bmp = bitmap_get( params[0], params[1] );
-    if ( !bmp ) return 0;
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
 
-    return bmp->ncpoints;
+    return graph->ncpoints;
 }
 
 /* --------------------------------------------------------------------------- */
+/* Control Box                                                                 */
+/* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_set_box( INSTANCE * my, int64_t * params ) {
-    GRAPH * bmp;
+    GRAPH * graph;
 
-    bmp = bitmap_get( params[0], params[1] );
-    if ( !bmp ) return 0;
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
 
-    bitmap_set_cbox( bmp, params[2], params[3], params[4], params[5], params[6], params[7] );
+    bitmap_set_cbox( graph, params[2], params[3], params[4], params[5], params[6], params[7] );
 
     return 1;
 }
@@ -210,19 +218,19 @@ int64_t libmod_gfx_set_box( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_box( INSTANCE * my, int64_t * params ) {
-    GRAPH * bmp;
+    GRAPH * graph;
 
-    bmp = bitmap_get( params[0], params[1] );
-    if ( !bmp ) return 0;
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
 
-    CBOX * cbox = bitmap_get_cbox( bmp, params[2] );
+    CBOX * cbox = bitmap_get_cbox( graph, params[2] );
     if ( !cbox ) return 0;
 
-    *( int64_t * )( intptr_t )params[3] = cbox->shape;
-    *( int64_t * )( intptr_t )params[4] = cbox->x;
-    *( int64_t * )( intptr_t )params[5] = cbox->y;
-    *( int64_t * )( intptr_t )params[6] = cbox->width;
-    *( int64_t * )( intptr_t )params[7] = cbox->height;
+    if ( params[3] ) *( int64_t * )( intptr_t )params[3] = cbox->shape;
+    if ( params[4] ) *( int64_t * )( intptr_t )params[4] = cbox->x;
+    if ( params[5] ) *( int64_t * )( intptr_t )params[5] = cbox->y;
+    if ( params[6] ) *( int64_t * )( intptr_t )params[6] = cbox->width;
+    if ( params[7] ) *( int64_t * )( intptr_t )params[7] = cbox->height;
 
     return 1;
 }
@@ -230,12 +238,12 @@ int64_t libmod_gfx_get_box( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_remove_box( INSTANCE * my, int64_t * params ) {
-    GRAPH * bmp;
+    GRAPH * graph;
 
-    bmp = bitmap_get( params[0], params[1] );
-    if ( !bmp ) return 0;
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
 
-    bitmap_remove_cbox( bmp, params[2] );
+    bitmap_remove_cbox( graph, params[2] );
 
     return 1;
 }
@@ -243,50 +251,120 @@ int64_t libmod_gfx_remove_box( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_box_by_pos( INSTANCE * my, int64_t * params ) {
-    GRAPH * bmp;
+    GRAPH * graph;
 
-    bmp = bitmap_get( params[0], params[1] );
-    if ( !bmp ) return 0;
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
 
-    CBOX * cbox = bitmap_get_cbox_by_pos( bmp, params[2] );
+    CBOX * cbox = bitmap_get_cbox_by_pos( graph, params[2] );
     if ( !cbox ) return 0;
 
-    *( int64_t * )( intptr_t )params[3] = cbox->shape;
-    *( int64_t * )( intptr_t )params[4] = cbox->x;
-    *( int64_t * )( intptr_t )params[5] = cbox->y;
-    *( int64_t * )( intptr_t )params[6] = cbox->width;
-    *( int64_t * )( intptr_t )params[7] = cbox->height;
+    if ( params[3] ) *( int64_t * )( intptr_t )params[3] = cbox->code;
+    if ( params[4] ) *( int64_t * )( intptr_t )params[4] = cbox->shape;
+    if ( params[5] ) *( int64_t * )( intptr_t )params[5] = cbox->x;
+    if ( params[6] ) *( int64_t * )( intptr_t )params[6] = cbox->y;
+    if ( params[7] ) *( int64_t * )( intptr_t )params[7] = cbox->width;
+    if ( params[8] ) *( int64_t * )( intptr_t )params[8] = cbox->height;
 
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_gfx_set_box2( INSTANCE * my, int64_t * params ) {
+    GRAPH * graph;
+
+    graph = instance_graph( my );
+    if ( !graph ) return 0;
+
+    bitmap_set_cbox( graph, params[0], params[1], params[2], params[3], params[4], params[5] );
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_box2( INSTANCE * my, int64_t * params ) {
+    GRAPH * graph;
+
+    graph = instance_graph( my );
+    if ( !graph ) return 0;
+
+    CBOX * cbox = bitmap_get_cbox( graph, params[0] );
+    if ( !cbox ) return 0;
+
+    if ( params[1] ) *( int64_t * )( intptr_t )params[1] = cbox->shape;
+    if ( params[2] ) *( int64_t * )( intptr_t )params[2] = cbox->x;
+    if ( params[3] ) *( int64_t * )( intptr_t )params[3] = cbox->y;
+    if ( params[4] ) *( int64_t * )( intptr_t )params[4] = cbox->width;
+    if ( params[5] ) *( int64_t * )( intptr_t )params[5] = cbox->height;
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_remove_box2( INSTANCE * my, int64_t * params ) {
+    GRAPH * graph;
+
+    graph = instance_graph( my );
+    if ( !graph ) return 0;
+
+    bitmap_remove_cbox( graph, params[1] );
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_box_by_pos2( INSTANCE * my, int64_t * params ) {
+    GRAPH * graph;
+
+    graph = instance_graph( my );
+    if ( !graph ) return 0;
+
+    CBOX * cbox = bitmap_get_cbox_by_pos( graph, params[0] );
+    if ( !cbox ) return 0;
+
+    if ( params[1] ) *( int64_t * )( intptr_t )params[1] = cbox->code;
+    if ( params[2] ) *( int64_t * )( intptr_t )params[2] = cbox->shape;
+    if ( params[3] ) *( int64_t * )( intptr_t )params[3] = cbox->x;
+    if ( params[4] ) *( int64_t * )( intptr_t )params[4] = cbox->y;
+    if ( params[5] ) *( int64_t * )( intptr_t )params[5] = cbox->width;
+    if ( params[6] ) *( int64_t * )( intptr_t )params[6] = cbox->height;
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Map                                                                         */
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_map_clear( INSTANCE * my, int64_t * params ) {
-    GRAPH *map = bitmap_get( params[0], params[1] );
-    if ( map ) gr_clear( map );
+    GRAPH *graph = bitmap_get( params[0], params[1] );
+    if ( graph ) gr_clear( graph );
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_clear2( INSTANCE * my, int64_t * params ) {
-    GRAPH *map = bitmap_get( params[0], params[1] );
-    if ( map ) gr_clear_as( map, params[2] );
+    GRAPH *graph = bitmap_get( params[0], params[1] );
+    if ( graph ) gr_clear_as( graph, params[2] );
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_clear3( INSTANCE * my, int64_t * params ) {
-    GRAPH *map = bitmap_get( params[0], params[1] );
-    if ( map ) {
+    GRAPH *graph = bitmap_get( params[0], params[1] );
+    if ( graph ) {
         REGION region;
         region.x = MIN( params[2], params[4] );
         region.y = MIN( params[3], params[5] );
         region.x2 = MAX( params[2], params[4] );
         region.y2 = MAX( params[3], params[5] );
-        gr_clear_region( map, &region );
+        gr_clear_region( graph, &region );
     }
     return 1;
 }
@@ -294,14 +372,14 @@ int64_t libmod_gfx_map_clear3( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_clear4( INSTANCE * my, int64_t * params ) {
-    GRAPH *map = bitmap_get( params[0], params[1] );
-    if ( map ) {
+    GRAPH *graph = bitmap_get( params[0], params[1] );
+    if ( graph ) {
         REGION region;
         region.x = MIN( params[2], params[4] );
         region.y = MIN( params[3], params[5] );
         region.x2 = MAX( params[2], params[4] );
         region.y2 = MAX( params[3], params[5] );
-        gr_clear_region_as( map, &region, params[6] );
+        gr_clear_region_as( graph, &region, params[6] );
     }
     return 1;
 }
@@ -309,35 +387,35 @@ int64_t libmod_gfx_map_clear4( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_new_map( INSTANCE * my, int64_t * params ) {
-     GRAPH * map;
-     map = bitmap_new_syslib( params[0], params[1] );
-     return map ? map->code : 0;
+     GRAPH * graph;
+     graph = bitmap_new_syslib( params[0], params[1] );
+     return graph ? graph->code : 0;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_new_map_extend( INSTANCE * my, int64_t * params ) {
-    GRAPH * map;
-    map = bitmap_new_syslib( params[0], params[1] );
-    if ( map && ( params[2] & B_CLEAR )) gr_clear( map );
-    return map ? map->code : 0;
+    GRAPH * graph;
+    graph = bitmap_new_syslib( params[0], params[1] );
+    if ( graph && ( params[2] & B_CLEAR )) gr_clear( graph );
+    return graph ? graph->code : 0;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_clone( INSTANCE * my, int64_t * params ) {
-    GRAPH * origin, * map = NULL;
+    GRAPH * origin, * graph = NULL;
     origin = bitmap_get( params[0], params[1] );
-    if ( origin ) map = bitmap_clone( origin );
-    if ( !map ) return 0;
-    map->code = bitmap_next_code();
-    grlib_add_map( 0, map );
-    return map->code;
+    if ( origin ) graph = bitmap_clone( origin );
+    if ( !graph ) return 0;
+    graph->code = bitmap_next_code();
+    grlib_add_map( 0, graph );
+    return graph->code;
 }
 
 /* --------------------------------------------------------------------------- */
 /** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y)
- *  Draws a map into another one
+ *  Draws a graph into another one
  */
 
 int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params ) {
@@ -352,7 +430,7 @@ int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 /** MAP_XPUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B)
- *  Draws a map into another one, with most blitter options including flags and alpha
+ *  Draws a graph into another one, with most blitter options including flags and alpha
  */
 
 int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
@@ -384,11 +462,11 @@ int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_name( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[0], params[1] );
+    GRAPH * graph = bitmap_get( params[0], params[1] );
     int64_t result;
 
-    if ( !map ) return 0;
-    result = string_new( map->name );
+    if ( !graph ) return 0;
+    result = string_new( graph->name );
     string_use( result );
     return result;
 }
@@ -396,11 +474,11 @@ int64_t libmod_gfx_map_name( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_set_name( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[0], params[1] );
+    GRAPH * graph = bitmap_get( params[0], params[1] );
     const char * ptr = string_get( params[2] );
-    if ( map ) {
-        strncpy( map->name, ptr, sizeof( map->name ) );
-        map->name[sizeof( map->name )-1] = 0;
+    if ( graph ) {
+        strncpy( graph->name, ptr, sizeof( graph->name ) );
+        graph->name[sizeof( graph->name )-1] = 0;
     }
     string_discard( params[2] );
     return 0;
@@ -409,8 +487,8 @@ int64_t libmod_gfx_map_set_name( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_map_exists( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[0], params[1] );
-    return map == NULL ? 0 : 1;
+    GRAPH * graph = bitmap_get( params[0], params[1] );
+    return graph == NULL ? 0 : 1;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -562,8 +640,8 @@ static SDL_RWops *SDL_RWFromBGDFP( file *fp ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t gr_load_img( const char * mapname ) {
-    int64_t map = gr_load_map( mapname );
-    if ( !map ) {
+    int64_t graph = gr_load_map( mapname );
+    if ( !graph ) {
         file *fp;
 
         if ( !( fp = file_open( mapname, "rb0" ) ) ) return ( 0 );
@@ -588,7 +666,7 @@ int64_t gr_load_img( const char * mapname ) {
         return gr->code;
     }
 
-    return map;
+    return graph;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -686,30 +764,30 @@ int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
 #ifdef USE_SDL2
-    GRAPH * map = bitmap_get( params[0], params[1] );
+    GRAPH * graph = bitmap_get( params[0], params[1] );
     int firstcolor = params[2], ncolors = params[3];
     SDL_Color * colors = ( SDL_Color * ) ( intptr_t ) params[4];
 
-    if ( !map->surface ) return -1;
+    if ( !graph->surface ) return -1;
 
-    if ( map->surface->format->BitsPerPixel != 8 ) return -2; // Not an 8-bit surface
+    if ( graph->surface->format->BitsPerPixel != 8 ) return -2; // Not an 8-bit surface
 
     SDL_Palette * palette = SDL_AllocPalette( 256 );
     if ( !palette ) return -1;
 
-    if ( SDL_MUSTLOCK( map->surface ) ) {
-        SDL_LockSurface( map->surface );
-        SDL_SetPaletteColors( palette, map->surface->format->palette->colors, 0, 255 );
-        SDL_UnlockSurface( map->surface );
+    if ( SDL_MUSTLOCK( graph->surface ) ) {
+        SDL_LockSurface( graph->surface );
+        SDL_SetPaletteColors( palette, graph->surface->format->palette->colors, 0, 255 );
+        SDL_UnlockSurface( graph->surface );
     } else {
-        SDL_SetPaletteColors( palette, map->surface->format->palette->colors, 0, 255 );
+        SDL_SetPaletteColors( palette, graph->surface->format->palette->colors, 0, 255 );
     }
 
     SDL_SetPaletteColors( palette, colors, firstcolor, ncolors );
-    SDL_SetSurfacePalette( map->surface, palette );
+    SDL_SetSurfacePalette( graph->surface, palette );
     SDL_FreePalette( palette );
 
-    map->texture_must_update = 1;
+    graph->texture_must_update = 1;
 #endif
     return 0;
 }
@@ -718,20 +796,20 @@ int64_t libmod_gfx_set_palette( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_get_palette( INSTANCE * my, int64_t * params ) {
 #ifdef USE_SDL2
-    GRAPH * map = bitmap_get( params[0], params[1] );
+    GRAPH * graph = bitmap_get( params[0], params[1] );
     int firstcolor = params[2], ncolors = params[3], i;
     SDL_Color * colors = ( SDL_Color * ) ( intptr_t ) params[4];
 
-    if ( !map->surface ) return -1;
+    if ( !graph->surface ) return -1;
 
-    if ( map->surface->format->BitsPerPixel != 8 ) return -2; // Not an 8-bit surface
+    if ( graph->surface->format->BitsPerPixel != 8 ) return -2; // Not an 8-bit surface
 
-    if ( SDL_MUSTLOCK( map->surface ) ) {
-        SDL_LockSurface( map->surface );
-        for ( i = 0; ncolors--; i++ ) colors[ i ] = map->surface->format->palette->colors[ firstcolor + i ];
-        SDL_UnlockSurface( map->surface );
+    if ( SDL_MUSTLOCK( graph->surface ) ) {
+        SDL_LockSurface( graph->surface );
+        for ( i = 0; ncolors--; i++ ) colors[ i ] = graph->surface->format->palette->colors[ firstcolor + i ];
+        SDL_UnlockSurface( graph->surface );
     } else {
-        for ( i = 0; ncolors--; i++ ) colors[ i ] = map->surface->format->palette->colors[ firstcolor + i ];
+        for ( i = 0; ncolors--; i++ ) colors[ i ] = graph->surface->format->palette->colors[ firstcolor + i ];
     }
 #endif
     return 0;

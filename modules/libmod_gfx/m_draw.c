@@ -816,8 +816,8 @@ int64_t libmod_gfx_draw_line( INSTANCE * my, int64_t * params ) {
         dr->type = DRAWOBJ_LINE;
         dr->x1 = params[ 0 ];
         dr->y1 = params[ 1 ];
-        dr->x2 = params[ 2 ] - dr->x1;
-        dr->y2 = params[ 3 ] - dr->y1;
+        dr->x2 = params[ 2 ] - dr->x1 + 1;
+        dr->y2 = params[ 3 ] - dr->y1 + 1;
         return _libmod_gfx_draw_object_new( dr, drawing_z );
     }
 
@@ -985,12 +985,12 @@ int64_t libmod_gfx_draw_bezier( INSTANCE * my, int64_t * params ) {
         dr->type = DRAWOBJ_CURVE;
         dr->x1 = params[ 0 ];
         dr->y1 = params[ 1 ];
-        dr->x2 = params[ 2 ] - dr->x1;
-        dr->y2 = params[ 3 ] - dr->y1;
-        dr->x3 = params[ 4 ] - dr->x1;
-        dr->y3 = params[ 5 ] - dr->y1;
-        dr->x4 = params[ 6 ] - dr->x1;
-        dr->y4 = params[ 7 ] - dr->y1;
+        dr->x2 = params[ 2 ] - dr->x1 + 1;
+        dr->y2 = params[ 3 ] - dr->y1 + 1;
+        dr->x3 = params[ 4 ] - dr->x1 + 1;
+        dr->y3 = params[ 5 ] - dr->y1 + 1;
+        dr->x4 = params[ 6 ] - dr->x1 + 1;
+        dr->y4 = params[ 7 ] - dr->y1 + 1;
         dr->level = params[ 8 ];
 
         dr->data_size = 0;
@@ -1156,10 +1156,10 @@ int64_t libmod_gfx_draw_triangle( INSTANCE * my, int64_t * params ) {
         dr->type = DRAWOBJ_TRIANGLE;
         dr->x1 = params[ 0 ];
         dr->y1 = params[ 1 ];
-        dr->x2 = params[ 2 ] - dr->x1;
-        dr->y2 = params[ 3 ] - dr->y1;
-        dr->x3 = params[ 4 ] - dr->x1;
-        dr->y3 = params[ 5 ] - dr->y1;
+        dr->x2 = params[ 2 ] - dr->x1 + 1;
+        dr->y2 = params[ 3 ] - dr->y1 + 1;
+        dr->x3 = params[ 4 ] - dr->x1 + 1;
+        dr->y3 = params[ 5 ] - dr->y1 + 1;
 
         dr->data_size = 0;
         dr->data = NULL;
@@ -1180,10 +1180,10 @@ int64_t libmod_gfx_draw_triangle_filled( INSTANCE * my, int64_t * params ) {
         dr->type = DRAWOBJ_TRIANGLE_FILLED;
         dr->x1 = params[ 0 ];
         dr->y1 = params[ 1 ];
-        dr->x2 = params[ 2 ] - dr->x1;
-        dr->y2 = params[ 3 ] - dr->y1;
-        dr->x3 = params[ 4 ] - dr->x1;
-        dr->y3 = params[ 5 ] - dr->y1;
+        dr->x2 = params[ 2 ] - dr->x1 + 1;
+        dr->y2 = params[ 3 ] - dr->y1 + 1;
+        dr->x3 = params[ 4 ] - dr->x1 + 1;
+        dr->y3 = params[ 5 ] - dr->y1 + 1;
 
         dr->data_size = 0;
         dr->data = NULL;

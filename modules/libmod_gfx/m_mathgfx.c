@@ -137,26 +137,12 @@ int64_t libmod_gfx_get_dist2( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
-    GRAPH * b ;
-    int64_t x, y, sx = 1, sy = -1, angle = 0, idx = params[0], size_x, size_y, flags;
+static inline int64_t __get_real_point( INSTANCE * my, int64_t * params, GRAPH * b, int64_t point_x, int64_t point_y ) {
+    int64_t x, y, sx = 1, sy = -1, angle = 0, size_x, size_y, flags;
     double centerx, centery, dx = 0, dy = 0, px, py;
-
-    b = instance_graph( my ) ;
-    if ( !b ) return 0 ;
-
-    if ( !( idx >= 0 && idx < b->ncpoints ) ) return 0 ;
 
     x = LOCINT64( libmod_gfx, my, COORDX ) ;
     y = LOCINT64( libmod_gfx, my, COORDY ) ;
-
-    if ( !idx ) {
-        *( int64_t * )( intptr_t )params[1] = x ;
-        *( int64_t * )( intptr_t )params[2] = y ;
-        return 1;
-    }
-
-    if ( b->cpoints[idx].x == CPOINT_UNDEFINED || b->cpoints[idx].y == CPOINT_UNDEFINED ) return 0;
 
     RESOLXY( libmod_gfx, my, x, y );
 
@@ -183,8 +169,8 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
     size_y = LOCINT64( libmod_gfx, my, GRAPHSIZEY );
     if ( size_x == 100 && size_y == 100 ) size_x = size_y = LOCINT64( libmod_gfx, my, GRAPHSIZE );
 
-    dx = ( b->cpoints[idx].x - centerx ) * size_x;
-    dy = ( b->cpoints[idx].y - centery ) * size_y;
+    dx = ( point_x - centerx ) * size_x;
+    dy = ( point_y - centery ) * size_y;
 
     double cos_angle = cos_deg( angle );
     double sin_angle = sin_deg( angle );
@@ -202,10 +188,33 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
         py /= -resolution;
     }
 
-    *( int64_t * )( intptr_t )params[1] = px ;
-    *( int64_t * )( intptr_t )params[2] = py ;
+    *( int64_t * )( intptr_t )params[0] = px ;
+    *( int64_t * )( intptr_t )params[1] = py ;
 
     return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
+    GRAPH * b ;
+    int64_t x, y, sx = 1, sy = -1, angle = 0, idx = params[0], size_x, size_y, flags;
+    double centerx, centery, dx = 0, dy = 0, px, py;
+
+    b = instance_graph( my ) ;
+    if ( !b ) return 0 ;
+
+    if ( !( idx >= 0 && idx < b->ncpoints ) ) return 0 ;
+
+    if ( !idx ) {
+        *( int64_t * )( intptr_t )params[1] = LOCINT64( libmod_gfx, my, COORDX ) ;
+        *( int64_t * )( intptr_t )params[2] = LOCINT64( libmod_gfx, my, COORDY ) ;
+        return 1;
+    }
+
+    if ( b->cpoints[idx].x == CPOINT_UNDEFINED || b->cpoints[idx].y == CPOINT_UNDEFINED ) return 0;
+
+    return __get_real_point( my, &params[1], b, b->cpoints[idx].x, b->cpoints[idx].y );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -214,6 +223,221 @@ int64_t libmod_gfx_get_real_point2( INSTANCE * my, int64_t * params ) {
     my = instance_get( params[0] );
     if ( !my ) return 0;
     return libmod_gfx_get_real_point( my, &params[1] );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_real_point3( INSTANCE * my, int64_t * params ) {
+    GRAPH * b;
+
+    my = instance_get( params[0] );
+    if ( !my ) return 0;
+
+    b = instance_graph( my ) ;
+    if ( !b ) return 0 ;
+
+    return __get_real_point( my, &params[3], b, params[1], params[1] );
+}
+
+/* --------------------------------------------------------------------------- */
+
+static inline int64_t __get_real_box_vertex_step2( GRAPH * graph, CBOX * cbox, int64_t x0, int64_t y0, int64_t angle, int64_t _scale_x, int64_t _scale_y, int64_t flags, int64_t resolution, int64_t * vertices, int64_t * radius ) {
+    int64_t x = 0, y = 0, width = 0, height = 0;
+    double center_x = 0.0, center_y = 0.0;
+
+    if ( !graph || !cbox ) return 0;
+
+    if ( !graph->ncpoints || graph->cpoints[0].x == CPOINT_UNDEFINED ) {
+        center_x = graph->width / 2.0;
+        center_y = graph->height / 2.0;
+    } else {
+        center_x = graph->cpoints[0].x;
+        center_y = graph->cpoints[0].y;
+    }
+
+    switch ( cbox->shape ) {
+        case BITMAP_CB_SHAPE_BOX:
+        default:
+            x = cbox->x == POINT_UNDEFINED ? 0 : cbox->x;
+            y = cbox->y == POINT_UNDEFINED ? 0 : cbox->y;
+            width = ( cbox->width < 1 ) ? graph->width : cbox->width;
+            height = ( cbox->height < 1 ) ? graph->height : cbox->height;
+            break;
+
+        case BITMAP_CB_SHAPE_CIRCLE:
+            x = cbox->x == POINT_UNDEFINED ? center_x : cbox->x;
+            y = cbox->y == POINT_UNDEFINED ? center_y : cbox->y;
+
+            width = cbox->width;
+
+            // Width is radius
+            if ( cbox->width < 1 ) {
+                switch ( cbox->width ) {
+                    case BITMAP_CB_CIRCLE_GRAPH_SIZE:
+                    case BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE:
+                    default:
+                        width = 0.5 + ( graph->width + graph->height ) / 4.0;
+                        break;
+
+                    case BITMAP_CB_CIRCLE_GRAPH_WIDTH:
+                        width = 0.5 + graph->width / 2.0;
+                        break;
+
+                    case BITMAP_CB_CIRCLE_GRAPH_HEIGHT:
+                        width = 0.5 + graph->height / 2.0;
+                        break;
+
+                    case BITMAP_CB_CIRCLE_GRAPH_MIN_SIZE:
+                        width = 0.5 + MIN( graph->width, graph->height ) / 2.0;
+                        break;
+
+                    case BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE:
+                        width = 0.5 + MAX( graph->width, graph->height ) / 2.0;
+                        break;
+                }
+            }
+            * radius = width;
+            break;
+    }
+
+    double sx = 1, sy = -1;
+    double scale_x, scale_y;
+
+    scale_x = _scale_x / 100.0;
+    scale_y = _scale_y / 100.0;
+
+    if ( scale_x < 0.0 ) scale_x = 0.0;
+    if ( scale_y < 0.0 ) scale_y = 0.0;
+
+    if ( flags & B_HMIRROR ) sx = -1;
+    if ( flags & B_VMIRROR ) sy = 1;
+
+    double cos_angle = cos_deg( angle );
+    double sin_angle = sin_deg( angle );
+
+    double  lef_x, top_y, rig_x, bot_y, delta_x, delta_y;
+
+    switch ( cbox->shape ) {
+        case BITMAP_CB_SHAPE_BOX:
+        default:
+            lef_x = scale_x * ( x - center_x );
+            rig_x = scale_x * ( width - 1 ) + lef_x;
+            top_y = scale_y * ( y - center_y );
+            bot_y = scale_y * ( height - 1 ) + top_y;
+            vertices[0] = ( lef_x * cos_angle + top_y * sin_angle ) * sx + x0;
+            vertices[1] = ( lef_x * sin_angle - top_y * cos_angle ) * sy + y0;
+            vertices[2] = ( rig_x * cos_angle + top_y * sin_angle ) * sx + x0;
+            vertices[3] = ( rig_x * sin_angle - top_y * cos_angle ) * sy + y0;
+            vertices[4] = ( rig_x * cos_angle + bot_y * sin_angle ) * sx + x0;
+            vertices[5] = ( rig_x * sin_angle - bot_y * cos_angle ) * sy + y0;
+            vertices[6] = ( lef_x * cos_angle + bot_y * sin_angle ) * sx + x0;
+            vertices[7] = ( lef_x * sin_angle - bot_y * cos_angle ) * sy + y0;
+
+            if ( resolution != 1 ) {
+                if ( resolution > 0 ) {
+                    vertices[0] *= resolution;
+                    vertices[1] *= resolution;
+                    vertices[2] *= resolution;
+                    vertices[3] *= resolution;
+                    vertices[4] *= resolution;
+                    vertices[5] *= resolution;
+                    vertices[6] *= resolution;
+                    vertices[7] *= resolution;
+                } else if ( resolution < 0 ) {
+                    vertices[0] /= -resolution;
+                    vertices[1] /= -resolution;
+                    vertices[2] /= -resolution;
+                    vertices[3] /= -resolution;
+                    vertices[4] /= -resolution;
+                    vertices[5] /= -resolution;
+                    vertices[6] /= -resolution;
+                    vertices[7] /= -resolution;
+                }
+            }
+            break;
+
+        case BITMAP_CB_SHAPE_CIRCLE:
+            delta_x = scale_x * ( x - center_x );
+            delta_y = scale_y * ( y - center_y );
+            vertices[0] = ( cos_angle * delta_x + sin_angle * delta_y ) * sx + x0;
+            vertices[1] = ( sin_angle * delta_x - cos_angle * delta_y ) * sy + y0;
+            if ( resolution != 1 ) {
+                if ( resolution > 0 ) {
+                    vertices[0] *= resolution;
+                    vertices[1] *= resolution;
+                } else if ( resolution < 0 ) {
+                    vertices[0] /= -resolution;
+                    vertices[1] /= -resolution;
+                }
+            }
+            break;
+    }
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+static inline int64_t __get_real_box_vertex_step1( GRAPH * graph, INSTANCE * my, int64_t * params ) {
+    int64_t x = 0, y = 0, width = 0, height = 0;
+    double center_x = 0.0, center_y = 0.0;
+    CBOX vcbox = {0};
+
+    CBOX * cbox = &vcbox;
+    if ( params[0] == -1 ) {
+        cbox->code   = -1;
+        cbox->shape  = LOCINT64( libmod_gfx, my, CSHAPE );
+        cbox->x      = LOCINT64( libmod_gfx, my, CBOX_X );
+        cbox->y      = LOCINT64( libmod_gfx, my, CBOX_Y );
+        cbox->width  = LOCINT64( libmod_gfx, my, CBOX_WIDTH );
+        cbox->height = LOCINT64( libmod_gfx, my, CBOX_HEIGHT );
+    }
+    else
+        if ( !( cbox = bitmap_get_cbox( graph, params[0] ) ) ) return 0;
+
+    int64_t scale_x = LOCINT64( libmod_gfx, my, GRAPHSIZEX );
+    int64_t scale_y = LOCINT64( libmod_gfx, my, GRAPHSIZEY );
+    if ( scale_x == 100 && scale_y == 100 ) scale_x = scale_y = LOCINT64( libmod_gfx, my, GRAPHSIZE );
+
+    return __get_real_box_vertex_step2( graph,
+                                        cbox,
+                                        LOCINT64( libmod_gfx, my, COORDX ),
+                                        LOCINT64( libmod_gfx, my, COORDY ),
+                                        LOCINT64( libmod_gfx, my, ANGLE ),
+                                        scale_x,
+                                        scale_y,
+                                        LOCQWORD( libmod_gfx, my, FLAGS ),
+                                        LOCINT64( libmod_gfx, my, RESOLUTION ),
+                                        ( int64_t * ) ( intptr_t ) params[1],
+                                        ( int64_t * ) ( intptr_t ) params[2] );
+
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_real_box_vertex( INSTANCE * my, int64_t * params ) {
+    GRAPH * graph;
+
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
+
+    return __get_real_box_vertex_step1( graph, my, &params[2] );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_real_box_vertex2( INSTANCE * my, int64_t * params ) {
+    my = instance_get( params[0] );
+    if ( !my ) return 0;
+    return libmod_gfx_get_real_box_vertex( my, &params[1] );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_real_box_vertex3( INSTANCE * my, int64_t * params ) {
+    GRAPH * graph = instance_graph( my );
+    if ( !graph ) return 0;
+    return __get_real_box_vertex_step1( graph, my, params );
 }
 
 /* --------------------------------------------------------------------------- */
