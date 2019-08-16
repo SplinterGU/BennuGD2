@@ -61,25 +61,23 @@ int64_t libmod_gfx_out_region( INSTANCE * my, int64_t * params ) {
     instance_get_bbox( proc, gr, &bbox );
 
     if ( LOCQWORD( libmod_gfx, proc, CTYPE ) == C_SCROLL ) {
-        SCROLL_EXTRA_DATA * data;
+//        SCROLL_EXTRA_DATA * data;
         scrolldata  * scroll;
         int i;
 
-        if ( GLOEXISTS( libmod_gfx, SCROLLS ) ) {
-            int64_t cnumber = LOCQWORD( libmod_gfx, proc, CNUMBER );
-            if ( !cnumber ) cnumber = 0xFFFFFFFF ;
+        int64_t cnumber = LOCQWORD( libmod_gfx, proc, CNUMBER );
+        if ( !cnumber ) cnumber = 0xFFFFFFFF ;
 
-            for ( i = 0 ; i < 10 ; i++ ) {
-                data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libmod_gfx, SCROLLS ) )[ i ] ;
-                scroll = ( scrolldata  * ) ( intptr_t ) data->reserved[0];
+        for ( i = 0 ; i < MAX_SCROLLS ; i++ ) {
+//            data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libmod_gfx, SCROLLS ) )[ i ] ;
+//            scroll = ( scrolldata  * ) ( intptr_t ) data->reserved[0];
 
-                if ( scroll && scroll->active && ( cnumber & ( 1 << i ) ) ) {
-                    bbox.x  -= scroll->posx0 ;
-                    bbox.y  -= scroll->posy0 ;
-                    bbox.x2 -= scroll->posx0 ;
-                    bbox.y2 -= scroll->posy0 ;
-                    break;
-                }
+            if ( /*scroll &&*/ scrolls[i].active && ( cnumber & ( 1 << i ) ) ) {
+                bbox.x  -= scrolls[i].posx0 ;
+                bbox.y  -= scrolls[i].posy0 ;
+                bbox.x2 -= scrolls[i].posx0 ;
+                bbox.y2 -= scrolls[i].posy0 ;
+                break;
             }
         }
     }

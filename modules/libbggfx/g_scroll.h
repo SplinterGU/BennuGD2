@@ -33,7 +33,7 @@
 
 #define C_SCROLL        1
 
-#define MAX_SCROLLS     10
+#define MAX_SCROLLS     63
 
 /* --------------------------------------------------------------------------- */
 
@@ -101,7 +101,7 @@ typedef struct _scroll_Extra_data {
     uint8_t color_r2;
     uint8_t color_g2;
     uint8_t color_b2;
-    int64_t reserved[8];        /* First reserved dword point to internal scrolldata struct */
+//    int64_t reserved[8];        /* First reserved dword point to internal scrolldata struct */
 } __PACKED SCROLL_EXTRA_DATA;
 
 #ifdef __GNUC__
@@ -114,7 +114,7 @@ typedef struct _scroll_Extra_data {
 
 /* --------------------------------------------------------------------------- */
 
-extern scrolldata  scrolls[ MAX_SCROLLS ];
+extern scrolldata scrolls[ MAX_SCROLLS ];
 
 /* --------------------------------------------------------------------------- */
 

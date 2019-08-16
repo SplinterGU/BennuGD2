@@ -112,4 +112,8 @@ extern void bgdrtm_ptimer_cleanup(void);
 
 /* --------------------------------------------------------------------------- */
 
+extern int64_t get_var_size( char * var, DCB_VAR * basevar, int nvars );
+
+/* --------------------------------------------------------------------------- */
+
 #endif

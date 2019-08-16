@@ -303,6 +303,75 @@ static void get_var_info( DLVARFIXUP * varfixup, DCB_VAR * basevar, int nvars, c
 
 /* ---------------------------------------------------------------------- */
 
+int64_t get_var_size( char * var, DCB_VAR * basevar, int nvars ) {
+    unsigned int n;
+    DCB_VAR rvar;
+    void * rdata = NULL;
+
+    token_ptr = var;
+    get_token();
+    if ( token.type != IDENTIFIER ) return -1; /* Not a valid expression */
+
+    /* Busca variable */
+    for ( n = 0; n < nvars; n++ ) {
+        if ( basevar[n].ID == token.code ) {
+            rvar  = basevar[n];
+            get_token();
+            break;
+        }
+    }
+
+    if ( n == nvars ) return -1; /* Error, no es variable */
+
+    for (;;) {
+        if ( token.name[0] == '.' ) {
+            DCB_VARSPACE * v;
+            DCB_VAR * var;
+
+            if ( rvar.Type.BaseType[0] != TYPE_STRUCT ) return -1; /* not an struct */
+
+            get_token();
+            if ( token.type != IDENTIFIER ) return -1; /* not a member */
+
+            v = &dcb.varspace[rvar.Type.Members];
+            var = dcb.varspace_vars[rvar.Type.Members];
+            for ( n = 0; n < v->NVars; n++ ) if ( var[n].ID == token.code ) break;
+
+            if ( n == v->NVars ) return -1; /* not a member */
+
+            rvar = var[n];
+
+            get_token();
+            continue;
+        }
+
+        if ( token.name[0] == '[' ) {
+            int index;
+
+            if ( rvar.Type.BaseType[0] != TYPE_ARRAY && rvar.Type.BaseType[0] != TYPE_POINTER ) return -1; /* not an array */
+
+            get_token();
+            if ( token.type != NUMBER ) return -1; /* not an integer */
+            index = token.code;
+
+            if ( index < 0 ) return 0; /* Index less than zero */
+            if ( index >= rvar.Type.Count[0] ) return -1; /* Index out of bounds */
+
+            rvar.Type = treduce( rvar.Type );
+
+            get_token();
+            if ( token.name[0] == ']' ) get_token(); /* Skip ] */
+
+            continue;
+        }
+
+        return tsize( rvar.Type );
+    }
+    return -1;
+}
+
+/* ---------------------------------------------------------------------- */
+
 int compare_priority( const HOOK * a1, const HOOK * a2 ) {
     return ( a2->prio - a1->prio );
 }

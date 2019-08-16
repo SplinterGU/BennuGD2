@@ -199,14 +199,16 @@ int gr_set_mode( int width, int height, int flags ) {
     fullscreen |= GLOQWORD( libbggfx, fullscreen );
 
     scale_resolution = GLOQWORD( libbggfx, SCALE_RESOLUTION );
-    if ( GLOEXISTS( libbggfx, SCALE_RESOLUTION_ASPECTRATIO ) ) scale_resolution_aspectratio = GLOQWORD( libbggfx, SCALE_RESOLUTION_ASPECTRATIO );
+    scale_resolution_aspectratio = GLOQWORD( libbggfx, SCALE_RESOLUTION_ASPECTRATIO );
 
     /* Overwrite all params */
 
     if ( ( e = getenv( "SCALE_RESOLUTION"             ) ) ) scale_resolution = atol( e );
     if ( ( e = getenv( "SCALE_RESOLUTION_ASPECTRATIO" ) ) ) scale_resolution_aspectratio = atol( e );
 
-    if ( scale_resolution && scale_resolution != -1 ) {
+    if ( !scale_resolution ) scale_resolution = ( int ) current.w * 10000L + ( int ) current.h ;
+
+    if ( scale_resolution != -1 ) {
         renderer_width  = ( int ) scale_resolution / 10000L ;
         renderer_height = ( int ) scale_resolution % 10000L ;
     }

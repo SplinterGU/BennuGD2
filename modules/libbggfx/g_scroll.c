@@ -50,7 +50,6 @@
 /* --------------------------------------------------------------------------- */
 
 int64_t scrolls_objects[ MAX_SCROLLS ] = { 0 };
-
 scrolldata scrolls[ MAX_SCROLLS ];
 
 /* --------------------------------------------------------------------------- */
@@ -73,7 +72,7 @@ void scroll_region( int64_t n, REGION * r ) {
 /* --------------------------------------------------------------------------- */
 
 void scroll_start( int64_t n, int64_t fileid, int64_t graphid, int64_t filebackid, int64_t backid, int64_t region, int64_t flags, int64_t destfile, int64_t destid ) {
-    SCROLL_EXTRA_DATA * data;
+//    SCROLL_EXTRA_DATA * data;
 
     if ( n >= 0 && n < MAX_SCROLLS ) {
         if ( region < 0 || region >= MAX_REGIONS ) region = 0;
@@ -88,9 +87,8 @@ void scroll_start( int64_t n, int64_t fileid, int64_t graphid, int64_t filebacki
         scrolls[n].destfile     = destfile;
         scrolls[n].destid       = destid;
 
-        data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libbggfx, SCROLLS ) )[n];
-
-        data->reserved[0] = ( int64_t ) ( intptr_t ) &scrolls[n]; /* First reserved qword point to internal scrolldata struct */
+//        data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libbggfx, SCROLLS ) )[n];
+//        data->reserved[0] = ( int64_t ) ( intptr_t ) &scrolls[n]; /* First reserved qword point to internal scrolldata struct */
 
         if ( scrolls_objects[n] ) gr_destroy_object( scrolls_objects[n] );
         scrolls_objects[n] = ( int64_t ) gr_new_object( 0, info_scroll, draw_scroll, ( void * ) ( intptr_t ) n );
