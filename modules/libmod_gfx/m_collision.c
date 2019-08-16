@@ -504,17 +504,12 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         collision = 0;
         if ( __get_mouse_info( ociB ) ) {
             if ( LOCQWORD( libmod_gfx, my, CTYPE ) == C_SCROLL ) {
-//                SCROLL_EXTRA_DATA * data;
-//                scrolldata  * scroll;
                 int i;
 
                 int64_t cnumber = LOCQWORD( libmod_gfx, my, CNUMBER );
                 if ( !cnumber ) cnumber = 0xffffffff;
 
                 for ( i = 0; i < MAX_SCROLLS && !collision; i++ ) {
-//                    data = &(( SCROLL_EXTRA_DATA * ) & GLOQWORD( libmod_gfx, SCROLLS ) )[i];
-//                    scroll = ( scrolldata * ) ( intptr_t ) data->reserved[0];
-//                    scroll = &scrolls[i];
                     if ( scrolls[i].active && ( cnumber & ( 1 << i ) ) ) {
                         REGION * r = scrolls[i].region;
 

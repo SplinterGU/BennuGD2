@@ -61,7 +61,6 @@ int64_t libmod_gfx_out_region( INSTANCE * my, int64_t * params ) {
     instance_get_bbox( proc, gr, &bbox );
 
     if ( LOCQWORD( libmod_gfx, proc, CTYPE ) == C_SCROLL ) {
-//        SCROLL_EXTRA_DATA * data;
         scrolldata  * scroll;
         int i;
 
@@ -69,9 +68,6 @@ int64_t libmod_gfx_out_region( INSTANCE * my, int64_t * params ) {
         if ( !cnumber ) cnumber = 0xFFFFFFFF ;
 
         for ( i = 0 ; i < MAX_SCROLLS ; i++ ) {
-//            data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libmod_gfx, SCROLLS ) )[ i ] ;
-//            scroll = ( scrolldata  * ) ( intptr_t ) data->reserved[0];
-
             if ( /*scroll &&*/ scrolls[i].active && ( cnumber & ( 1 << i ) ) ) {
                 bbox.x  -= scrolls[i].posx0 ;
                 bbox.y  -= scrolls[i].posy0 ;

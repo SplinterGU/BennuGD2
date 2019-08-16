@@ -72,8 +72,6 @@ void scroll_region( int64_t n, REGION * r ) {
 /* --------------------------------------------------------------------------- */
 
 void scroll_start( int64_t n, int64_t fileid, int64_t graphid, int64_t filebackid, int64_t backid, int64_t region, int64_t flags, int64_t destfile, int64_t destid ) {
-//    SCROLL_EXTRA_DATA * data;
-
     if ( n >= 0 && n < MAX_SCROLLS ) {
         if ( region < 0 || region >= MAX_REGIONS ) region = 0;
 
@@ -86,9 +84,6 @@ void scroll_start( int64_t n, int64_t fileid, int64_t graphid, int64_t filebacki
         scrolls[n].flags        = flags;
         scrolls[n].destfile     = destfile;
         scrolls[n].destid       = destid;
-
-//        data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libbggfx, SCROLLS ) )[n];
-//        data->reserved[0] = ( int64_t ) ( intptr_t ) &scrolls[n]; /* First reserved qword point to internal scrolldata struct */
 
         if ( scrolls_objects[n] ) gr_destroy_object( scrolls_objects[n] );
         scrolls_objects[n] = ( int64_t ) gr_new_object( 0, info_scroll, draw_scroll, ( void * ) ( intptr_t ) n );
@@ -129,7 +124,7 @@ void scroll_update( int64_t n ) {
     if (                        !graph ) return; // El fondo de scroll no existe
     if (  scrolls[n].backid  && !back  ) return; // Grafico no existe
 
-    data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libbggfx, SCROLLS ) )[n];
+    data = &(( SCROLL_EXTRA_DATA * ) GLOADDR( libbggfx, SCROLLS ) )[n];
 
     w = scrolls[n].region->x2 - scrolls[n].region->x + 1;
     h = scrolls[n].region->y2 - scrolls[n].region->y + 1;
@@ -281,7 +276,7 @@ void scroll_draw( int64_t n, REGION * clipping ) {
     if (                        !graph ) return; // El fondo de scroll no existe
     if (  scrolls[n].backid  && !back  ) return; // Grafico no existe
 
-    data = &(( SCROLL_EXTRA_DATA * ) &GLOQWORD( libbggfx, SCROLLS ) )[n];
+    data = &(( SCROLL_EXTRA_DATA * ) GLOADDR( libbggfx, SCROLLS ) )[n];
 
     dest = scrolls[n].destid ? bitmap_get( scrolls[n].destfile, scrolls[n].destid ) : NULL;
 
@@ -367,7 +362,6 @@ void scroll_draw( int64_t n, REGION * clipping ) {
         for ( nproc = 0; nproc < proclist_count; nproc++ ) {
             x = LOCINT64( libbggfx, proclist[nproc], COORDX );
             y = LOCINT64( libbggfx, proclist[nproc], COORDY );
-
             RESOLXY( libbggfx, proclist[nproc], x, y );
             draw_instance_at( proclist[nproc], &r, x - scrolls[n].posx0 + scrolls[n].region->x, y - scrolls[n].posy0 + scrolls[n].region->y, dest );
         }
