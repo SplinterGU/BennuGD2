@@ -51,23 +51,23 @@ extern int shader_getattributelocation( BGD_SHADER * shader, const char * name )
 extern int shader_getuniformlocation( BGD_SHADER * shader, const char * name );
 extern void shader_setshaderimage( GRAPH * image, int location, int image_unit );
 
-extern void shader_setattributei( int location, int value );
-extern void shader_setattributeiv( int location, int nvalues, int * values );
-extern void shader_setattributeui( int location, unsigned int value );
-extern void shader_setattributeuiv( int location, int nvalues, unsigned int * values );
+extern void shader_setattributei( int location, int32_t value );
+extern void shader_setattributeiv( int location, int nvalues, int32_t * values );
+extern void shader_setattributeui( int location, uint32_t value );
+extern void shader_setattributeuiv( int location, int nvalues, uint32_t * values );
 extern void shader_setattributef( int location, float value );
 extern void shader_setattributefv( int location, int nvalues, float * values );
 
-extern void shader_setuniformi( int location, int value );
-extern void shader_setuniformiv( int location, int nvalues, int * values );
-extern void shader_setuniform2iv( int location, int nvalues, int * values );
-extern void shader_setuniform3iv( int location, int nvalues, int * values );
-extern void shader_setuniform4iv( int location, int nvalues, int * values );
-extern void shader_setuniformui( int location, unsigned int value );
-extern void shader_setuniformuiv( int location, int nvalues, unsigned int * values );
-extern void shader_setuniform2uiv( int location, int nvalues, unsigned int * values );
-extern void shader_setuniform3uiv( int location, int nvalues, unsigned int * values );
-extern void shader_setuniform4uiv( int location, int nvalues, unsigned int * values );
+extern void shader_setuniformi( int location, int32_t value );
+extern void shader_setuniformiv( int location, int nvalues, int32_t * values );
+extern void shader_setuniform2iv( int location, int nvalues, int32_t * values );
+extern void shader_setuniform3iv( int location, int nvalues, int32_t * values );
+extern void shader_setuniform4iv( int location, int nvalues, int32_t * values );
+extern void shader_setuniformui( int location, uint32_t value );
+extern void shader_setuniformuiv( int location, int nvalues, uint32_t * values );
+extern void shader_setuniform2uiv( int location, int nvalues, uint32_t * values );
+extern void shader_setuniform3uiv( int location, int nvalues, uint32_t * values );
+extern void shader_setuniform4uiv( int location, int nvalues, uint32_t * values );
 extern void shader_setuniformf( int location, float value );
 extern void shader_setuniformfv( int location, int nvalues, float * values );
 extern void shader_setuniform2fv( int location, int nvalues, float * values );

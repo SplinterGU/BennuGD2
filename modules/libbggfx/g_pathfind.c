@@ -119,7 +119,7 @@ GRID * path_new( GRAPH * gr ) {
     int w = grid->w = surface->w;
     int h = grid->h = surface->h;
 
-    NODE * matrix = grid->matrix = calloc( grid->w * grid->h, sizeof( NODE ) );
+    grid->matrix = calloc( grid->w * grid->h, sizeof( NODE ) );
     if ( !grid->matrix ) {
         free( grid );
 #ifdef USE_SDL2_GPU

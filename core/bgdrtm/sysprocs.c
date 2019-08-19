@@ -106,6 +106,11 @@ static SYSPROC ** sysproc_tab = NULL;
 
 /* ---------------------------------------------------------------------- */
 
+int nmodules = 0;
+void * modules_hnd[512] = { 0 };
+
+/* ---------------------------------------------------------------------- */
+
 static int64_t tsize( DCB_TYPEDEF orig );
 static DCB_TYPEDEF treduce( DCB_TYPEDEF orig );
 
@@ -501,6 +506,8 @@ void sysproc_init() {
             exit( 0 );
         }
 
+        modules_hnd[ nmodules++ ] = library;
+
         globals_fixup     = ( DLVARFIXUP * ) _dlibaddr( library, "globals_fixup" );
         locals_fixup      = ( DLVARFIXUP * ) _dlibaddr( library, "locals_fixup" );
         functions_exports = ( DLSYSFUNCS * ) _dlibaddr( library, "functions_exports" );
@@ -606,6 +613,14 @@ char * sysproc_name( int64_t code ) {
         if ( s->Code == code ) return getid_name( s->Id );
 
     return NULL;
+}
+
+/* ---------------------------------------------------------------------- */
+
+void sysproc_exit() {
+    while( nmodules-- ) {
+        dlibclose( modules_hnd[ nmodules ] );
+    }
 }
 
 /* ---------------------------------------------------------------------- */

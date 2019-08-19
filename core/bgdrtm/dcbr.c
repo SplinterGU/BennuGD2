@@ -369,8 +369,8 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         char fname[__MAX_PATH];
 
         dcb.sourcecount = ( uint64_t * ) calloc( dcb.data.NSourceFiles, sizeof( uint64_t ) );
-        dcb.sourcelines = ( uint8_t *** ) calloc( dcb.data.NSourceFiles, sizeof( char ** ) );
-        dcb.sourcefiles = ( uint8_t ** ) calloc( dcb.data.NSourceFiles, sizeof( char * ) );
+        dcb.sourcelines = ( uint8_t *** ) calloc( dcb.data.NSourceFiles, sizeof( uint8_t ** ) );
+        dcb.sourcefiles = ( uint8_t ** ) calloc( dcb.data.NSourceFiles, sizeof( uint8_t * ) );
         file_seek( fp, offset + dcb.data.OSourceFiles, SEEK_SET );
         for ( n = 0; n < dcb.data.NSourceFiles; n++ ) {
             file_readUint64( fp, &size );
@@ -395,19 +395,19 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         procs[n].breakpoint         = 0;
 
         if ( dcb.proc[n].data.SPrivate ) {
-            procs[n].pridata = ( int64_t * )calloc( dcb.proc[n].data.SPrivate, sizeof( char ) ); /* El size ya esta calculado en bytes */
+            procs[n].pridata = ( uint8_t * )calloc( dcb.proc[n].data.SPrivate, sizeof( uint8_t ) ); /* El size ya esta calculado en bytes */
             file_seek( fp, offset + dcb.proc[n].data.OPrivate, SEEK_SET );
             file_read( fp, procs[n].pridata, dcb.proc[n].data.SPrivate );      /* *** */
         }
 
         if ( dcb.proc[n].data.SPublic ) {
-            procs[n].pubdata = ( int64_t * )calloc( dcb.proc[n].data.SPublic, sizeof( char ) ); /* El size ya esta calculado en bytes */
+            procs[n].pubdata = ( uint8_t * )calloc( dcb.proc[n].data.SPublic, sizeof( uint8_t ) ); /* El size ya esta calculado en bytes */
             file_seek( fp, offset + dcb.proc[n].data.OPublic, SEEK_SET );
             file_read( fp, procs[n].pubdata, dcb.proc[n].data.SPublic );       /* *** */
         }
 
         if ( dcb.proc[n].data.SCode ) {
-            procs[n].code = ( int64_t * ) calloc( dcb.proc[n].data.SCode, sizeof( char ) ); /* El size ya esta calculado en bytes */
+            procs[n].code = ( int64_t * ) calloc( dcb.proc[n].data.SCode / sizeof( int64_t ), sizeof( int64_t ) ); /* El size ya esta calculado en bytes */
             file_seek( fp, offset + dcb.proc[n].data.OCode, SEEK_SET );
             file_readUint64A( fp, (uint64_t *)procs[n].code, dcb.proc[n].data.SCode / sizeof(uint64_t) );
 
@@ -458,7 +458,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         sysproc_code_ref[n].Type = sdcb.Type;
         sysproc_code_ref[n].Params = sdcb.Params;
         sysproc_code_ref[n].Code = sdcb.Code;
-        sysproc_code_ref[n].ParamTypes = ( uint8_t * ) calloc( sdcb.Params + 1, sizeof( char ) );
+        sysproc_code_ref[n].ParamTypes = ( uint8_t * ) calloc( sdcb.Params + 1, sizeof( uint8_t ) );
         if ( sdcb.Params ) file_read( fp, sysproc_code_ref[n].ParamTypes, sdcb.Params );
     }
 

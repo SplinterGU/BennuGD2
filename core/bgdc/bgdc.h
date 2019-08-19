@@ -131,6 +131,8 @@ extern SYSPROC * sysproc_by_name( int64_t code );
 extern void compile_warning( int, const char *fmt, ... );
 extern void compile_error( const char *fmt, ... );
 
+extern void free_imports();
+
 /* Constantes */
 
 extern void core_init();

@@ -565,6 +565,8 @@ static void QuickSort( uint8_t *Data, int inf, int sup, int64_t * params ) {
 
     if ( inf < rigth ) QuickSort( Data, inf, rigth, params );
     if ( left < sup ) QuickSort( Data, left, sup, params );
+
+    free(x);
 }
 
 /*

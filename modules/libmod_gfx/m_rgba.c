@@ -66,10 +66,9 @@ int64_t libmod_gfx_get_rgba( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_rgb_map( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[0], params[1] ) ;
     Uint8 r, g, b;
-
 #ifdef USE_SDL2
+    GRAPH * map = bitmap_get( params[0], params[1] ) ;
     if ( !map->surface ) return 0;
     SDL_GetRGB( params[2], map->surface->format, &r, &g, &b ) ;
 #endif
@@ -86,10 +85,9 @@ int64_t libmod_gfx_get_rgb_map( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_rgba_map( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[0], params[1] ) ;
     Uint8 r, g, b, a;
-
 #ifdef USE_SDL2
+    GRAPH * map = bitmap_get( params[0], params[1] ) ;
     if ( !map->surface ) return 0;
     SDL_GetRGBA( params[2], map->surface->format, &r, &g, &b, &a ) ;
 #endif
@@ -118,8 +116,8 @@ int64_t libmod_gfx_rgba( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_rgb_map( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[0], params[1] ) ;
 #ifdef USE_SDL2
+    GRAPH * map = bitmap_get( params[0], params[1] ) ;
     if ( !map->surface ) return 0;
     return SDL_MapRGB( map->surface->format, params[2], params[3], params[4] );
 #endif
@@ -131,8 +129,8 @@ int64_t libmod_gfx_rgb_map( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_rgba_map( INSTANCE * my, int64_t * params ) {
-    GRAPH * map = bitmap_get( params[0], params[1] ) ;
 #ifdef USE_SDL2
+    GRAPH * map = bitmap_get( params[0], params[1] ) ;
     if ( !map->surface ) return 0;
     return SDL_MapRGBA( map->surface->format, params[2], params[3], params[4], params[5] );
 #endif

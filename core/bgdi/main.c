@@ -75,7 +75,7 @@ int main( int argc, char *argv[] ) {
     char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0 = NULL;
     int i, j, ret = -1;
     file * fp = NULL;
-    dcb_signature dcb_signature;
+    dcb_signature dcb_signature = { 0 };
 
     /* disable stdout buffering */
     setvbuf( stdout, NULL, _IONBF, BUFSIZ );

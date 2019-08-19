@@ -209,7 +209,7 @@ void gr_update_objects( void ) {
         key = ctr->key;
 
         next_object = ctr->first_in_key;
-        while (( object = next_object ) ) {
+        while ( ctr && ( object = next_object ) ) {
             next_object = object->next ;
 
             if ( object->seq != sequencer ) {
@@ -226,7 +226,10 @@ void gr_update_objects( void ) {
                     if ( object->prev ) object->prev->next = object->next;
                     if ( object == ctr->first_in_key ) ctr->first_in_key = object->next;
 
-                    if ( !ctr->first_in_key ) destroy_container( ctr );
+                    if ( !ctr->first_in_key ) {
+                        destroy_container( ctr );
+                        ctr = NULL;
+                    }
 
                     /* Get new or exist container */
                     fix_ctr = get_container( object->z );

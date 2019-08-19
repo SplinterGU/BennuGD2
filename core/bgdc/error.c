@@ -69,13 +69,13 @@ void err_buildErrorTable() {
             if ( line[0] == '_' ) {
                 /* must resize the string and concatenate */
                 if ( err ) {
-                    size = strlen( err->msg ) + strlen( line );
+                    size = strlen( err->msg ) + strlen( line ) + 2 ;
                     msg = ( char * )calloc( size, sizeof( char ) );
                     strcpy( msg, err->msg );
                     line[0] = '\n';
                     strcat( msg, line );
                     free( err->msg );
-                    err->msg = strdup( msg );
+                    err->msg = msg; //strdup( msg );
                 }
             } else {
                 /* Check for comment */
@@ -105,7 +105,7 @@ struct _errmsg * err_addError( int code, const char * msg ) {
     err = calloc( 1, sizeof( struct _errmsg ) );
     if ( err ) {
         err->code = code;
-        err->msg  = strdup( msg );
+        err->msg  = strdup( msg ? msg : "Unknown error" );
         err->prev = NULL;
         err->next = NULL;
 

@@ -69,6 +69,7 @@ void codeblock_postprocess(CODEBLOCK * code) {
 				line_count = identifier_line(token.code);
 				current_file = identifier_file(token.code);
 				compile_error(MSG_UNDEFINED_PROC);
+                return; /* Avoid scan-build warning */
 			}
 	        ptr[1] = proc->typeid;
 		}

@@ -368,7 +368,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         base_offset = data->current,
         total_length, count,
         unsigned_prefix = 0, signed_prefix = 0;
-    int64_t code;
     expresion_result res;
     BASETYPE basetype = TYPE_UNDEFINED;
     TYPEDEF type, typeaux;
@@ -618,7 +617,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
 
         if ( constants_search( token.code ) ) compile_error( MSG_CONSTANT_REDECLARED_AS_VARIABLE );
 
-        code = token.code;
         n->vars[n->count].code = token.code;
         n->vars[n->count].offset = data->current;
 

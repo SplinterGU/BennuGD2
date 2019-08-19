@@ -43,6 +43,9 @@ int onlyfenixexport = 0;
 int interactive = 1;
 int all = 1, functions = 0, locals = 0, globals = 0, types = 0, constants = 0, hooks_callbacks = 0, dependencies = 0, locals_dep = 0, globals_dep = 0;
 
+int nmodules = 0;
+void * modules_hnd[512] = { 0 };
+
 /* ----------------------------------------------------------------- */
 
 void describe_type( int type ) {
@@ -225,6 +228,8 @@ void describe_module( char *filename ) {
         printf( "ERROR: %s library can't be loaded (%s)\n", filename, dliberror() );
         return;
     }
+
+    modules_hnd[ nmodules++ ] = library;
 
     printf( "Module name: %s\n\n", filename );
 
@@ -475,6 +480,10 @@ int main( int argc, char *argv[] ) {
     }
 
     describe_module( modname );
+
+    while( nmodules-- ) {
+        dlibclose( modules_hnd[ nmodules ] );
+    }
 
     exit( 0 );
 }

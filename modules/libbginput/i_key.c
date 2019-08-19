@@ -230,7 +230,7 @@ static int64_t scancode = 0;
 
 /* ---------------------------------------------------------------------- */
 
-static void process_key( SDL_Event *e, int64_t ascii, int keypress ) {
+static void process_key( SDL_Event *e, int64_t ascii, int *keypress ) {
     int n;
     SDL_Keymod m;
     int ignore_key = 0;
@@ -251,10 +251,10 @@ static void process_key( SDL_Event *e, int64_t ascii, int keypress ) {
 
     int k = e->key.keysym.scancode;
 
-    if ( !keypress ) {
+    if ( !*keypress ) {
         GLOQWORD( libbginput, SCANCODE ) = scancode = k;
         GLOQWORD( libbginput, ASCII ) = ascii;
-        keypress = 1;
+        *keypress = 1;
     } else {
         keyring[keyring_tail].scancode = k;
         keyring[keyring_tail].ascii = ascii;
@@ -316,7 +316,7 @@ void process_key_events() {
     while ( SDL_PeepEvents( &e, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_TEXTINPUT ) > 0 ) {
         switch ( e.type ) {
             case SDL_KEYDOWN:
-                if ( ready ) process_key( &keydown_e, ascii, keypress );
+                if ( ready ) process_key( &keydown_e, ascii, &keypress );
 
                 keydown_e = e;
                 ascii = 0;
@@ -331,7 +331,7 @@ void process_key_events() {
                     char c = e.text.text[i];
                     // cancel if a non-ascii char is encountered
                     if ( c < ' ' || c > '~' ) break;
-                    if ( ready ) process_key( &keydown_e, win_to_dos[c], keypress );
+                    if ( ready ) process_key( &keydown_e, win_to_dos[c], &keypress );
                     ready = 0;
                     ascii = 0;
                 }
@@ -339,7 +339,7 @@ void process_key_events() {
         }
     }
 
-    if ( ready ) process_key( &keydown_e, ascii, keypress );
+    if ( ready ) process_key( &keydown_e, ascii, &keypress );
 
     if ( !keypress && keyring_start != keyring_tail ) {
         GLOQWORD( libbginput, ASCII ) = keyring[keyring_start].ascii;
@@ -389,20 +389,20 @@ void key_init() {
 /* ---------------------------------------------------------------------- */
 
 void key_exit() {
-    /* FREE used key_equivs... note base 127 equivs are static not allocated... */
+    /* FREE used key_equivs... note base SDL_NUM_SCANCODES equivs are static not allocated... */
     int i;
     key_equiv * aux;
-    key_equiv * curr = key_table;
+    key_equiv * curr;
 
-    for ( i = 0;i < 127;i++ ) {
-        if ( curr->next != NULL ) {
+    for ( i = 0; i < SDL_NUM_SCANCODES; i++ ) {
+        curr = &key_table[i];
+        if ( curr->next ) {
             curr = curr->next;
-            while ( curr->next != NULL ) {
+            while ( curr ) {
                 aux = curr;
                 curr = curr->next;
                 free( aux );
             }
-            free( curr );
         }
     }
 

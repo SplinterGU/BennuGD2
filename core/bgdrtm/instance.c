@@ -358,7 +358,7 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
     instance_add_to_list_by_id( r, pid );
     instance_add_to_list_by_instance( r );
     instance_add_to_list_by_type( r, type );
-    instance_add_to_list_by_priority( r, LOCINT64( r, PRIORITY ) );
+    instance_add_to_list_by_priority( r, LOCINT64( father, PRIORITY ) ); // Use father for avoid scan-build warning, can use 'r'
 
     /* The called_by pointer should be set only when the caller
      * is waiting for this process to return */

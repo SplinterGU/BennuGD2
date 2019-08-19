@@ -161,7 +161,7 @@ static int64_t drawing_z = 0 ;
 
 static int _libmod_gfx_draw_object_info( void * what, REGION * brectangle_filled, int64_t * z, int64_t * drawme ) {
 
-    REGION newclip;
+    REGION newclip = { 0 };
     int64_t minx, miny, maxx, maxy;
 
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) what;

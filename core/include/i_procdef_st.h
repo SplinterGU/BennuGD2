@@ -34,8 +34,8 @@
 /* Process definitions, more simple that in the compiler */
 
 typedef struct _procdef {
-	int64_t * pridata;
-	int64_t * pubdata;
+	uint8_t * pridata;
+	uint8_t * pubdata;
 
 	int64_t * code;
 

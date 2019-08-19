@@ -468,7 +468,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
 #endif
     FONT * f;
     char * chardata, * charptr;
-    int i, idx, id;
+    int i, id;
     int charrowsize, charcolsize;
     int w, h, cw, ch;
     SDL_Surface * surface;
@@ -494,7 +494,6 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
     cw = map->width / width;
 
     i = charmap ? 0 : first;
-    idx = 0;
 
     for ( h = 0; h < ch; h++ ) {
         if ( (  charmap && !charmap[ i ] ) ||
@@ -504,8 +503,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
 
         for ( charptr = chardata, w = 0; w < cw; w++, charptr += charcolsize, i++ ) {
             int align = 0;
-
-            idx = ( charmap ) ? charmap[ i ] : i;
+            int idx = ( charmap ) ? charmap[ i ] : i;
 
             if ( options != NFB_FIXEDWIDTH )
                 align = align_bitmap_char_left( ( ( unsigned char * ) charptr ),

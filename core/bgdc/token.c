@@ -393,8 +393,8 @@ void preprocessor_jumpto( int64_t id, int64_t id2 ) {
  */
 
 void preprocessor_expand( DEFINE * def ) {
-    const char * param_left[MAX_MACRO_PARAMS];
-    const char * param_right[MAX_MACRO_PARAMS];
+    const char * param_left[MAX_MACRO_PARAMS] = { NULL };
+    const char * param_right[MAX_MACRO_PARAMS] = { NULL };
     const char * begin = NULL;
     const char * old_source = NULL;
     char * text;
@@ -422,6 +422,7 @@ void preprocessor_expand( DEFINE * def ) {
         for ( count = 0; count < def->param_count; count++ ) {
             depth = 0;
             param_left[count] = source_ptr;
+            param_right[count] = source_ptr;
 
             while ( *source_ptr && ( depth > 0 || ( *source_ptr != ')' && *source_ptr != ',' ) ) ) {
                 if ( *source_ptr == '"' || *source_ptr == '\'' ) {
@@ -481,13 +482,14 @@ void preprocessor_expand( DEFINE * def ) {
 
                     if ( i != def->param_count ) {  /* Parameter found - expand it */
                         part = param_right[i] - param_left[i];
-                        if ( size + part + 1 >= allocated ) {
-                            allocated += (( part + 256 ) & ~ 127 );
+                        if ( size + part + 2 >= allocated ) {
+                            allocated += (( part + 256 ) & ~127 );
                             text = ( char * )realloc( text, allocated );
                         }
                         text[size++] = ' ';
-                        memcpy( text + size, param_left[i], part );
+                        if ( param_left[i] ) memcpy( text + size, param_left[i], part );
                         size += part;
+                        text[size] = '\0';
                         continue;
                     }
                 }
@@ -495,13 +497,14 @@ void preprocessor_expand( DEFINE * def ) {
                 /* No parameter found - copy the token */
 
                 part = source_ptr - begin;
-                if ( size + part + 1 >= allocated ) {
+                if ( size + part + 2 >= allocated ) {
                     allocated += (( part + 256 ) & ~127 );
                     text = ( char * )realloc( text, allocated );
                 }
                 text[size++] = ' ';
                 memcpy( text + size, begin, part );
                 size += part;
+                text[size] = '\0';
             } else {
                 line_count++;
                 source_ptr++;

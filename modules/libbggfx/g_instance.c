@@ -271,7 +271,7 @@ int draw_instance_info( void * what, REGION * region, int64_t * z, int64_t * dra
 
     /* Si tiene grafico o xgraph o (ctype == 0 y esta corriendo o congelado) */
 
-    if ( LOCQWORD( libbggfx, i, CTYPE ) == C_SCREEN && ( LOCQWORD( libbggfx, i, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) ) ) * drawme = 1;
+    if ( drawme && LOCQWORD( libbggfx, i, CTYPE ) == C_SCREEN && ( LOCQWORD( libbggfx, i, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) ) ) * drawme = 1;
 
     return 1;
 }

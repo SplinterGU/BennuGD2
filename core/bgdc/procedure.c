@@ -83,7 +83,7 @@ PROCDEF * procdef_new( int64_t typeid, int64_t id ) {
 
     if ( typeid >= procs_allocated ) {
         procs_allocated = typeid + 15;
-        procs = ( PROCDEF ** ) realloc( procs, sizeof( PROCDEF ** ) * procs_allocated );
+        procs = ( PROCDEF ** ) realloc( procs, sizeof( PROCDEF * ) * procs_allocated );
         if (!procs) {
             fprintf( stdout, "procdef_new: out of memory\n" );
             exit (1);

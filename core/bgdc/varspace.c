@@ -140,6 +140,7 @@ void varspace_destroy( VARSPACE * v ) {
  */
 
 void varspace_init( VARSPACE * n ) {
+    if ( !n ) return;
     n->vars = ( VARIABLE * ) calloc( 16, sizeof( VARIABLE ) );
     n->reserved = 16;
     n->count = 0;
@@ -167,9 +168,13 @@ void varspace_init( VARSPACE * n ) {
  */
 
 void varspace_varstring( VARSPACE * n, int64_t offset ) {
+    if ( !n ) return;
     if ( n->stringvar_reserved == n->stringvar_count ) {
         n->stringvars = ( int64_t * ) realloc( n->stringvars, ( n->stringvar_reserved += 16 ) * sizeof( int64_t ) );
-        if ( !n->stringvars ) compile_error( "varspace_varstring: out of memory\n" );
+        if ( !n->stringvars ) {
+            compile_error( "varspace_varstring: out of memory\n" );
+            return; /* Avoid scan-build warning */
+        }
     }
     n->stringvars[ n->stringvar_count++ ] = ( int64_t ) offset;
 }

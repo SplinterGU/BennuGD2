@@ -163,7 +163,7 @@ void shader_setshaderimage( GRAPH * image, int location, int image_unit ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setattributei( int location, int value ) {
+void shader_setattributei( int location, int32_t value ) {
 #ifdef USE_SDL2_GPU
     GPU_SetAttributei( location, value );
 #endif
@@ -171,7 +171,7 @@ void shader_setattributei( int location, int value ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setattributeiv( int location, int nvalues, int * values ) {
+void shader_setattributeiv( int location, int nvalues, int32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetAttributeiv( location, nvalues, values );
 #endif
@@ -179,7 +179,7 @@ void shader_setattributeiv( int location, int nvalues, int * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setattributeui( int location, unsigned int value ) {
+void shader_setattributeui( int location, uint32_t value ) {
 #ifdef USE_SDL2_GPU
     GPU_SetAttributeui( location, value );
 #endif
@@ -187,7 +187,7 @@ void shader_setattributeui( int location, unsigned int value ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setattributeuiv( int location, int nvalues, unsigned int * values ) {
+void shader_setattributeuiv( int location, int nvalues, uint32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetAttributeuiv( location, nvalues, values );
 #endif
@@ -211,7 +211,7 @@ void shader_setattributefv( int location, int nvalues, float * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniformi( int location, int value ) {
+void shader_setuniformi( int location, int32_t value ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformi( location, value );
 #endif
@@ -219,7 +219,7 @@ void shader_setuniformi( int location, int value ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniformiv( int location, int nvalues, int * values ) {
+void shader_setuniformiv( int location, int nvalues, int32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformiv( location, 1, nvalues, values );
 #endif
@@ -227,7 +227,7 @@ void shader_setuniformiv( int location, int nvalues, int * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniform2iv( int location, int nvalues, int * values ) {
+void shader_setuniform2iv( int location, int nvalues, int32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformiv( location, 2, nvalues, values );
 #endif
@@ -235,7 +235,7 @@ void shader_setuniform2iv( int location, int nvalues, int * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniform3iv( int location, int nvalues, int * values ) {
+void shader_setuniform3iv( int location, int nvalues, int32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformiv( location, 3, nvalues, values );
 #endif
@@ -243,7 +243,7 @@ void shader_setuniform3iv( int location, int nvalues, int * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniform4iv( int location, int nvalues, int * values ) {
+void shader_setuniform4iv( int location, int nvalues, int32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformiv( location, 4, nvalues, values );
 #endif
@@ -251,7 +251,7 @@ void shader_setuniform4iv( int location, int nvalues, int * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniformui( int location, unsigned int value ) {
+void shader_setuniformui( int location, uint32_t value ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformui( location, value );
 #endif
@@ -259,7 +259,7 @@ void shader_setuniformui( int location, unsigned int value ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniformuiv( int location, int nvalues, unsigned int * values ) {
+void shader_setuniformuiv( int location, int nvalues, uint32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformuiv( location, 1, nvalues, values );
 #endif
@@ -267,7 +267,7 @@ void shader_setuniformuiv( int location, int nvalues, unsigned int * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniform2uiv( int location, int nvalues, unsigned int * values ) {
+void shader_setuniform2uiv( int location, int nvalues, uint32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformuiv( location, 2, nvalues, values );
 #endif
@@ -275,7 +275,7 @@ void shader_setuniform2uiv( int location, int nvalues, unsigned int * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniform3uiv( int location, int nvalues, unsigned int * values ) {
+void shader_setuniform3uiv( int location, int nvalues, uint32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformuiv( location, 3, nvalues, values );
 #endif
@@ -283,7 +283,7 @@ void shader_setuniform3uiv( int location, int nvalues, unsigned int * values ) {
 
 /* --------------------------------------------------------------------------- */
 
-void shader_setuniform4uiv( int location, int nvalues, unsigned int * values ) {
+void shader_setuniform4uiv( int location, int nvalues, uint32_t * values ) {
 #ifdef USE_SDL2_GPU
     GPU_SetUniformuiv( location, 4, nvalues, values );
 #endif

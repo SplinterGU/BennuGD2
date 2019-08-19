@@ -703,6 +703,7 @@ void dcb_vars_load( file * fp, VARSPACE * vs, segment * data, char * data_source
 
 int get_new_off( int off, range * offs, int noffs ) {
     int n;
+    if ( !offs ) return 0;
     for ( n = 0; n < noffs; n++ ) if ( off >= offs[n].offstart && off <= offs[n].offend ) return off - offs[n].offstart + offs[n].offnew;
     return 0;
 }
@@ -879,7 +880,7 @@ int dcb_load_lib( const char * filename ) {
         sysproc_code_ref[n].Type = sdcb.Type ;
         sysproc_code_ref[n].Params = sdcb.Params ;
         sysproc_code_ref[n].Code = sdcb.Code ;
-        sysproc_code_ref[n].ParamTypes = ( uint8_t * ) calloc( sdcb.Params + 1, sizeof( char ) );
+        sysproc_code_ref[n].ParamTypes = ( uint8_t * ) calloc( sdcb.Params + 1, sizeof( uint8_t ) );
         if ( sdcb.Params ) file_read( fp, sysproc_code_ref[n].ParamTypes, sdcb.Params ) ;
     }
 
@@ -891,8 +892,8 @@ int dcb_load_lib( const char * filename ) {
         fileid = calloc( dcb.data.NSourceFiles, sizeof( int64_t ) );
 
         dcb.sourcecount = ( uint64_t * ) calloc( dcb.data.NSourceFiles, sizeof( uint64_t ) ) ;
-        dcb.sourcelines = ( uint8_t *** ) calloc( dcb.data.NSourceFiles, sizeof( char ** ) ) ;
-        dcb.sourcefiles = ( uint8_t ** ) calloc( dcb.data.NSourceFiles, sizeof( char * ) ) ;
+        dcb.sourcelines = ( uint8_t *** ) calloc( dcb.data.NSourceFiles, sizeof( uint8_t ** ) ) ;
+        dcb.sourcefiles = ( uint8_t ** ) calloc( dcb.data.NSourceFiles, sizeof( uint8_t * ) ) ;
         file_seek( fp, dcb.data.OSourceFiles, SEEK_SET ) ;
         for ( n = 0; n < dcb.data.NSourceFiles; n++ ) {
             int m;

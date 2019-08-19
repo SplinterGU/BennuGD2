@@ -247,8 +247,10 @@ void draw_lines( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points 
 #endif
 #ifdef USE_SDL2_GPU
     count--;
-    while( count-- ) {
-        GPU_Line( target, ( float ) points->x, ( float ) points->y, ( float ) (++points)->x, ( float ) points->y, color );
+    if ( count > 1 ) {
+        while( count-- ) {
+            GPU_Line( target, ( float ) points->x, ( float ) points->y, ( float ) (++points)->x, ( float ) points->y, color );
+        }
     }
 #endif
 

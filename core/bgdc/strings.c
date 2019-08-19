@@ -161,7 +161,8 @@ int64_t string_compile( const char ** source ) {
 
     while ( ( cc = *( *source ) ) ) {
         if ( cc == '\\' ) { // ESCAPE
-            cc = *( *source )++;
+//            cc = *( *source )++;
+            ( *source )++;
             switch ( cc = *( *source ) ) {
                 case 'a':   cc = '\a'; ( *source )++; break; /* Alert (Beep, Bell) (added in C89)[1] */
                 case 'b':   cc = '\b'; ( *source )++; break; /* Backspace */
@@ -194,12 +195,8 @@ int64_t string_compile( const char ** source ) {
                 }
             }
             if ( cc ) {
-#if 1
                 conv = convert( cc );
                 string_mem[ string_used++ ] = conv;
-#else
-                string_mem[ string_used++ ] = cc;
-#endif
             }
         } else if ( cc == c ) {  /* Termina la string? */
             ( *source )++;
@@ -214,12 +211,8 @@ int64_t string_compile( const char ** source ) {
             string_mem[ string_used++ ] = '\n';
             ( *source )++;
         } else {
-#if 1
-                conv = convert( cc );
-                string_mem[ string_used++ ] = conv;
-#else
-                string_mem[ string_used++ ] = cc;
-#endif
+            conv = convert( cc );
+            string_mem[ string_used++ ] = conv;
             ( *source )++;
         }
 

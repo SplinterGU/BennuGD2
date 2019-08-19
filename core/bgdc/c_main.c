@@ -45,10 +45,10 @@ extern void token_dump();
 static char * import_filename = NULL;
 static int64_t import_line = 0;
 
-int64_t imports_aux[512] ;  /* Modules */
-int64_t nimports_aux = 0;
-int64_t imports[512] ;      /* Modules */
+int64_t nimports_hnd = 0;
+void * imports_hnd[512] = { 0 };    /* Modules Handles */
 int64_t nimports = 0;
+int64_t imports[512] = { 0 } ;      /* Modules */
 
 /* ---------------------------------------------------------------------- */
 /* Modulo principal del compilador. Contiene codigo que inicializa los    */
@@ -332,7 +332,7 @@ static char * trim( char * ptr ) {
 
 static int import_exists( char * libname ) {
     int n;
-    for ( n = 0; n < nimports_aux; n++ ) if ( !strcmp( libname, string_get( imports_aux[n] ) ) ) return n;
+    for ( n = 0; n < nimports; n++ ) if ( !strcmp( libname, string_get( imports[n] ) ) ) return n;
     return -1;
 }
 
@@ -381,7 +381,6 @@ static char * dlsearchpath[] = {
 static void import_module( const char * filename ) {
     int         libid;
     void        * library = NULL;
-
     char        ** globals_def = NULL;
     char        ** locals_def = NULL;
     DLCONSTANT  * constants_def = NULL;
@@ -425,7 +424,7 @@ static void import_module( const char * filename ) {
     filename = soname;
     libid = string_new( soname );
 
-    imports_aux[nimports_aux++] = libid;
+    imports[nimports++] = libid;
 
     strcat( soname, DLLEXT );
 
@@ -442,6 +441,9 @@ static void import_module( const char * filename ) {
 
     if ( !library ) compile_error( MSG_LIBRARY_NOT_FOUND, filename );
 
+
+    imports_hnd[nimports_hnd++] = library;
+
     modules_dependency = ( char ** ) _dlibaddr( library, "modules_dependency" );
     if ( modules_dependency ) {
         char * old_import_filename = import_filename;
@@ -455,8 +457,6 @@ static void import_module( const char * filename ) {
         }
         import_filename = old_import_filename;
     }
-
-    imports[nimports++] = libid;
 
     constants_def = ( DLCONSTANT * ) _dlibaddr( library, "constants_def" );
     if ( constants_def ) {
@@ -532,6 +532,14 @@ void import_mod( char * libname ) {
     import_filename = libname;
     import_module( libname );
     import_filename = NULL;
+}
+
+/* ---------------------------------------------------------------------- */
+
+void free_imports() {
+    while( nimports_hnd-- ) {
+        dlibclose( imports_hnd[ nimports_hnd ] );
+    }
 }
 
 /* ---------------------------------------------------------------------- */

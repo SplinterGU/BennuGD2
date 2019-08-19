@@ -60,7 +60,10 @@ segment * segment_new() {
 	/* Creates the segment */
 
 	segment * s = (segment *) calloc(1, sizeof(segment));
-	if (!s) compile_error("segment_new: out of memory\n");
+	if (!s) {
+        compile_error("segment_new: out of memory\n");
+        return NULL; /* Avoid scan-build warning */
+    }
 
 	if (free_count) s->id = free_id[--free_count];
 	else            s->id = max_id++;
@@ -77,7 +80,10 @@ segment * segment_new() {
 
 segment * segment_duplicate(segment * b) {
 	segment * s = (segment *) calloc(1, sizeof(segment));
-	if (!s) compile_error("segment_new: out of memory\n");
+	if (!s) {
+        compile_error("segment_new: out of memory\n");
+        return NULL; /* Avoid scan-build warning */
+    }
 
 	if (free_count) s->id = free_id[--free_count];
 	else            s->id = max_id++;
@@ -86,7 +92,11 @@ segment * segment_duplicate(segment * b) {
 	s->reserved = b->reserved;
 
 	s->bytes = calloc(s->reserved, sizeof(char)) ; /* Tama�o en bytes */
-	if (!s->bytes) compile_error("segment_new: out of memory\n");
+	if (!s->bytes) {
+        free( s );  /* Avoid scan-build warning */
+        compile_error("segment_new: out of memory\n");
+        return NULL; /* Avoid scan-build warning */
+    }
 	memcpy(s->bytes, b->bytes, s->current);
 
 	segment_register(s);

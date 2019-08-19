@@ -65,6 +65,7 @@ extern int64_t debug;
 int64_t autodeclare = 1;
 int64_t libmode = 0;
 
+static char _main_path[__MAX_PATH] = { 0 };
 char * main_path = NULL;
 
 char * appexename       = NULL;
@@ -187,7 +188,7 @@ int main( int argc, char *argv[] ) {
 
     /* Get command line parameters */
 
-    for ( i = 1 ; i < argc ; i++ ) {
+    for ( i = 1 ; argv[i] && i < argc ; i++ ) {
         if ( argv[i][0] == '-' ) {
             if ( !strcmp( argv[i], "--pedantic" ) ) {
                 autodeclare = 0 ;
@@ -346,7 +347,9 @@ int main( int argc, char *argv[] ) {
             char * p, * pathend = NULL;
 
             sourcefile = argv[i];
-            p = main_path = strdup( argv[i] );
+            main_path = _main_path;
+            strcpy( main_path, sourcefile );
+            p = main_path;
             while ( p && *p ) {
                 if ( *p == ':' || *p == '\\' || *p == '/' ) pathend = p;
                 p++;
@@ -355,8 +358,7 @@ int main( int argc, char *argv[] ) {
                 *( pathend + 1 ) = '\0';
                 file_addp( main_path );
             } else {
-                free( main_path );
-                main_path = getcwd(malloc(__MAX_PATH), __MAX_PATH);
+                main_path = getcwd(main_path, __MAX_PATH);
                 strcat(main_path, PATH_SEP);
             }
 
@@ -447,6 +449,9 @@ int main( int argc, char *argv[] ) {
     } else {
         dcb_save( dcbname, dcb_options, NULL );
     }
+
+    /* unload Modules */
+    free_imports();
 
     /* destroy error messages list */
     err_destroyErrorTable();

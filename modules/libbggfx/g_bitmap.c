@@ -119,6 +119,7 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
             }
             gr->tex = NULL;
         } else {
+            gr->surface = NULL;
             gr->tex = GPU_CopyImageFromSurface( surface );
             if ( !gr->tex ) {
                 fprintf(stderr, "GPU_GetCurrentRenderer %p\n", GPU_GetCurrentRenderer());

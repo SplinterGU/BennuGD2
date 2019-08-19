@@ -461,9 +461,9 @@ static int64_t __libmod_misc_proc_pause( INSTANCE * my, int64_t what ) {
 
 static int64_t __libmod_misc_proc_resume( INSTANCE * my, int64_t what ) {
     INSTANCE * i, * ctx;
+#if 0
     int64_t myid = LOCQWORD( libmod_misc, my, PROCESS_ID );
 
-#if 0
     if ( what == ALL_PROCESS ) {
 #endif
         system_paused = 0;

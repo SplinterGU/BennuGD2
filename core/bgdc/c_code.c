@@ -418,7 +418,10 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
         }
     }
 
-    if ( !var ) compile_error( MSG_UNKNOWN_IDENTIFIER );
+    if ( !var ) {
+        compile_error( MSG_UNKNOWN_IDENTIFIER );
+        return res; /* Avoid scan-build warning */
+    }
 
     if ( var->offset - base_offset != 0 ||
             here == &global ||
@@ -517,7 +520,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     expresion_result ind;
     TYPEDEF type, * usertype;
     int64_t * _content_type = NULL, tcode;
-    int base = 0, _content_size = 0, _parent_count = 0, /*check_datatype = 0, */ index_pointer = 0;
+    int base = 0, _content_size = 0, _parent_count = 0, /*check_datatype = 0, */ index_pointer = 0, ret;
 
     if ( !content_size ) content_size = &_content_size;
     if ( !content_type ) content_type = _content_type = ( int64_t * ) calloc( MAX_EXPR_LEVEL, sizeof( int64_t ) );
@@ -565,6 +568,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
                 token_back();
                 break;
             }
+            if ( _content_type ) free( _content_type );
             return base;
         }
         token_back();
@@ -605,7 +609,11 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
         var = varspace_search( here, token.code );
     }
 
-    if ( !var ) compile_error( MSG_UNKNOWN_IDENTIFIER );
+    if ( !var ) {
+        compile_error( MSG_UNKNOWN_IDENTIFIER );
+        if ( _content_type ) free( _content_type ); /* Avoid scan-build warning */
+        return 0; /* Avoid scan-build warning */
+    }
 
     type = var->type;
 
@@ -656,6 +664,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
             token_next();
             index_pointer = 1;
         } else if ( typedef_is_string( type ) ) {
+            if ( _content_type ) free( _content_type );
             return 1; /* Indexado de cadenas */
         }
     }
@@ -693,6 +702,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
 
     if ( index_pointer && ( token.type != IDENTIFIER || token.code != identifier_point ) ) { /* "." */
         token_back();
+        if ( _content_type ) free( _content_type );
         return typedef_size( type ); /* Indexado de punteros ptr[0] */
     }
 
@@ -703,10 +713,14 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
         }
 
         if ( typedef_is_struct( type ) || typedef_is_pointer( type ) || typedef_base( type ) == TYPE_QWORD || typedef_base( type ) == TYPE_INT ) {
-            return compile_sizeof( typedef_members( type ), content_size, content_type, parent_count );
+            ret = compile_sizeof( typedef_members( type ), content_size, content_type, parent_count );
+            if ( _content_type ) free( _content_type );
+            return ret;
         }
 
-        return compile_sizeof( &local, content_size, content_type, parent_count );
+        ret = compile_sizeof( &local, content_size, content_type, parent_count );
+        if ( _content_type ) free( _content_type );
+        return ret;
     }
 
     /*   Process "*ptr|**ptr|***ptr|..."      */
@@ -747,7 +761,7 @@ static void strdelchars( char * str, char * chars ) {
 
 SYSPROC * compile_bestproc( SYSPROC ** procs ) {
     const char * proc_name = procs[0]->name;
-    int n, proc_count = 0, count = 0, min_params = 0, param_diff, params = 0;
+    int n, proc_count = 0, count = 0, min_params = 0, params = 0;
     char validtypes[32], type = -1;
     CODEBLOCK_POS code_pos_code;
     expresion_result res;
@@ -782,7 +796,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
 
         params++;
 
-        res = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
+        compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
 
         token_next();
         if ( token.type != IDENTIFIER || token.code != identifier_comma ) { /* "," */
@@ -796,11 +810,9 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
 
     /* Eliminate any process that has not as many parameters */
 
-    param_diff = 0;
     for ( n = 0; n < proc_count; n++ ) {
         char * p = procs[n]->paramtypes;
-
-        param_diff = 0;
+        int param_diff = 0;
 
         while( ( *p ) ) if ( *(p++) == '+' ) param_diff++;
 
@@ -1000,7 +1012,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                     compile_error( MSG_INVALID_PARAMT );
             }
 
-            res = convert_result_type( res, (BASETYPE)type );
+            convert_result_type( res, (BASETYPE)type );
         }
 
         token_next();
@@ -1187,6 +1199,7 @@ expresion_result compile_cast() {
         if ( typep == NULL ) {
 /*            type = typedef_new(TYPE_INT); */
             compile_error( MSG_INVALID_TYPE );
+            return res; /* Avoid scan-build warning */
         }
         type = *typep;
         token_next();
@@ -1687,6 +1700,7 @@ expresion_result compile_value() {
             } else {
                 token_back();
                 compile_error( MSG_UNDEFINED_PROC );
+                return res; /* Avoid scan-build warning */
             }
         }
 
@@ -1837,8 +1851,10 @@ expresion_result compile_factor() {
 
                 if ( typedef_is_struct( part.type ) ) {
                     VARSPACE * v = typedef_members( part.type );
-                    if ( !v->vars ) compile_error( MSG_STRUCT_REQUIRED );
-
+                    if ( !v->vars ) {
+                        compile_error( MSG_STRUCT_REQUIRED );
+                        return res; /* Avoid scan-build warning */
+                    }
                     part = compile_sublvalue( v, v->vars[0].offset, NULL );
                 } else {
                     VARSPACE * v = typedef_members( part.type );
@@ -2000,7 +2016,7 @@ expresion_result compile_operand() {
                     res.type = typedef_new( TYPE_FLOAT );
                     res.value = 0;
                 } else {
-                    if ( right.value == 0 ) compile_error( MSG_DIVIDE_BY_ZERO );
+                    if ( right.value == 0 ) { compile_error( MSG_DIVIDE_BY_ZERO ); return left; /* Return avoid scan-build warning */ }
                     res.value = op == MN_MOD ? left.value % right.value : left.value / right.value;
                     res.type = typedef_new( TYPE_INT );
                     res.fvalue = 0.0;
@@ -2259,7 +2275,7 @@ expresion_result compile_comparison_2() {
              ( token.code == identifier_eq ||  /* "==" */
                token.code == identifier_ne ) ) /* "!=" or "<>" */
         {
-            int is_unsigned = 0;
+//            int is_unsigned = 0;
 
             op = token.code;
             if ( left.lvalue && ( left.type.chunk[0].type != TYPE_ARRAY || left.type.chunk[1].type != TYPE_CHAR ) )
@@ -2272,7 +2288,7 @@ expresion_result compile_comparison_2() {
             t = check_numeric_or_string_types( &left, &right );
             if ( t != MN_FLOAT && t != MN_DOUBLE && t != MN_STRING ) t = MN_QWORD;
 
-            if ( typedef_is_unsigned( left.type ) && typedef_is_unsigned( right.type ) ) is_unsigned = MN_UNSIGNED;
+//            if ( typedef_is_unsigned( left.type ) && typedef_is_unsigned( right.type ) ) is_unsigned = MN_UNSIGNED;
 
             res.value = 0;
 
@@ -2521,7 +2537,7 @@ expresion_result compile_logical_or() {
 
 /* Paso 1 */
 expresion_result compile_ternarycond() {
-    CODEBLOCK_POS pos;
+    CODEBLOCK_POS pos = { 0 };
     int et1, et2;
 
     if ( code ) pos = codeblock_pos( code );
@@ -2970,7 +2986,7 @@ expresion_result compile_subexpresion() {
 
 expresion_result compile_expresion( int need_constant, int need_lvalue, int discart_code, BASETYPE t ) {
     expresion_result res;
-    CODEBLOCK_POS pos;
+    CODEBLOCK_POS pos = { 0 };
 
     if ( code ) pos = codeblock_pos( code );
     res = compile_subexpresion();
@@ -3250,7 +3266,7 @@ extern int dcb_options;
 void compile_block( PROCDEF * p ) {
     int loop, last_loop, et1, et2, codelabel, is_process;
     expresion_result res, from, to;
-    PROCDEF * ps;
+    PROCDEF * ps = NULL;
 
     proc = p;
     code = &p->code;
@@ -3513,7 +3529,7 @@ void compile_block( PROCDEF * p ) {
                     codeblock_add( code, MN_A2STR, 0 );
                     switch_type = TYPE_STRING;
                 } else if ( typedef_is_integer( switch_exp.type ) ) {
-                    switch_exp = convert_result_type( switch_exp, TYPE_INT );
+                    convert_result_type( switch_exp, TYPE_INT );
                     switch_type = TYPE_INT;
                 }
                 token_next();
