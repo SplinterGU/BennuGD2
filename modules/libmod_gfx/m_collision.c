@@ -65,6 +65,8 @@ typedef struct {
     double  scale_y;
     int64_t ncboxes;
     __cbox_info * cboxes;
+    int64_t ncboxes_box;
+    int64_t ncboxes_circle;
 } __obj_col_info;
 
 /* --------------------------------------------------------------------------- */
@@ -94,31 +96,45 @@ static inline void __calculate_shape( __obj_col_info * oci )
     double  lef_x, top_y, rig_x, bot_y,
             delta_x, delta_y;
 
-    for ( i = 0; i < oci->ncboxes; i++ ) {
-        switch ( oci->cboxes[i].cbox.shape ) {
-            case BITMAP_CB_SHAPE_BOX:
-                lef_x = oci->scale_x * ( oci->cboxes[i].cbox.x - oci->center_x );
-                rig_x = oci->scale_x * ( oci->cboxes[i].cbox.width - 1 ) + lef_x;
-                top_y = oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y );
-                bot_y = oci->scale_y * ( oci->cboxes[i].cbox.height - 1 ) + top_y;
+#define CALCULATE_SHAPE_BOX \
+                    lef_x = oci->scale_x * ( oci->cboxes[i].cbox.x - oci->center_x ); \
+                    rig_x = oci->scale_x * ( oci->cboxes[i].cbox.width - 1 ) + lef_x; \
+                    top_y = oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y ); \
+                    bot_y = oci->scale_y * ( oci->cboxes[i].cbox.height - 1 ) + top_y; \
+                    oci->cboxes[i].vertices[0] = ( lef_x * cos_angle + top_y * sin_angle ) * sx + oci->x; \
+                    oci->cboxes[i].vertices[1] = ( lef_x * sin_angle - top_y * cos_angle ) * sy + oci->y; \
+                    oci->cboxes[i].vertices[2] = ( rig_x * cos_angle + top_y * sin_angle ) * sx + oci->x; \
+                    oci->cboxes[i].vertices[3] = ( rig_x * sin_angle - top_y * cos_angle ) * sy + oci->y; \
+                    oci->cboxes[i].vertices[4] = ( rig_x * cos_angle + bot_y * sin_angle ) * sx + oci->x; \
+                    oci->cboxes[i].vertices[5] = ( rig_x * sin_angle - bot_y * cos_angle ) * sy + oci->y; \
+                    oci->cboxes[i].vertices[6] = ( lef_x * cos_angle + bot_y * sin_angle ) * sx + oci->x; \
+                    oci->cboxes[i].vertices[7] = ( lef_x * sin_angle - bot_y * cos_angle ) * sy + oci->y;
 
-                oci->cboxes[i].vertices[0] = ( lef_x * cos_angle + top_y * sin_angle ) * sx + oci->x;
-                oci->cboxes[i].vertices[1] = ( lef_x * sin_angle - top_y * cos_angle ) * sy + oci->y;
-                oci->cboxes[i].vertices[2] = ( rig_x * cos_angle + top_y * sin_angle ) * sx + oci->x;
-                oci->cboxes[i].vertices[3] = ( rig_x * sin_angle - top_y * cos_angle ) * sy + oci->y;
-                oci->cboxes[i].vertices[4] = ( rig_x * cos_angle + bot_y * sin_angle ) * sx + oci->x;
-                oci->cboxes[i].vertices[5] = ( rig_x * sin_angle - bot_y * cos_angle ) * sy + oci->y;
-                oci->cboxes[i].vertices[6] = ( lef_x * cos_angle + bot_y * sin_angle ) * sx + oci->x;
-                oci->cboxes[i].vertices[7] = ( lef_x * sin_angle - bot_y * cos_angle ) * sy + oci->y;
-                break;
+#define CALCULATE_SHAPE_CIRCLE \
+                    delta_x = oci->scale_x * ( oci->cboxes[i].cbox.x - oci->center_x ); \
+                    delta_y = oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y ); \
+                    oci->cboxes[i].vertices[0] = ( delta_x * cos_angle + delta_y * sin_angle ) * sx + oci->x; \
+                    oci->cboxes[i].vertices[1] = ( delta_x * sin_angle - delta_y * cos_angle ) * sy + oci->y;
 
-            case BITMAP_CB_SHAPE_CIRCLE:
-                delta_x = oci->scale_x * ( oci->cboxes[i].cbox.x - oci->center_x );
-                delta_y = oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y );
+    if ( oci->ncboxes_box && oci->ncboxes_circle ) {
+        for ( i = 0; i < oci->ncboxes; i++ ) {
+            switch ( oci->cboxes[i].cbox.shape ) {
+                case BITMAP_CB_SHAPE_BOX:
+                    CALCULATE_SHAPE_BOX
+                    break;
 
-                oci->cboxes[i].vertices[0] = ( cos_angle * delta_x + sin_angle * delta_y ) * sx + oci->x;
-                oci->cboxes[i].vertices[1] = ( sin_angle * delta_x - cos_angle * delta_y ) * sy + oci->y;
-                break;
+                case BITMAP_CB_SHAPE_CIRCLE:
+                    CALCULATE_SHAPE_CIRCLE
+                    break;
+            }
+        }
+    } else if ( oci->ncboxes_box ) {
+        for ( i = 0; i < oci->ncboxes; i++ ) {
+            CALCULATE_SHAPE_BOX
+        }
+    } else if ( oci->ncboxes_circle ) {
+        for ( i = 0; i < oci->ncboxes; i++ ) {
+            CALCULATE_SHAPE_CIRCLE
         }
     }
 }
@@ -126,22 +142,17 @@ static inline void __calculate_shape( __obj_col_info * oci )
 /* --------------------------------------------------------------------------- */
 
 static inline void __normalize_circle( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
-    double cos_angle;
-    double sin_angle;
-    double x1;
-    double y1;
-
     if ( flags & B_HMIRROR ) angle = -angle;
     if ( flags & B_VMIRROR ) angle = -angle;
 
-    cos_angle = cos_deg( angle );
-    sin_angle = sin_deg( angle );
+    double cos_angle = cos_deg( angle );
+    double sin_angle = sin_deg( angle );
 
-    x1 = *vertices++ - x;
-    y1 = *vertices++ - y;
+    double x1 = vertices[0] - x;
+    double y1 = vertices[1] - y;
 
-    *normalized_vertices++ = ( x1 * cos_angle - y1 * sin_angle ) + x; // x
-    *normalized_vertices++ = ( x1 * sin_angle + y1 * cos_angle ) + y; // y
+    normalized_vertices[0] = ( x1 * cos_angle - y1 * sin_angle ) + x;
+    normalized_vertices[1] = ( x1 * sin_angle + y1 * cos_angle ) + y;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -158,44 +169,43 @@ static inline void __normalize_box( double * vertices, int64_t x, int64_t y, int
     cos_angle = cos_deg( angle );
     sin_angle = sin_deg( angle );
 
-    x1 = *vertices++ - x;
-    y1 = *vertices++ - y;
-    x2 = *vertices++ - x;
-    y2 = *vertices++ - y;
-    x3 = *vertices++ - x;
-    y3 = *vertices++ - y;
-    x4 = *vertices++ - x;
-    y4 = *vertices++ - y;
+    x1 = vertices[0] - x;
+    y1 = vertices[1] - y;
+    x2 = vertices[2] - x;
+    y2 = vertices[3] - y;
+    x3 = vertices[4] - x;
+    y3 = vertices[5] - y;
+    x4 = vertices[6] - x;
+    y4 = vertices[7] - y;
 
-    *normalized_vertices++ = ( x1 * cos_angle - y1 * sin_angle ) + x; // x
-    *normalized_vertices++ = ( x1 * sin_angle + y1 * cos_angle ) + y; // y
-    *normalized_vertices++ = ( x2 * cos_angle - y2 * sin_angle ) + x; // x
-    *normalized_vertices++ = ( x2 * sin_angle + y2 * cos_angle ) + y; // y
-    *normalized_vertices++ = ( x3 * cos_angle - y3 * sin_angle ) + x; // x
-    *normalized_vertices++ = ( x3 * sin_angle + y3 * cos_angle ) + y; // y
-    *normalized_vertices++ = ( x4 * cos_angle - y4 * sin_angle ) + x; // x
-    *normalized_vertices++ = ( x4 * sin_angle + y4 * cos_angle ) + y; // y
+    normalized_vertices[0] = ( x1 * cos_angle - y1 * sin_angle ) + x;
+    normalized_vertices[1] = ( x1 * sin_angle + y1 * cos_angle ) + y;
+    normalized_vertices[2] = ( x2 * cos_angle - y2 * sin_angle ) + x;
+    normalized_vertices[3] = ( x2 * sin_angle + y2 * cos_angle ) + y;
+    normalized_vertices[4] = ( x3 * cos_angle - y3 * sin_angle ) + x;
+    normalized_vertices[5] = ( x3 * sin_angle + y3 * cos_angle ) + y;
+    normalized_vertices[6] = ( x4 * cos_angle - y4 * sin_angle ) + x;
+    normalized_vertices[7] = ( x4 * sin_angle + y4 * cos_angle ) + y;
 }
 
 /* --------------------------------------------------------------------------- */
 
-static inline void __get_vertices_proyection( double * normalized_vertices, BGD_Box * limits ) {
-    limits->x = limits->x2 = *normalized_vertices++;
-    limits->y = limits->y2 = *normalized_vertices++;
+static inline void __get_vertices_projection( double * normalized_vertices, BGD_Box * limits ) {
+    limits->x = limits->x2 = normalized_vertices[0];
+    limits->y = limits->y2 = normalized_vertices[1];
 
-    if ( limits->x  > *normalized_vertices ) limits->x  = *normalized_vertices;
-    if ( limits->x2 < *normalized_vertices ) limits->x2 = *normalized_vertices; normalized_vertices++;
-    if ( limits->y  > *normalized_vertices ) limits->y  = *normalized_vertices;
-    if ( limits->y2 < *normalized_vertices ) limits->y2 = *normalized_vertices; normalized_vertices++;
-    if ( limits->x  > *normalized_vertices ) limits->x  = *normalized_vertices;
-    if ( limits->x2 < *normalized_vertices ) limits->x2 = *normalized_vertices; normalized_vertices++;
-    if ( limits->y  > *normalized_vertices ) limits->y  = *normalized_vertices;
-    if ( limits->y2 < *normalized_vertices ) limits->y2 = *normalized_vertices; normalized_vertices++;
-    if ( limits->x  > *normalized_vertices ) limits->x  = *normalized_vertices;
-    if ( limits->x2 < *normalized_vertices ) limits->x2 = *normalized_vertices; normalized_vertices++;
-    if ( limits->y  > *normalized_vertices ) limits->y  = *normalized_vertices;
-    if ( limits->y2 < *normalized_vertices ) limits->y2 = *normalized_vertices; normalized_vertices++;
-
+    if ( limits->x  > normalized_vertices[2] ) limits->x  = normalized_vertices[2];
+    if ( limits->x2 < normalized_vertices[2] ) limits->x2 = normalized_vertices[2];
+    if ( limits->y  > normalized_vertices[3] ) limits->y  = normalized_vertices[3];
+    if ( limits->y2 < normalized_vertices[3] ) limits->y2 = normalized_vertices[3];
+    if ( limits->x  > normalized_vertices[4] ) limits->x  = normalized_vertices[4];
+    if ( limits->x2 < normalized_vertices[4] ) limits->x2 = normalized_vertices[4];
+    if ( limits->y  > normalized_vertices[5] ) limits->y  = normalized_vertices[5];
+    if ( limits->y2 < normalized_vertices[5] ) limits->y2 = normalized_vertices[5];
+    if ( limits->x  > normalized_vertices[6] ) limits->x  = normalized_vertices[6];
+    if ( limits->x2 < normalized_vertices[6] ) limits->x2 = normalized_vertices[6];
+    if ( limits->y  > normalized_vertices[7] ) limits->y  = normalized_vertices[7];
+    if ( limits->y2 < normalized_vertices[7] ) limits->y2 = normalized_vertices[7];
 }
 
 /* --------------------------------------------------------------------------- */
@@ -289,6 +299,9 @@ static int __get_proc_info(
         oci->cboxes->cbox.height = LOCINT64( libmod_gfx, proc, CBOX_HEIGHT );
     }
 
+    oci->ncboxes_box = 0;
+    oci->ncboxes_circle = 0;
+
     for ( i = 0; i < oci->ncboxes; i++ ) {
         switch ( oci->cboxes[i].cbox.shape ) {
             case BITMAP_CB_SHAPE_BOX:
@@ -297,6 +310,7 @@ static int __get_proc_info(
                 oci->cboxes[i].cbox.y = oci->cboxes[i].cbox.y == POINT_UNDEFINED ? 0 : oci->cboxes[i].cbox.y;
                 oci->cboxes[i].cbox.width = ( oci->cboxes[i].cbox.width < 1 ) ? oci->width : oci->cboxes[i].cbox.width;
                 oci->cboxes[i].cbox.height = ( oci->cboxes[i].cbox.height < 1 ) ? oci->height : oci->cboxes[i].cbox.height;
+                oci->ncboxes_box++;
                 break;
 
             case BITMAP_CB_SHAPE_CIRCLE:
@@ -329,6 +343,7 @@ static int __get_proc_info(
                             break;
                     }
                 }
+                oci->ncboxes_circle++;
                 break;
         }
     }
@@ -368,6 +383,9 @@ static int __get_mouse_info( __obj_col_info * oci ) {
     oci->cboxes->cbox.width  = 1;
     oci->cboxes->cbox.height = 1;
 
+    oci->ncboxes_box = 1;
+    oci->ncboxes_circle = 0;
+
     return 1;
 }
 
@@ -403,19 +421,213 @@ static inline int __is_collision_circle_circle( int64_t radiusA, double * vertic
 static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * ociB, int64_t * cbox_code ) {
     int i, ii, collisionA, collisionB;
     int64_t shapeA, shapeB;
-    BGD_Box proyectionA, proyectionB;
+    BGD_Box projectionA, projectionB;
     double normalized_verticesA[8], normalized_verticesB[8], normalized_verticesC[8];
 
     // Get real vertices
     __calculate_shape( ociB );
-    __calculate_box_limits( ociB );
+    if ( ociB->ncboxes_box ) __calculate_box_limits( ociB );
 
+#define __NORMALIZE_BOX(A,B,idxA) \
+                __normalize_box( oci##A->cboxes[idxA].vertices, oci##B->x, oci##B->y, oci##B->angle, oci##B->flags, normalized_vertices##A ); /* Normalize B Box axis */ \
+                __get_vertices_projection( normalized_vertices##A, &projection##A ); /* Get limits */
+
+#define __NORMALIZE_CIRCLE(A,B,idxA) \
+                __normalize_circle( oci##A->cboxes[idxA].vertices, oci##B->x, oci##B->y, oci##B->angle, oci##B->flags, normalized_vertices##A ); /* Normalize B Box axis */
+
+#define __CHECK_LIMITS(A,B,idxA,idxB) \
+                collision##A = !( projection##A.x > oci##B->cboxes[idxB].limits.x2 || projection##A.x2 < oci##B->cboxes[idxB].limits.x || projection##A.y > oci##B->cboxes[idxB].limits.y2 || projection##A.y2 < oci##B->cboxes[idxB].limits.y );
+
+#define __CHECK_COLLISION_BOX_BOX(A,B,idxA,idxB) \
+                __CHECK_LIMITS(A,B,idxA,idxB) \
+                /* If not collisionA then don't need check for second box */ \
+                if ( collisionA ) { \
+                    __NORMALIZE_BOX(B,A,idxB) \
+                    __CHECK_LIMITS(B,A,idxB,idxA) \
+                }
+
+#define __CHECK_COLLISION_CIRCLE_BOX(A,B,idxA,idxB) \
+                collisionB = __is_collision_box_circle( &(oci##A->cboxes[idxA].limits), oci##B->cboxes[idxB].cbox.width * oci##B->scale_x, normalized_vertices##B );
+
+#define __CHECK_COLLISION_BOX_CIRCLE(A,B,idxA,idxB) \
+                __NORMALIZE_CIRCLE(B,A,idxB) \
+                __CHECK_COLLISION_CIRCLE_BOX(A,B,idxA,idxB)
+
+#define __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,idxA,idxB) \
+    collision##B = __is_collision_circle_circle( oci##A->cboxes[idxA].cbox.width * oci##A->scale_x, oci##A->cboxes[idxA].vertices, oci##B->cboxes[idxB].cbox.width * oci##B->scale_x, oci##B->cboxes[idxB].vertices );
+
+#define IS_COLLISION(A,B,idxA,idxB) \
+        if ( collisionB ) { \
+            cbox_code[0] = oci##A->cboxes[idxA].cbox.code; \
+            cbox_code[1] = oci##B->cboxes[idxB].cbox.code; \
+            return 1; \
+        }
+#if 1
+    /**** BOX A + CIRCLE A ****/
+    if ( ociA->ncboxes_box && ociA->ncboxes_circle ) {
+        if ( ociB->ncboxes_box && ociB->ncboxes_circle ) { /* BOX A + CIRCLE A + BOX B + CIRCLE B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                switch ( ociA->cboxes[i].cbox.shape ) {
+                    case BITMAP_CB_SHAPE_BOX:
+                        __NORMALIZE_BOX(A,B,i)
+                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                            collisionB = 0;
+                            switch ( ociB->cboxes[ii].cbox.shape ) {
+                                case BITMAP_CB_SHAPE_BOX:
+                                    __CHECK_COLLISION_BOX_BOX(A,B,i,ii)
+                                    break;
+
+                                case BITMAP_CB_SHAPE_CIRCLE:
+                                    __CHECK_COLLISION_BOX_CIRCLE(A,B,i,ii)
+                                    break;
+                            }
+                            IS_COLLISION(A,B,i,ii)
+                        }
+                        break;
+
+                    case BITMAP_CB_SHAPE_CIRCLE:
+                        __NORMALIZE_CIRCLE(A,B,i)
+                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                            collisionB = 0;
+                            switch ( ociB->cboxes[ii].cbox.shape ) {
+                                case BITMAP_CB_SHAPE_BOX:
+                                    __CHECK_COLLISION_CIRCLE_BOX(B,A,ii,i)
+                                    break;
+
+                                case BITMAP_CB_SHAPE_CIRCLE:
+                                    __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,i,ii)
+                                    break;
+                            }
+                            IS_COLLISION(A,B,i,ii)
+                        }
+                        break;
+                }
+            }
+        } else if ( ociB->ncboxes_box ) { /* BOX A + CIRCLE A + BOX B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                switch ( ociA->cboxes[i].cbox.shape ) {
+                    case BITMAP_CB_SHAPE_BOX:
+                        __NORMALIZE_BOX(A,B,i)
+                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                            collisionB = 0;
+                            __CHECK_COLLISION_BOX_BOX(A,B,i,ii)
+                            IS_COLLISION(A,B,i,ii)
+                        }
+                        break;
+
+                    case BITMAP_CB_SHAPE_CIRCLE:
+                        __NORMALIZE_CIRCLE(A,B,i)
+                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                            __CHECK_COLLISION_CIRCLE_BOX(B,A,ii,i)
+                            IS_COLLISION(A,B,i,ii)
+                        }
+                        break;
+                }
+            }
+        } else if ( ociB->ncboxes_circle ) { /* BOX A + CIRCLE A + CIRCLE B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                switch ( ociA->cboxes[i].cbox.shape ) {
+                    case BITMAP_CB_SHAPE_BOX:
+                        __NORMALIZE_BOX(A,B,i)
+                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                            __CHECK_COLLISION_BOX_CIRCLE(A,B,i,ii)
+                            IS_COLLISION(A,B,i,ii)
+                        }
+                        break;
+
+                    case BITMAP_CB_SHAPE_CIRCLE:
+                        __NORMALIZE_CIRCLE(A,B,i)
+                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                            __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,i,ii)
+                            IS_COLLISION(A,B,i,ii)
+                        }
+                        break;
+                }
+            }
+        }
+    /**** BOX A ****/
+    } else if ( ociA->ncboxes_box ) {
+        if ( ociB->ncboxes_box && ociB->ncboxes_circle ) { /* BOX A + BOX B + CIRCLE B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                __NORMALIZE_BOX(A,B,i)
+                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                    collisionB = 0;
+                    switch ( ociB->cboxes[ii].cbox.shape ) {
+                        case BITMAP_CB_SHAPE_BOX:
+                            __CHECK_COLLISION_BOX_BOX(A,B,i,ii)
+                            break;
+
+                        case BITMAP_CB_SHAPE_CIRCLE:
+                            __CHECK_COLLISION_BOX_CIRCLE(A,B,i,ii)
+                            break;
+                    }
+                    IS_COLLISION(A,B,i,ii)
+                }
+            }
+        } else if ( ociB->ncboxes_box ) { /* BOX A + BOX B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                __NORMALIZE_BOX(A,B,i)
+                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                    collisionB = 0;
+                    __CHECK_COLLISION_BOX_BOX(A,B,i,ii)
+                    IS_COLLISION(A,B,i,ii)
+                }
+            }
+        } else if ( ociB->ncboxes_circle ) { /* BOX A + CIRCLE B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                __NORMALIZE_BOX(A,B,i)
+                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                    __CHECK_COLLISION_BOX_CIRCLE(A,B,i,ii)
+                    IS_COLLISION(A,B,i,ii)
+                }
+            }
+        }
+    /**** CIRCLE ****/
+    } else if ( ociA->ncboxes_circle ) {
+        if ( ociB->ncboxes_box && ociB->ncboxes_circle ) { /* CIRCLE A + BOX B + CIRCLE B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                __NORMALIZE_CIRCLE(A,B,i)
+                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                    collisionB = 0;
+                    switch ( ociB->cboxes[ii].cbox.shape ) {
+                        case BITMAP_CB_SHAPE_BOX:
+                            __CHECK_COLLISION_CIRCLE_BOX(B,A,ii,i)
+                            break;
+
+                        case BITMAP_CB_SHAPE_CIRCLE:
+                            __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,i,ii)
+                            break;
+                    }
+                    IS_COLLISION(A,B,i,ii)
+                }
+            }
+        } else if ( ociB->ncboxes_box ) { /* CIRCLE A + BOX B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                __NORMALIZE_CIRCLE(A,B,i)
+                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                    __CHECK_COLLISION_CIRCLE_BOX(B,A,ii,i)
+                    IS_COLLISION(A,B,i,ii)
+                }
+            }
+        } else if ( ociB->ncboxes_circle ) { /* CIRCLE A + CIRCLE B */
+            for ( i = 0; i < ociA->ncboxes; i++ ) {
+                __NORMALIZE_CIRCLE(A,B,i)
+                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                    __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,i,ii)
+                    IS_COLLISION(A,B,i,ii)
+                }
+            }
+        }
+    }
+
+
+#else
     for ( i = 0; i < ociA->ncboxes; i++ ) {
         shapeA = ociA->cboxes[i].cbox.shape;
         switch ( shapeA ) {
             case BITMAP_CB_SHAPE_BOX:
                 __normalize_box( ociA->cboxes[i].vertices, ociB->x, ociB->y, ociB->angle, ociB->flags, normalized_verticesA ); // Normalize to Box axis
-                __get_vertices_proyection( normalized_verticesA, &proyectionA ); // Get limits
+                __get_vertices_projection( normalized_verticesA, &projectionA ); // Get limits
                 break;
 
             case BITMAP_CB_SHAPE_CIRCLE:
@@ -432,12 +644,12 @@ static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * oci
                 case BITMAP_CB_SHAPE_BOX:
                     switch ( shapeA ) {
                         case BITMAP_CB_SHAPE_BOX:
-                            collisionA = !( proyectionA.x > ociB->cboxes[ii].limits.x2 || proyectionA.x2 < ociB->cboxes[ii].limits.x || proyectionA.y > ociB->cboxes[ii].limits.y2 || proyectionA.y2 < ociB->cboxes[ii].limits.y );
+                            collisionA = !( projectionA.x > ociB->cboxes[ii].limits.x2 || projectionA.x2 < ociB->cboxes[ii].limits.x || projectionA.y > ociB->cboxes[ii].limits.y2 || projectionA.y2 < ociB->cboxes[ii].limits.y );
                             // If not collisionA then don't need check for second box
                             if ( collisionA ) {
                                 __normalize_box( ociB->cboxes[ii].vertices, ociA->x, ociA->y, ociA->angle, ociA->flags, normalized_verticesB ); // Normalize to Box axis
-                                __get_vertices_proyection( normalized_verticesB, &proyectionB ); // Get limits
-                                collisionB = !( proyectionB.x > ociA->cboxes[i].limits.x2 || proyectionB.x2 < ociA->cboxes[i].limits.x || proyectionB.y > ociA->cboxes[i].limits.y2 || proyectionB.y2 < ociA->cboxes[i].limits.y );
+                                __get_vertices_projection( normalized_verticesB, &projectionB ); // Get limits
+                                collisionB = !( projectionB.x > ociA->cboxes[i].limits.x2 || projectionB.x2 < ociA->cboxes[i].limits.x || projectionB.y > ociA->cboxes[i].limits.y2 || projectionB.y2 < ociA->cboxes[i].limits.y );
                             }
                             break;
 
@@ -468,6 +680,7 @@ static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * oci
             }
         }
     }
+#endif
 
     return 0;
 }
@@ -497,7 +710,7 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
 
     // Get real vertices
     __calculate_shape( ociA );
-    __calculate_box_limits( ociA );
+    if ( ociA->ncboxes_box ) __calculate_box_limits( ociA );
 
     /* Checks collision with mouse */
     if ( id == -1 ) {
