@@ -261,7 +261,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "END\n"
 
     /* scroll */
-    "STRUCT scroll[9]\n"
+    "STRUCT scroll[63]\n"
     "   INT x0;\n"
     "   INT y0;\n"
     "   INT x1;\n"

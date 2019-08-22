@@ -48,9 +48,13 @@
 
 DLVARFIXUP __bgdexport( libmod_gfx, locals_fixup )[] = {
     /* Nombre de variable local, offset al dato, tama�o del elemento, cantidad de elementos */
+    { "__collision_reserved.mode"       , NULL, -1, -1 },
     { "__collision_reserved.type_scan"  , NULL, -1, -1 },
     { "__collision_reserved.id_scan"    , NULL, -1, -1 },
     { "__collision_reserved.context"    , NULL, -1, -1 },
+    { "__collision_reserved.id_scroll"  , NULL, -1, -1 },
+    { "__collision_reserved.idx_cboxA"  , NULL, -1, -1 },
+    { "__collision_reserved.idx_cboxB"  , NULL, -1, -1 },
 
     { "id"                              , NULL, -1, -1 },
     { "reserved.process_type"           , NULL, -1, -1 },

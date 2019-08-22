@@ -113,10 +113,10 @@ void compile_init() {
     /* Initialize reserved words */
 
     identifier_qword        = identifier_add( "QWORD" );
-    identifier_int64        = identifier_add( "INT" );
     identifier_dword        = identifier_add( "DWORD" );
     identifier_word         = identifier_add( "WORD" );
     identifier_byte         = identifier_add( "BYTE" );
+    identifier_int64        = identifier_add( "INT" );
     identifier_int32        = identifier_add( "INT32" );
     identifier_short        = identifier_add( "SHORT" );
     identifier_char         = identifier_add( "CHAR" );
@@ -129,6 +129,14 @@ void compile_init() {
 
     identifier_add_as( "BOOL", identifier_byte );
     identifier_add_as( "LONG", identifier_int64 );
+
+    identifier_add_as( "UINT",      identifier_qword );
+    identifier_add_as( "UINT32",    identifier_dword );
+    identifier_add_as( "UINT16",    identifier_word );
+    identifier_add_as( "UINT8",     identifier_byte );
+
+    identifier_add_as( "INT16", identifier_short );
+    identifier_add_as( "INT8",  identifier_char );
 
     identifier_declare      = identifier_add( "DECLARE" );
 

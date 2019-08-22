@@ -125,9 +125,13 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
 char * __bgdexport( libmod_gfx, locals_def ) =
     /* f_gproc */
     "STRUCT __collision_reserved\n"
-    "   INT type_scan;\n"
-    "   INT id_scan;\n"
-    "   INT context;\n"
+    "   INT mode = -1;\n"
+    "   UINT type_scan;\n"
+    "   UINT id_scan;\n"
+    "   UINT * context = NULL;\n"
+    "   UINT id_scroll;\n"
+    "   UINT idx_cboxA;\n"
+    "   UINT idx_cboxB;\n"
     "END\n"
 
     "INT cshape = SHAPE_BOX;\n"

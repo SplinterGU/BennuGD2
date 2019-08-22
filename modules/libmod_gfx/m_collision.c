@@ -349,18 +349,19 @@ static int __get_proc_info(
     }
 
     return 1;
-
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int __get_mouse_info( __obj_col_info * oci ) {
 
-    oci->scale_x = 1.0;
-    oci->scale_y = 1.0;
-
     oci->x = GLOINT64( libmod_gfx, MOUSEX );
     oci->y = GLOINT64( libmod_gfx, MOUSEY );
+
+    if ( oci->x > scr_width || oci->y > scr_height || oci->x < 0 || oci->y < 0 ) return 0;
+
+    oci->scale_x = 1.0;
+    oci->scale_y = 1.0;
 
     oci->width  = 1;
     oci->height = 1;
@@ -411,15 +412,14 @@ static inline int __is_collision_box_circle( BGD_Box * limits, int64_t radius, d
 /* --------------------------------------------------------------------------- */
 
 static inline int __is_collision_circle_circle( int64_t radiusA, double * verticesA, int64_t radiusB, double * verticesB ) {
-
     return in_radius2( verticesA[0], verticesA[1], verticesB[0], verticesB[1], radiusA, radiusB );
 }
 
 /* --------------------------------------------------------------------------- */
 /*  ociA is precalculated, is collider */
 
-static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * ociB, int64_t * cbox_code ) {
-    int i, ii, collisionA, collisionB;
+static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * ociB, int64_t * idxA, int64_t * idxB, int64_t * cbox_result_code ) {
+    int collisionA, collisionB;
     int64_t shapeA, shapeB;
     BGD_Box projectionA, projectionB;
     double normalized_verticesA[8], normalized_verticesB[8], normalized_verticesC[8];
@@ -454,259 +454,208 @@ static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * oci
                 __CHECK_COLLISION_CIRCLE_BOX(A,B,idxA,idxB)
 
 #define __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,idxA,idxB) \
-    collision##B = __is_collision_circle_circle( oci##A->cboxes[idxA].cbox.width * oci##A->scale_x, oci##A->cboxes[idxA].vertices, oci##B->cboxes[idxB].cbox.width * oci##B->scale_x, oci##B->cboxes[idxB].vertices );
+                collision##B = __is_collision_circle_circle( oci##A->cboxes[idxA].cbox.width * oci##A->scale_x, oci##A->cboxes[idxA].vertices, oci##B->cboxes[idxB].cbox.width * oci##B->scale_x, oci##B->cboxes[idxB].vertices );
 
 #define IS_COLLISION(A,B,idxA,idxB) \
-        if ( collisionB ) { \
-            cbox_code[0] = oci##A->cboxes[idxA].cbox.code; \
-            cbox_code[1] = oci##B->cboxes[idxB].cbox.code; \
-            return 1; \
-        }
-#if 1
+                if ( collisionB ) { \
+                    cbox_result_code[0] = oci##A->cboxes[idxA].cbox.code; \
+                    cbox_result_code[1] = oci##B->cboxes[idxB].cbox.code; \
+                    return 1; \
+                }
+
     /**** BOX A + CIRCLE A ****/
     if ( ociA->ncboxes_box && ociA->ncboxes_circle ) {
         if ( ociB->ncboxes_box && ociB->ncboxes_circle ) { /* BOX A + CIRCLE A + BOX B + CIRCLE B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                switch ( ociA->cboxes[i].cbox.shape ) {
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                switch ( ociA->cboxes[*idxA].cbox.shape ) {
                     case BITMAP_CB_SHAPE_BOX:
-                        __NORMALIZE_BOX(A,B,i)
-                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                        __NORMALIZE_BOX(A,B,*idxA)
+                        for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
                             collisionB = 0;
-                            switch ( ociB->cboxes[ii].cbox.shape ) {
+                            switch ( ociB->cboxes[*idxB].cbox.shape ) {
                                 case BITMAP_CB_SHAPE_BOX:
-                                    __CHECK_COLLISION_BOX_BOX(A,B,i,ii)
+                                    __CHECK_COLLISION_BOX_BOX(A,B,*idxA,*idxB)
                                     break;
 
                                 case BITMAP_CB_SHAPE_CIRCLE:
-                                    __CHECK_COLLISION_BOX_CIRCLE(A,B,i,ii)
+                                    __CHECK_COLLISION_BOX_CIRCLE(A,B,*idxA,*idxB)
                                     break;
                             }
-                            IS_COLLISION(A,B,i,ii)
+                            IS_COLLISION(A,B,*idxA,*idxB)
                         }
                         break;
 
                     case BITMAP_CB_SHAPE_CIRCLE:
-                        __NORMALIZE_CIRCLE(A,B,i)
-                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                        __NORMALIZE_CIRCLE(A,B,*idxA)
+                        for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
                             collisionB = 0;
-                            switch ( ociB->cboxes[ii].cbox.shape ) {
+                            switch ( ociB->cboxes[*idxB].cbox.shape ) {
                                 case BITMAP_CB_SHAPE_BOX:
-                                    __CHECK_COLLISION_CIRCLE_BOX(B,A,ii,i)
+                                    __CHECK_COLLISION_CIRCLE_BOX(B,A,*idxB,*idxA)
                                     break;
 
                                 case BITMAP_CB_SHAPE_CIRCLE:
-                                    __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,i,ii)
+                                    __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,*idxA,*idxB)
                                     break;
                             }
-                            IS_COLLISION(A,B,i,ii)
+                            IS_COLLISION(A,B,*idxA,*idxB)
                         }
                         break;
                 }
+                *idxB = 0;
             }
         } else if ( ociB->ncboxes_box ) { /* BOX A + CIRCLE A + BOX B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                switch ( ociA->cboxes[i].cbox.shape ) {
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                switch ( ociA->cboxes[*idxA].cbox.shape ) {
                     case BITMAP_CB_SHAPE_BOX:
-                        __NORMALIZE_BOX(A,B,i)
-                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+                        __NORMALIZE_BOX(A,B,*idxA)
+                        for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
                             collisionB = 0;
-                            __CHECK_COLLISION_BOX_BOX(A,B,i,ii)
-                            IS_COLLISION(A,B,i,ii)
+                            __CHECK_COLLISION_BOX_BOX(A,B,*idxA,*idxB)
+                            IS_COLLISION(A,B,*idxA,*idxB)
                         }
                         break;
 
                     case BITMAP_CB_SHAPE_CIRCLE:
-                        __NORMALIZE_CIRCLE(A,B,i)
-                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
-                            __CHECK_COLLISION_CIRCLE_BOX(B,A,ii,i)
-                            IS_COLLISION(A,B,i,ii)
+                        __NORMALIZE_CIRCLE(A,B,*idxA)
+                        for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
+                            __CHECK_COLLISION_CIRCLE_BOX(B,A,*idxB,*idxA)
+                            IS_COLLISION(A,B,*idxA,*idxB)
                         }
                         break;
                 }
+                *idxB = 0;
             }
         } else if ( ociB->ncboxes_circle ) { /* BOX A + CIRCLE A + CIRCLE B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                switch ( ociA->cboxes[i].cbox.shape ) {
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                switch ( ociA->cboxes[*idxA].cbox.shape ) {
                     case BITMAP_CB_SHAPE_BOX:
-                        __NORMALIZE_BOX(A,B,i)
-                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
-                            __CHECK_COLLISION_BOX_CIRCLE(A,B,i,ii)
-                            IS_COLLISION(A,B,i,ii)
+                        __NORMALIZE_BOX(A,B,*idxA)
+                        for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
+                            __CHECK_COLLISION_BOX_CIRCLE(A,B,*idxA,*idxB)
+                            IS_COLLISION(A,B,*idxA,*idxB)
                         }
                         break;
 
                     case BITMAP_CB_SHAPE_CIRCLE:
-                        __NORMALIZE_CIRCLE(A,B,i)
-                        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
-                            __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,i,ii)
-                            IS_COLLISION(A,B,i,ii)
+                        __NORMALIZE_CIRCLE(A,B,*idxA)
+                        for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
+                            __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,*idxA,*idxB)
+                            IS_COLLISION(A,B,*idxA,*idxB)
                         }
                         break;
                 }
+                *idxB = 0;
             }
         }
     /**** BOX A ****/
     } else if ( ociA->ncboxes_box ) {
         if ( ociB->ncboxes_box && ociB->ncboxes_circle ) { /* BOX A + BOX B + CIRCLE B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                __NORMALIZE_BOX(A,B,i)
-                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                __NORMALIZE_BOX(A,B,*idxA)
+                for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
                     collisionB = 0;
-                    switch ( ociB->cboxes[ii].cbox.shape ) {
+                    switch ( ociB->cboxes[*idxB].cbox.shape ) {
                         case BITMAP_CB_SHAPE_BOX:
-                            __CHECK_COLLISION_BOX_BOX(A,B,i,ii)
+                            __CHECK_COLLISION_BOX_BOX(A,B,*idxA,*idxB)
                             break;
 
                         case BITMAP_CB_SHAPE_CIRCLE:
-                            __CHECK_COLLISION_BOX_CIRCLE(A,B,i,ii)
+                            __CHECK_COLLISION_BOX_CIRCLE(A,B,*idxA,*idxB)
                             break;
                     }
-                    IS_COLLISION(A,B,i,ii)
+                    IS_COLLISION(A,B,*idxA,*idxB)
                 }
+                *idxB = 0;
             }
         } else if ( ociB->ncboxes_box ) { /* BOX A + BOX B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                __NORMALIZE_BOX(A,B,i)
-                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                __NORMALIZE_BOX(A,B,*idxA)
+                for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
                     collisionB = 0;
-                    __CHECK_COLLISION_BOX_BOX(A,B,i,ii)
-                    IS_COLLISION(A,B,i,ii)
+                    __CHECK_COLLISION_BOX_BOX(A,B,*idxA,*idxB)
+                    IS_COLLISION(A,B,*idxA,*idxB)
                 }
+                *idxB = 0;
             }
         } else if ( ociB->ncboxes_circle ) { /* BOX A + CIRCLE B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                __NORMALIZE_BOX(A,B,i)
-                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
-                    __CHECK_COLLISION_BOX_CIRCLE(A,B,i,ii)
-                    IS_COLLISION(A,B,i,ii)
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                __NORMALIZE_BOX(A,B,*idxA)
+                for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
+                    __CHECK_COLLISION_BOX_CIRCLE(A,B,*idxA,*idxB)
+                    IS_COLLISION(A,B,*idxA,*idxB)
                 }
+                *idxB = 0;
             }
         }
     /**** CIRCLE ****/
     } else if ( ociA->ncboxes_circle ) {
         if ( ociB->ncboxes_box && ociB->ncboxes_circle ) { /* CIRCLE A + BOX B + CIRCLE B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                __NORMALIZE_CIRCLE(A,B,i)
-                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                __NORMALIZE_CIRCLE(A,B,*idxA)
+                for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
                     collisionB = 0;
-                    switch ( ociB->cboxes[ii].cbox.shape ) {
+                    switch ( ociB->cboxes[*idxB].cbox.shape ) {
                         case BITMAP_CB_SHAPE_BOX:
-                            __CHECK_COLLISION_CIRCLE_BOX(B,A,ii,i)
+                            __CHECK_COLLISION_CIRCLE_BOX(B,A,*idxB,*idxA)
                             break;
 
                         case BITMAP_CB_SHAPE_CIRCLE:
-                            __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,i,ii)
+                            __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,*idxA,*idxB)
                             break;
                     }
-                    IS_COLLISION(A,B,i,ii)
+                    IS_COLLISION(A,B,*idxA,*idxB)
                 }
+                *idxB = 0;
+
             }
         } else if ( ociB->ncboxes_box ) { /* CIRCLE A + BOX B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                __NORMALIZE_CIRCLE(A,B,i)
-                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
-                    __CHECK_COLLISION_CIRCLE_BOX(B,A,ii,i)
-                    IS_COLLISION(A,B,i,ii)
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                __NORMALIZE_CIRCLE(A,B,*idxA)
+                for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
+                    __CHECK_COLLISION_CIRCLE_BOX(B,A,*idxB,*idxA)
+                    IS_COLLISION(A,B,*idxA,*idxB)
                 }
+                *idxB = 0;
             }
         } else if ( ociB->ncboxes_circle ) { /* CIRCLE A + CIRCLE B */
-            for ( i = 0; i < ociA->ncboxes; i++ ) {
-                __NORMALIZE_CIRCLE(A,B,i)
-                for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
-                    __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,i,ii)
-                    IS_COLLISION(A,B,i,ii)
+            for ( ; *idxA < ociA->ncboxes; (*idxA)++ ) {
+                __NORMALIZE_CIRCLE(A,B,*idxA)
+                for ( ; *idxB < ociB->ncboxes; (*idxB)++ ) {
+                    __CHECK_COLLISION_CIRCLE_CIRCLE(A,B,*idxA,*idxB)
+                    IS_COLLISION(A,B,*idxA,*idxB)
                 }
+                *idxB = 0;
             }
         }
     }
-
-
-#else
-    for ( i = 0; i < ociA->ncboxes; i++ ) {
-        shapeA = ociA->cboxes[i].cbox.shape;
-        switch ( shapeA ) {
-            case BITMAP_CB_SHAPE_BOX:
-                __normalize_box( ociA->cboxes[i].vertices, ociB->x, ociB->y, ociB->angle, ociB->flags, normalized_verticesA ); // Normalize to Box axis
-                __get_vertices_projection( normalized_verticesA, &projectionA ); // Get limits
-                break;
-
-            case BITMAP_CB_SHAPE_CIRCLE:
-                __normalize_circle( ociA->cboxes[i].vertices, ociB->x, ociB->y, ociB->angle, ociB->flags, normalized_verticesA ); // Normalize to Box axis
-                break;
-        }
-
-        /* ***** Iterate ***** */
-        /* A vs each B */
-        for ( ii = 0; ii < ociB->ncboxes; ii++ ) {
-            collisionB = 0;
-            shapeB = ociB->cboxes[ii].cbox.shape;
-            switch ( shapeB ) {
-                case BITMAP_CB_SHAPE_BOX:
-                    switch ( shapeA ) {
-                        case BITMAP_CB_SHAPE_BOX:
-                            collisionA = !( projectionA.x > ociB->cboxes[ii].limits.x2 || projectionA.x2 < ociB->cboxes[ii].limits.x || projectionA.y > ociB->cboxes[ii].limits.y2 || projectionA.y2 < ociB->cboxes[ii].limits.y );
-                            // If not collisionA then don't need check for second box
-                            if ( collisionA ) {
-                                __normalize_box( ociB->cboxes[ii].vertices, ociA->x, ociA->y, ociA->angle, ociA->flags, normalized_verticesB ); // Normalize to Box axis
-                                __get_vertices_projection( normalized_verticesB, &projectionB ); // Get limits
-                                collisionB = !( projectionB.x > ociA->cboxes[i].limits.x2 || projectionB.x2 < ociA->cboxes[i].limits.x || projectionB.y > ociA->cboxes[i].limits.y2 || projectionB.y2 < ociA->cboxes[i].limits.y );
-                            }
-                            break;
-
-                        case BITMAP_CB_SHAPE_CIRCLE:
-                            collisionB = __is_collision_box_circle( &ociB->cboxes[ii].limits, ociA->cboxes[i].cbox.width * ociA->scale_x, normalized_verticesA );
-                            break;
-                    }
-                    break;
-
-                case BITMAP_CB_SHAPE_CIRCLE:
-                    switch ( shapeA ) {
-                        case BITMAP_CB_SHAPE_BOX:
-                            __normalize_circle( ociB->cboxes[ii].vertices, ociA->x, ociA->y, ociA->angle, ociA->flags, normalized_verticesB );
-                            collisionB = __is_collision_box_circle( &ociA->cboxes[i].limits, ociB->cboxes[ii].cbox.width * ociB->scale_x, normalized_verticesB ); // Normalize to Box axis
-                            break;
-
-                        case BITMAP_CB_SHAPE_CIRCLE:
-                            collisionB = __is_collision_circle_circle( ociA->cboxes[i].cbox.width * ociA->scale_x, ociA->cboxes[i].vertices, ociB->cboxes[ii].cbox.width * ociB->scale_x, ociB->cboxes[ii].vertices );
-                            break;
-                    }
-                    break;
-            }
-
-            if ( collisionB ) {
-                cbox_code[0] = ociA->cboxes[i].cbox.code;
-                cbox_code[1] = ociB->cboxes[ii].cbox.code;
-                return 1;
-            }
-        }
-    }
-#endif
+    *idxA = 0;
 
     return 0;
 }
 
 /* --------------------------------------------------------------------------- */
 
+static __obj_col_info __ociA = { 0 }, __ociB = { 0 };
+
 static int64_t __collision( INSTANCE * my, int64_t id ) {
-    INSTANCE * ptr, ** ctx;
-    __obj_col_info * ociA, * ociB;
-    int collision = 0;
-    int64_t cbox_code[2];
+    int             collision = 0;
+    INSTANCE        * ptr,
+                    ** ctx;
+    __obj_col_info  * ociA = &__ociA,
+                    * ociB = &__ociB;
+    uint64_t        id_scroll = LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCROLL );
+    int64_t         cbox_result_code[2],
+                    * idxA = ( int64_t * ) LOCADDR( libmod_gfx, my, COLLISION_RESERVED_IDX_CBOXA ),
+                    * idxB = ( int64_t * ) LOCADDR( libmod_gfx, my, COLLISION_RESERVED_IDX_CBOXB ),
+                    mode = LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ); /* Mode:
+                                                                                    0 - mouse
+                                                                                    1 - single instance
+                                                                                    2 - all instances
+                                                                                    3 - process type
+                                                                                */
 
-    ociA = malloc(sizeof(__obj_col_info));
-    if ( !ociA ) return 0;
-
-    ociB = malloc(sizeof(__obj_col_info));
-    if ( !ociB ) {
-        FREE( ociA );
-        return 0;
-    }
-
-    if ( !__get_proc_info( my, ociA ) ) {
-        FREE( ociA );
-        FREE( ociB );
-        return 0;
-    }
+    if ( !__get_proc_info( my, ociA ) ) return 0;
 
     // Get real vertices
     __calculate_shape( ociA );
@@ -716,136 +665,179 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
     if ( id == -1 ) {
         collision = 0;
         if ( __get_mouse_info( ociB ) ) {
+            if ( mode != 0 || id_scroll >= MAX_SCROLLS ) {
+                LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = 0;
+                LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
+                LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) = 0;
+                id_scroll = 0;
+                * idxA = 0;
+                * idxB = 0;
+            }
+
             if ( LOCQWORD( libmod_gfx, my, CTYPE ) == C_SCROLL ) {
                 int i;
 
                 int64_t cnumber = LOCQWORD( libmod_gfx, my, CNUMBER );
                 if ( !cnumber ) cnumber = 0xffffffffffffffff;
 
-                for ( i = 0; i < MAX_SCROLLS && !collision; i++ ) {
-                    if ( scrolls[i].active && ( cnumber & ( 1 << i ) ) ) {
-                        REGION * r = scrolls[i].region;
+                for ( ; id_scroll < MAX_SCROLLS && !collision; id_scroll++ ) {
+                    if ( scrolls[id_scroll].active && ( cnumber & ( 1 << (id_scroll) ) ) ) {
+                        REGION * r = scrolls[id_scroll].region;
 
-                        ociB->x += scrolls[i].posx0 + r->x;
-                        ociB->y += scrolls[i].posy0 + r->y;
+                        if ( ociB->x > r->x2 || ociB->y > r->y2 || ociB->x < r->x || ociB->y < r->y ) continue;
 
-                        collision = __check_collision( ociA, ociB, cbox_code ) ;
+                        ociB->x += scrolls[id_scroll].posx0 - r->x;
+                        ociB->y += scrolls[id_scroll].posy0 - r->y;
 
-                        ociB->x -= scrolls[i].posx0 + r->x;
-                        ociB->y -= scrolls[i].posy0 + r->y;
+                        collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
+
+                        ociB->x -= scrolls[id_scroll].posx0 - r->x;
+                        ociB->y -= scrolls[id_scroll].posy0 - r->y;
                     }
                 }
-                FREE( ociB->cboxes ); FREE( ociB );
-                FREE( ociA->cboxes ); FREE( ociA );
+                FREE( ociB->cboxes );
+                FREE( ociA->cboxes );
                 if ( collision ) {
+                    (*idxB)++;
+                    LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCROLL ) = id_scroll;
                     LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
-                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
                     return 1;
                 }
                 return 0;
             }
-            collision = __check_collision( ociA, ociB, cbox_code ) ;
+            LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCROLL ) = 0;
+            collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
             FREE( ociB->cboxes );
         }
-        FREE( ociB );
-        free( ociA->cboxes ); free( ociA );
+        FREE( ociA->cboxes );
         if ( collision ) {
+            (*idxB)++;
             LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
             LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
-            LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+            LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
             return 1;
         }
+        LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = -1;
         return 0;
     }
 
     int64_t ctype = LOCQWORD( libmod_gfx, my, CTYPE );
+    int64_t id_scan = LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN );
+
+    /* SINGLE INSTANCE */
 
     /* Checks only for a single instance */
     if ( id >= FIRST_INSTANCE_ID ) {
+        if ( mode != 1 || id_scan != id ) {
+            LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = 1;
+            LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
+            * idxA = 0;
+            * idxB = 0;
+        }
+
         ptr = instance_get( id );
         if ( ptr && ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
             if ( __get_proc_info( ptr, ociB ) ) {
-                collision = __check_collision( ociA, ociB, cbox_code ) ;
+                collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
                 FREE( ociB->cboxes );
                 if ( collision ) {
-                    FREE( ociB );
-                    FREE( ociA->cboxes ); FREE( ociA );
-                    LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+                    (*idxB)++;
+                    FREE( ociA->cboxes );
+
+                    LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
+                    LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_result_code[0];
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
                     return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
                 }
             }
         }
-        FREE( ociB );
-        FREE( ociA->cboxes ); FREE( ociA );
+        FREE( ociA->cboxes );
+        LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = -1;
         return 0;
     }
 
-    /* we must use full list of instances or get types from it */
-    ptr = first_instance;
+    /* ALL INSTANCES */
 
+    /* we must use full list of instances or get types from it */
     if ( !id ) {
-        int p;
-        LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) = 0;
-        if ( ( p = LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) ) ) {
-            ptr = instance_get( p );
-            if ( ptr ) ptr = ptr->next;
+        ptr = first_instance;
+
+        if ( mode != 2 || !id_scan ) {
+            LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = 2;
+            LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
+            * idxA = 0;
+            * idxB = 0;
         }
+
+        if ( id_scan ) ptr = instance_get( id_scan );
 
         while ( ptr ) {
             if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
                 if ( __get_proc_info( ptr, ociB ) ) {
-                    collision = __check_collision( ociA, ociB, cbox_code ) ;
+                    collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
                     FREE( ociB->cboxes );
                     if ( collision ) {
-                        FREE( ociB );
-                        FREE( ociA->cboxes ); FREE( ociA );
+                        (*idxB)++;
+                        FREE( ociA->cboxes );
                         LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                        LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+                        LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_result_code[0];
                         LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                        LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                        LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
                         return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
                     }
                 }
             }
             ptr = ptr->next;
         }
-        FREE( ociB );
-        FREE( ociA->cboxes ); FREE( ociA );
-        LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
+        FREE( ociA->cboxes );
+        LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = -1;
         return 0;
     }
 
-    LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
+
+    /* TYPE */
+
     /* Check if already in scan by type and we reach limit */
+
     ctx = ( INSTANCE ** ) LOCADDR( libmod_gfx, my, COLLISION_RESERVED_CONTEXT );
-    if ( LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) != id ) { /* Check if type change from last call */
-        *ctx = NULL;
+
+    if ( mode != 3 || LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) != id ) { /* Check if type change from last call */
+        LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = 3;
+        LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = 0;
         LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) = id;
+        * ctx = NULL;
+        * idxA = 0;
+        * idxB = 0;
     }
 
-    while ( ( ptr = instance_get_by_type( id, ctx ) ) ) {
+    ptr = NULL;
+
+    if ( ( id_scan = LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) ) ) ptr = instance_get( id_scan );
+    if ( !ptr ) ptr = instance_get_by_type( id, ctx );
+
+    while ( ptr ) {
         if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
             if ( __get_proc_info( ptr, ociB ) ) {
-                collision = __check_collision( ociA, ociB, cbox_code ) ;
+                collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
                 FREE( ociB->cboxes );
                 if ( collision ) {
-                    FREE( ociB );
-                    FREE( ociA->cboxes ); FREE( ociA );
+                    (*idxB)++;
+                    FREE( ociA->cboxes );
                     LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCAN ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                    LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_code[0];
+                    LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_result_code[0];
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
-                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_code[1];
+                    LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
                     return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
                 }
             }
         }
+        ptr = instance_get_by_type( id, ctx );
     }
-    FREE( ociB );
-    FREE( ociA->cboxes ); FREE( ociA );
-    LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_TYPE_SCAN ) = 0;
+    FREE( ociA->cboxes );
+    LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = -1;
     return 0;
 }
 
