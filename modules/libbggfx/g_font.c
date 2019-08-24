@@ -529,6 +529,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
                                                 surface->pitch,
                                                 surface->format->BitsPerPixel );
 
+#if 0
                if ( ww & 1 ) {
                     if ( ( ww + align ) < width ) {
                         ww++;
@@ -539,7 +540,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
                         delta1 = 1;
                     } /* else bad font format */
                 }
-
+#endif
                 f->glyph[ idx ].fontsource.w = ww + delta1;
                 f->glyph[ idx ].xadvance = ww + delta2;
             }

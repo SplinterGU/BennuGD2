@@ -4326,7 +4326,7 @@ static void Blit(GPU_Renderer* renderer, GPU_Image* image, GPU_Rect* src_rect, G
     dy1 = y - h * image->anchor_y;
     dx2 = x + w * (1.0f - image->anchor_x);
     dy2 = y + h * (1.0f - image->anchor_y);
-
+/*
     if(image->snap_mode == GPU_SNAP_DIMENSIONS || image->snap_mode == GPU_SNAP_POSITION_AND_DIMENSIONS)
     {
         float fractional;
@@ -4337,7 +4337,7 @@ static void Blit(GPU_Renderer* renderer, GPU_Image* image, GPU_Rect* src_rect, G
         dy1 += fractional;
         dy2 += fractional;
     }
-
+*/
     if(renderer->coordinate_mode)
     {
         float temp = dy1;
@@ -4556,6 +4556,7 @@ static void BlitTransformX(GPU_Renderer* renderer, GPU_Image* image, GPU_Rect* s
     dx2 = w - pivot_x;
     dy2 = h - pivot_y;
 
+/*
     if(image->snap_mode == GPU_SNAP_DIMENSIONS || image->snap_mode == GPU_SNAP_POSITION_AND_DIMENSIONS)
     {
         // This is a little weird for rotating sprites, but oh well.
@@ -4567,7 +4568,7 @@ static void BlitTransformX(GPU_Renderer* renderer, GPU_Image* image, GPU_Rect* s
         dy1 += fractional;
         dy2 += fractional;
     }
-
+*/
     if(renderer->coordinate_mode == 1)
     {
         float temp = dy1;
