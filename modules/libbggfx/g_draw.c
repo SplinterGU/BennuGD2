@@ -249,7 +249,8 @@ void draw_lines( GRAPH * dest, REGION * clip, int64_t count, SDL_Point * points 
     count--;
     if ( count > 1 ) {
         while( count-- ) {
-            GPU_Line( target, ( float ) points->x, ( float ) points->y, ( float ) (++points)->x, ( float ) points->y, color );
+            GPU_Line( target, ( float ) points[0].x, ( float ) points[0].y, ( float ) points[1].x, ( float ) points[1].y, color );
+            points++;
         }
     }
 #endif
@@ -616,7 +617,7 @@ void draw_bezier( GRAPH * dest, REGION * clip, int64_t x1, int64_t y1, int64_t x
         d2y = d3y + 2 * b * delta * delta;
         dy = a * delta * delta * delta + b * delta * delta + c * delta;
 
-        points = malloc( sizeof( SDL_Point ) * n * 2 );
+        points = malloc( sizeof( SDL_Point ) * ( n + 1 ) /* * 2 */ );
         if ( !points ) return;
 
         for ( i = 0; i < n; i++ ) {
