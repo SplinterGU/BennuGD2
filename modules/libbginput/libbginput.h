@@ -72,7 +72,15 @@ enum {
     MOUSEALPHA,
     MOUSECOLOR_R,
     MOUSECOLOR_G,
-    MOUSECOLOR_B
+    MOUSECOLOR_B,
+    MOUSE_BLEND_MODE,
+    MOUSE_CUSTOM_BLEND_MODE,
+    MOUSE_SRC_RGB,
+    MOUSE_DST_RGB,
+    MOUSE_SRC_ALPHA,
+    MOUSE_DST_ALPHA,
+    MOUSE_EQUATION_RGB,
+    MOUSE_EQUATION_ALPHA
 };
 
 /* --------------------------------------------------------------------------- */

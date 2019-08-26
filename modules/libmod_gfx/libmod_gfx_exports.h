@@ -238,8 +238,12 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     /* Maps */
     FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIII"     , TYPE_INT        , libmod_gfx_map_block_copy       ),
     FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIBBBB" , TYPE_INT        , libmod_gfx_map_block_copy2      ),
+    FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIBBBBI", TYPE_INT        , libmod_gfx_map_block_copy3      ),
+    FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIBBBBIIIIIII", TYPE_INT  , libmod_gfx_map_block_copy4      ),
     FUNC( "MAP_PUT"             , "IIIIII"          , TYPE_INT        , libmod_gfx_map_put              ),
     FUNC( "MAP_PUT"             , "IIIIIIIIIIBBBB"  , TYPE_INT        , libmod_gfx_map_put2             ),
+    FUNC( "MAP_PUT"             , "IIIIIIIIIIBBBBI" , TYPE_INT        , libmod_gfx_map_put3             ),
+    FUNC( "MAP_PUT"             , "IIIIIIIIIIBBBBIIIIIII", TYPE_INT   , libmod_gfx_map_put4             ),
     FUNC( "MAP_NEW"             , "II"              , TYPE_INT        , libmod_gfx_new_map              ),
     FUNC( "MAP_NEW"             , "III"             , TYPE_INT        , libmod_gfx_new_map_extend       ),
     FUNC( "MAP_CLEAR"           , "II"              , TYPE_INT        , libmod_gfx_map_clear            ),

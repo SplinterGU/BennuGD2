@@ -424,7 +424,25 @@ int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params ) {
 
     if ( !dest || !orig ) return 0;
 
-    gr_blit( dest, NULL, params[4], params[5], 0, 0, 100.0, 100.0, POINT_UNDEFINED, POINT_UNDEFINED, orig, NULL, 255, 255, 255, 255 );
+    gr_blit(    dest,
+                NULL,
+                params[4],
+                params[5],
+                0,
+                0,
+                100.0,
+                100.0,
+                POINT_UNDEFINED,
+                POINT_UNDEFINED,
+                orig,
+                NULL,
+                255,
+                255,
+                255,
+                255,
+                BLEND_DISABLED,
+                NULL
+            );
     return 1;
 }
 
@@ -453,7 +471,84 @@ int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
              params[10], // alpha
              params[11], // r
              params[12], // g
-             params[13]  // b
+             params[13], // b
+             BLEND_DISABLED,
+             NULL
+         );
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+/** MAP_XPUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B, blend_mode)
+ *  Draws a graph into another one, with most blitter options including flags and alpha
+ */
+
+int64_t libmod_gfx_map_put3( INSTANCE * my, int64_t * params ) {
+    GRAPH * dest = bitmap_get( params[0], params[1] );
+    GRAPH * orig = bitmap_get( params[2], params[3] );
+    if ( !dest || !orig ) return 0;
+
+    gr_blit( dest,       // dest
+             NULL,       // clip
+             params[4],  // x
+             params[5],  // y
+             params[9],  // flags
+             params[6],  // angle
+             params[7],  // scalex
+             params[8],  // scaley
+             POINT_UNDEFINED, // centerx
+             POINT_UNDEFINED, // centery
+             orig,       // orig
+             NULL,       // orig_clip
+             params[10], // alpha
+             params[11], // r
+             params[12], // g
+             params[13], // b
+             params[14], // blend_mode
+             NULL
+         );
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+/** MAP_XPUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B, blend_mode, src_rgb, src_alpha, dst_rgb, dst_alpha, equation_rgb, equation_alpha)
+ *  Draws a graph into another one, with most blitter options including flags and alpha
+ */
+
+int64_t libmod_gfx_map_put4( INSTANCE * my, int64_t * params ) {
+    GRAPH * dest = bitmap_get( params[0], params[1] );
+    GRAPH * orig = bitmap_get( params[2], params[3] );
+    if ( !dest || !orig ) return 0;
+
+    CUSTOM_BLENDMODE custom_blendmode;
+
+    custom_blendmode.src_rgb    = params[15];
+    custom_blendmode.dst_rgb    = params[16];
+    custom_blendmode.src_alpha  = params[17];
+    custom_blendmode.dst_alpha  = params[18];
+    custom_blendmode.eq_rgb     = params[19];
+    custom_blendmode.eq_alpha   = params[20];
+
+    gr_blit( dest,       // dest
+             NULL,       // clip
+             params[4],  // x
+             params[5],  // y
+             params[9],  // flags
+             params[6],  // angle
+             params[7],  // scalex
+             params[8],  // scaley
+             POINT_UNDEFINED, // centerx
+             POINT_UNDEFINED, // centery
+             orig,       // orig
+             NULL,       // orig_clip
+             params[10], // alpha
+             params[11], // r
+             params[12], // g
+             params[13], // b
+             params[14], // blend_mode
+             &custom_blendmode
          );
 
     return 1;
@@ -508,7 +603,9 @@ static int64_t __libmod_gfx_map_block_copy(
     uint8_t r,
     uint8_t g,
     uint8_t b,
-    uint8_t alpha
+    uint8_t alpha,
+    int64_t blend_mode,
+    CUSTOM_BLENDMODE * custom_blendmode
  ) {
     GRAPH * dest, * orig;
     REGION clip;
@@ -545,7 +642,25 @@ static int64_t __libmod_gfx_map_block_copy(
     clip.x2 = dest_x + w - 1;
     clip.y2 = dest_y + h - 1;
 
-    gr_blit( dest, &clip, dest_x - x + centerx, dest_y - y + centery, flags, 0, 100.0, 100.0, POINT_UNDEFINED, POINT_UNDEFINED, orig, NULL, alpha, r, g, b );
+    gr_blit(    dest,
+                &clip,
+                dest_x - x + centerx,
+                dest_y - y + centery,
+                flags,
+                0,
+                100.0,
+                100.0,
+                POINT_UNDEFINED,
+                POINT_UNDEFINED,
+                orig,
+                NULL,
+                alpha,
+                r,
+                g,
+                b,
+                blend_mode,
+                custom_blendmode
+            );
     return 1;
 }
 
@@ -567,7 +682,9 @@ int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
         255,
         255,
         255,
-        255
+        255,
+        BLEND_DISABLED,
+        NULL
     );
 }
 
@@ -589,7 +706,66 @@ int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params ) {
         params[11],
         params[12],
         params[13],
-        params[14]
+        params[14],
+        BLEND_DISABLED,
+        NULL
+    );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_map_block_copy3( INSTANCE * my, int64_t * params ) {
+    return __libmod_gfx_map_block_copy(
+        params[0],
+        params[1],
+        params[2],
+        params[3],
+        params[4],
+        params[5],
+        params[6],
+        params[7],
+        params[8],
+        params[9],
+        params[10],
+        params[11],
+        params[12],
+        params[13],
+        params[14],
+        params[15],
+        NULL
+    );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_map_block_copy4( INSTANCE * my, int64_t * params ) {
+    CUSTOM_BLENDMODE custom_blendmode;
+
+    custom_blendmode.src_rgb    = params[16];
+    custom_blendmode.dst_rgb    = params[17];
+    custom_blendmode.src_alpha  = params[18];
+    custom_blendmode.dst_alpha  = params[19];
+    custom_blendmode.eq_rgb     = params[20];
+    custom_blendmode.eq_alpha   = params[21];
+
+    return __libmod_gfx_map_block_copy(
+        params[0],
+        params[1],
+        params[2],
+        params[3],
+        params[4],
+        params[5],
+        params[6],
+        params[7],
+        params[8],
+        params[9],
+        params[10],
+        params[11],
+        params[12],
+        params[13],
+        params[14],
+        params[15],
+        &custom_blendmode
     );
 }
 

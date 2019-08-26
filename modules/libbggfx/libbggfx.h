@@ -64,6 +64,14 @@ enum {
     TEXT_COLORR,
     TEXT_COLORG,
     TEXT_COLORB,
+    TEXT_BLEND_MODE,
+    TEXT_CUSTOM_BLEND_MODE,
+    TEXT_SRC_RGB,
+    TEXT_DST_RGB,
+    TEXT_SRC_ALPHA,
+    TEXT_DST_ALPHA,
+    TEXT_EQUATION_RGB,
+    TEXT_EQUATION_ALPHA,
 
     /* backgound */
     BACKGROUND_FILE,
@@ -76,12 +84,19 @@ enum {
     BACKGROUND_SIZE,
     BACKGROUND_SIZEX,
     BACKGROUND_SIZEY,
+    BACKGROUND_BLEND_MODE,
+    BACKGROUND_CUSTOM_BLEND_MODE,
+    BACKGROUND_SRC_RGB,
+    BACKGROUND_DST_RGB,
+    BACKGROUND_SRC_ALPHA,
+    BACKGROUND_DST_ALPHA,
+    BACKGROUND_EQUATION_RGB,
+    BACKGROUND_EQUATION_ALPHA,
 
     /*Scroll*/
     SCROLLS
 
 };
-
 
 enum {
     CTYPE = 0,
@@ -115,7 +130,15 @@ enum {
     ALPHA,
     COLORR,
     COLORG,
-    COLORB
+    COLORB,
+    BLEND_MODE,
+    CUSTOM_BLEND_MODE,
+    SRC_RGB,
+    DST_RGB,
+    SRC_ALPHA,
+    DST_ALPHA,
+    EQUATION_RGB,
+    EQUATION_ALPHA
 };
 
 /* --------------------------------------------------------------------------- */

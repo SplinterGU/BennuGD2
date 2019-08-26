@@ -207,6 +207,8 @@ char * __bgdexport( libbginput, globals_def ) =
     "   BYTE color_r=255;\n"
     "   BYTE color_g=255;\n"
     "   BYTE color_b=255;\n"
+    "   INT blendmode=-1;\n"
+    "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
     "END\n"
     ;
 

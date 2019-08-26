@@ -201,7 +201,9 @@ static void mouse_draw( void * what, REGION * clip ) {
                 GLOBYTE( libbginput, MOUSEALPHA ),
                 GLOBYTE( libbginput, MOUSECOLOR_R ),
                 GLOBYTE( libbginput, MOUSECOLOR_G ),
-                GLOBYTE( libbginput, MOUSECOLOR_B )
+                GLOBYTE( libbginput, MOUSECOLOR_B ),
+                GLOINT64( libbginput, MOUSE_BLEND_MODE ),
+                GLOADDR( libbginput, MOUSE_CUSTOM_BLEND_MODE )
            );
 }
 

@@ -109,10 +109,10 @@ int gr_create_image_for_graph( GRAPH * gr ) {
  *  Setup common parameters for render a object
  *
  *  PARAMS :
- *      dest            Destination bitmap or NULL for screen
- *      clip            Clipping region or NULL for the whole screen
- *      flags           Flags
- *      blend_mode      Ouput BLENDMODE
+ *      dest                Destination bitmap or NULL for screen
+ *      clip                Clipping region or NULL for the whole screen
+ *      flags               Flags
+ *      blend_mode          In/Ouput BLENDMODE
  *
  *  RETURN VALUE :
  *      None
@@ -140,49 +140,21 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE *
     }
 
 #ifdef USE_SDL2
-         if ( flags & B_NOCOLORKEY )    * blend_mode = SDL_BLENDMODE_NONE;  //Disable blending on texture
-    else if ( flags & B_ABLEND     )    * blend_mode = SDL_BLENDMODE_ADD;   //Additive blending on texture
+         if ( flags & B_NOCOLORKEY )    *blend_mode = SDL_BLENDMODE_NONE;   //Disable blending on texture
+    else if ( flags & B_ABLEND     )    *blend_mode = SDL_BLENDMODE_ADD;    //Additive blending on texture
     else if ( flags & B_SBLEND     ) {
-        * blend_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT);
+        *blend_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT);
     }
-    else                                * blend_mode = SDL_BLENDMODE_BLEND; //Enable blending on texture
+    else                                *blend_mode = SDL_BLENDMODE_BLEND;  //Enable blending on texture
 #endif
 #ifdef USE_SDL2_GPU
-#if 0
-/*! Gets the current alpha blending setting. */
-DECLSPEC GPU_bool SDLCALL GPU_GetBlending(GPU_Image* image);
-
-/*! Enables/disables alpha blending for the given image. */
-DECLSPEC void SDLCALL GPU_SetBlending(GPU_Image* image, GPU_bool enable);
-
-/*! Sets the blending component functions. */
-DECLSPEC void SDLCALL GPU_SetBlendFunction(GPU_Image* image, GPU_BlendFuncEnum source_color, GPU_BlendFuncEnum dest_color, GPU_BlendFuncEnum source_alpha, GPU_BlendFuncEnum dest_alpha);
-
-/*! Sets the blending component equations. */
-DECLSPEC void SDLCALL GPU_SetBlendEquation(GPU_Image* image, GPU_BlendEqEnum color_equation, GPU_BlendEqEnum alpha_equation);
-
-/*! Sets the blending mode, if supported by the renderer. */
-DECLSPEC void SDLCALL GPU_SetBlendMode(GPU_Image* image, GPU_BlendPresetEnum mode);
-
-    GPU_BLEND_NORMAL = 0,
-    GPU_BLEND_PREMULTIPLIED_ALPHA = 1,
-    GPU_BLEND_MULTIPLY = 2,
-    GPU_BLEND_ADD = 3,
-    GPU_BLEND_SUBTRACT = 4,
-    GPU_BLEND_MOD_ALPHA = 5,
-    GPU_BLEND_SET_ALPHA = 6,
-    GPU_BLEND_SET = 7,
-    GPU_BLEND_NORMAL_KEEP_ALPHA = 8,
-    GPU_BLEND_NORMAL_ADD_ALPHA = 9,
-    GPU_BLEND_NORMAL_FACTOR_ALPHA = 10
-
+    if ( *blend_mode == BLEND_DISABLED ) {
+             if ( flags & B_NOCOLORKEY )    *blend_mode = BLEND_DISABLED;       //Disable
+        else if ( flags & B_ABLEND     )    *blend_mode = GPU_BLEND_ADD;        //Additive
+        else if ( flags & B_SBLEND     )    *blend_mode = GPU_BLEND_SUBTRACT;   //Substract
+        else                                *blend_mode = GPU_BLEND_NORMAL;     //Enable blending on texture
+    }
 #endif
-         if ( flags & B_NOCOLORKEY )    * blend_mode = -1;                  //Disable
-    else if ( flags & B_ABLEND     )    * blend_mode = GPU_BLEND_ADD;       //Additive
-    else if ( flags & B_SBLEND     )    * blend_mode = GPU_BLEND_SUBTRACT;  //Substract
-    else                                * blend_mode = GPU_BLEND_NORMAL;    //Enable blending on texture
-#endif
-
 
 #ifdef USE_SDL2
     SDL_Rect rect;
@@ -273,7 +245,9 @@ void gr_blit(   GRAPH * dest,
                 uint8_t alpha,
                 uint8_t color_r,
                 uint8_t color_g,
-                uint8_t color_b
+                uint8_t color_b,
+                BLENDMODE blend_mode,
+                CUSTOM_BLENDMODE * custom_blendmode
             ) {
     if ( !gr ) return;
 
@@ -413,8 +387,6 @@ void gr_blit(   GRAPH * dest,
 
     /* blit */
 
-    BLENDMODE blend_mode;
-
     if ( gr_prepare_renderer( dest, clip, flags, &blend_mode ) ) return;
 
 #ifdef USE_SDL2
@@ -516,11 +488,18 @@ void gr_blit(   GRAPH * dest,
             SDL_RenderCopyEx( gRenderer, tex, gr_clip, &dstrect, angle / -1000.0, &center, flip );
 #endif
 #ifdef USE_SDL2_GPU
-            if ( blend_mode == -1 ) {
+            if ( blend_mode == BLEND_DISABLED ) {
                 GPU_SetBlending( tex, GPU_FALSE );
             } else {
                 GPU_SetBlending( tex, GPU_TRUE );
-                GPU_SetBlendMode( tex, blend_mode );
+                if ( blend_mode == BLEND_CUSTOM ) { // custom
+                    if ( custom_blendmode ) {
+                        GPU_SetBlendFunction( tex, custom_blendmode->src_rgb, custom_blendmode->dst_rgb, custom_blendmode->src_alpha, custom_blendmode->dst_alpha );
+                        GPU_SetBlendEquation( tex, custom_blendmode->eq_rgb, custom_blendmode->eq_alpha );
+                    }
+                } else {
+                    GPU_SetBlendMode( tex, blend_mode );
+                }
             }
             GPU_SetRGBA( tex, color_r, color_g, color_b, alpha );
 
@@ -549,11 +528,18 @@ void gr_blit(   GRAPH * dest,
         SDL_RenderCopyEx( gRenderer, gr->tex, gr_clip, &dstrect, angle / -1000.0, &center, flip );
 #endif
 #ifdef USE_SDL2_GPU
-        if ( blend_mode == -1 ) {
+        if ( blend_mode == BLEND_DISABLED ) {
             GPU_SetBlending( gr->tex, GPU_FALSE );
         } else {
             GPU_SetBlending( gr->tex, GPU_TRUE );
-            GPU_SetBlendMode( gr->tex, blend_mode );
+            if ( blend_mode == BLEND_CUSTOM ) { // custom
+                if ( custom_blendmode ) {
+                    GPU_SetBlendFunction( gr->tex, custom_blendmode->src_rgb, custom_blendmode->dst_rgb, custom_blendmode->src_alpha, custom_blendmode->dst_alpha );
+                    GPU_SetBlendEquation( gr->tex, custom_blendmode->eq_rgb, custom_blendmode->eq_alpha);
+                }
+            } else {
+                GPU_SetBlendMode( gr->tex, blend_mode );
+            }
         }
         GPU_SetRGBA( gr->tex, color_r, color_g, color_b, alpha );
 

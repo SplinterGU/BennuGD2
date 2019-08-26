@@ -43,6 +43,10 @@
 #define B_SBLEND        0x0020
 #define B_NOCOLORKEY    0x0080
 
+
+#define BLEND_DISABLED  -1
+#define BLEND_CUSTOM    -2
+
 /* --------------------------------------------------------------------------- */
 
 #ifdef USE_SDL2
@@ -53,6 +57,35 @@
     extern GPU_FilterEnum gr_filter_mode;
 #endif
 
+#ifdef _MSC_VER
+#pragma pack(push, 1)
+#endif
+
+#ifdef __GNUC__
+#define __PACKED __attribute__ ((packed))
+#pragma pack(1)
+#else
+#define __PACKED
+#define inline __inline
+#endif
+
+typedef struct {
+    int64_t src_rgb;
+    int64_t dst_rgb;
+    int64_t src_alpha;
+    int64_t dst_alpha;
+    int64_t eq_rgb;
+    int64_t eq_alpha;
+} __PACKED CUSTOM_BLENDMODE;
+
+#ifdef __GNUC__
+#pragma pack()
+#endif
+
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
+
 extern int gr_create_image_for_graph( GRAPH * gr );
 
 extern int gr_prepare_renderer( GRAPH * dest,
@@ -60,7 +93,7 @@ extern int gr_prepare_renderer( GRAPH * dest,
                      int64_t flags,
                      BLENDMODE * blend_mode );
 
-extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, double centerx, double centery, GRAPH * gr, BGD_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b );
+extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, double centerx, double centery, GRAPH * gr, BGD_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b, BLENDMODE blend_mode, CUSTOM_BLENDMODE * custom_blendmode );
 extern void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, double centerx, double centery, GRAPH * gr, BGD_Rect * map_clip );
 
 /* --------------------------------------------------------------------------- */

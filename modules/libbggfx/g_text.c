@@ -241,7 +241,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     fntclip = &f->glyph[current_char].fontsource; \
-                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, f->fontmap, fntclip, alpha, *r, *g, *b ); \
+                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, f->fontmap, fntclip, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -251,7 +251,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     ch = f->glyph[current_char].glymap; \
-                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, ch, NULL, alpha, *r, *g, *b ); \
+                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, ch, NULL, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -754,6 +754,8 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
     watch_test( working_watch, current_color );
 
     flags = GLOQWORD( libbggfx, TEXT_FLAGS );
+    int64_t blend_mode = GLOQWORD( libbggfx, TEXT_BLEND_MODE );
+    CUSTOM_BLENDMODE * custom_blend_mode = GLOADDR( libbggfx, TEXT_CUSTOM_BLEND_MODE );
 
     if ( f->fontmap ) {
         switch ( f->charset ) {

@@ -303,7 +303,24 @@ void scroll_draw( int64_t n, REGION * clipping ) {
         while ( y < scrolls[n].region->y2 ) {
             x = scrolls[n].region->x - scrolls[n].x1;
             while ( x < scrolls[n].region->x2 ) {
-                gr_blit( dest, &r, x + cx, y + cy, data->flags2, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, back, NULL, data->alpha2, data->color_r2, data->color_g2, data->color_b2 );
+                gr_blit(    dest,
+                            &r,
+                            x + cx, y + cy,
+                            data->flags2,
+                            0,
+                            100,
+                            100,
+                            POINT_UNDEFINED,
+                            POINT_UNDEFINED,
+                            back,
+                            NULL,
+                            data->alpha2,
+                            data->color_r2,
+                            data->color_g2,
+                            data->color_b2,
+                            data->blend_mode2,
+                            &data->custom_blend_mode2
+                        );
                 x += back->width;
             }
             y += back->height;
@@ -325,7 +342,25 @@ void scroll_draw( int64_t n, REGION * clipping ) {
     while ( y < scrolls[n].region->y2 ) {
         x = scrolls[n].region->x - scrolls[n].x0;
         while ( x < scrolls[n].region->x2 ) {
-            gr_blit( dest, &r, x + cx, y + cy, data->flags1, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, graph, NULL, data->alpha, data->color_r, data->color_g, data->color_b );
+            gr_blit(    dest,
+                        &r,
+                        x + cx,
+                        y + cy,
+                        data->flags1,
+                        0,
+                        100,
+                        100,
+                        POINT_UNDEFINED,
+                        POINT_UNDEFINED,
+                        graph,
+                        NULL,
+                        data->alpha,
+                        data->color_r,
+                        data->color_g,
+                        data->color_b,
+                        data->blend_mode1,
+                        &data->custom_blend_mode1
+                    );
             x += graph->width;
         }
         y += graph->height;

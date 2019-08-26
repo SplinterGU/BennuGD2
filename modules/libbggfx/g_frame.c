@@ -246,7 +246,9 @@ void gr_draw_frame() {
                  255,
                  GLOBYTE( libbggfx, BACKGROUND_COLORR ),
                  GLOBYTE( libbggfx, BACKGROUND_COLORG ),
-                 GLOBYTE( libbggfx, BACKGROUND_COLORB )
+                 GLOBYTE( libbggfx, BACKGROUND_COLORB ),
+                 GLOINT64( libbggfx, BACKGROUND_BLEND_MODE ),
+                 GLOADDR( libbggfx, BACKGROUND_CUSTOM_BLEND_MODE)
                 );
     }
 

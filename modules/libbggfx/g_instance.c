@@ -174,7 +174,25 @@ void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAP
         map_clip = &_map_clip;
     }
 
-    gr_blit( dest, region, x, y, flags, LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ), scalex, scaley, centerx, centery, map, map_clip, alpha, color_r, color_g, color_b );
+    gr_blit(    dest,
+                region,
+                x,
+                y,
+                flags,
+                LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ),
+                scalex,
+                scaley,
+                centerx,
+                centery,
+                map,
+                map_clip,
+                alpha,
+                color_r,
+                color_g,
+                color_b,
+                LOCINT64( libbggfx, i, BLEND_MODE ),
+                ( CUSTOM_BLENDMODE * ) LOCADDR( libbggfx, i, CUSTOM_BLEND_MODE )
+            );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -238,7 +256,25 @@ void draw_instance( void * what, REGION * clip ) {
         map_clip = &_map_clip;
     }
 
-    gr_blit( map_dst, &region, x, y, flags, LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ), scalex, scaley, centerx, centery, map, map_clip, alpha, color_r, color_g, color_b );
+    gr_blit(    map_dst,
+                &region,
+                x,
+                y,
+                flags,
+                LOCQWORD( libbggfx, i, XGRAPH ) ? 0 : LOCINT64( libbggfx, i, ANGLE ),
+                scalex,
+                scaley,
+                centerx,
+                centery,
+                map,
+                map_clip,
+                alpha,
+                color_r,
+                color_g,
+                color_b,
+                LOCINT64( libbggfx, i, BLEND_MODE ),
+                ( CUSTOM_BLENDMODE * ) LOCADDR( libbggfx, i, CUSTOM_BLEND_MODE )
+            );
 
 }
 

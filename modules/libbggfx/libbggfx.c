@@ -44,81 +44,105 @@
 
 DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
     /* Nombre de variable global, puntero al dato, tama�o del elemento, cantidad de elementos */
-    { "screen.fullscreen"                       , NULL, -1, -1 },
-    { "screen.scale_resolution"                 , NULL, -1, -1 },
-    { "screen.scale_resolution_aspectratio"     , NULL, -1, -1 },
+    { "screen.fullscreen"                               , NULL, -1, -1 },
+    { "screen.scale_resolution"                         , NULL, -1, -1 },
+    { "screen.scale_resolution_aspectratio"             , NULL, -1, -1 },
 
-    { "frame_info.fps"                          , NULL, -1, -1 },
-    { "frame_info.speed_gauge"                  , NULL, -1, -1 },
-    { "frame_info.frame_time"                   , NULL, -1, -1 },
-    { "frame_info.frames_count"                 , NULL, -1, -1 },
+    { "frame_info.fps"                                  , NULL, -1, -1 },
+    { "frame_info.speed_gauge"                          , NULL, -1, -1 },
+    { "frame_info.frame_time"                           , NULL, -1, -1 },
+    { "frame_info.frames_count"                         , NULL, -1, -1 },
 
-    { "fade_info.fading"                        , NULL, -1, -1 },
+    { "fade_info.fading"                                , NULL, -1, -1 },
 
-    { "wm_info.exit_status"                     , NULL, -1, -1 },
-    { "wm_info.window_status"                   , NULL, -1, -1 },
-    { "wm_info.focus_status"                    , NULL, -1, -1 },
-    { "wm_info.mouse_status"                    , NULL, -1, -1 },
+    { "wm_info.exit_status"                             , NULL, -1, -1 },
+    { "wm_info.window_status"                           , NULL, -1, -1 },
+    { "wm_info.focus_status"                            , NULL, -1, -1 },
+    { "wm_info.mouse_status"                            , NULL, -1, -1 },
 
-    { "text.z"                                  , NULL, -1, -1 },
-    { "text.flags"                              , NULL, -1, -1 },
-    { "text.alpha"                              , NULL, -1, -1 },
-    { "text.color_r"                            , NULL, -1, -1 },
-    { "text.color_g"                            , NULL, -1, -1 },
-    { "text.color_b"                            , NULL, -1, -1 },
+    { "text.z"                                          , NULL, -1, -1 },
+    { "text.flags"                                      , NULL, -1, -1 },
+    { "text.alpha"                                      , NULL, -1, -1 },
+    { "text.color_r"                                    , NULL, -1, -1 },
+    { "text.color_g"                                    , NULL, -1, -1 },
+    { "text.color_b"                                    , NULL, -1, -1 },
+    { "text.blendmode"                                  , NULL, -1, -1 },
+    { "text.custom_blendmode"                           , NULL, -1, -1 },
+    { "text.custom_blendmode.src_rgb"                   , NULL, -1, -1 },
+    { "text.custom_blendmode.dst_rgb"                   , NULL, -1, -1 },
+    { "text.custom_blendmode.src_alpha"                 , NULL, -1, -1 },
+    { "text.custom_blendmode.dst_alpha"                 , NULL, -1, -1 },
+    { "text.custom_blendmode.equation_rgb"              , NULL, -1, -1 },
+    { "text.custom_blendmode.equation_alpha"            , NULL, -1, -1 },
 
     /* backgound */
-    { "background.file"                         , NULL, -1, -1 },
-    { "background.graph"                        , NULL, -1, -1 },
-    { "background.color_r"                      , NULL, -1, -1 },
-    { "background.color_g"                      , NULL, -1, -1 },
-    { "background.color_b"                      , NULL, -1, -1 },
-    { "background.flags"                        , NULL, -1, -1 },
-    { "background.angle"                        , NULL, -1, -1 },
-    { "background.size"                         , NULL, -1, -1 },
-    { "background.size_x"                       , NULL, -1, -1 },
-    { "background.size_y"                       , NULL, -1, -1 },
+    { "background.file"                                 , NULL, -1, -1 },
+    { "background.graph"                                , NULL, -1, -1 },
+    { "background.color_r"                              , NULL, -1, -1 },
+    { "background.color_g"                              , NULL, -1, -1 },
+    { "background.color_b"                              , NULL, -1, -1 },
+    { "background.flags"                                , NULL, -1, -1 },
+    { "background.angle"                                , NULL, -1, -1 },
+    { "background.size"                                 , NULL, -1, -1 },
+    { "background.size_x"                               , NULL, -1, -1 },
+    { "background.size_y"                               , NULL, -1, -1 },
+    { "background.blendmode"                            , NULL, -1, -1 },
+    { "background.custom_blendmode"                     , NULL, -1, -1 },
+    { "background.custom_blendmode.src_rgb"             , NULL, -1, -1 },
+    { "background.custom_blendmode.dst_rgb"             , NULL, -1, -1 },
+    { "background.custom_blendmode.src_alpha"           , NULL, -1, -1 },
+    { "background.custom_blendmode.dst_alpha"           , NULL, -1, -1 },
+    { "background.custom_blendmode.equation_rgb"        , NULL, -1, -1 },
+    { "background.custom_blendmode.equation_alpha"      , NULL, -1, -1 },
 
-    { "scroll"                                  , NULL, -1, -1 },
+    { "scroll"                                          , NULL, -1, -1 },
 
-    { NULL                                      , NULL, -1, -1 }
+    { NULL                                              , NULL, -1, -1 }
 };
 
 DLVARFIXUP __bgdexport( libbggfx, locals_fixup )[] = {
-    { "ctype"                           , NULL, -1, -1 },       // 0            CTYPE
-    { "cnumber"                         , NULL, -1, -1 },       // 1            CNUMBER
-    { "x"                               , NULL, -1, -1 },       // 2            COORDX
-    { "y"                               , NULL, -1, -1 },       // 3            COORDY
-    { "z"                               , NULL, -1, -1 },       // 4            COORDZ
-    { "file"                            , NULL, -1, -1 },       // 5            FILEID
-    { "graph"                           , NULL, -1, -1 },       // 6            GRAPHID
-    { "size"                            , NULL, -1, -1 },       // 7            GRAPHSIZE
-    { "angle"                           , NULL, -1, -1 },       // 8            ANGLE
-    { "flags"                           , NULL, -1, -1 },       // 9            FLAGS
-    { "region"                          , NULL, -1, -1 },       // 10           REGIONID
-    { "resolution"                      , NULL, -1, -1 },       // 11           RESOLUTION
-    { "size_x"                          , NULL, -1, -1 },       // 12           GRAPHSIZEX
-    { "size_y"                          , NULL, -1, -1 },       // 13           GRAPHSIZEY
-    { "xgraph"                          , NULL, -1, -1 },       // 14           XGRAPH
-    { "_render_reserved_.object_id"     , NULL, -1, -1 },       // 15           _OBJECTID
-    { "_render_reserved_.graph_ptr"     , NULL, -1, -1 },       // 16           GRAPHPTR
-    { "_render_reserved_.xgraph_flags"  , NULL, -1, -1 },       // 17           XGRAPH_FLAGS
-    { "reserved.status"                 , NULL, -1, -1 },       // 18           STATUS
-    { "id"                              , NULL, -1, -1 },       // 19           PROCESS_ID
-    { "render_file"                     , NULL, -1, -1 },       // 20           RENDER_FILEID,
-    { "render_graph"                    , NULL, -1, -1 },       // 21           RENDER_GRAPHID
-    { "clip.x"                          , NULL, -1, -1 },       // 22           CLIP.X
-    { "clip.y"                          , NULL, -1, -1 },       // 23           CLIP.Y
-    { "clip.w"                          , NULL, -1, -1 },       // 24           CLIP.W
-    { "clip.h"                          , NULL, -1, -1 },       // 25           CLIP.H
-    { "center.x"                        , NULL, -1, -1 },       // 26           CENTER.X
-    { "center.y"                        , NULL, -1, -1 },       // 27           CENTER.Y
-    { "alpha"                           , NULL, -1, -1 },       // 28           ALPHA
-    { "color_r"                         , NULL, -1, -1 },       // 29           COLOR_R
-    { "color_g"                         , NULL, -1, -1 },       // 30           COLOR_G
-    { "color_b"                         , NULL, -1, -1 },       // 31           COLOR_B
+    { "ctype"                                           , NULL, -1, -1 },       // 0            CTYPE
+    { "cnumber"                                         , NULL, -1, -1 },       // 1            CNUMBER
+    { "x"                                               , NULL, -1, -1 },       // 2            COORDX
+    { "y"                                               , NULL, -1, -1 },       // 3            COORDY
+    { "z"                                               , NULL, -1, -1 },       // 4            COORDZ
+    { "file"                                            , NULL, -1, -1 },       // 5            FILEID
+    { "graph"                                           , NULL, -1, -1 },       // 6            GRAPHID
+    { "size"                                            , NULL, -1, -1 },       // 7            GRAPHSIZE
+    { "angle"                                           , NULL, -1, -1 },       // 8            ANGLE
+    { "flags"                                           , NULL, -1, -1 },       // 9            FLAGS
+    { "region"                                          , NULL, -1, -1 },       // 10           REGIONID
+    { "resolution"                                      , NULL, -1, -1 },       // 11           RESOLUTION
+    { "size_x"                                          , NULL, -1, -1 },       // 12           GRAPHSIZEX
+    { "size_y"                                          , NULL, -1, -1 },       // 13           GRAPHSIZEY
+    { "xgraph"                                          , NULL, -1, -1 },       // 14           XGRAPH
+    { "_render_reserved_.object_id"                     , NULL, -1, -1 },       // 15           _OBJECTID
+    { "_render_reserved_.graph_ptr"                     , NULL, -1, -1 },       // 16           GRAPHPTR
+    { "_render_reserved_.xgraph_flags"                  , NULL, -1, -1 },       // 17           XGRAPH_FLAGS
+    { "reserved.status"                                 , NULL, -1, -1 },       // 18           STATUS
+    { "id"                                              , NULL, -1, -1 },       // 19           PROCESS_ID
+    { "render_file"                                     , NULL, -1, -1 },       // 20           RENDER_FILEID,
+    { "render_graph"                                    , NULL, -1, -1 },       // 21           RENDER_GRAPHID
+    { "clip.x"                                          , NULL, -1, -1 },       // 22           CLIP.X
+    { "clip.y"                                          , NULL, -1, -1 },       // 23           CLIP.Y
+    { "clip.w"                                          , NULL, -1, -1 },       // 24           CLIP.W
+    { "clip.h"                                          , NULL, -1, -1 },       // 25           CLIP.H
+    { "center.x"                                        , NULL, -1, -1 },       // 26           CENTER.X
+    { "center.y"                                        , NULL, -1, -1 },       // 27           CENTER.Y
+    { "alpha"                                           , NULL, -1, -1 },       // 28           ALPHA
+    { "color_r"                                         , NULL, -1, -1 },       // 29           COLOR_R
+    { "color_g"                                         , NULL, -1, -1 },       // 30           COLOR_G
+    { "color_b"                                         , NULL, -1, -1 },       // 31           COLOR_B
+    { "blendmode"                                       , NULL, -1, -1 },
+    { "custom_blendmode"                                , NULL, -1, -1 },
+    { "custom_blendmode.src_rgb"                        , NULL, -1, -1 },
+    { "custom_blendmode.dst_rgb"                        , NULL, -1, -1 },
+    { "custom_blendmode.src_alpha"                      , NULL, -1, -1 },
+    { "custom_blendmode.dst_alpha"                      , NULL, -1, -1 },
+    { "custom_blendmode.equation_rgb"                   , NULL, -1, -1 },
+    { "custom_blendmode.equation_alpha"                 , NULL, -1, -1 },
 
-    { NULL                              , NULL, -1, -1 }
+    { NULL                                              , NULL, -1, -1 }
 };
 
 /* --------------------------------------------------------------------------- */

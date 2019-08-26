@@ -101,6 +101,10 @@ typedef struct _scroll_Extra_data {
     uint8_t color_r2;
     uint8_t color_g2;
     uint8_t color_b2;
+    int64_t blend_mode1;
+    CUSTOM_BLENDMODE custom_blend_mode1;
+    int64_t blend_mode2;
+    CUSTOM_BLENDMODE custom_blend_mode2;
 } __PACKED SCROLL_EXTRA_DATA;
 
 #ifdef __GNUC__
