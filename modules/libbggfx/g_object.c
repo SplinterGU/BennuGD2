@@ -33,7 +33,9 @@
 
 static int64_t sequencer = 0;
 
+// descending order
 CONTAINER * sorted_object_list = NULL;
+CONTAINER * last_ctr_found = NULL; // used as random pivot, for reduce search iterations
 
 /* --------------------------------------------------------------------------- */
 
@@ -42,9 +44,17 @@ CONTAINER * search_container( int64_t key ) {
 
     if ( !sorted_object_list ) return NULL;
 
-    for ( ctr = sorted_object_list; ctr && ctr->key > key; ctr = ctr->next );
+    if ( !last_ctr_found ) {
+        for ( ctr = sorted_object_list; ctr && ctr->key > key; ctr = ctr->next );
+    } else if ( last_ctr_found->key == key ) {
+        return last_ctr_found;
+    } else if ( last_ctr_found->key > key ) { // next
+        for ( ctr = last_ctr_found; ctr && ctr->key > key; ctr = ctr->next );
+    } else {
+        for ( ctr = last_ctr_found; ctr && ctr->key < key; ctr = ctr->prev );
+    }
 
-    if ( ctr && ctr->key == key ) return ctr;
+    if ( ctr && ctr->key == key ) return last_ctr_found = ctr;
 
     return NULL;
 }
@@ -52,13 +62,22 @@ CONTAINER * search_container( int64_t key ) {
 /* --------------------------------------------------------------------------- */
 
 CONTAINER * get_container( int64_t key ) {
-    CONTAINER * ctr = NULL, * prev_ctr = NULL, * new_ctr = NULL;
+    CONTAINER * ctr = NULL, * prev_ctr = NULL, * next_ctr = NULL, * new_ctr = NULL;
 
     if ( sorted_object_list ) {
-        for ( ctr = sorted_object_list; ctr && ctr->key > key; ctr = ctr->next ) {
+        if ( !last_ctr_found ) {
+            for ( ctr = sorted_object_list; ctr && ctr->key > key; ctr = ( prev_ctr = ctr )->next );
+            next_ctr = ctr;
+        } else if ( last_ctr_found->key == key ) {
+            return last_ctr_found;
+        } else if ( last_ctr_found->key > key ) { // next
+            for ( ctr = last_ctr_found; ctr && ctr->key > key; ctr = ( prev_ctr = ctr )->next );
+            next_ctr = ctr;
+        } else {
+            for ( ctr = last_ctr_found; ctr && ctr->key < key; ctr = ( next_ctr = ctr )->prev );
             prev_ctr = ctr;
         }
-        if ( ctr && ctr->key == key ) return ctr;
+        if ( ctr && ctr->key == key ) return last_ctr_found = ctr;
     }
 
     new_ctr = ( CONTAINER * ) malloc( sizeof( CONTAINER ) );
@@ -67,30 +86,15 @@ CONTAINER * get_container( int64_t key ) {
     new_ctr->key = key;
     new_ctr->first_in_key = NULL;
 
-    if ( ctr == sorted_object_list ) {
-        if ( !sorted_object_list ) {
-            /* Only happen "!sorted_object_list" when "ctr == sorted_object_list" (NULL) */
-            sorted_object_list = new_ctr;
-            new_ctr->next = NULL;
-            new_ctr->prev = NULL;
+    new_ctr->next = next_ctr;
+    new_ctr->prev = prev_ctr;
 
-            return new_ctr;
-        }
+    if ( next_ctr ) next_ctr->prev = new_ctr;
+    if ( prev_ctr ) prev_ctr->next = new_ctr;
 
-        sorted_object_list = new_ctr;
-    }
+    if ( next_ctr == sorted_object_list ) sorted_object_list = new_ctr;
 
-    if ( ctr ) {
-        new_ctr->next = ctr;
-        new_ctr->prev = ctr->prev;
-        if ( ctr->prev ) ctr->prev->next = new_ctr;
-        ctr->prev = new_ctr;
-    } else {
-        // prev_ctr implicit exist
-        new_ctr->next = NULL;
-        new_ctr->prev = prev_ctr;
-        prev_ctr->next = new_ctr;
-    }
+    last_ctr_found = new_ctr;
 
     return new_ctr;
 }
@@ -98,10 +102,13 @@ CONTAINER * get_container( int64_t key ) {
 /* --------------------------------------------------------------------------- */
 
 void destroy_container( CONTAINER * ctr ) {
+    if ( last_ctr_found == ctr && last_ctr_found ) {
+        if ( ctr->next ) last_ctr_found = ctr->next;
+        else last_ctr_found = ctr->prev;
+    }
     if ( ctr->next ) ctr->next->prev = ctr->prev;
     if ( ctr->prev ) ctr->prev->next = ctr->next;
     if ( ctr == sorted_object_list ) sorted_object_list = ctr->next ;
-
     free( ctr );
 }
 
@@ -202,7 +209,7 @@ void gr_update_objects( void ) {
     sequencer++;
 
     next_ctr = sorted_object_list;
-    while (( ctr = next_ctr ) ) {
+    while ( ( ctr = next_ctr ) ) {
         /* Get Next Container */
         next_ctr = ctr->next ;
 

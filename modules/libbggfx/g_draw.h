@@ -32,6 +32,7 @@
 /* --------------------------------------------------------------------------- */
 
 extern int64_t drawing_blend_mode;
+extern CUSTOM_BLENDMODE drawing_custom_blendmode;
 
 extern uint8_t drawing_color_r;
 extern uint8_t drawing_color_g;

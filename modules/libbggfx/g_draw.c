@@ -39,6 +39,7 @@
 /* --------------------------------------------------------------------------- */
 
 int64_t drawing_blend_mode = 0;
+CUSTOM_BLENDMODE drawing_custom_blendmode = { 0 };
 
 uint8_t drawing_color_r = 255;
 uint8_t drawing_color_g = 255;
@@ -52,21 +53,26 @@ float drawing_thickness = 1.0f;
 /* --------------------------------------------------------------------------- */
 
 #ifdef USE_SDL2
-    #define DRAW_PREPARE_RENDERER()    BLENDMODE blend_mode; \
-        if ( gr_prepare_renderer( dest, clip, drawing_blend_mode, &blend_mode ) ) return; \
+    #define DRAW_PREPARE_RENDERER()    BLENDMODE blend_mode = drawing_blend_mode; \
+        if ( gr_prepare_renderer( dest, clip, 0, &blend_mode ) ) return; \
         SDL_SetRenderDrawBlendMode( gRenderer, blend_mode ); \
         SDL_SetRenderDrawColor( gRenderer, drawing_color_r, drawing_color_g, drawing_color_b, drawing_color_a )
 
     #define DRAW_RELEASE_RENDERER() if ( dest ) SDL_SetRenderTarget( gRenderer, NULL )
 #endif
 #ifdef USE_SDL2_GPU
-    #define DRAW_PREPARE_RENDERER()    BLENDMODE blend_mode; \
-        if ( gr_prepare_renderer( dest, clip, drawing_blend_mode, &blend_mode ) ) return; \
-        if ( blend_mode == -1 ) { \
+    #define DRAW_PREPARE_RENDERER()    BLENDMODE blend_mode = drawing_blend_mode; \
+        if ( gr_prepare_renderer( dest, clip, 0, &blend_mode ) ) return; \
+        if ( blend_mode == BLEND_DISABLED ) { \
             GPU_SetShapeBlending( GPU_FALSE ); \
         } else { \
             GPU_SetShapeBlending( GPU_TRUE ); \
-            GPU_SetShapeBlendMode( blend_mode ); \
+            if ( blend_mode == BLEND_CUSTOM ) { \
+                GPU_SetShapeBlendFunction( drawing_custom_blendmode.src_rgb, drawing_custom_blendmode.dst_rgb, drawing_custom_blendmode.src_alpha, drawing_custom_blendmode.dst_alpha ); \
+                GPU_SetShapeBlendEquation( drawing_custom_blendmode.eq_rgb, drawing_custom_blendmode.eq_alpha ); \
+            } else { \
+                GPU_SetShapeBlendMode( blend_mode ); \
+            } \
         } \
         GPU_SetLineThickness( drawing_thickness ); \
         SDL_Color color; \
@@ -74,8 +80,8 @@ float drawing_thickness = 1.0f;
         GPU_Target * target = dest ? dest->tex->target : gRenderer;
 
     #define DRAW_RELEASE_RENDERER()
-
 #endif
+
 
 /* --------------------------------------------------------------------------- */
 /*

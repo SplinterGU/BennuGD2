@@ -322,6 +322,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "DRAWING_RGBA"        , "IBBBB"           , TYPE_INT         , libmod_gfx_draw_drawing_rgba2          ),
     FUNC( "DRAWING_BLENDMODE"   , "I"               , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode     ),
     FUNC( "DRAWING_BLENDMODE"   , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode2    ),
+    FUNC( "DRAWING_BLENDMODE"   , "IIIIII"          , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode3    ),
+    FUNC( "DRAWING_BLENDMODE"   , "IIIIIII"         , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode4    ),
 
     FUNC( "DRAWING_Z"           , "I"               , TYPE_INT         , libmod_gfx_draw_drawing_z              ),
     FUNC( "DRAWING_Z"           , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_z2             ),

@@ -124,6 +124,7 @@ typedef struct _drawing_object {
     /* Private */
 
     int64_t blend_mode;
+    CUSTOM_BLENDMODE custom_blendmode;
 
     uint8_t color_r;
     uint8_t color_g;
@@ -326,6 +327,7 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
     uint8_t old_drawing_color_a = drawing_color_a;
 
     int64_t old_drawing_blend_mode = drawing_blend_mode;
+    CUSTOM_BLENDMODE old_drawing_custom_blendmode = drawing_custom_blendmode;
 
 #ifdef USE_SDL2_GPU
     float old_drawing_thickness = drawing_thickness;
@@ -336,6 +338,7 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
     drawing_color_b = dr->color_b;
     drawing_color_a = dr->color_a;
     drawing_blend_mode = dr->blend_mode;
+    drawing_custom_blendmode = dr->custom_blendmode;
 
 #ifdef USE_SDL2_GPU
     drawing_thickness = dr->thickness;
@@ -446,6 +449,8 @@ static void _libmod_gfx_draw_object_draw( void * what, REGION * clip ) {
 #ifdef USE_SDL2_GPU
     drawing_thickness = old_drawing_thickness;
 #endif
+
+    drawing_custom_blendmode = old_drawing_custom_blendmode;
 
     drawing_color_r = old_drawing_color_r;
     drawing_color_g = old_drawing_color_g;
@@ -738,6 +743,34 @@ int64_t libmod_gfx_draw_drawing_blend_mode2( INSTANCE * my, int64_t * params ) {
     DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
     if ( !dr ) return -1;
     dr->blend_mode = params[1];
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_drawing_blend_mode3( INSTANCE * my, int64_t * params ) {
+    drawing_blend_mode = BLEND_CUSTOM;
+    drawing_custom_blendmode.src_rgb    = params[0];
+    drawing_custom_blendmode.dst_rgb    = params[1];
+    drawing_custom_blendmode.src_alpha  = params[2];
+    drawing_custom_blendmode.dst_alpha  = params[3];
+    drawing_custom_blendmode.eq_rgb     = params[4];
+    drawing_custom_blendmode.eq_alpha   = params[5];
+    return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_draw_drawing_blend_mode4( INSTANCE * my, int64_t * params ) {
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ( intptr_t ) params[0];
+    if ( !dr ) return -1;
+    drawing_blend_mode = BLEND_CUSTOM;
+    drawing_custom_blendmode.src_rgb    = params[1];
+    drawing_custom_blendmode.dst_rgb    = params[2];
+    drawing_custom_blendmode.src_alpha  = params[3];
+    drawing_custom_blendmode.dst_alpha  = params[4];
+    drawing_custom_blendmode.eq_rgb     = params[5];
+    drawing_custom_blendmode.eq_alpha   = params[6];
     return 1 ;
 }
 
