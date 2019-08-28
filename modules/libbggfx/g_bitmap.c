@@ -329,23 +329,32 @@ int64_t bitmap_next_code() {
 
 /* --------------------------------------------------------------------------- */
 
+static int compare_cbox( const void * a, const void * b ) {
+    const CBOX * A = ( const CBOX * ) a;
+    const CBOX * B = ( const CBOX * ) b;
+
+    return A->code - B->code;
+}
+
+/* --------------------------------------------------------------------------- */
+
+static int search_cbox( const void * k, const void * b ) {
+    int64_t key = *( int64_t * ) k;
+    CBOX * B = ( CBOX * ) b;
+
+    return key - B->code;
+}
+
+/* --------------------------------------------------------------------------- */
+
 static inline CBOX * __bitmap_search_cbox( GRAPH * map, int64_t code ) {
-    CBOX * p = map->cboxes;
-    int i = map->ncboxes;
-    while( i-- ) {
-        if ( p->code == code ) return p;
-        p++;
-    }
-    return NULL;
+    return bsearch( &code, map->cboxes, map->ncboxes, sizeof( CBOX ), search_cbox );
 }
 
 /* --------------------------------------------------------------------------- */
 
 void bitmap_set_cbox( GRAPH * map, int64_t code, int64_t shape, int64_t x, int64_t y, int64_t width, int64_t height ) {
-    CBOX * p;
-    uint64_t n;
-
-    p = __bitmap_search_cbox( map, code );
+    CBOX * p = __bitmap_search_cbox( map, code );
     if ( !p ) {
         map->cboxes = ( CBOX * ) realloc( map->cboxes, ( map->ncboxes + 1 ) * sizeof( CBOX ) );
         p = &map->cboxes[ map->ncboxes ];
@@ -359,6 +368,7 @@ void bitmap_set_cbox( GRAPH * map, int64_t code, int64_t shape, int64_t x, int64
     p->width  = width;
     p->height = height;
 
+    qsort( map->cboxes, map->ncboxes, sizeof( CBOX ), compare_cbox );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -370,15 +380,11 @@ CBOX * bitmap_get_cbox( GRAPH * map, int64_t code ) {
 /* --------------------------------------------------------------------------- */
 
 void bitmap_remove_cbox( GRAPH * map, int64_t code ) {
-    CBOX * p = map->cboxes;
-    int i = map->ncboxes;
-    while( i-- ) {
-        if ( p->code == code ) {
-            if ( i ) memmove( p, p + 1, sizeof( CBOX ) * i );
-            map->ncboxes--;
-            return;
-        }
-        p++;
+    CBOX * p = __bitmap_search_cbox( map, code );
+    if ( p ) {
+        int count = ( map->ncboxes - ( p - map->cboxes + 1 ) );
+        if ( count ) memmove( p, p + 1, sizeof( CBOX ) * count );
+        map->ncboxes--;
     }
 }
 

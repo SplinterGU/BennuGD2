@@ -35,7 +35,7 @@ static int64_t sequencer = 0;
 
 // descending order
 CONTAINER * sorted_object_list = NULL;
-CONTAINER * last_ctr_found = NULL; // used as random pivot, for reduce search iterations
+CONTAINER * pivot_container = NULL; // used as random pivot, for reduce search iterations
 
 /* --------------------------------------------------------------------------- */
 
@@ -44,17 +44,17 @@ CONTAINER * search_container( int64_t key ) {
 
     if ( !sorted_object_list ) return NULL;
 
-    if ( !last_ctr_found ) {
+    if ( !pivot_container ) {
         for ( ctr = sorted_object_list; ctr && ctr->key > key; ctr = ctr->next );
-    } else if ( last_ctr_found->key == key ) {
-        return last_ctr_found;
-    } else if ( last_ctr_found->key > key ) { // next
-        for ( ctr = last_ctr_found; ctr && ctr->key > key; ctr = ctr->next );
+    } else if ( pivot_container->key == key ) {
+        return pivot_container;
+    } else if ( pivot_container->key > key ) { // next
+        for ( ctr = pivot_container; ctr && ctr->key > key; ctr = ctr->next );
     } else {
-        for ( ctr = last_ctr_found; ctr && ctr->key < key; ctr = ctr->prev );
+        for ( ctr = pivot_container; ctr && ctr->key < key; ctr = ctr->prev );
     }
 
-    if ( ctr && ctr->key == key ) return last_ctr_found = ctr;
+    if ( ctr && ctr->key == key ) return pivot_container = ctr;
 
     return NULL;
 }
@@ -65,19 +65,19 @@ CONTAINER * get_container( int64_t key ) {
     CONTAINER * ctr = NULL, * prev_ctr = NULL, * next_ctr = NULL, * new_ctr = NULL;
 
     if ( sorted_object_list ) {
-        if ( !last_ctr_found ) {
+        if ( !pivot_container ) {
             for ( ctr = sorted_object_list; ctr && ctr->key > key; ctr = ( prev_ctr = ctr )->next );
             next_ctr = ctr;
-        } else if ( last_ctr_found->key == key ) {
-            return last_ctr_found;
-        } else if ( last_ctr_found->key > key ) { // next
-            for ( ctr = last_ctr_found; ctr && ctr->key > key; ctr = ( prev_ctr = ctr )->next );
+        } else if ( pivot_container->key == key ) {
+            return pivot_container;
+        } else if ( pivot_container->key > key ) { // next
+            for ( ctr = pivot_container; ctr && ctr->key > key; ctr = ( prev_ctr = ctr )->next );
             next_ctr = ctr;
         } else {
-            for ( ctr = last_ctr_found; ctr && ctr->key < key; ctr = ( next_ctr = ctr )->prev );
+            for ( ctr = pivot_container; ctr && ctr->key < key; ctr = ( next_ctr = ctr )->prev );
             prev_ctr = ctr;
         }
-        if ( ctr && ctr->key == key ) return last_ctr_found = ctr;
+        if ( ctr && ctr->key == key ) return pivot_container = ctr;
     }
 
     new_ctr = ( CONTAINER * ) malloc( sizeof( CONTAINER ) );
@@ -94,7 +94,7 @@ CONTAINER * get_container( int64_t key ) {
 
     if ( next_ctr == sorted_object_list ) sorted_object_list = new_ctr;
 
-    last_ctr_found = new_ctr;
+    pivot_container = new_ctr;
 
     return new_ctr;
 }
@@ -102,9 +102,9 @@ CONTAINER * get_container( int64_t key ) {
 /* --------------------------------------------------------------------------- */
 
 void destroy_container( CONTAINER * ctr ) {
-    if ( last_ctr_found == ctr && last_ctr_found ) {
-        if ( ctr->next ) last_ctr_found = ctr->next;
-        else last_ctr_found = ctr->prev;
+    if ( pivot_container == ctr && pivot_container ) {
+        if ( ctr->next ) pivot_container = ctr->next;
+        else pivot_container = ctr->prev;
     }
     if ( ctr->next ) ctr->next->prev = ctr->prev;
     if ( ctr->prev ) ctr->prev->next = ctr->next;
