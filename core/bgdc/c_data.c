@@ -634,7 +634,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             type.chunk[0].count = 1;
             count = 1;
             while ( token.type == IDENTIFIER && token.code == identifier_leftb ) {
-                res = compile_expresion( 1, 0, 0, TYPE_INT );
+                res = compile_expresion( 1, 0, 1, TYPE_INT ); // add ignore code (JJP)
                 if ( !typedef_is_integer( res.type ) ) compile_error( MSG_INTEGER_REQUIRED );
                 count *= res.value + 1;
                 type = typedef_enlarge( type );
@@ -700,7 +700,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                     last_count = 0;
                 } else {
                     token_back();
-                    res = compile_expresion( 1, 0, 0, TYPE_QWORD );
+                    res = compile_expresion( 1, 0, 1, TYPE_QWORD ); // add ignore code (JJP)
                     if ( !total_count ) compile_error( MSG_VTA );
                     total_count *= res.value + 1;
                     last_count = res.value + 1;
@@ -719,6 +719,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             for ( j = 0 ; j <= i ; j++ ) type.chunk[ j ]    = typeaux.chunk[ j ];
 
             if ( segm && token.type == IDENTIFIER && token.code == identifier_equal ) {
+                if ( inline_assignation_disabled ) compile_error( MSG_INLINE_ASSIGNATION_ERROR );
                 for ( i = 0 ; i < total_count ; i++ ) segment_add_from( data, segm );
                 i = data->current;
                 data->current = n->vars[n->count].offset;
@@ -728,6 +729,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 else                        data->current = i; /* Solo si ya habia sido alocada */
 
             } else if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
+                if ( inline_assignation_disabled ) compile_error( MSG_INLINE_ASSIGNATION_ERROR );
                 /* if (basetype == TYPE_UNDEFINED) basetype = TYPE_INT; */
                 i = compile_array_data( n, data, total_count, last_count, &basetype );
                 assert( basetype != TYPE_UNDEFINED );
@@ -767,6 +769,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 token_back();
             }
         } else if ( segm && token.type == IDENTIFIER && token.code == identifier_equal ) { /* Compila una asignaci�n de valores por defecto */
+            if ( inline_assignation_disabled ) compile_error( MSG_INLINE_ASSIGNATION_ERROR );
             segment_add_from( data, segm );
             i = data->current;
             data->current = n->vars[n->count].offset;
@@ -777,7 +780,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         } else if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
             if ( inline_assignation_disabled ) compile_error( MSG_INLINE_ASSIGNATION_ERROR );
 
-            res = compile_expresion( 1, 0, 0, basetype );
+            res = compile_expresion( 1, 0, 1, basetype ); // add ignore code (JJP)
 
             if ( basetype == TYPE_UNDEFINED ) {
                 basetype = typedef_base( res.type );
