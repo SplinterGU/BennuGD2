@@ -237,19 +237,6 @@ int64_t libmod_gfx_get_box( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_remove_box( INSTANCE * my, int64_t * params ) {
-    GRAPH * graph;
-
-    graph = bitmap_get( params[0], params[1] );
-    if ( !graph ) return 0;
-
-    bitmap_remove_cbox( graph, params[2] );
-
-    return 1;
-}
-
-/* --------------------------------------------------------------------------- */
-
 int64_t libmod_gfx_get_box_by_pos( INSTANCE * my, int64_t * params ) {
     GRAPH * graph;
 
@@ -304,19 +291,6 @@ int64_t libmod_gfx_get_box2( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_remove_box2( INSTANCE * my, int64_t * params ) {
-    GRAPH * graph;
-
-    graph = instance_graph( my );
-    if ( !graph ) return 0;
-
-    bitmap_remove_cbox( graph, params[1] );
-
-    return 1;
-}
-
-/* --------------------------------------------------------------------------- */
-
 int64_t libmod_gfx_get_box_by_pos2( INSTANCE * my, int64_t * params ) {
     GRAPH * graph;
 
@@ -332,6 +306,32 @@ int64_t libmod_gfx_get_box_by_pos2( INSTANCE * my, int64_t * params ) {
     if ( params[4] ) *( int64_t * )( intptr_t )params[4] = cbox->y;
     if ( params[5] ) *( int64_t * )( intptr_t )params[5] = cbox->width;
     if ( params[6] ) *( int64_t * )( intptr_t )params[6] = cbox->height;
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_remove_box( INSTANCE * my, int64_t * params ) {
+    GRAPH * graph;
+
+    graph = bitmap_get( params[0], params[1] );
+    if ( !graph ) return 0;
+
+    bitmap_remove_cbox( graph, params[2] );
+
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_remove_box2( INSTANCE * my, int64_t * params ) {
+    GRAPH * graph;
+
+    graph = instance_graph( my );
+    if ( !graph ) return 0;
+
+    bitmap_remove_cbox( graph, params[1] );
 
     return 1;
 }

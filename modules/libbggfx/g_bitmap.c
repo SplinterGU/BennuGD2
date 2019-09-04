@@ -361,12 +361,12 @@ void bitmap_set_cbox( GRAPH * map, int64_t code, int64_t shape, int64_t x, int64
         map->ncboxes++;
     }
 
-    p->code   = code;
-    p->shape  = shape;
-    p->x      = x;
-    p->y      = y;
-    p->width  = width;
-    p->height = height;
+    p->code     = code;
+    p->shape    = shape;
+    p->x        = x;
+    p->y        = y;
+    p->width    = width;
+    p->height   = height;
 
     qsort( map->cboxes, map->ncboxes, sizeof( CBOX ), compare_cbox );
 }

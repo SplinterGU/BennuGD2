@@ -797,7 +797,6 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         return 0;
     }
 
-
     /* TYPE */
 
     /* Check if already in scan by type and we reach limit */

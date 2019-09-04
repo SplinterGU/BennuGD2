@@ -241,19 +241,50 @@ int64_t libmod_gfx_get_real_point3( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-static inline int64_t __get_real_box_vertex_step2( GRAPH * graph, CBOX * cbox, int64_t x0, int64_t y0, int64_t angle, int64_t _scale_x, int64_t _scale_y, int64_t flags, int64_t resolution, int64_t * vertices, int64_t * radius ) {
+static inline int64_t __get_real_box_vertex( GRAPH * graph, INSTANCE * my, int64_t * params ) {
     int64_t x = 0, y = 0, width = 0, height = 0;
     double center_x = 0.0, center_y = 0.0;
+    CBOX vcbox = {0};
 
-    if ( !graph || !cbox ) return 0;
-
-    if ( !graph->ncpoints || graph->cpoints[0].x == CPOINT_UNDEFINED ) {
-        center_x = graph->width / 2.0;
-        center_y = graph->height / 2.0;
-    } else {
-        center_x = graph->cpoints[0].x;
-        center_y = graph->cpoints[0].y;
+    CBOX * cbox = &vcbox;
+    if ( params[0] == -1 ) {
+        cbox->code   = -1;
+        cbox->shape  = LOCINT64( libmod_gfx, my, CSHAPE );
+        cbox->x      = LOCINT64( libmod_gfx, my, CBOX_X );
+        cbox->y      = LOCINT64( libmod_gfx, my, CBOX_Y );
+        cbox->width  = LOCINT64( libmod_gfx, my, CBOX_WIDTH );
+        cbox->height = LOCINT64( libmod_gfx, my, CBOX_HEIGHT );
     }
+    else
+        if ( !( cbox = bitmap_get_cbox( graph, params[0] ) ) ) return 0;
+
+
+    /* scale */
+
+    double scale_x = LOCINT64( libmod_gfx, my, GRAPHSIZEX ) / 100.0;
+    double scale_y = LOCINT64( libmod_gfx, my, GRAPHSIZEY ) / 100.0;
+    if ( scale_x == 1.0 && scale_y == 1.0 ) scale_x = scale_y = LOCINT64( libmod_gfx, my, GRAPHSIZE ) / 100.0;
+
+    if ( scale_x < 0.0 ) scale_x = 0.0;
+    if ( scale_y < 0.0 ) scale_y = 0.0;
+
+    /* Calculate center */
+
+    int64_t * radius   = ( int64_t * ) ( intptr_t ) params[2];
+
+    center_x = LOCINT64( libmod_gfx, my, GRAPHCENTERX ) ;
+    center_y = LOCINT64( libmod_gfx, my, GRAPHCENTERY ) ;
+    if ( center_x == POINT_UNDEFINED || center_y == POINT_UNDEFINED ) {
+        if ( !graph->ncpoints || graph->cpoints[0].x == CPOINT_UNDEFINED ) {
+            center_x = graph->width / 2.0;
+            center_y = graph->height / 2.0;
+        } else {
+            center_x = graph->cpoints[0].x;
+            center_y = graph->cpoints[0].y;
+        }
+    }
+
+    /* Calculate dimensions */
 
     switch ( cbox->shape ) {
         case BITMAP_CB_SHAPE_BOX:
@@ -296,24 +327,27 @@ static inline int64_t __get_real_box_vertex_step2( GRAPH * graph, CBOX * cbox, i
                         break;
                 }
             }
-            * radius = width;
+            * radius = width * scale_x;
             break;
     }
 
-    double sx = 1, sy = -1;
-    double scale_x, scale_y;
+    /* Calculate coords */
 
-    scale_x = _scale_x / 100.0;
-    scale_y = _scale_y / 100.0;
+    int64_t x0 = LOCINT64( libmod_gfx, my, COORDX );
+    int64_t y0 = LOCINT64( libmod_gfx, my, COORDY );
+    int64_t angle = LOCINT64( libmod_gfx, my, ANGLE );
 
-    if ( scale_x < 0.0 ) scale_x = 0.0;
-    if ( scale_y < 0.0 ) scale_y = 0.0;
+    int64_t flags = LOCQWORD( libmod_gfx, my, FLAGS );
 
-    if ( flags & B_HMIRROR ) sx = -1;
-    if ( flags & B_VMIRROR ) sy = 1;
+    int64_t resolution = LOCINT64( libmod_gfx, my, RESOLUTION );
+
+    double sx = ( flags & B_HMIRROR ) ? -1 :  1;
+    double sy = ( flags & B_VMIRROR ) ?  1 : -1;
 
     double cos_angle = cos_deg( angle );
     double sin_angle = sin_deg( angle );
+
+    int64_t * vertices = ( int64_t * ) ( intptr_t ) params[1];
 
     double  lef_x, top_y, rig_x, bot_y, delta_x, delta_y;
 
@@ -374,42 +408,6 @@ static inline int64_t __get_real_box_vertex_step2( GRAPH * graph, CBOX * cbox, i
     }
 
     return 1;
-}
-
-/* --------------------------------------------------------------------------- */
-
-static inline int64_t __get_real_box_vertex_step1( GRAPH * graph, INSTANCE * my, int64_t * params ) {
-    int64_t x = 0, y = 0, width = 0, height = 0;
-    double center_x = 0.0, center_y = 0.0;
-    CBOX vcbox = {0};
-
-    CBOX * cbox = &vcbox;
-    if ( params[0] == -1 ) {
-        cbox->code   = -1;
-        cbox->shape  = LOCINT64( libmod_gfx, my, CSHAPE );
-        cbox->x      = LOCINT64( libmod_gfx, my, CBOX_X );
-        cbox->y      = LOCINT64( libmod_gfx, my, CBOX_Y );
-        cbox->width  = LOCINT64( libmod_gfx, my, CBOX_WIDTH );
-        cbox->height = LOCINT64( libmod_gfx, my, CBOX_HEIGHT );
-    }
-    else
-        if ( !( cbox = bitmap_get_cbox( graph, params[0] ) ) ) return 0;
-
-    int64_t scale_x = LOCINT64( libmod_gfx, my, GRAPHSIZEX );
-    int64_t scale_y = LOCINT64( libmod_gfx, my, GRAPHSIZEY );
-    if ( scale_x == 100 && scale_y == 100 ) scale_x = scale_y = LOCINT64( libmod_gfx, my, GRAPHSIZE );
-
-    return __get_real_box_vertex_step2( graph,
-                                        cbox,
-                                        LOCINT64( libmod_gfx, my, COORDX ),
-                                        LOCINT64( libmod_gfx, my, COORDY ),
-                                        LOCINT64( libmod_gfx, my, ANGLE ),
-                                        scale_x,
-                                        scale_y,
-                                        LOCQWORD( libmod_gfx, my, FLAGS ),
-                                        LOCINT64( libmod_gfx, my, RESOLUTION ),
-                                        ( int64_t * ) ( intptr_t ) params[1],
-                                        ( int64_t * ) ( intptr_t ) params[2] );
 
 }
 
@@ -421,7 +419,7 @@ int64_t libmod_gfx_get_real_box_vertex( INSTANCE * my, int64_t * params ) {
     graph = bitmap_get( params[0], params[1] );
     if ( !graph ) return 0;
 
-    return __get_real_box_vertex_step1( graph, my, &params[2] );
+    return __get_real_box_vertex( graph, my, &params[2] );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -437,7 +435,7 @@ int64_t libmod_gfx_get_real_box_vertex2( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_get_real_box_vertex3( INSTANCE * my, int64_t * params ) {
     GRAPH * graph = instance_graph( my );
     if ( !graph ) return 0;
-    return __get_real_box_vertex_step1( graph, my, params );
+    return __get_real_box_vertex( graph, my, params );
 }
 
 /* --------------------------------------------------------------------------- */
