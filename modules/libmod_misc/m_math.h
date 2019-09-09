@@ -49,5 +49,15 @@ extern int64_t libmod_misc_math_get_distx( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_get_disty( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_clamp( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_clampf( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_max( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_min( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_sgn( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_sgn2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_round( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_floor( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_ceil( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_trunc( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_frac( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_decimal( INSTANCE * my, int64_t * params );
 
 #endif

@@ -188,6 +188,17 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "FMOVE"           , "SS"      , TYPE_INT          , libmod_misc_file_move              ),
 
     /* Math */
+    FUNC( "MAX"             , "DD"      , TYPE_DOUBLE       , libmod_misc_math_max               ),
+    FUNC( "MIN"             , "DD"      , TYPE_DOUBLE       , libmod_misc_math_min               ),
+    FUNC( "SGN"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_sgn               ),
+    FUNC( "SGN"             , "I"       , TYPE_INT          , libmod_misc_math_sgn2              ),
+    FUNC( "ROUND"           , "D"       , TYPE_DOUBLE       , libmod_misc_math_round             ),
+    FUNC( "FLOOR"           , "D"       , TYPE_DOUBLE       , libmod_misc_math_floor             ),
+    FUNC( "CEIL"            , "D"       , TYPE_DOUBLE       , libmod_misc_math_ceil              ),
+    FUNC( "TRUNC"           , "D"       , TYPE_DOUBLE       , libmod_misc_math_trunc             ),
+    FUNC( "FRAC"            , "D"       , TYPE_DOUBLE       , libmod_misc_math_frac              ),
+    FUNC( "DECIMAL"         , "D"       , TYPE_DOUBLE       , libmod_misc_math_decimal           ),
+
     FUNC( "ABS"             , "D"       , TYPE_DOUBLE       , libmod_misc_math_abs               ),
     FUNC( "POW"             , "DD"      , TYPE_DOUBLE       , libmod_misc_math_pow               ),
     FUNC( "SQRT"            , "D"       , TYPE_DOUBLE       , libmod_misc_math_sqrt              ),

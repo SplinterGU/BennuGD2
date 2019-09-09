@@ -215,3 +215,81 @@ int64_t libmod_misc_math_clampf( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_max( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0], b = *( double * ) &params[1];
+    double res = a > b ? a : b > a ? b : a;
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_min( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0], b = *( double * ) &params[1];
+    double res = a < b ? a : b < a ? b : a;
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_sgn( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0];
+    double res = a < 0.0 ? -1.0 : a > 0.0 ? 1.0 : 0.0;
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_sgn2( INSTANCE * my, int64_t * params ) {
+    return params[0] < 0 ? -1 : params[0] > 0 ? 1 : 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_round( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0];
+    double res = round( a );
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_floor( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0];
+    double res = floor( a );
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_ceil( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0];
+    double res = ceil( a );
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_trunc( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0];
+    double res = trunc( a );
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_frac( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0];
+    double res = a - floor( a );
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_decimal( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0];
+    double res = a - trunc( a );
+    return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
