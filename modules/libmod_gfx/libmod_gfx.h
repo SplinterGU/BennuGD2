@@ -116,7 +116,9 @@ enum {
     CBOX_HEIGHT,
     COLLIDER_CBOX,
     COLLIDED_ID,
-    COLLIDED_CBOX
+    COLLIDED_CBOX,
+    PENETRATION_X,
+    PENETRATION_Y
 };
 
 /* Globals */

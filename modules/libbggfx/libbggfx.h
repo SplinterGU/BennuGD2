@@ -72,6 +72,7 @@ enum {
     TEXT_DST_ALPHA,
     TEXT_EQUATION_RGB,
     TEXT_EQUATION_ALPHA,
+    TEXT_SHADER_ID,
 
     /* backgound */
     BACKGROUND_FILE,
@@ -92,12 +93,14 @@ enum {
     BACKGROUND_DST_ALPHA,
     BACKGROUND_EQUATION_RGB,
     BACKGROUND_EQUATION_ALPHA,
+    BACKGROUND_SHADER_ID,
 
     /*Scroll*/
     SCROLLS
 
 };
 
+/* Locals */
 enum {
     CTYPE = 0,
     CNUMBER,
@@ -138,7 +141,8 @@ enum {
     SRC_ALPHA,
     DST_ALPHA,
     EQUATION_RGB,
-    EQUATION_ALPHA
+    EQUATION_ALPHA,
+    SHADER_ID
 };
 
 /* --------------------------------------------------------------------------- */
@@ -152,6 +156,7 @@ enum {
 #include "g_bitmap.h"
 #include "g_blit.h"
 #include "g_grlib.h"
+#include "g_shaders.h"
 #include "g_instance.h"
 #include "g_object.h"
 #include "g_video.h"
@@ -167,7 +172,6 @@ enum {
 #include "g_draw.h"
 #include "g_screen.h"
 #include "g_pathfind.h"
-#include "g_shaders.h"
 
 /* --------------------------------------------------------------------------- */
 

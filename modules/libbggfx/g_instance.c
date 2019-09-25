@@ -174,6 +174,8 @@ void draw_instance_at( INSTANCE * i, REGION * region, int64_t x, int64_t y, GRAP
         map_clip = &_map_clip;
     }
 
+    shader_activate( * ( BGD_SHADER ** ) LOCADDR( libbggfx, i, SHADER_ID ) );
+
     gr_blit(    dest,
                 region,
                 x,
@@ -255,6 +257,8 @@ void draw_instance( void * what, REGION * clip ) {
         _map_clip.y = LOCINT64( libbggfx, i, CLIPY );
         map_clip = &_map_clip;
     }
+
+    shader_activate( * ( BGD_SHADER ** ) LOCADDR( libbggfx, i, SHADER_ID ) );
 
     gr_blit(    map_dst,
                 &region,

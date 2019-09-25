@@ -86,6 +86,7 @@ DLVARFIXUP  __bgdexport( libbginput, globals_fixup )[] = {
     { "mouse.custom_blendmode.dst_alpha"        , NULL, -1, -1 },
     { "mouse.custom_blendmode.equation_rgb"     , NULL, -1, -1 },
     { "mouse.custom_blendmode.equation_alpha"   , NULL, -1, -1 },
+    { "mouse.shader"                            , NULL, -1, -1 },
 
     { NULL                                      , NULL, -1, -1 }
 };

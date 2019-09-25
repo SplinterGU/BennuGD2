@@ -186,6 +186,8 @@ static void mouse_draw( void * what, REGION * clip ) {
     int64_t sizex = GLOINT64( libbginput, MOUSESIZEX ), sizey = GLOINT64( libbginput, MOUSESIZEY );
     if ( sizex == 100 && sizey == 100 ) sizex = sizey = GLOINT64( libbginput, MOUSESIZE );
 
+    shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbginput, MOUSE_SHADER_ID ) );
+
     gr_blit(    0,
                 &region,
                 GLOINT64( libbginput, MOUSEX ),

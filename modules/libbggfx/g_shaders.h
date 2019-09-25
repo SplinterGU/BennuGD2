@@ -41,6 +41,10 @@ typedef void BGD_SHADER;
 
 /* --------------------------------------------------------------------------- */
 
+extern BGD_SHADER * g_current_shader;
+
+/* --------------------------------------------------------------------------- */
+
 extern BGD_SHADER * shader_create( char * vertex, char * fragment );
 extern void shader_free( BGD_SHADER * shader );
 

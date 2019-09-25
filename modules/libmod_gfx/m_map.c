@@ -424,6 +424,8 @@ int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params ) {
 
     if ( !dest || !orig ) return 0;
 
+    shader_deactivate();
+
     gr_blit(    dest,
                 NULL,
                 params[4],
@@ -455,6 +457,8 @@ int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
     GRAPH * dest = bitmap_get( params[0], params[1] );
     GRAPH * orig = bitmap_get( params[2], params[3] );
     if ( !dest || !orig ) return 0;
+
+    shader_deactivate();
 
     gr_blit( dest,       // dest
              NULL,       // clip
@@ -488,6 +492,8 @@ int64_t libmod_gfx_map_put3( INSTANCE * my, int64_t * params ) {
     GRAPH * dest = bitmap_get( params[0], params[1] );
     GRAPH * orig = bitmap_get( params[2], params[3] );
     if ( !dest || !orig ) return 0;
+
+    shader_deactivate();
 
     gr_blit( dest,       // dest
              NULL,       // clip
@@ -530,6 +536,8 @@ int64_t libmod_gfx_map_put4( INSTANCE * my, int64_t * params ) {
     custom_blendmode.dst_alpha  = params[18];
     custom_blendmode.eq_rgb     = params[19];
     custom_blendmode.eq_alpha   = params[20];
+
+    shader_deactivate();
 
     gr_blit( dest,       // dest
              NULL,       // clip
@@ -641,6 +649,8 @@ static int64_t __libmod_gfx_map_block_copy(
     clip.y  = dest_y;
     clip.x2 = dest_x + w - 1;
     clip.y2 = dest_y + h - 1;
+
+    shader_deactivate();
 
     gr_blit(    dest,
                 &clip,

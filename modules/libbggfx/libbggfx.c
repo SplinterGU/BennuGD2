@@ -74,6 +74,7 @@ DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
     { "text.custom_blendmode.dst_alpha"                 , NULL, -1, -1 },
     { "text.custom_blendmode.equation_rgb"              , NULL, -1, -1 },
     { "text.custom_blendmode.equation_alpha"            , NULL, -1, -1 },
+    { "text.shader"                                     , NULL, -1, -1 },
 
     /* backgound */
     { "background.file"                                 , NULL, -1, -1 },
@@ -94,8 +95,11 @@ DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
     { "background.custom_blendmode.dst_alpha"           , NULL, -1, -1 },
     { "background.custom_blendmode.equation_rgb"        , NULL, -1, -1 },
     { "background.custom_blendmode.equation_alpha"      , NULL, -1, -1 },
+    { "background.shader"                               , NULL, -1, -1 },
 
     { "scroll"                                          , NULL, -1, -1 },
+
+    { "shader"                                          , NULL, -1, -1 },
 
     { NULL                                              , NULL, -1, -1 }
 };
@@ -141,6 +145,7 @@ DLVARFIXUP __bgdexport( libbggfx, locals_fixup )[] = {
     { "custom_blendmode.dst_alpha"                      , NULL, -1, -1 },
     { "custom_blendmode.equation_rgb"                   , NULL, -1, -1 },
     { "custom_blendmode.equation_alpha"                 , NULL, -1, -1 },
+    { "shader"                                          , NULL, -1, -1 },
 
     { NULL                                              , NULL, -1, -1 }
 };

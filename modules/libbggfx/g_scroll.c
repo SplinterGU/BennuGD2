@@ -298,8 +298,9 @@ void scroll_draw( int64_t n, REGION * clipping ) {
             cy = back->height / 2;
         }
 
-        y = scrolls[n].region->y - scrolls[n].y1;
+        shader_activate( data->shader1 );
 
+        y = scrolls[n].region->y - scrolls[n].y1;
         while ( y < scrolls[n].region->y2 ) {
             x = scrolls[n].region->x - scrolls[n].x1;
             while ( x < scrolls[n].region->x2 ) {
@@ -337,6 +338,8 @@ void scroll_draw( int64_t n, REGION * clipping ) {
         cx = graph->width / 2;
         cy = graph->height / 2;
     }
+
+    shader_activate( data->shader2 );
 
     y = scrolls[n].region->y - scrolls[n].y0;
     while ( y < scrolls[n].region->y2 ) {

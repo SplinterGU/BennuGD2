@@ -80,7 +80,8 @@ enum {
     MOUSE_SRC_ALPHA,
     MOUSE_DST_ALPHA,
     MOUSE_EQUATION_RGB,
-    MOUSE_EQUATION_ALPHA
+    MOUSE_EQUATION_ALPHA,
+    MOUSE_SHADER_ID
 };
 
 /* --------------------------------------------------------------------------- */

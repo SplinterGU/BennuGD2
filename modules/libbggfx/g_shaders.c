@@ -33,6 +33,10 @@
 
 /* --------------------------------------------------------------------------- */
 
+BGD_SHADER * g_current_shader = NULL;
+
+/* --------------------------------------------------------------------------- */
+
 BGD_SHADER * shader_create( char * vertex, char * fragment ) {
 #ifdef USE_SDL2_GPU
     uint32_t vertex_shader = 0, frags_shader = 0;
@@ -107,7 +111,7 @@ BGD_SHADER * shader_create( char * vertex, char * fragment ) {
     }
 
     shader->block = GPU_LoadShaderBlock( shader->shader, "bgd_Vertex", "bgd_TexCoord", "bgd_Color", "bgd_ModelViewProjectionMatrix" );
-    GPU_ActivateShaderProgram( shader->shader, &shader->block );
+//    GPU_ActivateShaderProgram( shader->shader, &shader->block );
 
     return shader;
 #else
@@ -119,7 +123,10 @@ BGD_SHADER * shader_create( char * vertex, char * fragment ) {
 
 void shader_activate( BGD_SHADER * shader ) {
 #ifdef USE_SDL2_GPU
-    GPU_ActivateShaderProgram( shader ? shader->shader : 0, shader ? &shader->block : NULL );
+    if ( g_current_shader != shader ) {
+        GPU_ActivateShaderProgram( shader ? shader->shader : 0, shader ? &shader->block : NULL );
+        g_current_shader = shader;
+    }
 #endif
 }
 
@@ -128,6 +135,7 @@ void shader_activate( BGD_SHADER * shader ) {
 void shader_deactivate( void ) {
 #ifdef USE_SDL2_GPU
     GPU_DeactivateShaderProgram();
+    g_current_shader = NULL;
 #endif
 }
 

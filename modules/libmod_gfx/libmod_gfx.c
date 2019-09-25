@@ -93,6 +93,8 @@ DLVARFIXUP __bgdexport( libmod_gfx, locals_fixup )[] = {
     { "collision_info.collider_cbox"    , NULL, -1, -1 },
     { "collision_info.collided_id"      , NULL, -1, -1 },
     { "collision_info.collided_cbox"    , NULL, -1, -1 },
+    { "collision_info.penetration_x"    , NULL, -1, -1 },
+    { "collision_info.penetration_y"    , NULL, -1, -1 },
 
     { NULL                              , NULL, -1, -1 }
 };

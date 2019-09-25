@@ -140,6 +140,8 @@ char * __bgdexport( libmod_gfx, locals_def ) =
     "   INT collider_cbox;\n"
     "   INT collided_id;\n"
     "   INT collided_cbox;\n"
+    "   INT penetration_x;\n"
+    "   INT penetration_y;\n"
     "END\n"
     ;
 
@@ -427,6 +429,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "SHADER_FREE"                 , "P"              , TYPE_INT        , libmod_gfx_shader_free                  ),
 
     FUNC( "SHADER_ACTIVATE"             , "P"              , TYPE_INT        , libmod_gfx_shader_activate              ),
+    FUNC( "SHADER_SELECT"               , "P"              , TYPE_INT        , libmod_gfx_shader_activate              ),
     FUNC( "SHADER_DEACTIVATE"           , ""               , TYPE_INT        , libmod_gfx_shader_deactivate            ),
 
     FUNC( "SHADER_GETATTRIBUTELOCATION" , "PS"             , TYPE_INT        , libmod_gfx_shader_getattributelocation  ),

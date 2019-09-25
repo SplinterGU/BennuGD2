@@ -26,6 +26,7 @@
  *
  */
 
+
 #include <stdlib.h>
 #include "fmath.h"
 #include "bgdcore.h"
@@ -135,7 +136,7 @@ static double * cos_table = NULL ;
 /* --------------------------------------------------------------------------- */
 
 double cos_deg( int64_t x ) {
-    if ( x < 0 ) x = -x ;
+    if ( x < 0LL ) x = -x ;
     if ( x > 360000 ) x %= 360000 ;
     if ( x > 270000 ) return cos_table[360000 - x] ;
     if ( x > 180000 ) return -cos_table[x - 180000] ;
@@ -146,7 +147,8 @@ double cos_deg( int64_t x ) {
 /* --------------------------------------------------------------------------- */
 
 double sin_deg( int64_t x ) {
-    if ( x < 0 ) return -sin_deg( -x ) ;
+    if ( x < -360000 ) x %= 360000 ;
+    if ( x < 0LL ) return -sin_deg( -( x % 360000 ) ) ;
     if ( x > 360000 ) x %= 360000 ;
     if ( x > 270000 ) return -cos_table[x - 270000] ;
     if ( x > 180000 ) return -cos_table[270000 - x] ;

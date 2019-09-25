@@ -231,6 +231,9 @@ void gr_draw_frame() {
         int64_t sizex = GLOINT64( libbggfx, BACKGROUND_SIZEX ),
                 sizey = GLOINT64( libbggfx, BACKGROUND_SIZEY );
         if ( sizex == 100 && sizey == 100 ) sizex = sizey = GLOINT64( libbggfx, BACKGROUND_SIZE );
+
+        shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbggfx, BACKGROUND_SHADER_ID ) );
+
         gr_blit( NULL,
                  NULL,
                  scr_width / 2,

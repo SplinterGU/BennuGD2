@@ -137,6 +137,8 @@ void gr_fade_step() {
 
         if ( !fade_on && ( int ) fade_pos_a == 0 ) fade_set = 0;
 
+        shader_deactivate();
+
 #ifdef USE_SDL2
         SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_BLEND );
         SDL_SetRenderDrawColor( gRenderer, fade_pos_r, fade_pos_g, fade_pos_b, fade_pos_a );
@@ -154,6 +156,7 @@ void gr_fade_step() {
 #ifdef USE_SDL2_GPU
         SDL_Color color;
         color.r = fade_pos_r; color.g = fade_pos_g; color.b = fade_pos_b; color.a = fade_pos_a;
+
         GPU_SetShapeBlending( GPU_TRUE );
         if ( region )   GPU_RectangleFilled( gRenderer, region->x, region->y, region->x2 + 1, region->y2 + 1, color );
         else            GPU_RectangleFilled( gRenderer, 0.0, 0.0, gRenderer->w, gRenderer->h, color );

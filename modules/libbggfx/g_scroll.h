@@ -105,6 +105,8 @@ typedef struct _scroll_Extra_data {
     CUSTOM_BLENDMODE custom_blend_mode1;
     int64_t blend_mode2;
     CUSTOM_BLENDMODE custom_blend_mode2;
+    BGD_SHADER * shader1;
+    BGD_SHADER * shader2;
 } __PACKED SCROLL_EXTRA_DATA;
 
 #ifdef __GNUC__

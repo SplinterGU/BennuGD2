@@ -285,6 +285,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   BYTE color_b=255;\n"
     "   INT blendmode=-1;\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
+    "   UINT * shader=NULL;\n"
     "END\n"
 
     /* backgound */
@@ -301,6 +302,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   INT size_y=100;\n"
     "   INT blendmode=-1;\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
+    "   UINT * shader=NULL;\n"
     "END\n"
 
     /* scroll */
@@ -330,6 +332,8 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   G_CUSTOM_BLENDMODE custom_blendmode1;\n"
     "   INT blendmode2=-1;\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode2;\n"
+    "   UINT * shader1=NULL;\n"
+    "   UINT * shader2=NULL;\n"
     "END\n"
     ;
 
@@ -375,6 +379,8 @@ char * __bgdexport( libbggfx, locals_def ) =
 
     "INT blendmode = -1;\n"
     "G_CUSTOM_BLENDMODE custom_blendmode;\n"
+
+    "UINT * shader = NULL;\n"
     ;
 #endif
 

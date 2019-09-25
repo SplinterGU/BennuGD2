@@ -59,15 +59,23 @@ typedef struct {
     int64_t height;
     double  center_x;
     double  center_y;
-    int64_t angle;
-    int64_t flags;
     double  scale_x;
     double  scale_y;
+    int64_t flags;
+    double  c; // cos
+    double  s; // sin
+    double  cn; // cos normalize
+    double  sn; // sin normalize
+    double  sx, sy;
     int64_t ncboxes;
     __cbox_info * cboxes;
     int64_t ncboxes_box;
     int64_t ncboxes_circle;
 } __obj_col_info;
+
+/* --------------------------------------------------------------------------- */
+
+#define clamp(a,b,c) ( a < b ? b : a > c ? c : a )
 
 /* --------------------------------------------------------------------------- */
 
@@ -82,16 +90,6 @@ typedef struct {
 static inline void __calculate_shape( __obj_col_info * oci )
 {
     int i;
-    double sx = 1, sy = -1;
-
-    if ( oci->scale_x < 0.0 ) oci->scale_x = 0.0;
-    if ( oci->scale_y < 0.0 ) oci->scale_y = 0.0;
-
-    if ( oci->flags & B_HMIRROR ) sx = -1;
-    if ( oci->flags & B_VMIRROR ) sy = 1;
-
-    double cos_angle = cos_deg( oci->angle );
-    double sin_angle = sin_deg( oci->angle );
 
     double  lef_x, top_y, rig_x, bot_y,
             delta_x, delta_y;
@@ -101,20 +99,20 @@ static inline void __calculate_shape( __obj_col_info * oci )
                     rig_x = oci->scale_x * ( oci->cboxes[i].cbox.width - 1 ) + lef_x; \
                     top_y = oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y ); \
                     bot_y = oci->scale_y * ( oci->cboxes[i].cbox.height - 1 ) + top_y; \
-                    oci->cboxes[i].vertices[0] = ( lef_x * cos_angle + top_y * sin_angle ) * sx + oci->x; \
-                    oci->cboxes[i].vertices[1] = ( lef_x * sin_angle - top_y * cos_angle ) * sy + oci->y; \
-                    oci->cboxes[i].vertices[2] = ( rig_x * cos_angle + top_y * sin_angle ) * sx + oci->x; \
-                    oci->cboxes[i].vertices[3] = ( rig_x * sin_angle - top_y * cos_angle ) * sy + oci->y; \
-                    oci->cboxes[i].vertices[4] = ( rig_x * cos_angle + bot_y * sin_angle ) * sx + oci->x; \
-                    oci->cboxes[i].vertices[5] = ( rig_x * sin_angle - bot_y * cos_angle ) * sy + oci->y; \
-                    oci->cboxes[i].vertices[6] = ( lef_x * cos_angle + bot_y * sin_angle ) * sx + oci->x; \
-                    oci->cboxes[i].vertices[7] = ( lef_x * sin_angle - bot_y * cos_angle ) * sy + oci->y;
+                    oci->cboxes[i].vertices[0] = ( lef_x * oci->c + top_y * oci->s ) * oci->sx + oci->x; \
+                    oci->cboxes[i].vertices[1] = ( lef_x * oci->s - top_y * oci->c ) * oci->sy + oci->y; \
+                    oci->cboxes[i].vertices[2] = ( rig_x * oci->c + top_y * oci->s ) * oci->sx + oci->x; \
+                    oci->cboxes[i].vertices[3] = ( rig_x * oci->s - top_y * oci->c ) * oci->sy + oci->y; \
+                    oci->cboxes[i].vertices[4] = ( rig_x * oci->c + bot_y * oci->s ) * oci->sx + oci->x; \
+                    oci->cboxes[i].vertices[5] = ( rig_x * oci->s - bot_y * oci->c ) * oci->sy + oci->y; \
+                    oci->cboxes[i].vertices[6] = ( lef_x * oci->c + bot_y * oci->s ) * oci->sx + oci->x; \
+                    oci->cboxes[i].vertices[7] = ( lef_x * oci->s - bot_y * oci->c ) * oci->sy + oci->y;
 
 #define CALCULATE_SHAPE_CIRCLE \
                     delta_x = oci->scale_x * ( oci->cboxes[i].cbox.x - oci->center_x ); \
                     delta_y = oci->scale_y * ( oci->cboxes[i].cbox.y - oci->center_y ); \
-                    oci->cboxes[i].vertices[0] = ( delta_x * cos_angle + delta_y * sin_angle ) * sx + oci->x; \
-                    oci->cboxes[i].vertices[1] = ( delta_x * sin_angle - delta_y * cos_angle ) * sy + oci->y;
+                    oci->cboxes[i].vertices[0] = ( delta_x * oci->c + delta_y * oci->s ) * oci->sx + oci->x; \
+                    oci->cboxes[i].vertices[1] = ( delta_x * oci->s - delta_y * oci->c ) * oci->sy + oci->y;
 
     if ( oci->ncboxes_box && oci->ncboxes_circle ) {
         for ( i = 0; i < oci->ncboxes; i++ ) {
@@ -141,51 +139,34 @@ static inline void __calculate_shape( __obj_col_info * oci )
 
 /* --------------------------------------------------------------------------- */
 
-static inline void __normalize_circle( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
-    if ( flags & B_HMIRROR ) angle = -angle;
-    if ( flags & B_VMIRROR ) angle = -angle;
+static inline void __normalize_circle( double * vertices, __obj_col_info * oci, double * normalized_vertices ) {
+    double x1 = vertices[0] - oci->x;
+    double y1 = vertices[1] - oci->y;
 
-    double cos_angle = cos_deg( angle );
-    double sin_angle = sin_deg( angle );
-
-    double x1 = vertices[0] - x;
-    double y1 = vertices[1] - y;
-
-    normalized_vertices[0] = ( x1 * cos_angle - y1 * sin_angle ) + x;
-    normalized_vertices[1] = ( x1 * sin_angle + y1 * cos_angle ) + y;
+    normalized_vertices[0] = ( x1 * oci->cn - y1 * oci->sn ) + oci->x;
+    normalized_vertices[1] = ( x1 * oci->sn + y1 * oci->cn ) + oci->y;
 }
 
 /* --------------------------------------------------------------------------- */
 
-static inline void __normalize_box( double * vertices, int64_t x, int64_t y, int64_t angle, int64_t flags, double *normalized_vertices ) {
-    double cos_angle;
-    double sin_angle;
-    double x1, x2, x3, x4;
-    double y1, y2, y3, y4;
+static inline void __normalize_box( double * vertices, __obj_col_info * oci, double * normalized_vertices ) {
+    double x1 = vertices[0] - oci->x;
+    double y1 = vertices[1] - oci->y;
+    double x2 = vertices[2] - oci->x;
+    double y2 = vertices[3] - oci->y;
+    double x3 = vertices[4] - oci->x;
+    double y3 = vertices[5] - oci->y;
+    double x4 = vertices[6] - oci->x;
+    double y4 = vertices[7] - oci->y;
 
-    if ( flags & B_HMIRROR ) angle = -angle;
-    if ( flags & B_VMIRROR ) angle = -angle;
-
-    cos_angle = cos_deg( angle );
-    sin_angle = sin_deg( angle );
-
-    x1 = vertices[0] - x;
-    y1 = vertices[1] - y;
-    x2 = vertices[2] - x;
-    y2 = vertices[3] - y;
-    x3 = vertices[4] - x;
-    y3 = vertices[5] - y;
-    x4 = vertices[6] - x;
-    y4 = vertices[7] - y;
-
-    normalized_vertices[0] = ( x1 * cos_angle - y1 * sin_angle ) + x;
-    normalized_vertices[1] = ( x1 * sin_angle + y1 * cos_angle ) + y;
-    normalized_vertices[2] = ( x2 * cos_angle - y2 * sin_angle ) + x;
-    normalized_vertices[3] = ( x2 * sin_angle + y2 * cos_angle ) + y;
-    normalized_vertices[4] = ( x3 * cos_angle - y3 * sin_angle ) + x;
-    normalized_vertices[5] = ( x3 * sin_angle + y3 * cos_angle ) + y;
-    normalized_vertices[6] = ( x4 * cos_angle - y4 * sin_angle ) + x;
-    normalized_vertices[7] = ( x4 * sin_angle + y4 * cos_angle ) + y;
+    normalized_vertices[0] = ( x1 * oci->cn - y1 * oci->sn ) + oci->x;
+    normalized_vertices[1] = ( x1 * oci->sn + y1 * oci->cn ) + oci->y;
+    normalized_vertices[2] = ( x2 * oci->cn - y2 * oci->sn ) + oci->x;
+    normalized_vertices[3] = ( x2 * oci->sn + y2 * oci->cn ) + oci->y;
+    normalized_vertices[4] = ( x3 * oci->cn - y3 * oci->sn ) + oci->x;
+    normalized_vertices[5] = ( x3 * oci->sn + y3 * oci->cn ) + oci->y;
+    normalized_vertices[6] = ( x4 * oci->cn - y4 * oci->sn ) + oci->x;
+    normalized_vertices[7] = ( x4 * oci->sn + y4 * oci->cn ) + oci->y;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -251,6 +232,9 @@ static int __get_proc_info(
     oci->scale_x /= 100.0;
     oci->scale_y /= 100.0;
 
+    if ( oci->scale_x < 0.0 ) oci->scale_x = 0.0;
+    if ( oci->scale_y < 0.0 ) oci->scale_y = 0.0;
+
     oci->x = LOCINT64( libmod_gfx, proc, COORDX );
     oci->y = LOCINT64( libmod_gfx, proc, COORDY );
 
@@ -278,8 +262,19 @@ static int __get_proc_info(
         }
     }
 
-    oci->angle = LOCINT64( libmod_gfx, proc, ANGLE );
+    int64_t angle = LOCINT64( libmod_gfx, proc, ANGLE );
     oci->flags = LOCQWORD( libmod_gfx, proc, FLAGS );
+
+    oci->c = cos_deg( angle );
+    oci->s = sin_deg( angle );
+    oci->sx = 1;
+    oci->sy = -1;
+
+    if ( oci->flags & B_HMIRROR ) { angle = -angle; oci->sx = -1; }
+    if ( oci->flags & B_VMIRROR ) { angle = -angle; oci->sy = 1; }
+
+    oci->cn = cos_deg( angle );
+    oci->sn = sin_deg( angle );
 
     int i;
     if ( graph->ncboxes ) {
@@ -306,16 +301,16 @@ static int __get_proc_info(
         switch ( oci->cboxes[i].cbox.shape ) {
             case BITMAP_CB_SHAPE_BOX:
             default:
-                oci->cboxes[i].cbox.x = oci->cboxes[i].cbox.x == POINT_UNDEFINED ? 0 : oci->cboxes[i].cbox.x;
-                oci->cboxes[i].cbox.y = oci->cboxes[i].cbox.y == POINT_UNDEFINED ? 0 : oci->cboxes[i].cbox.y;
+                oci->cboxes[i].cbox.x = ( oci->cboxes[i].cbox.x == POINT_UNDEFINED ) ? 0 : oci->cboxes[i].cbox.x;
+                oci->cboxes[i].cbox.y = ( oci->cboxes[i].cbox.y == POINT_UNDEFINED ) ? 0 : oci->cboxes[i].cbox.y;
                 oci->cboxes[i].cbox.width = ( oci->cboxes[i].cbox.width < 1 ) ? oci->width : oci->cboxes[i].cbox.width;
                 oci->cboxes[i].cbox.height = ( oci->cboxes[i].cbox.height < 1 ) ? oci->height : oci->cboxes[i].cbox.height;
                 oci->ncboxes_box++;
                 break;
 
             case BITMAP_CB_SHAPE_CIRCLE:
-                oci->cboxes[i].cbox.x = oci->cboxes[i].cbox.x == POINT_UNDEFINED ? oci->center_x : oci->cboxes[i].cbox.x;
-                oci->cboxes[i].cbox.y = oci->cboxes[i].cbox.y == POINT_UNDEFINED ? oci->center_y : oci->cboxes[i].cbox.y;
+                oci->cboxes[i].cbox.x = ( oci->cboxes[i].cbox.x == POINT_UNDEFINED ) ? oci->center_x : oci->cboxes[i].cbox.x;
+                oci->cboxes[i].cbox.y = ( oci->cboxes[i].cbox.y == POINT_UNDEFINED ) ? oci->center_y : oci->cboxes[i].cbox.y;
 
                 // Width is radius
                 if ( oci->cboxes[i].cbox.width < 1 ) {
@@ -371,8 +366,12 @@ static int __get_mouse_info( __obj_col_info * oci ) {
     oci->center_x = 0;
     oci->center_y = 0;
 
-    oci->angle = 0;
     oci->flags = 0;
+
+    oci->cn = oci->c = cos_deg( 0 );
+    oci->sn = oci->s = sin_deg( 0 );
+    oci->sx = 1;
+    oci->sy = -1;
 
     oci->cboxes = malloc( sizeof( __cbox_info ) );
     if ( !oci->cboxes ) return 0;
@@ -396,17 +395,12 @@ static inline int __is_collision_box_circle( BGD_Box * limits, int64_t radius, d
     double closest_x, closest_y;
 
     // Find the unrotated closest x point from center of unrotated circle
-    if ( normalized_vertices[0] < limits->x )       closest_x = limits->x;
-    else if ( normalized_vertices[0] > limits->x2 ) closest_x = limits->x2;
-    else                                            closest_x = normalized_vertices[0];
+    closest_x = clamp( normalized_vertices[0], limits->x, limits->x2 );
 
     // Find the unrotated closest y point from center of unrotated circle
-    if ( normalized_vertices[1] < limits->y )       closest_y = limits->y;
-    else if ( normalized_vertices[1] > limits->y2 ) closest_y = limits->y2;
-    else                                            closest_y = normalized_vertices[1];
+    closest_y = clamp( normalized_vertices[1], limits->y, limits->y2 );
 
     return in_radius( closest_x, closest_y, normalized_vertices[0], normalized_vertices[1], radius );
-
 }
 
 /* --------------------------------------------------------------------------- */
@@ -418,25 +412,29 @@ static inline int __is_collision_circle_circle( int64_t radiusA, double * vertic
 /* --------------------------------------------------------------------------- */
 /*  ociA is precalculated, is collider */
 
-static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * ociB, int64_t * idxA, int64_t * idxB, int64_t * cbox_result_code ) {
+static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * ociB, int64_t * idxA, int64_t * idxB, int64_t * cbox_result_code, int64_t * penetration ) {
     int collisionA, collisionB;
     int64_t shapeA, shapeB;
     BGD_Box projectionA, projectionB;
     double normalized_verticesA[8], normalized_verticesB[8], normalized_verticesC[8];
+    int64_t top, bottom, left, right, minx, miny, px = 0, py = 0, _px, _py;
 
     // Get real vertices
     __calculate_shape( ociB );
     if ( ociB->ncboxes_box ) __calculate_box_limits( ociB );
 
 #define __NORMALIZE_BOX(A,B,idxA) \
-                __normalize_box( oci##A->cboxes[idxA].vertices, oci##B->x, oci##B->y, oci##B->angle, oci##B->flags, normalized_vertices##A ); /* Normalize B Box axis */ \
+                __normalize_box( oci##A->cboxes[idxA].vertices, oci##B, normalized_vertices##A ); /* Normalize B Box axis */ \
                 __get_vertices_projection( normalized_vertices##A, &projection##A ); /* Get limits */
 
 #define __NORMALIZE_CIRCLE(A,B,idxA) \
-                __normalize_circle( oci##A->cboxes[idxA].vertices, oci##B->x, oci##B->y, oci##B->angle, oci##B->flags, normalized_vertices##A ); /* Normalize B Box axis */
+                __normalize_circle( oci##A->cboxes[idxA].vertices, oci##B, normalized_vertices##A ); /* Normalize B Box axis */
 
 #define __CHECK_LIMITS(A,B,idxA,idxB) \
-                collision##A = !( projection##A.x > oci##B->cboxes[idxB].limits.x2 || projection##A.x2 < oci##B->cboxes[idxB].limits.x || projection##A.y > oci##B->cboxes[idxB].limits.y2 || projection##A.y2 < oci##B->cboxes[idxB].limits.y );
+                collision##A = !( projection##A.x  > oci##B->cboxes[idxB].limits.x2 || \
+                                  projection##A.x2 < oci##B->cboxes[idxB].limits.x  || \
+                                  projection##A.y  > oci##B->cboxes[idxB].limits.y2 || \
+                                  projection##A.y2 < oci##B->cboxes[idxB].limits.y  );
 
 #define __CHECK_COLLISION_BOX_BOX(A,B,idxA,idxB) \
                 __CHECK_LIMITS(A,B,idxA,idxB) \
@@ -444,7 +442,48 @@ static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * oci
                 if ( collisionA ) { \
                     __NORMALIZE_BOX(B,A,idxB) \
                     __CHECK_LIMITS(B,A,idxB,idxA) \
+                    if ( collisionB ) { \
+                        left   = ( projection##B.x       ) - ( oci##A->cboxes[idxA].limits.x2 + 1 ); \
+                        right  = ( projection##B.x2  + 1 ) - ( oci##A->cboxes[idxA].limits.x      ); \
+                        top    = ( projection##B.y       ) - ( oci##A->cboxes[idxA].limits.y2 + 1 ); \
+                        bottom = ( projection##B.y2  + 1 ) - ( oci##A->cboxes[idxA].limits.y      ); \
+                                                      px = left  ; minx = ABS( left   );   \
+                        if ( ABS( right  ) < minx ) { px = right ; minx = ABS( right  ); } \
+                                                      py = top   ; miny = ABS( top    );   \
+                        if ( ABS( bottom ) < miny ) { py = bottom; miny = ABS( bottom ); } \
+                    } \
                 }
+
+#if 0
+                        left   =   projection##B.x        - ( oci##A->cboxes[idxA].limits.x2 + 1 ); \
+                        right  = ( projection##B.x2 + 1 ) -   oci##A->cboxes[idxA].limits.x;        \
+                        top    =   projection##B.y        - ( oci##A->cboxes[idxA].limits.y2 + 1 ); \
+                        bottom = ( projection##B.y2 + 1 ) -   oci##A->cboxes[idxA].limits.y;        \
+                        if ( ABS( left   ) < minx ) { px = left  ; minx = ABS( left   ); }   \
+                        if ( ABS( right  ) < minx ) { px = right ; minx = ABS( right  ); }   \
+                        if ( ABS( top    ) < miny ) { py = top   ; miny = ABS( top    ); }   \
+                        if ( ABS( bottom ) < miny ) { py = bottom;                       }   \
+
+#endif
+#if 0
+                        left   = ( projection##A.x       ) - ( oci##B->cboxes[idxB].limits.x2 + 1 ); \
+                        right  = ( projection##A.x2  + 1 ) - ( oci##B->cboxes[idxB].limits.x      ); \
+                        top    = ( projection##A.y       ) - ( oci##B->cboxes[idxB].limits.y2 + 1 ); \
+                        bottom = ( projection##A.y2  + 1 ) - ( oci##B->cboxes[idxB].limits.y      ); \
+                                                     px = left  ; py = 0; min = ABS( left   );   \
+                        if ( ABS( right  ) < min ) { px = right ; py = 0; min = ABS( right  ); } \
+                        if ( ABS( top    ) < min ) { py = top   ; px = 0; min = ABS( top    ); } \
+                        if ( ABS( bottom ) < min ) { py = bottom; px = 0; min = ABS( bottom ); } \
+                        left   =   projection##B.x        - ( oci##A->cboxes[idxA].limits.x2 + 1 ); \
+                        right  = ( projection##B.x2 + 1 ) -   oci##A->cboxes[idxA].limits.x;        \
+                        top    =   projection##B.y        - ( oci##A->cboxes[idxA].limits.y2 + 1 ); \
+                        bottom = ( projection##B.y2 + 1 ) -   oci##A->cboxes[idxA].limits.y;        \
+                        if ( ABS( left   ) < min ) { px = left  ; py = 0; min = ABS( left   ); }   \
+                        if ( ABS( right  ) < min ) { px = right ; py = 0; min = ABS( right  ); }   \
+                        if ( ABS( top    ) < min ) { py = top   ; px = 0; min = ABS( top    ); }   \
+                        if ( ABS( bottom ) < min ) { py = bottom; px = 0;                      }   \
+
+#endif
 
 #define __CHECK_COLLISION_CIRCLE_BOX(A,B,idxA,idxB) \
                 collisionB = __is_collision_box_circle( &(oci##A->cboxes[idxA].limits), oci##B->cboxes[idxB].cbox.width * oci##B->scale_x, normalized_vertices##B );
@@ -460,6 +499,8 @@ static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * oci
                 if ( collisionB ) { \
                     cbox_result_code[0] = oci##A->cboxes[idxA].cbox.code; \
                     cbox_result_code[1] = oci##B->cboxes[idxB].cbox.code; \
+                    penetration[0] = px; \
+                    penetration[1] = py; \
                     return 1; \
                 }
 
@@ -646,6 +687,7 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                     * ociB = &__ociB;
     uint64_t        id_scroll = LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCROLL );
     int64_t         cbox_result_code[2],
+                    penetration[2],
                     * idxA = ( int64_t * ) LOCADDR( libmod_gfx, my, COLLISION_RESERVED_IDX_CBOXA ),
                     * idxB = ( int64_t * ) LOCADDR( libmod_gfx, my, COLLISION_RESERVED_IDX_CBOXB ),
                     mode = LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ); /* Mode:
@@ -689,7 +731,7 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                         ociB->x += scrolls[id_scroll].posx0 - r->x;
                         ociB->y += scrolls[id_scroll].posy0 - r->y;
 
-                        collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
+                        collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code, penetration ) ;
 
                         ociB->x -= scrolls[id_scroll].posx0 - r->x;
                         ociB->y -= scrolls[id_scroll].posy0 - r->y;
@@ -703,12 +745,14 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                     LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
                     LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
+                    LOCINT64( libmod_gfx, my, PENETRATION_X ) = penetration[0];
+                    LOCINT64( libmod_gfx, my, PENETRATION_Y ) = penetration[1];
                     return 1;
                 }
                 return 0;
             }
             LOCQWORD( libmod_gfx, my, COLLISION_RESERVED_ID_SCROLL ) = 0;
-            collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
+            collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code, penetration ) ;
             FREE( ociB->cboxes );
         }
         FREE( ociA->cboxes );
@@ -717,6 +761,8 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
             LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = -1;
             LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = -1;
             LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
+            LOCINT64( libmod_gfx, my, PENETRATION_X ) = penetration[0];
+            LOCINT64( libmod_gfx, my, PENETRATION_Y ) = penetration[1];
             return 1;
         }
         LOCINT64( libmod_gfx, my, COLLISION_RESERVED_MODE ) = -1;
@@ -740,7 +786,7 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         ptr = instance_get( id );
         if ( ptr && ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
             if ( __get_proc_info( ptr, ociB ) ) {
-                collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
+                collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code, penetration ) ;
                 FREE( ociB->cboxes );
                 if ( collision ) {
                     (*idxB)++;
@@ -750,6 +796,8 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                     LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_result_code[0];
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
                     LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
+                    LOCINT64( libmod_gfx, my, PENETRATION_X ) = penetration[0];
+                    LOCINT64( libmod_gfx, my, PENETRATION_Y ) = penetration[1];
                     return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
                 }
             }
@@ -777,7 +825,7 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         while ( ptr ) {
             if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
                 if ( __get_proc_info( ptr, ociB ) ) {
-                    collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
+                    collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code, penetration ) ;
                     FREE( ociB->cboxes );
                     if ( collision ) {
                         (*idxB)++;
@@ -786,6 +834,8 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                         LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_result_code[0];
                         LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
                         LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
+                        LOCINT64( libmod_gfx, my, PENETRATION_X ) = penetration[0];
+                        LOCINT64( libmod_gfx, my, PENETRATION_Y ) = penetration[1];
                         return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
                     }
                 }
@@ -820,7 +870,7 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
     while ( ptr ) {
         if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
             if ( __get_proc_info( ptr, ociB ) ) {
-                collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code ) ;
+                collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code, penetration ) ;
                 FREE( ociB->cboxes );
                 if ( collision ) {
                     (*idxB)++;
@@ -829,6 +879,8 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
                     LOCINT64( libmod_gfx, my, COLLIDER_CBOX ) = cbox_result_code[0];
                     LOCINT64( libmod_gfx, my, COLLIDED_ID   ) = LOCQWORD( libmod_gfx, ptr, PROCESS_ID );
                     LOCINT64( libmod_gfx, my, COLLIDED_CBOX ) = cbox_result_code[1];
+                    LOCINT64( libmod_gfx, my, PENETRATION_X ) = penetration[0];
+                    LOCINT64( libmod_gfx, my, PENETRATION_Y ) = penetration[1];
                     return LOCQWORD( libmod_gfx, ptr, PROCESS_ID );;
                 }
             }
