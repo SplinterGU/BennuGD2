@@ -215,14 +215,19 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "ISNAN"           , "D"       , TYPE_INT          , libmod_misc_math_isnan             ),
     FUNC( "FINITE"          , "D"       , TYPE_INT          , libmod_misc_math_finite            ),
 
+    FUNC( "INTERSECT"             , "DDDDDDDDPP" , TYPE_INT , libmod_misc_math_intersect                ),
+    FUNC( "INTERSECT_LINE_CIRCLE" , "DDDDDDDPPPP", TYPE_INT , libmod_misc_math_intersect_line_circle    ),
+    FUNC( "INTERSECT_CIRCLE"      , "DDDDDDPPPP" , TYPE_INT , libmod_misc_math_intersect_circle         ),
+    FUNC( "NORMAL"                , "DDDDDDPP"   , TYPE_INT , libmod_misc_math_orthogonal_projection    ),
+
     FUNC( "FGET_ANGLE"      , "DDDD"    , TYPE_INT          , libmod_misc_math_fget_angle        ),
     FUNC( "FGET_DIST"       , "DDDD"    , TYPE_DOUBLE       , libmod_misc_math_fget_dist         ),
     FUNC( "NEAR_ANGLE"      , "III"     , TYPE_INT          , libmod_misc_math_near_angle        ),
     FUNC( "GET_DISTX"       , "ID"      , TYPE_DOUBLE       , libmod_misc_math_get_distx         ),
     FUNC( "GET_DISTY"       , "ID"      , TYPE_DOUBLE       , libmod_misc_math_get_disty         ),
 
-    FUNC( "CLAMP"           , "DDD"     , TYPE_DOUBLE       , libmod_misc_math_clampf            ),
-    FUNC( "CLAMPI"          , "III"     , TYPE_INT          , libmod_misc_math_clamp             ),
+    FUNC( "CLAMP"           , "DDD"     , TYPE_DOUBLE       , libmod_misc_math_clamp             ),
+    FUNC( "BETWEEN"         , "DDD"     , TYPE_INT          , libmod_misc_math_between           ),
 
     /* Mem */
     FUNC( "MEM_CALLOC"      , "II"      , TYPE_POINTER      , libmod_misc_mem_calloc             ),

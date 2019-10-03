@@ -202,31 +202,31 @@ int64_t libmod_misc_math_get_disty( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_clamp( INSTANCE * my, int64_t * params ) {
-    int64_t value = params[0], min = params[1], max = params[2];
-    return ( value < min ? min : value > max ? max : value );
+    double value = *( double * ) &params[0], v1 = *( double * ) &params[1], v2 = *( double * ) &params[2];
+    double res = ( value < v1 ? v1 : value > v2 ? v2 : value );
+    return * (( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_misc_math_clampf( INSTANCE * my, int64_t * params ) {
-    double value = *( double * ) &params[0], min = *( double * ) &params[1], max = *( double * ) &params[2];
-    double res = ( value < min ? min : value > max ? max : value );
+int64_t libmod_misc_math_between( INSTANCE * my, int64_t * params ) {
+    double value = *( double * ) &params[0], lim1 = *( double * ) &params[1], lim2 = *( double * ) &params[2];
+    return ( value >= MIN(lim1,lim2) && value <= MAX(lim1,lim2) );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_min( INSTANCE * my, int64_t * params ) {
+    double param1 = *( double * ) &params[0], param2 = *( double * ) &params[1];
+    double res = param1 < param2 ? param1 : param2;
     return * (( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_max( INSTANCE * my, int64_t * params ) {
-    double param = *( double * ) &params[0], b = *( double * ) &params[1];
-    double res = param > b ? param : b > param ? b : param;
-    return * (( int64_t * )&res );
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_misc_math_min( INSTANCE * my, int64_t * params ) {
-    double param = *( double * ) &params[0], b = *( double * ) &params[1];
-    double res = param < b ? param : b < param ? b : param;
+    double param1 = *( double * ) &params[0], param2 = *( double * ) &params[1];
+    double res = param1 > param2 ? param1 : param2;
     return * (( int64_t * )&res );
 }
 
@@ -290,6 +290,207 @@ int64_t libmod_misc_math_decimal( INSTANCE * my, int64_t * params ) {
     double param = *( double * ) &params[0];
     double res = param - trunc( param );
     return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+/*
+    ecuacion de la recta
+
+    "y = m*X + base"
+
+    m1 = ( y2 - y1 ) / ( x2 - x1 )
+    m2 = ( y4 - y3 ) / ( x4 - x3 )
+
+    b1 = y1 - x1 * m1
+    b2 = y3 - x3 * m2
+
+    y = b1 + m1 * x
+    y = b2 + m2 * x
+
+    entonces
+
+    b1 + m1 * x = b2 + m2 * x
+
+    m1 * x - m2 * x = b2 - b1
+    ( m1 - m2 ) * x = b2 - b1
+
+    final:
+
+    x0 = ( b2 - b1 ) / ( m1 - m2 )
+    y0 = b1 + m1 * x0
+*/
+
+int64_t libmod_misc_math_intersect( INSTANCE * my, int64_t * params ) {
+    double  x1 = *( double * ) &params[0],
+            y1 = *( double * ) &params[1],
+            x2 = *( double * ) &params[2],
+            y2 = *( double * ) &params[3],
+            x3 = *( double * ) &params[4],
+            y3 = *( double * ) &params[5],
+            x4 = *( double * ) &params[6],
+            y4 = *( double * ) &params[7];
+
+    double m1, m2, b1, b2, x0, y0;
+
+    if ( x1 == x2 && x3 == x4 ) return 0;
+
+    m1 = ( y2 - y1 ) / ( x2 - x1 );
+    m2 = ( y4 - y3 ) / ( x4 - x3 );
+
+    b1 = y1 - x1 * m1;
+    b2 = y3 - x3 * m2;
+
+    if ( x1 == x2 ) {
+        x0 = x1;
+        y0 = b2 + m2 * x0;
+    } else if ( x3 == x4 ) {
+        x0 = x3;
+        y0 = b1 + m1 * x0;
+    } else {
+        x0 = ( b2 - b1 ) / ( m1 - m2 );
+        y0 = b1 + m1 * x0;
+    }
+
+    if ( !( x0 > MAX(x1,x2) || x0 < MIN(x1,x2) || y0 > MAX(y1,y2) || y0 < MIN(y1,y2) ||
+            x0 > MAX(x3,x4) || x0 < MIN(x3,x4) || y0 > MAX(y3,y4) || y0 < MIN(y3,y4) ) ) {
+        * ( int64_t * ) params[8] = * ( int64_t * ) &x0;
+        * ( int64_t * ) params[9] = * ( int64_t * ) &y0;
+        return 1;
+    }
+
+    return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_intersect_line_circle( INSTANCE * my, int64_t * params ) {
+    double  x1 = *( double * ) &params[0],
+            y1 = *( double * ) &params[1],
+            x2 = *( double * ) &params[2],
+            y2 = *( double * ) &params[3],
+            cx = *( double * ) &params[4],
+            cy = *( double * ) &params[5],
+            r = *( double * ) &params[6];
+
+    double m1, b1, x0_1, y0_1, x0_2, y0_2;
+
+    m1 = ( y2 - y1 ) / ( x2 - x1 );
+    b1 = y1 - x1 * m1;
+
+    if ( x1 == x2 ) {
+        x0_1 = x1;
+        x0_2 = x1;
+        y0_1 = cy + sqrt( r * r - ( x0_1 - cx ) * ( x0_1 - cx ) );
+        y0_2 = cy - sqrt( r * r - ( x0_2 - cx ) * ( x0_2 - cx ) );
+    } else {
+        x0_1 = ( cx + sqrt( - cx * cx * m1 * m1 + 2 * cx * cy * m1 - 2 * cx * b1 * m1 - ( cy - b1 ) * ( cy - b1 ) + m1 * m1 * r * r + r * r ) + cy * m1 - b1 * m1 ) / ( m1 * m1 + 1 );
+        x0_2 = ( cx - sqrt( - cx * cx * m1 * m1 + 2 * cx * cy * m1 - 2 * cx * b1 * m1 - ( cy - b1 ) * ( cy - b1 ) + m1 * m1 * r * r + r * r ) + cy * m1 - b1 * m1 ) / ( m1 * m1 + 1 );
+        y0_1 = b1 + m1 * x0_1;
+        y0_2 = b1 + m1 * x0_2;
+    }
+
+    int nret = 0;
+
+    if ( finite(x0_1) && finite(y0_1) && !( x0_1 > MAX(x1,x2) || x0_1 < MIN(x1,x2) || y0_1 > MAX(y1,y2) || y0_1 < MIN(y1,y2) ) ) {
+        * ( int64_t * ) params[7] = * ( int64_t * ) &x0_1;
+        * ( int64_t * ) params[8] = * ( int64_t * ) &y0_1;
+        nret++;
+    }
+
+    if ( finite(x0_2) && finite(y0_2) && !( x0_2 > MAX(x1,x2) || x0_2 < MIN(x1,x2) || y0_2 > MAX(y1,y2) || y0_2 < MIN(y1,y2) ) ) {
+        if ( nret ) {
+            * ( int64_t * ) params[9]  = * ( int64_t * ) &x0_2;
+            * ( int64_t * ) params[10] = * ( int64_t * ) &y0_2;
+        } else {
+            * ( int64_t * ) params[7] = * ( int64_t * ) &x0_2;
+            * ( int64_t * ) params[8] = * ( int64_t * ) &y0_2;
+        }
+        nret++;
+    }
+    return nret;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params ) {
+    double  cx1 = *( double * ) &params[0],
+            cy1 = *( double * ) &params[1],
+            cx2 = *( double * ) &params[2],
+            cy2 = *( double * ) &params[3],
+            r1 = *( double * ) &params[4],
+            r2 = *( double * ) &params[5];
+
+    double acos_a, x0, y0;
+    int nret;
+
+    double dx = cx2 - cx1;
+    double dy = cy2 - cy1;
+
+    // get distance
+    double dist = sqrt( dx * dx + dy * dy );
+
+    // get angle
+    int64_t angle;
+
+    if ( dx == 0 ) angle = ( dy > 0 ) ? 270000L : 90000L;
+    else {
+        angle = ( int64_t )( atan( dy / dx ) * 180000.0 / M_PI );
+        angle = ( dx > 0 ) ? -angle : -angle + 180000L;
+    }
+
+    acos_a = acos( ( ( r1 * r1 + dist * dist - r2 * r2 ) / ( 2 * r1 * dist ) ) * 180000.0 / M_PI );
+
+    nret = 0;
+
+    if ( finite( acos_a ) ) {
+        x0 = cx1 + cos_deg( angle + acos_a ) * r1;
+        y0 = cy1 - sin_deg( angle + acos_a ) * r1;
+        * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
+        * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
+
+        if ( acos_a == 0.0 ) return 1;
+
+        x0 = cx1 + cos_deg( angle - acos_a ) * r1;
+        y0 = cy1 - sin_deg( angle - acos_a ) * r1;
+        * ( int64_t * ) params[8] = * ( int64_t * ) &x0;
+        * ( int64_t * ) params[9] = * ( int64_t * ) &y0;
+
+        return 2;
+
+    }
+
+    return 0;
+
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params ) {
+    double  x1 = *( double * ) &params[0],
+            y1 = *( double * ) &params[1],
+            x2 = *( double * ) &params[2],
+            y2 = *( double * ) &params[3],
+            px = *( double * ) &params[4],
+            py = *( double * ) &params[5];
+
+    double m1, m2, b1, b2, x0, y0;
+
+    if ( x1 == x2 ) {
+        x0 = x1;
+        y0 = py;
+    } else {
+        m1 = ( y2 - y1 ) / ( x2 - x1 );
+        m2 = -1.0 / m1;
+        b1 = y1 - x1 * m1;
+        b2 = py - px * m2;
+        x0 = ( b2 - b1 ) / ( m1 - m2 );
+        y0 = b1 + m1 * x0;
+    }
+
+    * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
+    * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
+    return 1;
 }
 
 /* --------------------------------------------------------------------------- */

@@ -47,6 +47,14 @@
 #define SGN(a)  (((a) < 0) ? -1 : !(a) ? 0 : 1)
 #endif
 
+#ifndef MIN
+#define MIN(a,b)  ((a) < (b) ? a : b)
+#endif
+
+#ifndef MAX
+#define MAX(a,b)  ((a) > (b) ? a : b)
+#endif
+
 extern double cos_deg( int64_t x );
 extern double sin_deg( int64_t x );
 extern void init_cos_tables();

@@ -123,7 +123,7 @@ int64_t libmod_gfx_shader_setattributeuiv( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setattributef( INSTANCE * my, int64_t * params ) {
-    shader_setattributef( ( int ) params[ 0 ], ( float ) params[ 1 ] );
+    shader_setattributef( ( int ) params[ 0 ], *( float * ) &params[ 1 ] );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -195,7 +195,7 @@ int64_t libmod_gfx_shader_setuniform4uiv( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setuniformf( INSTANCE * my, int64_t * params ) {
-    shader_setuniformf( ( int ) params[ 0 ], ( float ) params[ 1 ] );
+    shader_setuniformf( ( int ) params[ 0 ], *( float * ) &params[ 1 ] );
 }
 
 /* --------------------------------------------------------------------------- */
