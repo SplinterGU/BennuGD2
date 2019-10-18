@@ -70,6 +70,8 @@ extern void token_dump();
 extern tok_pos token_pos();
 extern void token_set_pos( tok_pos tp );
 
+extern void add_simple_define( char * macro, char *text );
+
 extern int line_count;
 extern int current_file;
 extern int n_files;

@@ -120,6 +120,33 @@ static char * locals_def =
     "int bigbro;\n"
     "int priority;\n";
 
+
+static struct {
+    char * name;
+    char * value;
+} defines[] = {
+    { "BYTE_MAX"    , "((BYTE)  255)"                   },
+    { "WORD_MAX"    , "((WORD)  65535)"                 },
+    { "DWORD_MAX"   , "((DWORD) 4294967295)"            },
+    { "QWORD_MAX"   , "((QWORD) 18446744073709551615)"  },
+
+    { "CHAR_MIN"    , "-128"                            },
+    { "CHAR_MAX"    , "127"                             },
+    { "SHORT_MIN"   , "-32768"                          },
+    { "SHORT_MAX"   , "32767"                           },
+    { "INT32_MIN"   , "-2147483648"                     },
+    { "INT32_MAX"   , "2147483647"                      },
+    { "INT_MIN"     , "-9223372036854775808"            },
+    { "INT_MAX"     , "9223372036854775807"             },
+
+    { "UINT8_MAX"    , "BYTE_MAX"                       },
+    { "UINT16_MAX"   , "WORD_MAX"                       },
+    { "UINT32_MAX"   , "DWORD_MAX"                      },
+    { "UINT_MAX"     , "QWORD_MAX"                      },
+
+    { NULL          , NULL                              }
+};
+
 void core_init() {
     int i = 0;
     int64_t code;
@@ -127,6 +154,12 @@ void core_init() {
     while ( constants_def[i].name ) {
         code = identifier_search_or_add( constants_def[i].name );
         constants_add( code, typedef_new( constants_def[i].type ), constants_def[i].code );
+        i++;
+    }
+
+    i = 0;
+    while ( defines[i].name ) {
+        add_simple_define( defines[i].name, defines[i].value );
         i++;
     }
 
