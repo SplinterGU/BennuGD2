@@ -183,8 +183,8 @@ static void mouse_draw( void * what, REGION * clip ) {
         mouse_map_clip = &_mouse_map_clip;
     }
 
-    int64_t sizex = GLOINT64( libbginput, MOUSESIZEX ), sizey = GLOINT64( libbginput, MOUSESIZEY );
-    if ( sizex == 100 && sizey == 100 ) sizex = sizey = GLOINT64( libbginput, MOUSESIZE );
+    double sizex = GLODOUBLE( libbginput, MOUSESIZEX ), sizey = GLODOUBLE( libbginput, MOUSESIZEY );
+    if ( sizex == 100.0 && sizey == 100.0 ) sizex = sizey = GLODOUBLE( libbginput, MOUSESIZE );
 
     shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbginput, MOUSE_SHADER_ID ) );
 

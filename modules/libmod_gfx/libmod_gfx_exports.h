@@ -150,13 +150,13 @@ char * __bgdexport( libmod_gfx, locals_def ) =
 DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     /* f_grproc */
-    FUNC( "ADVANCE"             , "I"               , TYPE_INT        , libmod_gfx_advance              ),
-    FUNC( "XADVANCE"            , "II"              , TYPE_INT        , libmod_gfx_xadvance             ),
+    FUNC( "ADVANCE"             , "D"               , TYPE_INT        , libmod_gfx_advance              ),
+    FUNC( "XADVANCE"            , "ID"              , TYPE_INT        , libmod_gfx_xadvance             ),
 
     FUNC( "GET_ANGLE"           , "I"               , TYPE_INT        , libmod_gfx_get_angle            ),
     FUNC( "GET_ANGLE"           , "II"              , TYPE_INT        , libmod_gfx_get_angle2           ),
-    FUNC( "GET_DIST"            , "I"               , TYPE_INT        , libmod_gfx_get_dist             ),
-    FUNC( "GET_DIST"            , "II"              , TYPE_INT        , libmod_gfx_get_dist2            ),
+    FUNC( "GET_DIST"            , "I"               , TYPE_DOUBLE     , libmod_gfx_get_dist             ),
+    FUNC( "GET_DIST"            , "II"              , TYPE_DOUBLE     , libmod_gfx_get_dist2            ),
 
     FUNC( "GET_REAL_POINT"      , "IIIPP"           , TYPE_INT        , libmod_gfx_get_real_point3      ),
     FUNC( "GET_REAL_POINT"      , "IIPP"            , TYPE_INT        , libmod_gfx_get_real_point2      ),
@@ -198,9 +198,6 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "SET_MODE"            , "II"              , TYPE_INT        , libmod_gfx_set_mode             ),
     FUNC( "SET_MODE"            , "III"             , TYPE_INT        , libmod_gfx_set_mode_extended    ),
     FUNC( "SET_FPS"             , "II"              , TYPE_INT        , libmod_gfx_set_fps              ),
-
-//    FUNC( "GET_MODES"           , "II"              , TYPE_POINTER    , libmod_gfx_list_modes           ),
-//    FUNC( "MODE_IS_OK"          , "IIII"            , TYPE_INT        , libmod_gfx_mode_is_ok           ),
 
     FUNC( "WINDOW_SET_TITLE"    , "S"               , TYPE_INT        , libmod_gfx_set_title            ),
     FUNC( "WINDOW_SET_ICON"     , "II"              , TYPE_INT        , libmod_gfx_set_icon             ),
@@ -327,6 +324,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "DRAWING_BLENDMODE"   , "IIIIII"          , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode3    ),
     FUNC( "DRAWING_BLENDMODE"   , "IIIIIII"         , TYPE_INT         , libmod_gfx_draw_drawing_blend_mode4    ),
 
+    FUNC( "DRAWING_Z"           , ""                , TYPE_INT         , libmod_gfx_draw_drawing_z_get          ),
     FUNC( "DRAWING_Z"           , "I"               , TYPE_INT         , libmod_gfx_draw_drawing_z              ),
     FUNC( "DRAWING_Z"           , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_z2             ),
     FUNC( "DRAWING_MAP"         , "II"              , TYPE_INT         , libmod_gfx_draw_drawing_map            ),

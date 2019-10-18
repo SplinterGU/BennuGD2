@@ -34,6 +34,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "bgddl.h"
 #include "libmod_misc.h"
@@ -150,7 +151,7 @@ int64_t libmod_misc_math_fget_angle( INSTANCE * my, int64_t * params ) {
 
     angle = ( int64_t )( atan( dy / dx ) * 180000.0 / M_PI );
 
-    return ( dx > 0 ) ? -angle : -angle + 180000L;
+    return ( dx > 0 ) ? ( dy < 0 ) ? -angle : 360000L - angle : 180000L - angle;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -466,6 +467,55 @@ int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_misc_math_normal_projection( INSTANCE * my, int64_t * params ) {
+    double  x1 = *( double * ) &params[0],
+            y1 = *( double * ) &params[1],
+            x2 = *( double * ) &params[2],
+            y2 = *( double * ) &params[3],
+            px = *( double * ) &params[4],
+            py = *( double * ) &params[5];
+
+    double m1, m2, b1, b2, x0, y0;
+//    double half_x = 0.0, half_y = 0.0;
+
+    if ( x1 == x2 ) {
+//        half_y = ( y2 - y1 ) * 0.5;
+        x0 = px;
+//        y0 = y1 + half_y;
+        y0 = y1;
+    } else if ( y1 == y2 ) {
+//        half_x = ( x2 - x1 ) * 0.5;
+//        x0 = x1 + half_x;
+        x0 = x1;
+//        y0 = py;
+    } else {
+//        half_y = ( y2 - y1 ) * 0.5;
+//        half_x = ( x2 - x1 ) * 0.5;
+        m1 = ( y2 - y1 ) / ( x2 - x1 );
+        m2 = -1.0 / m1;
+//        x1 += half_x;
+//        y1 += half_y;
+        b1 = y1 - x1 * m2;
+        b2 = py - px * m1;
+        x0 = ( b2 - b1 ) / ( m2 - m1 );
+        y0 = b2 + m1 * x0;
+    }
+
+    * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
+    * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
+/*
+    double dx = ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
+           s  = ( ( px - x0 ) + ( py - y0 ) ) < 0 ? -1 : 1;
+
+    double dist = sqrt( dx ) * s;
+*/
+    double dist = sqrt( ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ) );
+
+    return * ( int64_t * ) &dist;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params ) {
     double  x1 = *( double * ) &params[0],
             y1 = *( double * ) &params[1],
@@ -479,18 +529,29 @@ int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params 
     if ( x1 == x2 ) {
         x0 = x1;
         y0 = py;
+    } else if ( y1 == y2 ) {
+        x0 = px;
+        y0 = y1;
     } else {
         m1 = ( y2 - y1 ) / ( x2 - x1 );
         m2 = -1.0 / m1;
         b1 = y1 - x1 * m1;
         b2 = py - px * m2;
         x0 = ( b2 - b1 ) / ( m1 - m2 );
-        y0 = b1 + m1 * x0;
+        y0 = b2 + m2 * x0;
     }
 
     * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
     * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
-    return 1;
+/*
+    double dx = ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
+           s  = ( ( px - x0 ) + ( py - y0 ) ) < 0 ? -1 : 1;
+
+    double dist = sqrt( dx ) * s;
+*/
+    double dist = sqrt( ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ) );
+
+    return * ( int64_t * ) &dist;
 }
 
 /* --------------------------------------------------------------------------- */

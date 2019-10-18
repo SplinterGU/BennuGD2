@@ -62,6 +62,7 @@ extern int64_t libmod_misc_math_decimal( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_intersect( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_intersect_line_circle( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_normal_projection( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params );
 
 

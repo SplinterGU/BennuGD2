@@ -53,8 +53,8 @@ typedef struct {
 } __cbox_info;
 
 typedef struct {
-    int64_t x;
-    int64_t y;
+    double x;
+    double y;
     int64_t width;
     int64_t height;
     double  center_x;
@@ -225,9 +225,9 @@ static int __get_proc_info(
     graph = instance_graph( proc );
     if ( !graph ) return 0;
 
-    oci->scale_x = ( double ) LOCINT64( libmod_gfx, proc, GRAPHSIZEX );
-    oci->scale_y = ( double ) LOCINT64( libmod_gfx, proc, GRAPHSIZEY );
-    if ( oci->scale_x == 100.0 && oci->scale_y == 100.0 ) oci->scale_x = oci->scale_y = ( double ) LOCINT64( libmod_gfx, proc, GRAPHSIZE );
+    oci->scale_x = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZEX );
+    oci->scale_y = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZEY );
+    if ( oci->scale_x == 100.0 && oci->scale_y == 100.0 ) oci->scale_x = oci->scale_y = LOCDOUBLE( libmod_gfx, proc, GRAPHSIZE );
 
     oci->scale_x /= 100.0;
     oci->scale_y /= 100.0;
@@ -235,8 +235,8 @@ static int __get_proc_info(
     if ( oci->scale_x < 0.0 ) oci->scale_x = 0.0;
     if ( oci->scale_y < 0.0 ) oci->scale_y = 0.0;
 
-    oci->x = LOCINT64( libmod_gfx, proc, COORDX );
-    oci->y = LOCINT64( libmod_gfx, proc, COORDY );
+    oci->x = LOCDOUBLE( libmod_gfx, proc, COORDX );
+    oci->y = LOCDOUBLE( libmod_gfx, proc, COORDY );
 
     RESOLXY( libmod_gfx, proc, oci->x, oci->y );
 
@@ -250,8 +250,8 @@ static int __get_proc_info(
 
     /* Calculate the graphic center */
 
-    oci->center_x = LOCINT64( libmod_gfx, proc, GRAPHCENTERX ) ;
-    oci->center_y = LOCINT64( libmod_gfx, proc, GRAPHCENTERY ) ;
+    oci->center_x = LOCDOUBLE( libmod_gfx, proc, GRAPHCENTERX ) ;
+    oci->center_y = LOCDOUBLE( libmod_gfx, proc, GRAPHCENTERY ) ;
     if ( oci->center_x == POINT_UNDEFINED || oci->center_y == POINT_UNDEFINED ) {
         if ( graph->ncpoints && graph->cpoints[0].x != CPOINT_UNDEFINED ) {
             oci->center_x = graph->cpoints[0].x;

@@ -228,16 +228,16 @@ void gr_draw_frame() {
 
     /* Put background */
     if ( background_graph && ( background = bitmap_get( GLOQWORD( libbggfx, BACKGROUND_FILE ), background_graph ) ) ) {
-        int64_t sizex = GLOINT64( libbggfx, BACKGROUND_SIZEX ),
-                sizey = GLOINT64( libbggfx, BACKGROUND_SIZEY );
-        if ( sizex == 100 && sizey == 100 ) sizex = sizey = GLOINT64( libbggfx, BACKGROUND_SIZE );
+        double sizex = GLODOUBLE( libbggfx, BACKGROUND_SIZEX ),
+               sizey = GLODOUBLE( libbggfx, BACKGROUND_SIZEY );
+        if ( sizex == 100.0 && sizey == 100.0 ) sizex = sizey = GLODOUBLE( libbggfx, BACKGROUND_SIZE );
 
         shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbggfx, BACKGROUND_SHADER_ID ) );
 
         gr_blit( NULL,
                  NULL,
-                 scr_width / 2,
-                 scr_height / 2,
+                 scr_width / 2.0,
+                 scr_height / 2.0,
                  GLOQWORD( libbggfx, BACKGROUND_FLAGS ),
                  GLOQWORD( libbggfx, BACKGROUND_ANGLE ),
                  sizex,

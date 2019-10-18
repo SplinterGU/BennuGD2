@@ -776,6 +776,12 @@ int64_t libmod_gfx_draw_drawing_blend_mode4( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_gfx_draw_drawing_z_get( INSTANCE * my, int64_t * params ) {
+    return drawing_z;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_draw_drawing_z( INSTANCE * my, int64_t * params ) {
     drawing_z = params[ 0 ];
     return 1 ;

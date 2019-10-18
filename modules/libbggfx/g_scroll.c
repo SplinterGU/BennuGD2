@@ -105,7 +105,8 @@ void scroll_stop( int64_t n ) {
 /* --------------------------------------------------------------------------- */
 
 void scroll_update( int64_t n ) {
-    int64_t x0, y0, x1, y1, cx, cy, w, h, speed;
+    double x0, y0, x1, y1, cx, cy, speed;
+    int64_t w, h;
 
     REGION bbox;
     GRAPH * gr, * graph, * back;
@@ -147,8 +148,8 @@ void scroll_update( int64_t n ) {
 
     if ( scrolls[n].follows ) {
         if ( scrolls[n].ratio ) {
-            data->x0 = scrolls[n].follows->x0 * 100 / scrolls[n].ratio;
-            data->y0 = scrolls[n].follows->y0 * 100 / scrolls[n].ratio;
+            data->x0 = scrolls[n].follows->x0 * 100.0 / scrolls[n].ratio;
+            data->y0 = scrolls[n].follows->y0 * 100.0 / scrolls[n].ratio;
         }
         else {
             data->x0 = scrolls[n].follows->x0;
@@ -160,7 +161,7 @@ void scroll_update( int64_t n ) {
         /* Mira a ver si entra dentro de la region 1 o 2 */
 
         speed = scrolls[n].speed;
-        if ( scrolls[n].speed == 0 ) speed = 9999999;
+        if ( scrolls[n].speed == 0.0 ) speed = 9999999;
 
         /* Update speed */
 
@@ -178,7 +179,7 @@ void scroll_update( int64_t n ) {
                         x1 > scrolls[n].region1->x  && y1 > scrolls[n].region1->y
                     )
                ) {
-                speed = 0;
+                speed = 0.0;
             }
             else
                 if ( scrolls[n].region2 ) {
@@ -191,13 +192,13 @@ void scroll_update( int64_t n ) {
 
         /* Forzar a que esté en el centro de la ventana */
 
-        cx = LOCINT64( libbggfx, scrolls[n].camera, COORDX );
-        cy = LOCINT64( libbggfx, scrolls[n].camera, COORDY );
+        cx = LOCDOUBLE( libbggfx, scrolls[n].camera, COORDX );
+        cy = LOCDOUBLE( libbggfx, scrolls[n].camera, COORDY );
 
         RESOLXY( libbggfx, scrolls[n].camera, cx, cy );
 
-        cx -= w / 2;
-        cy -= h / 2;
+        cx -= w / 2.0;
+        cy -= h / 2.0;
 
         if ( data->x0 < cx ) data->x0 = MIN( data->x0 + speed, cx );
         if ( data->y0 < cy ) data->y0 = MIN( data->y0 + speed, cy );
@@ -213,8 +214,8 @@ void scroll_update( int64_t n ) {
     }
 
     if ( scrolls[n].ratio ) {
-        data->x1 = data->x0 * 100 / scrolls[n].ratio;
-        data->y1 = data->y0 * 100 / scrolls[n].ratio;
+        data->x1 = data->x0 * 100.0 / scrolls[n].ratio;
+        data->y1 = data->y0 * 100.0 / scrolls[n].ratio;
     }
 
     if ( back ) {
@@ -226,17 +227,17 @@ void scroll_update( int64_t n ) {
 
     scrolls[n].posx0 = data->x0;
     scrolls[n].posy0 = data->y0;
-    scrolls[n].x0 = data->x0 % ( int64_t ) graph->width;
-    scrolls[n].y0 = data->y0 % ( int64_t ) graph->height;
+    scrolls[n].x0 = fmod( data->x0, ( int64_t ) graph->width );
+    scrolls[n].y0 = fmod( data->y0, ( int64_t ) graph->height );
 
-    if ( scrolls[n].x0 < 0 ) scrolls[n].x0 += graph->width;
-    if ( scrolls[n].y0 < 0 ) scrolls[n].y0 += graph->height;
+    if ( scrolls[n].x0 < 0.0 ) scrolls[n].x0 += graph->width;
+    if ( scrolls[n].y0 < 0.0 ) scrolls[n].y0 += graph->height;
 
     if ( back ) {
-        scrolls[n].x1 = data->x1 % ( int64_t ) back->width;
-        scrolls[n].y1 = data->y1 % ( int64_t ) back->height;
-        if ( scrolls[n].x1 < 0 ) scrolls[n].x1 += back->width;
-        if ( scrolls[n].y1 < 0 ) scrolls[n].y1 += back->height;
+        scrolls[n].x1 = fmod( data->x1, ( int64_t ) back->width );
+        scrolls[n].y1 = fmod( data->y1, ( int64_t ) back->height );
+        if ( scrolls[n].x1 < 0.0 ) scrolls[n].x1 += back->width;
+        if ( scrolls[n].y1 < 0.0 ) scrolls[n].y1 += back->height;
     }
 }
 
@@ -254,7 +255,8 @@ static int compare_instances( const void * ptr1, const void * ptr2 ) {
 /* --------------------------------------------------------------------------- */
 
 void scroll_draw( int64_t n, REGION * clipping ) {
-    int64_t nproc, x, y, cx, cy;
+    int64_t nproc;
+    double x, y, cx, cy;
 
     static INSTANCE ** proclist = 0;
     static int64_t proclist_reserved = 0;
@@ -294,8 +296,8 @@ void scroll_draw( int64_t n, REGION * clipping ) {
             cy = back->cpoints[0].y;
         }
         else {
-            cx = back->width / 2;
-            cy = back->height / 2;
+            cx = back->width / 2.0;
+            cy = back->height / 2.0;
         }
 
         shader_activate( data->shader2 );
@@ -335,8 +337,8 @@ void scroll_draw( int64_t n, REGION * clipping ) {
         cy = graph->cpoints[0].y;
     }
     else {
-        cx = graph->width / 2;
-        cy = graph->height / 2;
+        cx = graph->width / 2.0;
+        cy = graph->height / 2.0;
     }
 
     shader_activate( data->shader1 );
@@ -398,8 +400,8 @@ void scroll_draw( int64_t n, REGION * clipping ) {
 
         /* Visualiza los procesos */
         for ( nproc = 0; nproc < proclist_count; nproc++ ) {
-            x = LOCINT64( libbggfx, proclist[nproc], COORDX );
-            y = LOCINT64( libbggfx, proclist[nproc], COORDY );
+            x = LOCDOUBLE( libbggfx, proclist[nproc], COORDX );
+            y = LOCDOUBLE( libbggfx, proclist[nproc], COORDY );
             RESOLXY( libbggfx, proclist[nproc], x, y );
             draw_instance_at( proclist[nproc], &r, x - scrolls[n].posx0 + scrolls[n].region->x, y - scrolls[n].posy0 + scrolls[n].region->y, dest );
         }
