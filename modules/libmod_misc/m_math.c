@@ -40,6 +40,10 @@
 #include "libmod_misc.h"
 
 /* --------------------------------------------------------------------------- */
+
+#define DBL_EPSILON 0.000001f
+
+/* --------------------------------------------------------------------------- */
 /* Funciones matemáticas */
 /* --------------------------------------------------------------------------- */
 
@@ -353,8 +357,8 @@ int64_t libmod_misc_math_intersect( INSTANCE * my, int64_t * params ) {
         y0 = b1 + m1 * x0;
     }
 
-    if ( !( x0 > MAX(x1,x2) || x0 < MIN(x1,x2) || y0 > MAX(y1,y2) || y0 < MIN(y1,y2) ||
-            x0 > MAX(x3,x4) || x0 < MIN(x3,x4) || y0 > MAX(y3,y4) || y0 < MIN(y3,y4) ) ) {
+    if ( !( x0 > MAX(x1,x2) + DBL_EPSILON || x0 < MIN(x1,x2) - DBL_EPSILON || y0 > MAX(y1,y2) + DBL_EPSILON || y0 + 0.01f < MIN(y1,y2) - DBL_EPSILON ||
+            x0 > MAX(x3,x4) + DBL_EPSILON || x0 < MIN(x3,x4) - DBL_EPSILON || y0 > MAX(y3,y4) + DBL_EPSILON || y0 + 0.01f < MIN(y3,y4) - DBL_EPSILON ) ) {
         * ( int64_t * ) params[8] = * ( int64_t * ) &x0;
         * ( int64_t * ) params[9] = * ( int64_t * ) &y0;
         return 1;
@@ -375,6 +379,7 @@ int64_t libmod_misc_math_intersect_line_circle( INSTANCE * my, int64_t * params 
             r = *( double * ) &params[6];
 
     double m1, b1, x0_1, y0_1, x0_2, y0_2;
+    double min_x, min_y, max_x, max_y;
 
     m1 = ( y2 - y1 ) / ( x2 - x1 );
     b1 = y1 - x1 * m1;
@@ -385,21 +390,26 @@ int64_t libmod_misc_math_intersect_line_circle( INSTANCE * my, int64_t * params 
         y0_1 = cy + sqrt( r * r - ( x0_1 - cx ) * ( x0_1 - cx ) );
         y0_2 = cy - sqrt( r * r - ( x0_2 - cx ) * ( x0_2 - cx ) );
     } else {
-        x0_1 = ( cx + sqrt( - cx * cx * m1 * m1 + 2 * cx * cy * m1 - 2 * cx * b1 * m1 - ( cy - b1 ) * ( cy - b1 ) + m1 * m1 * r * r + r * r ) + cy * m1 - b1 * m1 ) / ( m1 * m1 + 1 );
-        x0_2 = ( cx - sqrt( - cx * cx * m1 * m1 + 2 * cx * cy * m1 - 2 * cx * b1 * m1 - ( cy - b1 ) * ( cy - b1 ) + m1 * m1 * r * r + r * r ) + cy * m1 - b1 * m1 ) / ( m1 * m1 + 1 );
+        x0_1 = ( cx + sqrt( m1 * ( cx * ( ( cy + cy ) - ( b1 + b1 ) - cx * m1 ) + m1 * r * r ) - ( cy - b1 ) * ( cy - b1 ) + r * r ) + m1 * ( cy - b1 ) ) / ( m1 * m1 + 1 );
+        x0_2 = ( cx - sqrt( m1 * ( cx * ( ( cy + cy ) - ( b1 + b1 ) - cx * m1 ) + m1 * r * r ) - ( cy - b1 ) * ( cy - b1 ) + r * r ) + m1 * ( cy - b1 ) ) / ( m1 * m1 + 1 );
         y0_1 = b1 + m1 * x0_1;
         y0_2 = b1 + m1 * x0_2;
     }
 
     int nret = 0;
 
-    if ( finite(x0_1) && finite(y0_1) && !( x0_1 > MAX(x1,x2) || x0_1 < MIN(x1,x2) || y0_1 > MAX(y1,y2) || y0_1 < MIN(y1,y2) ) ) {
+    min_x = MIN(x1,x2) - DBL_EPSILON;
+    min_y = MIN(y1,y2) - DBL_EPSILON;
+    max_x = MAX(x1,x2) + DBL_EPSILON;
+    max_y = MAX(y1,y2) + DBL_EPSILON;
+
+    if ( finite(x0_1) && finite(y0_1) && !( x0_1 > max_x || x0_1 < min_x || y0_1 > max_y || y0_1 < min_y ) ) {
         * ( int64_t * ) params[7] = * ( int64_t * ) &x0_1;
         * ( int64_t * ) params[8] = * ( int64_t * ) &y0_1;
         nret++;
     }
 
-    if ( finite(x0_2) && finite(y0_2) && !( x0_2 > MAX(x1,x2) || x0_2 < MIN(x1,x2) || y0_2 > MAX(y1,y2) || y0_2 < MIN(y1,y2) ) ) {
+    if ( finite(x0_2) && finite(y0_2) && !( x0_2 > max_x || x0_2 < min_x || y0_2 > max_y || y0_2 < min_y ) ) {
         if ( nret ) {
             * ( int64_t * ) params[9]  = * ( int64_t * ) &x0_2;
             * ( int64_t * ) params[10] = * ( int64_t * ) &y0_2;
@@ -434,17 +444,19 @@ int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params ) {
     // get angle
     int64_t angle;
 
-    if ( dx == 0 ) angle = ( dy > 0 ) ? 270000L : 90000L;
+    if ( dx == 0.0 ) angle = ( dy > 0.0 ) ? 270000L : 90000L;
     else {
         angle = ( int64_t )( atan( dy / dx ) * 180000.0 / M_PI );
-        angle = ( dx > 0 ) ? -angle : -angle + 180000L;
+        angle = ( dx > 0.0 ) ? ( dy < 0.0 ) ? -angle : 360000L - angle : 180000L - angle;
     }
 
-    acos_a = acos( ( ( r1 * r1 + dist * dist - r2 * r2 ) / ( 2 * r1 * dist ) ) * 180000.0 / M_PI );
+    acos_a = acos( ( r1 * r1 + dist * dist - r2 * r2 ) / ( ( r1 + r1 ) * dist ) );
 
     nret = 0;
 
     if ( finite( acos_a ) ) {
+        acos_a *= 180000.0 / M_PI;
+
         x0 = cx1 + cos_deg( angle + acos_a ) * r1;
         y0 = cy1 - sin_deg( angle + acos_a ) * r1;
         * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
@@ -458,11 +470,9 @@ int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params ) {
         * ( int64_t * ) params[9] = * ( int64_t * ) &y0;
 
         return 2;
-
     }
 
     return 0;
-
 }
 
 /* --------------------------------------------------------------------------- */
@@ -476,25 +486,15 @@ int64_t libmod_misc_math_normal_projection( INSTANCE * my, int64_t * params ) {
             py = *( double * ) &params[5];
 
     double m1, m2, b1, b2, x0, y0;
-//    double half_x = 0.0, half_y = 0.0;
 
     if ( x1 == x2 ) {
-//        half_y = ( y2 - y1 ) * 0.5;
         x0 = px;
-//        y0 = y1 + half_y;
         y0 = y1;
     } else if ( y1 == y2 ) {
-//        half_x = ( x2 - x1 ) * 0.5;
-//        x0 = x1 + half_x;
         x0 = x1;
-//        y0 = py;
     } else {
-//        half_y = ( y2 - y1 ) * 0.5;
-//        half_x = ( x2 - x1 ) * 0.5;
         m1 = ( y2 - y1 ) / ( x2 - x1 );
         m2 = -1.0 / m1;
-//        x1 += half_x;
-//        y1 += half_y;
         b1 = y1 - x1 * m2;
         b2 = py - px * m1;
         x0 = ( b2 - b1 ) / ( m2 - m1 );
@@ -504,7 +504,7 @@ int64_t libmod_misc_math_normal_projection( INSTANCE * my, int64_t * params ) {
     * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
     * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
 /*
-    double dx = ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
+    double dx =   ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
            s  = ( ( px - x0 ) + ( py - y0 ) ) < 0 ? -1 : 1;
 
     double dist = sqrt( dx ) * s;
@@ -544,7 +544,7 @@ int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params 
     * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
     * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
 /*
-    double dx = ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
+    double dx =   ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
            s  = ( ( px - x0 ) + ( py - y0 ) ) < 0 ? -1 : 1;
 
     double dist = sqrt( dx ) * s;
