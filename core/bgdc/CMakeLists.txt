@@ -25,4 +25,4 @@ file(GLOB SOURCES
      )
 
 add_executable(bgdc ${SOURCES})
-target_link_libraries(bgdc -lz ${extra_libs})
+target_link_libraries(bgdc -lz -lm ${extra_libs})

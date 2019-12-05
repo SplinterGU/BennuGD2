@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "bgdc.h"
 
@@ -1119,6 +1120,32 @@ void token_next() {
                 }
             }
             /* Skip the base sufix */
+
+            if ( ( *source_ptr == 'e' || *source_ptr == 'E' ) && base == 10 ) {
+                int exponent_sign = 1;
+                source_ptr++;
+                if ( *source_ptr == '-' ) {
+                    exponent_sign = -1;
+                    source_ptr++;
+                } else if ( *source_ptr == '+' ) {
+                    source_ptr++;
+                }
+
+                int exponent = 0;
+
+                while ( ISNUM( *source_ptr ) ) {
+                    ch = *source_ptr;
+                    exponent = exponent * 10 + ( ch - '0' );
+                    source_ptr++;
+                }
+
+                if ( exponent_sign == -1 ) exponent = -exponent;
+
+                num = num * pow(10,exponent);
+
+                token.type  = FLOAT;
+                token.value = num;
+            }
 
             if ( base == 16 && ( *source_ptr == 'h' || *source_ptr == 'H' ) ) source_ptr++;
             if ( base == 8  && ( *source_ptr == 'o' || *source_ptr == 'O' ) ) source_ptr++;

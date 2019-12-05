@@ -48,12 +48,14 @@
 #endif
 
 #ifndef MIN
-#define MIN(a,b)  ((a) < (b) ? a : b)
+#define MIN(a,b)  ((a) < (b) ? (a) : (b))
 #endif
 
 #ifndef MAX
-#define MAX(a,b)  ((a) > (b) ? a : b)
+#define MAX(a,b)  ((a) > (b) ? (a) : (b))
 #endif
+
+#define between(a,b,c) ( (a) >= MIN(b,c) && (a) <= MAX(b,c) )
 
 extern double cos_deg( int64_t x );
 extern double sin_deg( int64_t x );
