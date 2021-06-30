@@ -261,7 +261,8 @@ int gr_set_mode( int width, int height, int flags ) {
 */
         gRenderer = GPU_Init( renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
         if( gRenderer == NULL ) return -1;
-        gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
+//        gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
+        gWindow = SDL_GetWindowFromID(GPU_GetInitWindow());
 
         GLint params = 0;
         glGetIntegerv( GL_MAX_TEXTURE_SIZE, &params );

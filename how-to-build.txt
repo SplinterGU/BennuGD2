@@ -1,0 +1,12 @@
+How build BennuGD2?
+
+- First go to vendor/sdl_gpu and run ./build.sh, then a help will be displayed, choose the correct options, for example:
+
+   ./build.sh linux clean
+
+
+- then go to project root and run ./build.sh, and choose the correct options
+
+   ./build.sh linux clean use_sdl2_gpu
+
+

@@ -74,6 +74,7 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
 
     { "BLEND_CUSTOM"                    , TYPE_INT      , BLEND_CUSTOM                  },
     { "BLEND_DISABLED"                  , TYPE_INT      , BLEND_DISABLED                },
+#ifdef USE_SDL2_GPU
     { "BLEND_NORMAL"                    , TYPE_INT      , GPU_BLEND_NORMAL              },
     { "BLEND_PREMULTIPLIED_ALPHA"       , TYPE_INT      , GPU_BLEND_PREMULTIPLIED_ALPHA },
     { "BLEND_MULTIPLY"                  , TYPE_INT      , GPU_BLEND_MULTIPLY            },
@@ -85,7 +86,7 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "BLEND_NORMAL_KEEP_ALPHA"         , TYPE_INT      , GPU_BLEND_NORMAL_KEEP_ALPHA   },
     { "BLEND_NORMAL_ADD_ALPHA"          , TYPE_INT      , GPU_BLEND_NORMAL_ADD_ALPHA    },
     { "BLEND_NORMAL_FACTOR_ALPHA"       , TYPE_INT      , GPU_BLEND_NORMAL_FACTOR_ALPHA },
-
+#endif
     { "GL_ZERO"                         , TYPE_QWORD    , 0                             },
     { "GL_ONE"                          , TYPE_QWORD    , 1                             },
     { "GL_SRC_COLOR"                    , TYPE_QWORD    , 0x0300                        },

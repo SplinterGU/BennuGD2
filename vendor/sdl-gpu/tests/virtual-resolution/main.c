@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
             return -1;
 
         GPU_CircleFilled(target, 70, 70, 20, circleColor);
-
+        
 
         startTime = SDL_GetTicks();
         frameCount = 0;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
             GPU_Blit(image, NULL, screen, image->w/2 + 50, image->h/2 + 50);
 
             GPU_CircleFilled(screen, 50 + 70, 50 + 70, 20, circleColor2);
-
+            
             GPU_Rectangle(screen, 0, 0, screen->w, screen->h, rect_color1);
 
             GPU_Flip(screen);
