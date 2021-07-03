@@ -204,9 +204,9 @@ void draw_instance( void * what, REGION * clip ) {
     INSTANCE * i = ( void * ) what;
     GRAPH * map, * map_dst = NULL;
     BGD_Rect *map_clip = NULL, _map_clip;
-    uint8_t alpha, color_r, color_g, color_b, c;
+    uint8_t alpha, color_r, color_g, color_b;
     double scalex, scaley, x, y, centerx, centery;
-    int64_t flags, r;
+    int64_t flags, r, c;
     REGION region;
 
     alpha = LOCBYTE( libbggfx, i, ALPHA );
