@@ -97,6 +97,7 @@ FIND_PATH(SDL2_IMAGE_INCLUDE_DIR SDL_image.h
 	i686-w64-mingw32/include/SDL2
 	x86_64-w64-mingw32/include/SDL2
 	PATHS
+	/usr/$ENV{TARGET}/include/SDL2
 	~/Library/Frameworks
 	/Library/Frameworks
 	/usr/local/include/SDL2
@@ -119,6 +120,7 @@ IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		lib/x64
 		x86_64-w64-mingw32/lib
 		PATHS
+		/usr/$ENV{TARGET}/lib
 		/sw
 		/opt/local
 		/opt/csw
@@ -133,6 +135,7 @@ ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		$ENV{SDL2}
 		$ENV{SDL2_IMAGE}
 		PATH_SUFFIXES lib
+		/usr/$ENV{TARGET}/lib
 		lib/x86
 		i686-w64-mingw32/lib
 		PATHS
@@ -154,5 +157,5 @@ ENDIF(SDL2_IMAGE_LIBRARY_TEMP)
 
 INCLUDE(FindPackageHandleStandardArgs)
 
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2_IMAGE REQUIRED_VARS SDL2_IMAGE_LIBRARY SDL2_IMAGE_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2_image REQUIRED_VARS SDL2_IMAGE_LIBRARY SDL2_IMAGE_INCLUDE_DIR)
 

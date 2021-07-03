@@ -21,6 +21,8 @@ do
 
         windows)
             TARGET=x86_64-w64-mingw32
+            COMPILER="-MINGW"
+            SDL2GPUDIR="../../vendor/sdl-gpu/build/build-$ENV{TARGET}"
             CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2"
             ;;
 
@@ -81,6 +83,8 @@ fi
 export PKG_CONFIG_PATH
 export TARGET
 export EXTRA_CFLAGS
+export SDL2GPUDIR
+export COMPILER
 
 mkdir -p build/build-$TARGET 2>/dev/null
 

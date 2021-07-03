@@ -15,12 +15,14 @@ IF(SDL2_Mixer_INCLUDE_DIRS)
 ELSE(SDL2_Mixer_INCLUDE_DIRS)
 
   SET(TRIAL_LIBRARY_PATHS
+    /usr/$ENV{TARGET}/lib
     $ENV{SDL2_MIXER_HOME}/lib
     /usr/lib
     /usr/local/lib
     /sw/lib
   ) 
   SET(TRIAL_INCLUDE_PATHS
+    /usr/$ENV{TARGET}/include/SDL2
     $ENV{SDL2_MIXER_HOME}/include/SDL2
     /usr/include/SDL2
     /usr/local/include/SDL2
