@@ -102,8 +102,8 @@ int64_t libmod_gfx_advance( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_xadvance( INSTANCE * my, int64_t * params ) {
     int64_t angle = params[0] ;
-    LOCDOUBLE( libmod_gfx, my, COORDX ) += ( int64_t ) cos_deg( angle ) * ( *( double * ) &params[1] );
-    LOCDOUBLE( libmod_gfx, my, COORDY ) -= ( int64_t ) sin_deg( angle ) * ( *( double * ) &params[1] );
+    LOCDOUBLE( libmod_gfx, my, COORDX ) += cos_deg( angle ) * ( *( double * ) &params[1] );
+    LOCDOUBLE( libmod_gfx, my, COORDY ) -= sin_deg( angle ) * ( *( double * ) &params[1] );
     return 1 ;
 }
 
@@ -140,8 +140,8 @@ int64_t libmod_gfx_get_dist2( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 static inline int64_t __get_real_point( INSTANCE * my, int64_t * params, GRAPH * b, int64_t point_x, int64_t point_y ) {
-    int64_t x, y, sx = 1, sy = -1, angle = 0, flags;
-    double centerx, centery, dx = 0, dy = 0, px, py, size_x, size_y;
+    int64_t sx = 1, sy = -1, angle = 0, flags;
+    double x, y, centerx, centery, dx = 0, dy = 0, px, py, size_x, size_y;
 
     x = LOCDOUBLE( libmod_gfx, my, COORDX ) ;
     y = LOCDOUBLE( libmod_gfx, my, COORDY ) ;
