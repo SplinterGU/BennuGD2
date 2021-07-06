@@ -496,14 +496,13 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
     i = charmap ? 0 : first;
 
     for ( h = 0; h < ch; h++ ) {
-        if ( (  charmap && !charmap[ i ] ) ||
-             ( !charmap && i > last      ) ) break;
-
         chardata = surface->pixels + h * charrowsize;
 
         for ( charptr = chardata, w = 0; w < cw; w++, charptr += charcolsize, i++ ) {
+            if ( (  charmap && !charmap[ i ] ) || ( !charmap && i > last ) ) { ch = h; break; }
+
             int align = 0;
-            int idx = ( charmap ) ? charmap[ i ] : i;
+            int idx = ( charmap ) ? ( charset == CHARSET_ISO8859 ) ? dos_to_win[charmap[ i ]] : i  : i;
 
             if ( options != NFB_FIXEDWIDTH )
                 align = align_bitmap_char_left( ( ( unsigned char * ) charptr ),
