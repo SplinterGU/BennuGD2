@@ -263,6 +263,8 @@ int gr_set_mode( int width, int height, int flags ) {
         if( gRenderer == NULL ) return -1;
         gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
 
+        gr_set_caption( apptitle );
+
         GLint params = 0;
         glGetIntegerv( GL_MAX_TEXTURE_SIZE, &params );
         gMaxTextureSize = ( int64_t ) params;
