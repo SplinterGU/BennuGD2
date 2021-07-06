@@ -502,7 +502,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
             if ( (  charmap && !charmap[ i ] ) || ( !charmap && i > last ) ) { ch = h; break; }
 
             int align = 0;
-            int idx = ( charmap ) ? ( charset == CHARSET_ISO8859 ) ? dos_to_win[charmap[ i ]] : i  : i;
+            int idx = ( charmap ) ? dos_to_win[charmap[ i ]] : i ;
 
             if ( options != NFB_FIXEDWIDTH )
                 align = align_bitmap_char_left( ( ( unsigned char * ) charptr ),
