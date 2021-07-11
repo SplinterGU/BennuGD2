@@ -122,12 +122,7 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
             gr->surface = NULL;
             gr->tex = GPU_CopyImageFromSurface( surface );
             if ( !gr->tex ) {
-                GPU_Renderer* renderer = GPU_GetCurrentRenderer();
-                GPU_RendererID rendererID = renderer->id;
-                fprintf(stderr,"Current Renderer %s (%d.%d) (%p)\n", rendererID.name, rendererID.major_version, rendererID.minor_version, renderer );
-
-                GPU_ErrorObject e = GPU_PopErrorCode();
-                fprintf(stderr, "NEW_BITMAP error creando image from surface %s\n", GPU_GetErrorString(e.error));
+//                fprintf(stderr, "NEW_BITMAP error creando image from surface %s\n", GPU_GetErrorString(e.error));
                 free( gr );
                 return NULL;
             }
