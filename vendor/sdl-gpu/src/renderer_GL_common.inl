@@ -4556,6 +4556,9 @@ static void BlitTransformX(GPU_Renderer* renderer, GPU_Image* image, GPU_Rect* s
         // Avoid rounding errors in texture sampling by insisting on integral pixel positions
         x = floorf(x);
         y = floorf(y);
+        // Add by SplinterGU, fix odd texture size
+        pivot_x = floorf(pivot_x);
+        pivot_y = floorf(pivot_y);
     }
 
     /*
