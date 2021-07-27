@@ -1191,7 +1191,7 @@ static void changeCamera(GPU_Target* target)
 
 static void get_camera_matrix(GPU_Target* target, float* result)
 {
-	float offsetX, offsetY;
+	float offsetX = 0.0, offsetY = 0.0;
 
     GPU_MatrixIdentity(result);
 
@@ -2149,8 +2149,7 @@ static GPU_bool SetWindowResolution(GPU_Renderer* renderer, Uint16 w, Uint16 h)
 
     GPU_UnsetClip(target);
 
-    if(isCurrent)
-        applyTargetCamera(target);
+    if(isCurrent) applyTargetCamera(target);
 
 	GPU_ResetProjection(target);
 
@@ -2172,8 +2171,7 @@ static void SetVirtualResolution(GPU_Renderer* renderer, GPU_Target* target, Uin
     target->h = h;
     target->using_virtual_resolution = GPU_TRUE;
 
-    if(isCurrent)
-        applyTargetCamera(target);
+    if(isCurrent) applyTargetCamera(target);
 
 	GPU_ResetProjection(target);
 }
@@ -2194,8 +2192,7 @@ static void UnsetVirtualResolution(GPU_Renderer* renderer, GPU_Target* target)
 
     target->using_virtual_resolution = GPU_FALSE;
 
-    if(isCurrent)
-        applyTargetCamera(target);
+    if(isCurrent) applyTargetCamera(target);
 
 	GPU_ResetProjection(target);
 }
@@ -4381,7 +4378,7 @@ static void Blit(GPU_Renderer* renderer, GPU_Image* image, GPU_Rect* src_rect, G
         dy1 += fractional;
         dy2 += fractional;
     }
-/**/
+*/
     if(renderer->coordinate_mode)
     {
         float temp = dy1;
@@ -4614,7 +4611,7 @@ static void BlitTransformX(GPU_Renderer* renderer, GPU_Image* image, GPU_Rect* s
         dy1 += fractional;
         dy2 += fractional;
     }
-/**/
+*/
     if(renderer->coordinate_mode == 1)
     {
         float temp = dy1;
