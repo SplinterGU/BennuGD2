@@ -289,3 +289,85 @@ int64_t libmod_misc_string_formatFI( INSTANCE * my, int64_t * params ) {
 }
 
 /* ----------------------------------------------------------------- */
+
+/** STRING_NEWA( size )
+ *  Create a new "string *"
+ */
+
+int64_t modstring_string_new_array( INSTANCE * my, int64_t * params )
+{
+    int64_t * array = calloc( params[0] + 1, sizeof( int64_t ) ) ;
+
+    array[0] = params[0];
+
+    return ( int64_t ) ( array + 1 );
+}
+
+/* ----------------------------------------------------------------- */
+
+/** STRING_RESIZEA( STRING **, new_size )
+ */
+
+int64_t modstring_string_resize_array( INSTANCE * my, int64_t * params )
+{
+    if ( !params[0] ) return ( int64_t ) NULL;
+
+    int64_t ** presult = ( int64_t ** ) ( params[0] );
+    int64_t * current_array = ( *presult ) - 1;
+    int64_t current_size = current_array[0];
+    int64_t new_size = params[1];
+
+    if ( current_size == new_size ) return new_size;
+
+    if ( current_size > new_size ) {
+        int i;
+        for ( i = new_size + 1; i <= current_size; i++ ) {
+            string_discard( current_array[ i ] );
+        }
+    }
+
+    int64_t * new_array = realloc( current_array, ( new_size + 1 ) * sizeof( int64_t ) ) ;
+    if ( !new_array ) return ( int64_t ) current_size ;
+    
+    if ( current_size < new_size ) memset( new_array + new_size, 0, ( new_size - current_size ) * sizeof( int64_t ) );
+
+    * new_array = new_size;
+    * presult = new_array + 1;
+
+    return ( int64_t ) new_size ;
+}
+
+/* ----------------------------------------------------------------- */
+
+/** STRING_DELA( STRING ** )
+ * Release an allocated string
+ */
+int64_t modstring_string_delete_array( INSTANCE * my, int64_t * params )
+{
+    if ( !params[0] ) return ( int64_t ) 0;
+
+    int64_t ** presult = ( int64_t ** ) ( params[0] );
+    int64_t * current_array = ( *presult ) - 1;
+    int64_t current_size = current_array[0];
+
+    int i;
+    for ( i = 1; i <= current_size; i++ ) {
+        string_discard( current_array[ i ] );
+    }
+
+    free( current_array );
+
+    * presult = NULL;
+
+    return ( int64_t ) 1 ;
+}
+
+/* ----------------------------------------------------------------- */
+
+int64_t modstring_string_dump( INSTANCE * my, int64_t * params )
+{
+    string_dump( NULL ) ;
+    return 1 ;
+}
+
+/* ----------------------------------------------------------------- */

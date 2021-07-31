@@ -331,6 +331,11 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "TIME"            , ""        , TYPE_QWORD        , libmod_misc_time                   ),
     FUNC( "FTIME"           , "SI"      , TYPE_STRING       , libmod_misc_ftime                  ),
 
+    FUNC( "STRING_NEWA"     , "I"       , TYPE_POINTER      , modstring_string_new_array         ),
+    FUNC( "STRING_RESIZEA"  , "PI"      , TYPE_INT          , modstring_string_resize_array      ),
+    FUNC( "STRING_DELA"     , "P"       , TYPE_INT          , modstring_string_delete_array      ),
+    FUNC( "STRING_DUMP"     , ""        , TYPE_INT          , modstring_string_dump              ),
+
     FUNC( 0                 , 0         , 0                , 0                                   )
 };
 
