@@ -250,12 +250,14 @@ void bitmap_destroy( GRAPH * map ) {
     if ( map->cpoints ) free( map->cpoints );
     if ( map->cboxes ) free( map->cboxes );
     if ( map->code > 999 ) bit_clr( map_code_bmp, map->code - 1000 );
+
     if ( map->surface ) SDL_FreeSurface( map->surface );
 #ifdef USE_SDL2
     if ( map->tex ) SDL_DestroyTexture( map->tex );
 #endif
 #ifdef USE_SDL2_GPU
-    GPU_FreeImage( map->tex ); // GPU_FreeTarget is implicit
+    if ( map->tex->target ) GPU_FreeTarget( map->tex->target );
+    GPU_FreeImage( map->tex );
 #endif
     if ( map->nsegments ) {
         int i;
@@ -264,10 +266,12 @@ void bitmap_destroy( GRAPH * map ) {
             SDL_DestroyTexture( map->segments[i].tex );
 #endif
 #ifdef USE_SDL2_GPU
-            GPU_FreeImage( map->segments[i].tex ); // GPU_FreeTarget is implicit
+            if ( map->segments[i].tex->target ) GPU_FreeTarget( map->segments[i].tex->target );
+            GPU_FreeImage( map->segments[i].tex );
 #endif
         }
     }
+
     free( map );
 }
 
