@@ -211,7 +211,8 @@ void draw_instance( void * what, REGION * clip ) {
 
     alpha = LOCBYTE( libbggfx, i, ALPHA );
 
-    if ( !( map = ( GRAPH * ) ( intptr_t ) LOCQWORD( libbggfx, i, GRAPHPTR ) ) ) return;
+//    if ( !( map = ( GRAPH * ) ( intptr_t ) LOCQWORD( libbggfx, i, GRAPHPTR ) ) ) return;
+    if ( !( map = instance_graph( i ) ) ) return;
 
     // Get GRAPH * target, if exists
     if (( c = LOCQWORD( libbggfx, i, RENDER_GRAPHID ) ) ) {
@@ -303,7 +304,8 @@ int draw_instance_info( void * what, REGION * region, int64_t * z, int64_t * dra
 
     if ( drawme ) * drawme = 0;
 
-    LOCQWORD( libbggfx, i, GRAPHPTR ) = ( int64_t ) ( intptr_t ) ( graph = instance_graph( i ) );
+//    LOCQWORD( libbggfx, i, GRAPHPTR ) = ( int64_t ) ( intptr_t ) ( graph = instance_graph( i ) );
+    graph = instance_graph( i );
     if ( !graph ) return 0;
 
     /* Update key */
