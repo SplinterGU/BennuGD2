@@ -322,7 +322,7 @@ int64_t gr_font_new( int64_t charset ) {
 
     if ( fontid >= MAX_FONTS ) return -1; // Too much fonts
 
-    fonts[ fontid ] = ( FONT * ) malloc( sizeof( FONT ) );
+    fonts[ fontid ] = ( FONT * ) calloc( 1, sizeof( FONT ) );
 
     if ( !fonts[ fontid ] ) return -1; // No memory
 
@@ -502,7 +502,8 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
             if ( (  charmap && !charmap[ i ] ) || ( !charmap && i > last ) ) { ch = h; break; }
 
             int align = 0;
-            int idx = ( charmap ) ? dos_to_win[charmap[ i ]] : i ;
+//            int idx = ( charmap ) ? dos_to_win[charmap[ i ]] : i ;
+            int idx = ( charmap ) ? ( charset == CHARSET_CP850 ? charmap[ i ] : dos_to_win[ charmap[ i ] ] ) : i ;
 
             if ( options != NFB_FIXEDWIDTH )
                 align = align_bitmap_char_left( ( ( unsigned char * ) charptr ),
