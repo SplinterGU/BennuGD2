@@ -103,9 +103,9 @@ extern int64_t gr_text_width( int64_t fontid, const unsigned char * text ) ;
 extern int64_t gr_text_height( int64_t fontid, const unsigned char * text ) ;
 extern int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * region, int64_t fontid, int64_t x, int64_t y, const unsigned char * text ) ;
 extern GRAPH * gr_text_bitmap( int64_t fontid, const char * text, int64_t centered ) ;
+extern int64_t gr_text_in_bitmap( GRAPH * gr, int64_t fontid, int64_t x, int64_t y, const char * text, int64_t alignment );
 extern void gr_text_setrgba( int64_t textid, uint8_t r, uint8_t g, uint8_t b, uint8_t a );
 extern int64_t gr_text_getrgba( int64_t textid, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a );
-
 extern void * gr_text_alloc();
 extern void gr_text_setrgba_ptext( void * t, uint8_t r, uint8_t g, uint8_t b, uint8_t a );
 extern int64_t gr_text_getrgba_ptext( void * t, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a );

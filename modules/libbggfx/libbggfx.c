@@ -105,38 +105,38 @@ DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
 };
 
 DLVARFIXUP __bgdexport( libbggfx, locals_fixup )[] = {
-    { "ctype"                                           , NULL, -1, -1 },       // 0            CTYPE
-    { "cnumber"                                         , NULL, -1, -1 },       // 1            CNUMBER
-    { "x"                                               , NULL, -1, -1 },       // 2            COORDX
-    { "y"                                               , NULL, -1, -1 },       // 3            COORDY
-    { "z"                                               , NULL, -1, -1 },       // 4            COORDZ
-    { "file"                                            , NULL, -1, -1 },       // 5            FILEID
-    { "graph"                                           , NULL, -1, -1 },       // 6            GRAPHID
-    { "size"                                            , NULL, -1, -1 },       // 7            GRAPHSIZE
-    { "angle"                                           , NULL, -1, -1 },       // 8            ANGLE
-    { "flags"                                           , NULL, -1, -1 },       // 9            FLAGS
-    { "region"                                          , NULL, -1, -1 },       // 10           REGIONID
-    { "resolution"                                      , NULL, -1, -1 },       // 11           RESOLUTION
-    { "size_x"                                          , NULL, -1, -1 },       // 12           GRAPHSIZEX
-    { "size_y"                                          , NULL, -1, -1 },       // 13           GRAPHSIZEY
-    { "xgraph"                                          , NULL, -1, -1 },       // 14           XGRAPH
-    { "_render_reserved_.object_id"                     , NULL, -1, -1 },       // 15           _OBJECTID
-    { "_render_reserved_.graph_ptr"                     , NULL, -1, -1 },       // 16           GRAPHPTR
-    { "_render_reserved_.xgraph_flags"                  , NULL, -1, -1 },       // 17           XGRAPH_FLAGS
-    { "reserved.status"                                 , NULL, -1, -1 },       // 18           STATUS
-    { "id"                                              , NULL, -1, -1 },       // 19           PROCESS_ID
-    { "render_file"                                     , NULL, -1, -1 },       // 20           RENDER_FILEID,
-    { "render_graph"                                    , NULL, -1, -1 },       // 21           RENDER_GRAPHID
-    { "clip.x"                                          , NULL, -1, -1 },       // 22           CLIP.X
-    { "clip.y"                                          , NULL, -1, -1 },       // 23           CLIP.Y
-    { "clip.w"                                          , NULL, -1, -1 },       // 24           CLIP.W
-    { "clip.h"                                          , NULL, -1, -1 },       // 25           CLIP.H
-    { "center.x"                                        , NULL, -1, -1 },       // 26           CENTER.X
-    { "center.y"                                        , NULL, -1, -1 },       // 27           CENTER.Y
-    { "alpha"                                           , NULL, -1, -1 },       // 28           ALPHA
-    { "color_r"                                         , NULL, -1, -1 },       // 29           COLOR_R
-    { "color_g"                                         , NULL, -1, -1 },       // 30           COLOR_G
-    { "color_b"                                         , NULL, -1, -1 },       // 31           COLOR_B
+    { "ctype"                                           , NULL, -1, -1 },
+    { "cnumber"                                         , NULL, -1, -1 },
+    { "x"                                               , NULL, -1, -1 },
+    { "y"                                               , NULL, -1, -1 },
+    { "z"                                               , NULL, -1, -1 },
+    { "file"                                            , NULL, -1, -1 },
+    { "graph"                                           , NULL, -1, -1 },
+    { "size"                                            , NULL, -1, -1 },
+    { "angle"                                           , NULL, -1, -1 },
+    { "flags"                                           , NULL, -1, -1 },
+    { "region"                                          , NULL, -1, -1 },
+    { "resolution"                                      , NULL, -1, -1 },
+    { "size_x"                                          , NULL, -1, -1 },
+    { "size_y"                                          , NULL, -1, -1 },
+    { "xgraph"                                          , NULL, -1, -1 },
+    { "_render_reserved_.object_id"                     , NULL, -1, -1 },
+//    { "_render_reserved_.graph_ptr"                     , NULL, -1, -1 },
+    { "_render_reserved_.xgraph_flags"                  , NULL, -1, -1 },
+    { "reserved.status"                                 , NULL, -1, -1 },
+    { "id"                                              , NULL, -1, -1 },
+    { "render_file"                                     , NULL, -1, -1 },
+    { "render_graph"                                    , NULL, -1, -1 },
+    { "clip.x"                                          , NULL, -1, -1 },
+    { "clip.y"                                          , NULL, -1, -1 },
+    { "clip.w"                                          , NULL, -1, -1 },
+    { "clip.h"                                          , NULL, -1, -1 },
+    { "center.x"                                        , NULL, -1, -1 },
+    { "center.y"                                        , NULL, -1, -1 },
+    { "alpha"                                           , NULL, -1, -1 },
+    { "color_r"                                         , NULL, -1, -1 },
+    { "color_g"                                         , NULL, -1, -1 },
+    { "color_b"                                         , NULL, -1, -1 },
     { "blendmode"                                       , NULL, -1, -1 },
     { "custom_blendmode"                                , NULL, -1, -1 },
     { "custom_blendmode.src_rgb"                        , NULL, -1, -1 },

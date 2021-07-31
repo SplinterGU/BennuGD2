@@ -241,7 +241,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     fntclip = &f->glyph[current_char].fontsource; \
-                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, f->fontmap, fntclip, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
+                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, 0, 0, /*POINT_UNDEFINED, POINT_UNDEFINED,*/ f->fontmap, fntclip, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -251,7 +251,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     ch = f->glyph[current_char].glymap; \
-                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, POINT_UNDEFINED, POINT_UNDEFINED, ch, NULL, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
+                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, 0, 0, /*POINT_UNDEFINED, POINT_UNDEFINED,*/ ch, NULL, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -539,7 +539,7 @@ int64_t gr_text_new2( int64_t fontid, int64_t x, int64_t y, int64_t z, int64_t a
  */
 
 int64_t gr_text_new( int64_t fontid, int64_t x, int64_t y, int64_t alignment, const char * text ) {
-    return gr_text_new2( fontid, x, y, GLOINT64( libbggfx, TEXTZ ), alignment, text );
+    return gr_text_new2( fontid, x, y, GLOINT64( libbggfx, TEXT_Z ), alignment, text );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -843,6 +843,59 @@ GRAPH * gr_text_bitmap( int64_t fontid, const char * text, int64_t alignment ) {
 
     bitmap_add_cpoint( gr, x, y );
     return gr;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t gr_text_in_bitmap( GRAPH * gr, int64_t fontid, int64_t x, int64_t y, const char * text, int64_t alignment ) {
+    int64_t dx, dy, tw, th;
+
+    // Splinter
+    if ( !text || !*text ) return 0;
+    if ( !gr_font_get( fontid ) ) return 0; // Incorrect font type
+
+    tw = gr_text_width( fontid, ( const unsigned char * ) text );
+    th = gr_text_height( fontid, ( const unsigned char * ) text );
+
+    switch ( alignment ) {
+        case ALIGN_TOP_LEFT:    // 0
+        case ALIGN_TOP:         // 1
+        case ALIGN_TOP_RIGHT:   // 2
+            dy = 0;
+            break;
+
+        case ALIGN_CENTER_LEFT: // 3
+        case ALIGN_CENTER:      // 4
+        case ALIGN_CENTER_RIGHT:// 5
+            dy = - th / 2;
+            break;
+
+        default:
+            dy = - th - 1;
+            break;
+
+    }
+
+    switch ( alignment ) {
+        case ALIGN_TOP_LEFT:    // 0
+        case ALIGN_CENTER_LEFT: // 3
+        case ALIGN_BOTTOM_LEFT: // 6
+            dx = 0;
+            break;
+
+        case ALIGN_TOP:         // 1
+        case ALIGN_CENTER:      // 4
+        case ALIGN_BOTTOM:      // 7
+            dx = - tw / 2;
+            break;
+
+        default:
+            dx = - tw - 1;
+            break;
+
+    }
+
+    return gr_text_put( gr, NULL, 0, fontid, x + dx, y + dy -gr_text_margintop( fontid, ( const unsigned char * ) text ), ( const unsigned char * ) text );
 }
 
 /* --------------------------------------------------------------------------- */

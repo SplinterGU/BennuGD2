@@ -58,7 +58,7 @@ enum {
     FOCUS_STATUS,
     MOUSE_STATUS,
 
-    TEXTZ,
+    TEXT_Z,
     TEXT_FLAGS,
     TEXT_ALPHA,
     TEXT_COLORR,
@@ -118,7 +118,7 @@ enum {
     GRAPHSIZEY,
     XGRAPH,
     _OBJECTID,
-    GRAPHPTR,
+//    GRAPHPTR,
     XGRAPH_FLAGS,
     STATUS,
     PROCESS_ID,
@@ -172,6 +172,7 @@ enum {
 #include "g_draw.h"
 #include "g_screen.h"
 #include "g_pathfind.h"
+#include "g_media.h"
 
 /* --------------------------------------------------------------------------- */
 

@@ -374,7 +374,7 @@ char * __bgdexport( libbggfx, locals_def ) =
 
     "STRUCT _render_reserved_\n"
     "   INT object_id=0;\n"
-    "   INT graph_ptr=0;\n"
+//    "   INT graph_ptr=0;\n"
     "   INT xgraph_flags;\n"
     "END\n"
 
