@@ -2658,7 +2658,7 @@ break_all:
 
         /* The process should be destroyed immediately, it is a function-type one */
         /* Run ONEXIT */
-        if ( ( LOCQWORD( r, STATUS ) & STATUS_DEAD ) && r->exitcode ) {
+        if ( ( ( LOCQWORD( r, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) != STATUS_DEAD ) && r->exitcode ) {
             LOCQWORD( r, STATUS ) = ( STATUS_DEAD | ( LOCQWORD( r, STATUS ) & STATUS_PAUSED_MASK ) );
             r->codeptr = r->code + r->exitcode;
             ptr = r->codeptr;
