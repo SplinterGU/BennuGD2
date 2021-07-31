@@ -305,7 +305,7 @@ GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
 
     /* Get the map from a library */
 
-    if ( lib && lib->map_reserved > mapcode && mapcode >= 0 ) return lib->maps[ mapcode ];
+    if ( lib && lib->map_reserved > mapcode /*&& mapcode >= 0 */ ) return lib->maps[ mapcode ];
 
     return NULL;
 }
