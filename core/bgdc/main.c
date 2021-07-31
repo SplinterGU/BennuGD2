@@ -398,7 +398,7 @@ int main( int argc, char *argv[] ) {
                 MSG_OPTION_D
                 MSG_OPTIONS
                 MSG_LICENSE, argv[0] );
-        return 0;
+        return 1;
     }
 
     compile_program();
@@ -435,7 +435,7 @@ int main( int argc, char *argv[] ) {
 #endif
                     compile_error( "Can't open stub file %s", stubname );
 #ifdef WIN32
-                    return -1;
+                    return 1;
                 }
 #endif
             }
@@ -456,7 +456,7 @@ int main( int argc, char *argv[] ) {
     /* destroy error messages list */
     err_destroyErrorTable();
 
-    return 1;
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */
