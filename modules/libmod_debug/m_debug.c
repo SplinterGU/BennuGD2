@@ -171,7 +171,7 @@ static struct {
 
 static struct {
     enum { T_ERROR, T_VARIABLE, T_NUMBER, T_CONSTANT, T_STRING } type ;
-    char name[128] ;
+    char name[256] ;
     double  code ;
 } token ;
 
@@ -1610,7 +1610,7 @@ static char * show_value( DCB_TYPEDEF type, void * data ) {
             return buffer ;
 
         case TYPE_DOUBLE:
-            _snprintf( buffer, sizeof( buffer ), "= %F", *( float * )data ) ;
+            _snprintf( buffer, sizeof( buffer ), "= %F", *( double * )data ) ;
             return buffer ;
 
         case TYPE_WORD:
@@ -1765,7 +1765,7 @@ static void get_token() {
                     dec /= ( double )base;
                 }
                 token.type  = NUMBER;
-                token.code = ( float )num;
+                token.code = ( double )num;
             }
         }
 
@@ -1828,8 +1828,8 @@ static void var2const() {
 
     if ( result.type == T_VARIABLE && result.var.Type.BaseType[0] == TYPE_STRING ) {
         result.type = T_STRING ;
-        strncpy( result.name, string_get( *( int64_t * )( result.data ) ), 127 ) ;
-        result.name[127] = 0 ;
+        strncpy( result.name, string_get( *( int64_t * )( result.data ) ), sizeof( result.name ) ) ;
+        result.name[sizeof( result.name ) - 1] = 0 ;
     }
 
     if ( result.type == T_VARIABLE && result.var.Type.BaseType[0] == TYPE_FLOAT ) {
@@ -1950,7 +1950,7 @@ static void eval_local( DCB_PROC * proc, INSTANCE * i ) {
         }
     }
 
-    console_printf( COLOR_MAROON "Local or private or public variable not found" COLOR_SILVER ) ;
+    console_printf( COLOR_RED "Local or private or public variable not found" COLOR_SILVER ) ;
     result.type = T_ERROR ;
 }
 
@@ -1974,7 +1974,7 @@ static void eval_immediate() {
     }
 
     if ( token.type != IDENTIFIER ) {
-        console_printf( COLOR_MAROON "Not a valid expression" COLOR_SILVER ) ;
+        console_printf( COLOR_RED "Not a valid expression" COLOR_SILVER ) ;
         result.type = T_ERROR ;
         return ;
     }
@@ -1983,7 +1983,7 @@ static void eval_immediate() {
         get_token() ;
         eval_subexpression() ;
         if ( token.name[0] != ')' ) {
-            console_printf( COLOR_MAROON "Unbalanced parens" COLOR_SILVER ) ;
+            console_printf( COLOR_RED "Unbalanced parens" COLOR_SILVER ) ;
             result.type = T_ERROR ;
             return ;
         }
@@ -1996,7 +1996,7 @@ static void eval_immediate() {
         eval_immediate() ;
         var2const() ;
         if ( result.type != T_CONSTANT ) {
-            console_printf( COLOR_MAROON "Operand is not a number" COLOR_SILVER ) ;
+            console_printf( COLOR_RED "Operand is not a number" COLOR_SILVER ) ;
             result.type = T_ERROR ;
             return ;
         }
@@ -2029,14 +2029,14 @@ static void eval_immediate() {
                 i = i->next ;
             }
             if ( !i ) {
-                console_printf( COLOR_MAROON "No instance of process %s is active" COLOR_SILVER, token.name ) ;
+                console_printf( COLOR_RED "No instance of process %s is active" COLOR_SILVER, token.name ) ;
                 result.type = T_ERROR ;
                 return ;
             }
 
             get_token() ;
             if ( token.name[0] != '.' ) {
-                console_printf( COLOR_MAROON "Invalid use of a process name" COLOR_SILVER ) ;
+                console_printf( COLOR_RED "Invalid use of a process name" COLOR_SILVER ) ;
                 result.type = T_ERROR ;
                 return ;
             }
@@ -2046,7 +2046,7 @@ static void eval_immediate() {
         }
     }
 
-    console_printf( COLOR_MAROON "Variable does not exist (%s)" COLOR_SILVER, token.name ) ;
+    console_printf( COLOR_RED "Variable does not exist (%s)" COLOR_SILVER, token.name ) ;
     result.type = T_ERROR ;
     return ;
 }
@@ -2069,7 +2069,7 @@ static void eval_value() {
                 i = instance_get(( int64_t )result.value ) ;
                 if ( !i ) {
                     result.type = T_ERROR ;
-                    console_printf( COLOR_MAROON "Instance %"PRId64" does not exist" COLOR_SILVER, ( int64_t )result.value ) ;
+                    console_printf( COLOR_RED "Instance %"PRId64" does not exist" COLOR_SILVER, ( int64_t )result.value ) ;
                     return ;
                 }
                 get_token() ;
@@ -2079,13 +2079,13 @@ static void eval_value() {
 
             if ( result.type != T_VARIABLE
                     || result.var.Type.BaseType[0] != TYPE_STRUCT ) {
-                console_printf( COLOR_MAROON "%s is not an struct" COLOR_SILVER, result.name );
+                console_printf( COLOR_RED "%s is not an struct" COLOR_SILVER, result.name );
                 result.type = T_ERROR ;
                 return ;
             }
             get_token() ;
             if ( token.type != IDENTIFIER ) {
-                console_printf( COLOR_MAROON "%s is not a member" COLOR_SILVER, token.name ) ;
+                console_printf( COLOR_RED "%s is not a member" COLOR_SILVER, token.name ) ;
                 result.type = T_ERROR ;
                 return ;
             }
@@ -2097,7 +2097,7 @@ static void eval_value() {
                     break ;
             }
             if ( n == v->NVars ) {
-                console_printf( COLOR_MAROON "%s is not a member" COLOR_SILVER, token.name ) ;
+                console_printf( COLOR_RED "%s is not a member" COLOR_SILVER, token.name ) ;
                 result.type = T_ERROR ;
                 return ;
             }
@@ -2114,10 +2114,10 @@ static void eval_value() {
         if ( token.name[0] == '[' ) {
             DCB_VAR i = result.var ;
             void * i_data = result.data ;
-            char name[230] ;
+            char name[256];
 
             if ( result.type != T_VARIABLE || result.var.Type.BaseType[0] != TYPE_ARRAY ) {
-                console_printf( COLOR_MAROON "%s is not an array" COLOR_SILVER, result.name ) ;
+                console_printf( COLOR_RED "%s is not an array" COLOR_SILVER, result.name ) ;
                 result.type = T_ERROR ;
                 return ;
             }
@@ -2130,17 +2130,17 @@ static void eval_value() {
             var2const() ;
 
             if ( result.type != T_CONSTANT ) {
-                console_printf( COLOR_MAROON "%s is not an integer" COLOR_SILVER, result.name ) ;
+                console_printf( COLOR_RED "%s is not an integer" COLOR_SILVER, result.name ) ;
                 result.type = T_ERROR ;
                 return ;
             }
             if ( result.value < 0 ) {
-                console_printf( COLOR_MAROON "Index (%d) less than zero" COLOR_SILVER, result.value ) ;
+                console_printf( COLOR_RED "Index (%d) less than zero" COLOR_SILVER, result.value ) ;
                 result.type = T_ERROR ;
                 return ;
             }
             if ( result.value >= i.Type.Count[0] ) {
-                console_printf( COLOR_MAROON "Index (%d) out of bounds" COLOR_SILVER, result.value ) ;
+                console_printf( COLOR_RED "Index (%d) out of bounds" COLOR_SILVER, result.value ) ;
                 result.type = T_ERROR ;
                 return ;
             }
@@ -2166,23 +2166,23 @@ static void eval_factor() {
     for ( ;; ) {
         eval_value() ;
         if ( result.type == T_ERROR ) return ;
-        if ( !strchr( "*/%", token.name[0] ) && !op ) return ;
+        if ( ( !token.name[0] || !strchr( "*/%", token.name[0] ) ) && !op ) return ;
         var2const() ;
         if ( result.type != T_CONSTANT ) {
             result.type = T_ERROR ;
-            console_printf( COLOR_MAROON "Operand is not a number" COLOR_SILVER ) ;
+            console_printf( COLOR_RED "Operand is not a number" COLOR_SILVER ) ;
             return ;
         }
         if ( !op ) op = 1 ;
         if ( op > 1 && !result.value ) {
             result.type = T_ERROR ;
-            console_printf( COLOR_MAROON "Divide by zero" COLOR_SILVER ) ;
+            console_printf( COLOR_RED "Divide by zero" COLOR_SILVER ) ;
             return ;
         }
         if ( op == 1 ) base *= result.value ;
         if ( op == 2 ) base /= result.value ;
         if ( op == 3 ) base = ( int )base % ( int )result.value ;
-        if ( !strchr( "*/%", token.name[0] ) ) {
+        if ( ( !token.name[0] || !strchr( "*/%", token.name[0] ) ) ) {
             result.type = T_CONSTANT ;
             result.value = base ;
             _snprintf( result.name, sizeof( result.name ), "%g", base ) ;
@@ -2206,7 +2206,7 @@ static void eval_subexpression() {
         var2const() ;
         if ( result.type != T_CONSTANT ) {
             result.type = T_ERROR ;
-            console_printf( COLOR_MAROON "Operand is not a number" COLOR_SILVER ) ;
+            console_printf( COLOR_RED "Operand is not a number" COLOR_SILVER ) ;
             return ;
         }
         if ( !op ) op = 1 ;
@@ -2236,7 +2236,7 @@ static char * eval_expression( const char * here, int interactive ) {
 
     if ( token.type != NOTOKEN && token.name[0] != ',' && token.name[0] != '=' ) {
         if ( result.type != T_ERROR ) {
-            console_printf( COLOR_MAROON "Invalid expression" COLOR_SILVER );
+            console_printf( COLOR_RED "Invalid expression" COLOR_SILVER );
             result.type = T_ERROR;
         }
         return 0;
@@ -2256,7 +2256,7 @@ static char * eval_expression( const char * here, int interactive ) {
         if ( token.name[0] == '=' ) {
             if ( lvalue.type != T_VARIABLE ) {
                 strcpy( buffer, "Not an lvalue" ) ;
-                if ( interactive ) console_printf( COLOR_MAROON "%s" COLOR_SILVER, buffer ) ;
+                if ( interactive ) console_printf( COLOR_RED "%s" COLOR_SILVER, buffer ) ;
                 return buffer ;
             }
             get_token() ;
@@ -2287,7 +2287,7 @@ static char * eval_expression( const char * here, int interactive ) {
                 string_use( *( uint32_t * ) lvalue.data ) ;
             } else {
                 strcpy( buffer, "Invalid assignation" ) ;
-                if ( interactive ) console_printf( COLOR_MAROON "%s" COLOR_SILVER, buffer ) ;
+                if ( interactive ) console_printf( COLOR_RED "%s" COLOR_SILVER, buffer ) ;
                 return buffer ;
             }
         }
@@ -2367,7 +2367,7 @@ static void console_instance_dump( INSTANCE * father, int indent ) {
     if ( !( son = LOCINT64( libmod_debug, i, SON ) ) ) return ;
 
     next = instance_get( son ) ;
-    if ( !next ) console_printf( COLOR_MAROON "\12**PANIC**\7 SON %d does not exist" COLOR_SILVER, son ) ;
+    if ( !next ) console_printf( COLOR_RED "\12**PANIC**\7 SON %d does not exist" COLOR_SILVER, son ) ;
 
     i = next ;
 
@@ -2408,7 +2408,7 @@ static void console_instance_dump( INSTANCE * father, int indent ) {
 
         if ( ( bigbro = LOCINT64( libmod_debug, i, BIGBRO ) ) ) {
             next = instance_get( bigbro ) ;
-            if ( !next ) console_printf( COLOR_MAROON "\12**PANIC**\7 BIGBRO %d does not exist" COLOR_SILVER, bigbro ) ;
+            if ( !next ) console_printf( COLOR_RED "\12**PANIC**\7 BIGBRO %d does not exist" COLOR_SILVER, bigbro ) ;
             i = next ;
         } else
             break ;
@@ -2450,7 +2450,7 @@ static void console_instance_dump_all_brief() {
         if ( LOCQWORD( libmod_debug, i, STATUS ) & STATUS_PAUSED_MASK  ) strcat( status, "pause+" );
         switch ( LOCQWORD( libmod_debug, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) {
             case STATUS_DEAD        :   strcat( status, COLOR_OLIVE  "dead"     ) ; break ;
-            case STATUS_KILLED      :   strcat( status, COLOR_MAROON "killed"   ) ; break ;
+            case STATUS_KILLED      :   strcat( status, COLOR_RED "killed"   ) ; break ;
             case STATUS_SLEEPING    :   strcat( status, COLOR_BLUE   "sleeping" ) ; break ;
             case STATUS_FROZEN      :   strcat( status, COLOR_TEAL   "frozen"   ) ; break ;
             case STATUS_RUNNING     :   strcat( status, COLOR_LIME   "running"  ) ; break ;
@@ -2460,7 +2460,7 @@ static void console_instance_dump_all_brief() {
 
         console_printf( "%-10d %s%-10d" COLOR_GRAY " %-*.*s " COLOR_WHITE "%s" COLOR_SILVER "\n",
                 LOCINT64( libmod_debug, i, PROCESS_ID ),
-                instance_get( father ) ? "" : COLOR_MAROON,
+                instance_get( father ) ? "" : COLOR_RED,
                 father,
                 sz,
                 sz,
@@ -2606,7 +2606,7 @@ static INSTANCE * findproc( INSTANCE * last, char * action, char * ptr ) {
                 if ( LOCINT64( libmod_debug, i, PROCESS_ID ) == procno )
                     break;
             if ( !i ) {
-                console_printf( COLOR_MAROON "Instance %d does not exist" COLOR_SILVER, procno );
+                console_printf( COLOR_RED "Instance %d does not exist" COLOR_SILVER, procno );
                 return NULL;
             }
         } else {
@@ -2623,14 +2623,14 @@ static INSTANCE * findproc( INSTANCE * last, char * action, char * ptr ) {
                 if ( dcb.proc[procno].data.ID == dcb.id[n].Code )
                     break;
             if ( procno == ( int64_t )dcb.data.NProcs ) {
-                console_printf( COLOR_MAROON "Unknown process %s" COLOR_SILVER, action );
+                console_printf( COLOR_RED "Unknown process %s" COLOR_SILVER, action );
                 return NULL;
             }
             for ( i = last ? last->next : first_instance ; i ; i = i->next )
                 if ( i->proc->type == procno )
                     break;
             if ( !i && !last ) {
-                console_printf( COLOR_MAROON "No instance of process %s created" COLOR_SILVER, action );
+                console_printf( COLOR_RED "No instance of process %s created" COLOR_SILVER, action );
                 return NULL;
             }
         }
@@ -2720,7 +2720,7 @@ static void console_do( const char * command ) {
                     if ( LOCINT64( libmod_debug, i, PROCESS_ID ) == procno )
                         break;
                 if ( !i ) {
-                    console_printf( COLOR_MAROON "Instance %d does not exist" COLOR_SILVER, procno );
+                    console_printf( COLOR_RED "Instance %d does not exist" COLOR_SILVER, procno );
                 } else {
                     i->breakpoint = 1;
                     console_printf( COLOR_SILVER "OK" );
@@ -2735,7 +2735,7 @@ static void console_do( const char * command ) {
                 if ( *action ) {
                     p = procdef_get_by_name( action );
                     if ( !p ) {
-                        console_printf( COLOR_MAROON "Process type %d does not exist" COLOR_SILVER, action );
+                        console_printf( COLOR_RED "Process type %d does not exist" COLOR_SILVER, action );
                     } else {
                         p->breakpoint = 1;
                         console_printf( COLOR_SILVER "OK" );
@@ -2803,7 +2803,7 @@ static void console_do( const char * command ) {
                     if ( LOCINT64( libmod_debug, i, PROCESS_ID ) == procno )
                         break;
                 if ( !i ) {
-                    console_printf( COLOR_MAROON "Instance %d does not exist" COLOR_SILVER, procno );
+                    console_printf( COLOR_RED "Instance %d does not exist" COLOR_SILVER, procno );
                 } else {
                     i->breakpoint = 0;
                     console_printf( COLOR_SILVER "OK" );
@@ -2817,7 +2817,7 @@ static void console_do( const char * command ) {
 
                 p = procdef_get_by_name( action );
                 if ( !p ) {
-                    console_printf( COLOR_MAROON "Process type %d does not exist" COLOR_SILVER, procno );
+                    console_printf( COLOR_RED "Process type %d does not exist" COLOR_SILVER, procno );
                 } else {
                     p->breakpoint = 0;
                     console_printf( COLOR_SILVER "OK" );
@@ -2898,13 +2898,13 @@ static void console_do( const char * command ) {
             char * res = eval_expression( ptr, 0 );
 
             if ( !res || result.type == T_STRING ) {
-                console_printf( COLOR_MAROON "Invalid argument" COLOR_SILVER );
+                console_printf( COLOR_RED "Invalid argument" COLOR_SILVER );
                 return ;
             }
 
             for ( n = 0; n < MAX_EXPRESSIONS; n++ ) {
                 if ( show_expression[n] && !strcmp( show_expression[n], ptr ) ) {
-                    console_printf( COLOR_MAROON "Already exists" COLOR_SILVER );
+                    console_printf( COLOR_RED "Already exists" COLOR_SILVER );
                     return ;
                 }
             }
@@ -2918,7 +2918,7 @@ static void console_do( const char * command ) {
                 }
             }
 
-            console_printf( COLOR_MAROON "No more expressions are possibles" COLOR_SILVER );
+            console_printf( COLOR_RED "No more expressions are possibles" COLOR_SILVER );
         } else {
             int nn = 0;
             for ( n = 0; n < MAX_EXPRESSIONS; n++ ) {
@@ -2928,7 +2928,7 @@ static void console_do( const char * command ) {
                 }
             }
 
-            if ( !nn ) console_printf( COLOR_MAROON "No expressions availables" COLOR_SILVER );
+            if ( !nn ) console_printf( COLOR_RED "No expressions availables" COLOR_SILVER );
         }
 
         return;
@@ -2953,7 +2953,7 @@ static void console_do( const char * command ) {
             }
         }
 
-        console_printf( COLOR_MAROON "Invalid argument" COLOR_SILVER );
+        console_printf( COLOR_RED "Invalid argument" COLOR_SILVER );
 
         return;
     }
@@ -3062,7 +3062,7 @@ static void console_do( const char * command ) {
                                     case    TYPE_STRING:
                                     default:
                                         instance_destroy( inst );
-                                        console_printf( COLOR_MAROON "Invalid argument %d" COLOR_SILVER, i );
+                                        console_printf( COLOR_RED "Invalid argument %d" COLOR_SILVER, i );
                                         return;
                                 }
                                 break;
@@ -3075,13 +3075,13 @@ static void console_do( const char * command ) {
                             case T_VARIABLE:
                             default:
                                 instance_destroy( inst );
-                                console_printf( COLOR_MAROON "Invalid argument %d" COLOR_SILVER, i );
+                                console_printf( COLOR_RED "Invalid argument %d" COLOR_SILVER, i );
                                 return;
                         }
                     }
                     console_printf( COLOR_SILVER "Process %s is executed", p->name );
                 } else {
-                    console_printf( COLOR_MAROON "Process %s not found" COLOR_SILVER, action );
+                    console_printf( COLOR_RED "Process %s not found" COLOR_SILVER, action );
                 }
                 return;
             }
