@@ -143,8 +143,12 @@
 
 #define CON_QWORD               0x0001
 #define CON_DWORD               0x0002
+#define CON_WORD                0x0004
+#define CON_BYTE                0x0008
 #define CON_QWORD_HEX           0x8001
 #define CON_DWORD_HEX           0x8002
+#define CON_WORD_HEX            0x8004
+#define CON_BYTE_HEX            0x8008
 
 /* --------------------------------------------------------------------------- */
 
@@ -192,7 +196,8 @@ static int command_count = 0 ;
 
 static char * show_expression[MAX_EXPRESSIONS] = { NULL };
 static int show_expression_count = 0;
-static int64_t console_showcolor = 0xffffff;
+static int32_t console_showcolor = 0xffffff;
+static uint8_t console_alpha = 224;
 
 static int console_y = 0 ;
 
@@ -209,7 +214,8 @@ static struct {
     int    type ;
 }
 console_vars[] = {
-    { "SHOW_COLOR",         &console_showcolor,     CON_QWORD_HEX   },
+    { "CONSOLE_ALPHA",      &console_alpha,         CON_BYTE        },
+    { "SHOW_COLOR",         &console_showcolor,     CON_DWORD_HEX   },
     { "FILES",              &opened_files,          CON_DWORD       },
     { "DEBUG_LEVEL",        &debug,                 CON_QWORD       },
 } ;
@@ -242,7 +248,6 @@ static void console_do( const char * command );
 /* --------------------------------------------------------------------------- */
 
 static void * text_foreground_color = NULL;
-static uint8_t console_alpha = 255;
 
 /* --------------------------------------------------------------------------- */
 
@@ -1530,6 +1535,10 @@ static char * describe_type( DCB_TYPEDEF type, int from ) {
 
         case TYPE_FLOAT:
             strcat( buffer, "FLOAT" ) ;
+            break ;
+
+        case TYPE_DOUBLE:
+            strcat( buffer, "DOUBLE" ) ;
             break ;
 
         case TYPE_POINTER:
@@ -2965,19 +2974,35 @@ static void console_do( const char * command ) {
         for ( var = 0 ; var < N_CONSOLE_VARS ; var++ ) {
             switch ( console_vars[var].type ) {
                 case CON_QWORD:
-                    console_printf( COLOR_SILVER "%s = %"PRId64"\n", console_vars[var].name, *( int64_t * )console_vars[var].value ) ;
+                    console_printf( COLOR_SILVER "%s = %"PRIu64"\n", console_vars[var].name, *( uint64_t * )console_vars[var].value ) ;
                     break;
 
                 case CON_QWORD_HEX:
-                    console_printf( COLOR_SILVER "%s = %016Xh\n", console_vars[var].name, *( int64_t * )console_vars[var].value ) ;
+                    console_printf( COLOR_SILVER "%s = %016Xh\n", console_vars[var].name, *( uint64_t * )console_vars[var].value ) ;
                     break;
 
                 case CON_DWORD:
-                    console_printf( COLOR_SILVER "%s = %"PRId32"\n", console_vars[var].name, *( int32_t * )console_vars[var].value ) ;
+                    console_printf( COLOR_SILVER "%s = %"PRIu32"\n", console_vars[var].name, *( uint32_t * )console_vars[var].value ) ;
                     break;
 
                 case CON_DWORD_HEX:
-                    console_printf( COLOR_SILVER "%s = %08Xh\n", console_vars[var].name, *( int32_t * )console_vars[var].value ) ;
+                    console_printf( COLOR_SILVER "%s = %08Xh\n", console_vars[var].name, *( uint32_t * )console_vars[var].value ) ;
+                    break;
+
+                case CON_WORD:
+                    console_printf( COLOR_SILVER "%s = %u\n", console_vars[var].name, *( uint16_t * )console_vars[var].value ) ;
+                    break;
+
+                case CON_WORD_HEX:
+                    console_printf( COLOR_SILVER "%s = %04Xh\n", console_vars[var].name, *( uint16_t * )console_vars[var].value ) ;
+                    break;
+
+                case CON_BYTE:
+                    console_printf( COLOR_SILVER "%s = %u\n", console_vars[var].name, *( uint8_t * )console_vars[var].value ) ;
+                    break;
+
+                case CON_BYTE_HEX:
+                    console_printf( COLOR_SILVER "%s = %02Xh\n", console_vars[var].name, *( uint8_t * )console_vars[var].value ) ;
                     break;
             }
         }
@@ -3183,6 +3208,47 @@ static void console_do( const char * command ) {
                     }
                     console_printf( COLOR_SILVER "%s = %08Xh\n", console_vars[var].name, *( int32_t * )console_vars[var].value ) ;
                     return ;
+
+                case CON_WORD:
+                    if ( *ptr ) {
+                        while ( *ptr == '=' || *ptr == ' ' ) ptr++;
+                        eval_expression( ptr, 0 );
+                        if ( result.type != T_ERROR )
+                            *( int16_t * )console_vars[var].value = ( int16_t ) result.value ;
+                    }
+                    console_printf( COLOR_SILVER "%s = %d", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
+                    return ;
+
+                case CON_WORD_HEX:
+                    if ( *ptr ) {
+                        while ( *ptr == '=' || *ptr == ' ' ) ptr++;
+                        eval_expression( ptr, 0 );
+                        if ( result.type != T_ERROR )
+                            *( int16_t * )console_vars[var].value = ( int16_t ) result.value ;
+                    }
+                    console_printf( COLOR_SILVER "%s = %04Xh\n", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
+                    return ;
+
+                case CON_BYTE:
+                    if ( *ptr ) {
+                        while ( *ptr == '=' || *ptr == ' ' ) ptr++;
+                        eval_expression( ptr, 0 );
+                        if ( result.type != T_ERROR )
+                            *( int8_t * )console_vars[var].value = ( int8_t ) result.value ;
+                    }
+                    console_printf( COLOR_SILVER "%s = %d", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
+                    return ;
+
+                case CON_BYTE_HEX:
+                    if ( *ptr ) {
+                        while ( *ptr == '=' || *ptr == ' ' ) ptr++;
+                        eval_expression( ptr, 0 );
+                        if ( result.type != T_ERROR )
+                            *( int8_t * )console_vars[var].value = ( int8_t ) result.value ;
+                    }
+                    console_printf( COLOR_SILVER "%s = %02Xh\n", console_vars[var].name, *( int8_t * )console_vars[var].value ) ;
+                    return ;
+
             }
         }
     }
