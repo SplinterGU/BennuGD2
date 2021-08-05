@@ -56,6 +56,13 @@ int64_t libmod_gfx_scroll_start2( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_gfx_scroll_start3( INSTANCE * my, int64_t * params ) {
+    scroll_start( params[0], params[1], params[2], params[1], params[3], params[4], params[5], 0, 0 );
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_scroll_stop( INSTANCE * my, int64_t * params ) {
     scroll_stop( params[0] );
     return 1;

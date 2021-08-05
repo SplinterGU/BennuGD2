@@ -115,6 +115,16 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "GRAPH_MAX_SIZE"      , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE       },
     { "GRAPH_AVERAGE_SIZE"  , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE   },
 
+    /* MEDIA */
+#if 0
+    { "MEDIA_STATUS_CLOSE"      , TYPE_INT      , MEDIA_STATUS_CLOSE                    },
+    { "MEDIA_STATUS_OPENING"    , TYPE_INT      , MEDIA_STATUS_OPENING                  },
+    { "MEDIA_STATUS_PLAYING"    , TYPE_INT      , MEDIA_STATUS_PLAYING                  },
+    { "MEDIA_STATUS_PAUSED"     , TYPE_INT      , MEDIA_STATUS_PAUSED                   },
+    { "MEDIA_STATUS_STOPPING"   , TYPE_INT      , MEDIA_STATUS_STOPPING                 },
+    { "MEDIA_STATUS_ENDED"      , TYPE_INT      , MEDIA_STATUS_ENDED                    },
+    { "MEDIA_STATUS_ERROR"      , TYPE_INT      , MEDIA_STATUS_ERROR                    },
+#endif
     { NULL                  , 0                 , 0                                     }
 } ;
 
@@ -168,6 +178,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     /* scroll */
     FUNC( "SCROLL_START"        , "IIIIIIIII"       , TYPE_INT        , libmod_gfx_scroll_start2        ),
     FUNC( "SCROLL_START"        , "IIIIIII"         , TYPE_INT        , libmod_gfx_scroll_start         ),
+    FUNC( "SCROLL_START"        , "IIIIII"          , TYPE_INT        , libmod_gfx_scroll_start3        ),
     FUNC( "SCROLL_STOP"         , "I"               , TYPE_INT        , libmod_gfx_scroll_stop          ),
     FUNC( "SCROLL_MOVE"         , "I"               , TYPE_INT        , libmod_gfx_scroll_move          ),
 
@@ -221,6 +232,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "WRITE_MOVE"          , "IIII"            , TYPE_INT        , libmod_gfx_text_move2           ),
     FUNC( "WRITE_DELETE"        , "I"               , TYPE_INT        , libmod_gfx_text_delete          ),
     FUNC( "WRITE_IN_MAP"        , "ISI"             , TYPE_INT        , libmod_gfx_text_write_in_map    ),
+    FUNC( "WRITE_IN_MAP"        , "IIIIISI"         , TYPE_INT        , libmod_gfx_text_write_in_map2   ),
 
     FUNC( "TEXT_WIDTH"          , "IS"              , TYPE_INT        , libmod_gfx_text_width           ),
     FUNC( "TEXT_HEIGHT"         , "IS"              , TYPE_INT        , libmod_gfx_text_height          ),
@@ -460,6 +472,30 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     FUNC( "SHADER_SETUNIFORMMATRIX"     , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniformmatrix      ),
 
+    /* MEDIA */
+#if 0
+    FUNC( "MEDIA_LOAD"          , "SP"              , TYPE_POINTER      , libmod_gfx_media_load                 ),
+    FUNC( "MEDIA_LOAD"          , "SPI"             , TYPE_POINTER      , libmod_gfx_media_load2                ),
+    FUNC( "MEDIA_LOAD"          , "SPII"            , TYPE_POINTER      , libmod_gfx_media_load3                ),
+    FUNC( "MEDIA_LOAD"          , "SPIII"           , TYPE_POINTER      , libmod_gfx_media_load4                ),
+    FUNC( "MEDIA_UNLOAD"        , "P"               , TYPE_INT          , libmod_gfx_media_unload               ),
+    FUNC( "MEDIA_PLAY"          , "P"               , TYPE_INT          , libmod_gfx_media_play                 ),
+    FUNC( "MEDIA_PAUSE"         , "P"               , TYPE_INT          , libmod_gfx_media_pause                ),
+    FUNC( "MEDIA_PAUSE"         , "PI"              , TYPE_INT          , libmod_gfx_media_pause_action         ),
+    FUNC( "MEDIA_RESUME"        , "P"               , TYPE_INT          , libmod_gfx_media_resume               ),
+    FUNC( "MEDIA_STOP"          , "P"               , TYPE_INT          , libmod_gfx_media_stop                 ),
+    FUNC( "MEDIA_GET_TIME"      , "P"               , TYPE_INT          , libmod_gfx_media_get_time             ),
+    FUNC( "MEDIA_SET_TIME"      , "PI"              , TYPE_INT          , libmod_gfx_media_set_time             ),
+    FUNC( "MEDIA_GET_DURATION"  , "P"               , TYPE_INT          , libmod_gfx_media_get_duration         ),
+    FUNC( "MEDIA_GET_STATUS"    , "P"               , TYPE_INT          , libmod_gfx_media_get_status           ),
+    FUNC( "MEDIA_GET_RATE"      , "P"               , TYPE_FLOAT        , libmod_gfx_media_get_rate             ),
+    FUNC( "MEDIA_SET_RATE"      , "PF"              , TYPE_INT          , libmod_gfx_media_set_rate             ),
+    FUNC( "MEDIA_NEXT_FRAME"    , "P"               , TYPE_INT          , libmod_gfx_media_next_frame           ),
+    FUNC( "MEDIA_GET_MUTE"      , "P"               , TYPE_INT          , libmod_gfx_media_get_mute             ),
+    FUNC( "MEDIA_SET_MUTE"      , "PI"              , TYPE_INT          , libmod_gfx_media_set_mute             ),
+    FUNC( "MEDIA_GET_VOLUME"    , "P"               , TYPE_INT          , libmod_gfx_media_get_volume           ),
+    FUNC( "MEDIA_SET_VOLUME"    , "PI"              , TYPE_INT          , libmod_gfx_media_set_volume           ),
+#endif
     FUNC( NULL                  , NULL              , 0               , NULL                                    )
 };
 

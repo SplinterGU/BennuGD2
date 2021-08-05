@@ -37,6 +37,7 @@
 extern int64_t libmod_gfx_text_write( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_write2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_write_in_map( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_text_write_in_map2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_write_var( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_write_var2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_text_write_value( INSTANCE * my, int64_t * params );

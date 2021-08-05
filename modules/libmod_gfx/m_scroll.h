@@ -36,6 +36,7 @@
 
 extern int64_t libmod_gfx_scroll_start( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_scroll_start2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_scroll_start3( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_scroll_stop( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_scroll_move( INSTANCE * my, int64_t * params );
 

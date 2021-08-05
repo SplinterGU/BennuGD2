@@ -63,11 +63,33 @@ int64_t libmod_gfx_text_write2( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_gfx_text_write_in_map( INSTANCE * my, int64_t * params ) {
     const char * text = string_get( params[1] );
-    GRAPH * gr;
-    gr = text ? gr_text_bitmap( params[0], text, params[2] ) : NULL;
+    GRAPH * gr = text ? gr_text_bitmap( params[0], text, params[2] ) : NULL;
     string_discard( params[1] );
     if ( !gr ) return 0;
     return gr->code;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+    int file_dest
+    int graph_dest
+    int font
+    int x
+    int y
+    string text
+    int alignment
+*/
+
+int64_t libmod_gfx_text_write_in_map2( INSTANCE * my, int64_t * params ) {
+    const char * text = string_get( params[5] );
+    GRAPH * dest = bitmap_get( params[0], params[1] );
+    if ( !text || !dest ) {
+        string_discard( params[5] );
+        return 0; 
+    }
+    int64_t result = gr_text_in_bitmap( dest, params[2], params[3], params[4], text, params[6] );
+    string_discard( params[5] );
+    return result;
 }
 
 /* --------------------------------------------------------------------------- */
