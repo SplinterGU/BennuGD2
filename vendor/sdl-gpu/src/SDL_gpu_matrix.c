@@ -78,11 +78,9 @@ void GPU_FreeMatrixStack(GPU_MatrixStack* stack)
 
 void GPU_InitMatrixStack(GPU_MatrixStack* stack)
 {
-    if(stack == NULL)
-        return;
+    if(stack == NULL) return;
     
-	if (stack->storage_size != 0)
-		GPU_ClearMatrixStack(stack);
+	if (stack->storage_size != 0) GPU_ClearMatrixStack(stack);
 
     stack->storage_size = 1;
     stack->size = 1;
@@ -96,8 +94,7 @@ void GPU_CopyMatrixStack(const GPU_MatrixStack* source, GPU_MatrixStack* dest)
 {
 	unsigned int i;
 	unsigned int matrix_size = sizeof(float) * 16;
-	if (source == NULL || dest == NULL)
-		return;
+	if (source == NULL || dest == NULL) return;
 
 	GPU_ClearMatrixStack(dest);
 	dest->matrix = (float**)SDL_malloc(sizeof(float*) * source->storage_size);
@@ -125,8 +122,7 @@ void GPU_ClearMatrixStack(GPU_MatrixStack* stack)
 
 void GPU_ResetProjection(GPU_Target* target)
 {
-    if(target == NULL)
-        return;
+    if(target == NULL) return;
     
     GPU_bool invert = (target->image != NULL);
     
@@ -134,10 +130,8 @@ void GPU_ResetProjection(GPU_Target* target)
     float* projection_matrix = GPU_GetTopMatrix(&target->projection_matrix);
     GPU_MatrixIdentity(projection_matrix);
     
-    if(!invert ^ GPU_GetCoordinateMode())
-        GPU_MatrixOrtho(projection_matrix, 0, target->w, target->h, 0, target->camera.z_near, target->camera.z_far);
-    else
-        GPU_MatrixOrtho(projection_matrix, 0, target->w, 0, target->h, target->camera.z_near, target->camera.z_far);  // Special inverted orthographic projection because tex coords are inverted already for render-to-texture
+    if(!invert ^ GPU_GetCoordinateMode())   GPU_MatrixOrtho(projection_matrix, 0, target->w, target->h, 0, target->camera.z_near, target->camera.z_far);
+    else                                    GPU_MatrixOrtho(projection_matrix, 0, target->w, 0, target->h, target->camera.z_near, target->camera.z_far);  // Special inverted orthographic projection because tex coords are inverted already for render-to-texture
 }
 
 // Column-major
@@ -242,8 +236,7 @@ void GPU_MatrixIdentity(float* result)
 
 void GPU_MatrixOrtho(float* result, float left, float right, float bottom, float top, float z_near, float z_far)
 {
-    if(result == NULL)
-		return;
+    if(result == NULL) return;
 
 	{
 #ifdef ROW_MAJOR
@@ -271,8 +264,7 @@ void GPU_MatrixOrtho(float* result, float left, float right, float bottom, float
 
 void GPU_MatrixFrustum(float* result, float left, float right, float bottom, float top, float z_near, float z_far)
 {
-    if(result == NULL)
-		return;
+    if(result == NULL) return;
 
 	{
 		float A[16];
@@ -341,8 +333,7 @@ void GPU_MatrixLookAt(float* matrix, float eye_x, float eye_y, float eye_z, floa
 
 void GPU_MatrixTranslate(float* result, float x, float y, float z)
 {
-    if(result == NULL)
-		return;
+    if(result == NULL) return;
 
 	{
 #ifdef ROW_MAJOR
@@ -369,8 +360,7 @@ void GPU_MatrixTranslate(float* result, float x, float y, float z)
 
 void GPU_MatrixScale(float* result, float sx, float sy, float sz)
 {
-    if(result == NULL)
-		return;
+    if(result == NULL) return;
 
 	{
 		float A[16];
@@ -389,8 +379,7 @@ void GPU_MatrixRotate(float* result, float degrees, float x, float y, float z)
 {
 	float p, radians, c, s, c_, zc_, yc_, xzc_, xyc_, yzc_, xs, ys, zs;
 
-    if(result == NULL)
-		return;
+    if(result == NULL) return;
 
     p = 1/sqrtf(x*x + y*y + z*z);
     x *= p; y *= p; z *= p;
@@ -489,38 +478,33 @@ const char* GPU_GetMatrixString(const float* A)
 void GPU_MatrixMode(GPU_Target* target, int matrix_mode)
 {
     GPU_Target* context_target;
-    if(target == NULL)
-        return;
+    if(target == NULL) return;
     
     GPU_FlushBlitBuffer();
     target->matrix_mode = matrix_mode;
     
     context_target = GPU_GetContextTarget();
-    if(context_target != NULL && context_target == target->context_target)
-        context_target->context->active_target = target;
+    if(context_target != NULL && context_target == target->context_target) context_target->context->active_target = target;
 }
 
 float* GPU_GetModel(void)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL)
-        return NULL;
+    if(target == NULL) return NULL;
     return GPU_GetTopMatrix(&target->model_matrix);
 }
 
 float* GPU_GetView(void)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL)
-        return NULL;
+    if(target == NULL) return NULL;
     return GPU_GetTopMatrix(&target->view_matrix);
 }
 
 float* GPU_GetProjection(void)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL)
-        return NULL;
+    if(target == NULL) return NULL;
     return GPU_GetTopMatrix(&target->projection_matrix);
 }
 
@@ -528,14 +512,10 @@ float* GPU_GetCurrentMatrix(void)
 {
     GPU_MatrixStack* stack;
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL)
-        return NULL;
-    if(target->matrix_mode == GPU_MODEL)
-        stack = &target->model_matrix;
-    else if(target->matrix_mode == GPU_VIEW)
-        stack = &target->view_matrix;
-    else// if(target->matrix_mode == GPU_PROJECTION)
-        stack = &target->projection_matrix;
+    if(target == NULL) return NULL;
+    if(target->matrix_mode == GPU_MODEL) stack = &target->model_matrix;
+    else if(target->matrix_mode == GPU_VIEW) stack = &target->view_matrix;
+    else /* if(target->matrix_mode == GPU_PROJECTION) */ stack = &target->projection_matrix;
     
     return GPU_GetTopMatrix(stack);
 }
@@ -544,15 +524,11 @@ void GPU_PushMatrix(void)
 {
 	GPU_MatrixStack* stack;
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL)
-        return;
+    if(target == NULL) return;
     
-    if(target->matrix_mode == GPU_MODEL)
-        stack = &target->model_matrix;
-    else if(target->matrix_mode == GPU_VIEW)
-        stack = &target->view_matrix;
-    else// if(target->matrix_mode == GPU_PROJECTION)
-        stack = &target->projection_matrix;
+    if(target->matrix_mode == GPU_MODEL) stack = &target->model_matrix;
+    else if(target->matrix_mode == GPU_VIEW) stack = &target->view_matrix;
+    else /* if(target->matrix_mode == GPU_PROJECTION) */ stack = &target->projection_matrix;
     
     if(stack->size + 1 >= stack->storage_size)
     {
@@ -591,18 +567,14 @@ void GPU_PopMatrix(void)
 	GPU_MatrixStack* stack;
 
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL)
-        return;
+    if(target == NULL) return;
     
 	// FIXME: Flushing here is not always necessary if this isn't the last target
 	GPU_FlushBlitBuffer();
 	
-    if(target->matrix_mode == GPU_MODEL)
-        stack = &target->model_matrix;
-    else if(target->matrix_mode == GPU_VIEW)
-        stack = &target->view_matrix;
-    else //if(target->matrix_mode == GPU_PROJECTION)
-        stack = &target->projection_matrix;
+    if(target->matrix_mode == GPU_MODEL) stack = &target->model_matrix;
+    else if(target->matrix_mode == GPU_VIEW) stack = &target->view_matrix;
+    else /* if(target->matrix_mode == GPU_PROJECTION) */ stack = &target->projection_matrix;
         
     if(stack->size == 0)
     {
@@ -619,8 +591,7 @@ void GPU_PopMatrix(void)
 void GPU_SetProjection(const float* A)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL || A == NULL)
-        return;
+    if(target == NULL || A == NULL) return;
     
 	GPU_FlushBlitBuffer();
     GPU_MatrixCopy(GPU_GetProjection(), A);
@@ -629,8 +600,7 @@ void GPU_SetProjection(const float* A)
 void GPU_SetModel(const float* A)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL || A == NULL)
-        return;
+    if(target == NULL || A == NULL) return;
     
 	GPU_FlushBlitBuffer();
     GPU_MatrixCopy(GPU_GetModel(), A);
@@ -639,8 +609,7 @@ void GPU_SetModel(const float* A)
 void GPU_SetView(const float* A)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL || A == NULL)
-        return;
+    if(target == NULL || A == NULL) return;
     
 	GPU_FlushBlitBuffer();
     GPU_MatrixCopy(GPU_GetView(), A);
@@ -649,8 +618,7 @@ void GPU_SetView(const float* A)
 void GPU_SetProjectionFromStack(GPU_MatrixStack* stack)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL || stack == NULL)
-        return;
+    if(target == NULL || stack == NULL) return;
     
     GPU_SetProjection(GPU_GetTopMatrix(stack));
 }
@@ -658,8 +626,7 @@ void GPU_SetProjectionFromStack(GPU_MatrixStack* stack)
 void GPU_SetModelFromStack(GPU_MatrixStack* stack)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL || stack == NULL)
-        return;
+    if(target == NULL || stack == NULL) return;
     
     GPU_SetModel(GPU_GetTopMatrix(stack));
 }
@@ -667,24 +634,21 @@ void GPU_SetModelFromStack(GPU_MatrixStack* stack)
 void GPU_SetViewFromStack(GPU_MatrixStack* stack)
 {
     GPU_Target* target = GPU_GetActiveTarget();
-    if(target == NULL || stack == NULL)
-        return;
+    if(target == NULL || stack == NULL) return;
     
     GPU_SetView(GPU_GetTopMatrix(stack));
 }
 
 float* GPU_GetTopMatrix(GPU_MatrixStack* stack)
 {
-    if(stack == NULL || stack->size == 0)
-        return NULL;
+    if(stack == NULL || stack->size == 0) return NULL;
     return stack->matrix[stack->size-1];
 }
 
 void GPU_LoadIdentity(void)
 {
     float* result = GPU_GetCurrentMatrix();
-    if(result == NULL)
-		return;
+    if(result == NULL) return;
     
 	GPU_FlushBlitBuffer();
     GPU_MatrixIdentity(result);
@@ -693,8 +657,7 @@ void GPU_LoadIdentity(void)
 void GPU_LoadMatrix(const float* A)
 {
     float* result = GPU_GetCurrentMatrix();
-    if(result == NULL)
-        return;
+    if(result == NULL) return;
 	GPU_FlushBlitBuffer();
     GPU_MatrixCopy(result, A);
 }
@@ -745,8 +708,7 @@ void GPU_Rotate(float degrees, float x, float y, float z)
 void GPU_MultMatrix(const float* A)
 {
     float* result = GPU_GetCurrentMatrix();
-    if(result == NULL)
-        return;
+    if(result == NULL) return;
 	GPU_FlushBlitBuffer();
     GPU_MultiplyAndAssign(result, A);
 }

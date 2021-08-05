@@ -86,13 +86,10 @@ GPU_Target* initialize_demo(int argc, char** argv, Uint16 w, Uint16 h)
         }
     }
 	
-    if(renderer == GPU_RENDERER_UNKNOWN)
-        screen = GPU_Init(w, h, GPU_DEFAULT_INIT_FLAGS);
-    else
-        screen = GPU_InitRenderer(renderer, w, h, GPU_DEFAULT_INIT_FLAGS);
+    if(renderer == GPU_RENDERER_UNKNOWN) screen = GPU_Init(w, h, GPU_DEFAULT_INIT_FLAGS);
+    else                                 screen = GPU_InitRenderer(renderer, w, h, GPU_DEFAULT_INIT_FLAGS);
 	
-	if(screen == NULL)
-		return NULL;
+	if(screen == NULL) return NULL;
 	
 	printCurrentRenderer();
 	return screen;

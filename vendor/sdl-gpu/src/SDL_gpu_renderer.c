@@ -486,12 +486,10 @@ void GPU_FreeRenderer(GPU_Renderer* renderer)
 	int i;
 	GPU_Renderer* current_renderer;
 	
-	if(renderer == NULL)
-        return;
+	if(renderer == NULL) return;
 	
     current_renderer = GPU_GetCurrentRenderer();
-    if(current_renderer == renderer)
-        GPU_SetCurrentRenderer(GPU_MakeRendererID("Unknown", GPU_RENDERER_UNKNOWN, 0, 0));
+    if(current_renderer == renderer) GPU_SetCurrentRenderer(GPU_MakeRendererID("Unknown", GPU_RENDERER_UNKNOWN, 0, 0));
         
 	for(i = 0; i < GPU_MAX_ACTIVE_RENDERERS; i++)
 	{
