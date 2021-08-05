@@ -38,6 +38,8 @@
 DLSYSFUNCS  __bgdexport( libmod_input, functions_exports )[] = {
 
     FUNC( "KEY"                 , "I"       , TYPE_INT    , libmod_input_key                          ),
+    FUNC( "KEY_UP"              , "I"       , TYPE_INT    , libmod_input_key_up                       ),
+    FUNC( "KEY_DOWN"            , "I"       , TYPE_INT    , libmod_input_key_down                     ),
 
     FUNC( "JOY_AXES"            , ""        , TYPE_INT    , libmod_input_joy_axes                     ),
     FUNC( "JOY_AXES"            , "I"       , TYPE_INT    , libmod_input_joy_axes_specific            ),
@@ -90,7 +92,7 @@ DLSYSFUNCS  __bgdexport( libmod_input, functions_exports )[] = {
 
 /* ----------------------------------------------------------------- */
 
-char * __bgdexport( mod_input, modules_dependency )[] = {
+char * __bgdexport( libmod_input, modules_dependency )[] = {
     "libbginput",
     NULL
 };

@@ -51,8 +51,18 @@ static int hotkey_count = 0;
 
 /* ---------------------------------------------------------------------- */
 
+static uint16_t key_serial = 1;
+static uint16_t key_evt[SDL_NUM_SCANCODES];
+static int key_evt_clean_idx = 0;
+
+/* ---------------------------------------------------------------------- */
+
+#define MAX_KEY_CODES   128
+
 /* Publicas */
-key_equiv key_table[SDL_NUM_SCANCODES]; /* Now we have a search table with equivs */
+/* the size of this array must be at least the number of the largest BGD key code + 1 */
+/* 128 is a good value */
+key_equiv key_table[MAX_KEY_CODES]; /* Now we have a search table with equivs */
 const Uint8 * keystate = NULL;          /* Pointer to key states */
 
 /* ---------------------------------------------------------------------- */
@@ -177,19 +187,28 @@ static int64_t equivs[] = {
     SDL_SCANCODE_LGUI,          98,
     SDL_SCANCODE_RGUI,          99,
 //    SDL_SCANCODE_COMPOSE,       99,
-    SDL_SCANCODE_VOLUMEUP,     100,
-    SDL_SCANCODE_VOLUMEDOWN,   101,
-    SDL_SCANCODE_AC_BACK,      102,
-    SDL_SCANCODE_AC_SEARCH,    103,
+//    SDL_SCANCODE_VOLUMEUP,     100,
+//    SDL_SCANCODE_VOLUMEDOWN,   101,
+//    SDL_SCANCODE_AC_BACK,      102,
+//    SDL_SCANCODE_AC_SEARCH,    103,
     -1, -1
 };
+
+/* ---------------------------------------------------------------------- */
+
+int key_event_happend( SDL_Scancode scancode, uint16_t mask_event )
+{
+    if ( scancode < 0 || scancode >= SDL_NUM_SCANCODES ) return 0;
+    return key_evt[ scancode ] == ( key_serial | mask_event );
+}
 
 /* ---------------------------------------------------------------------- */
 
 static void add_key_equiv( int64_t equiv, int64_t keyconst ) {
     key_equiv * curr = &key_table[keyconst];
 
-    if ( curr->next != NULL ) while ( curr->next != NULL ) curr = curr->next;
+//    if ( curr->next != NULL ) 
+    while ( curr->next != NULL ) curr = curr->next;
 
     if ( curr->sdlk_equiv != 0 ) {
         curr->next = malloc( sizeof( key_equiv ) );
@@ -260,7 +279,6 @@ static void process_key( SDL_Event *e, int64_t ascii, int *keypress ) {
         keyring[keyring_tail].ascii = ascii;
         if ( ++keyring_tail == 64 ) keyring_tail = 0;
     }
-
 }
 
 /* ---------------------------------------------------------------------- */
@@ -289,6 +307,13 @@ void process_key_events() {
 
     /* Update events */
 
+    // Avoid false events state results
+    key_evt[ key_evt_clean_idx++ ] = 0;
+    if ( key_evt_clean_idx == SDL_NUM_SCANCODES ) key_evt_clean_idx = 0;
+
+    // key serial = 1 to 0x3fff
+    key_serial = ( ( key_serial + 1 ) | 1 ) & 0x3fff;
+
     keypress = 0;
     m = SDL_GetModState();
 
@@ -316,6 +341,9 @@ void process_key_events() {
     while ( SDL_PeepEvents( &e, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_TEXTINPUT ) > 0 ) {
         switch ( e.type ) {
             case SDL_KEYDOWN:
+                // keydown
+                if ( !e.key.repeat ) key_evt[ e.key.keysym.scancode ] = key_serial | IKEY_MASK_KEY_DOWN;
+
                 if ( ready ) process_key( &keydown_e, ascii, &keypress );
 
                 keydown_e = e;
@@ -324,6 +352,11 @@ void process_key_events() {
 
                 // process, non ascii
                 if ( e.key.keysym.sym < ' ' || e.key.keysym.sym > '~' ) ascii = e.key.keysym.sym;
+                break;
+
+            case SDL_KEYUP:
+                // keyup
+                key_evt[ e.key.keysym.scancode ] = key_serial | IKEY_MASK_KEY_UP;
                 break;
 
             case SDL_TEXTINPUT: // this handles text input events
@@ -384,17 +417,20 @@ void key_init() {
     }
 
     if ( !keystate ) keystate = SDL_GetKeyboardState(NULL);
+
+    memset( key_evt, 0, sizeof( key_evt ) );
+
 }
 
 /* ---------------------------------------------------------------------- */
 
 void key_exit() {
-    /* FREE used key_equivs... note base SDL_NUM_SCANCODES equivs are static not allocated... */
+    /* FREE used key_equivs... note base MAX_KEY_CODES equivs are static not allocated... */
     int i;
     key_equiv * aux;
     key_equiv * curr;
 
-    for ( i = 0; i < SDL_NUM_SCANCODES; i++ ) {
+    for ( i = 0; i < MAX_KEY_CODES; i++ ) {
         curr = &key_table[i];
         if ( curr->next ) {
             curr = curr->next;
