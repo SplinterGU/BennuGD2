@@ -37,6 +37,18 @@
 
 #include "libbginput.h"
 
+
+/* ---------------------------------------------------------------------- */
+
+typedef struct _keyequiv {
+    int64_t             sdlk_equiv;
+    struct _keyequiv    * next;
+} key_equiv;
+
+
+#define IKEY_MASK_KEY_DOWN      0x4000
+#define IKEY_MASK_KEY_UP        0x8000
+
 /* ---------------------------------------------------------------------- */
 
 typedef struct {
@@ -51,21 +63,22 @@ static int hotkey_count = 0;
 
 /* ---------------------------------------------------------------------- */
 
+#define MAX_KEY_CODES   128
+
 static uint16_t key_serial = 1;
-static uint16_t key_evt[SDL_NUM_SCANCODES];
+static uint16_t key_evt[MAX_KEY_CODES];
 static int key_evt_clean_idx = 0;
 
 /* ---------------------------------------------------------------------- */
 
-#define MAX_KEY_CODES   128
-
-/* Publicas */
 /* the size of this array must be at least the number of the largest BGD key code + 1 */
 /* 128 is a good value */
-key_equiv key_table[MAX_KEY_CODES]; /* Now we have a search table with equivs */
-const Uint8 * keystate = NULL;          /* Pointer to key states */
+static key_equiv key_table[MAX_KEY_CODES]; /* Now we have a search table with equivs */
+static const Uint8 * keystate = NULL;          /* Pointer to key states */
 
 /* ---------------------------------------------------------------------- */
+
+static int sdl_equiv[SDL_NUM_SCANCODES+1];
 
 static int64_t equivs[] = {
     SDL_SCANCODE_ESCAPE,        1,
@@ -194,12 +207,47 @@ static int64_t equivs[] = {
     -1, -1
 };
 
-/* ---------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : _get_key
+ *
+ *  Returns the current status of a key (pressed or not)
+ *
+ *  PARAMS :
+ *      keyconst    Internal code of the key
+ *
+ *  RETURN VALUE :
+ *      A non-zero positive value if the key is pressed, 0 otherwise
+ */
 
-int key_event_happend( SDL_Scancode scancode, uint16_t mask_event )
-{
-    if ( scancode < 0 || scancode >= SDL_NUM_SCANCODES ) return 0;
-    return key_evt[ scancode ] == ( key_serial | mask_event );
+int get_key( int keyconst ) {
+    key_equiv * curr;
+    int found = 0;
+
+    if ( !keystate ) return 0;
+
+    curr = &key_table[keyconst];
+
+    while ( curr && found == 0 ) {
+        found = keystate[curr->sdlk_equiv];
+        curr = curr->next;
+    }
+
+    return found;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int get_key_down( int keyconst ) {
+    if ( keyconst < 0 || keyconst >= MAX_KEY_CODES ) return 0;
+    return key_evt[ keyconst ] == ( key_serial | IKEY_MASK_KEY_DOWN );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int get_key_up( int keyconst ) {
+    if ( keyconst < 0 || keyconst >= MAX_KEY_CODES ) return 0;
+    return key_evt[ keyconst ] == ( key_serial | IKEY_MASK_KEY_UP );
 }
 
 /* ---------------------------------------------------------------------- */
@@ -207,7 +255,6 @@ int key_event_happend( SDL_Scancode scancode, uint16_t mask_event )
 static void add_key_equiv( int64_t equiv, int64_t keyconst ) {
     key_equiv * curr = &key_table[keyconst];
 
-//    if ( curr->next != NULL ) 
     while ( curr->next != NULL ) curr = curr->next;
 
     if ( curr->sdlk_equiv != 0 ) {
@@ -268,7 +315,7 @@ static void process_key( SDL_Event *e, int64_t ascii, int *keypress ) {
 
     /* Save key */
 
-    int k = e->key.keysym.scancode;
+    int k = sdl_equiv[e->key.keysym.scancode];
 
     if ( !*keypress ) {
         GLOQWORD( libbginput, SCANCODE ) = scancode = k;
@@ -309,7 +356,7 @@ void process_key_events() {
 
     // Avoid false events state results
     key_evt[ key_evt_clean_idx++ ] = 0;
-    if ( key_evt_clean_idx == SDL_NUM_SCANCODES ) key_evt_clean_idx = 0;
+    if ( key_evt_clean_idx == MAX_KEY_CODES ) key_evt_clean_idx = 0;
 
     // key serial = 1 to 0x3fff
     key_serial = ( ( key_serial + 1 ) | 1 ) & 0x3fff;
@@ -323,7 +370,7 @@ void process_key_events() {
 
     pressed = 0;
     if ( scancode ) {
-        curr = &key_table[scancode];
+        curr = &key_table[scancode]; // need fix!
         while ( curr != NULL && pressed == 0 ) {
             if ( keystate[curr->sdlk_equiv] ) pressed = 1;
             curr = curr->next;
@@ -342,7 +389,7 @@ void process_key_events() {
         switch ( e.type ) {
             case SDL_KEYDOWN:
                 // keydown
-                if ( !e.key.repeat ) key_evt[ e.key.keysym.scancode ] = key_serial | IKEY_MASK_KEY_DOWN;
+                if ( !e.key.repeat ) key_evt[ sdl_equiv[ e.key.keysym.scancode ] ] = key_serial | IKEY_MASK_KEY_DOWN;
 
                 if ( ready ) process_key( &keydown_e, ascii, &keypress );
 
@@ -356,7 +403,7 @@ void process_key_events() {
 
             case SDL_KEYUP:
                 // keyup
-                key_evt[ e.key.keysym.scancode ] = key_serial | IKEY_MASK_KEY_UP;
+                key_evt[ sdl_equiv[ e.key.keysym.scancode ] ] = key_serial | IKEY_MASK_KEY_UP;
                 break;
 
             case SDL_TEXTINPUT: // this handles text input events
@@ -409,9 +456,11 @@ void key_init() {
 
     SDL_EventState(SDL_TEXTEDITING, SDL_DISABLE);
 
+    memset( sdl_equiv, 0, sizeof( sdl_equiv ) );
     memset( key_table, 0, sizeof( key_table ) );
 
     while ( *ptr != -1 ) {
+        sdl_equiv[ptr[0]] = ptr[1];
         add_key_equiv( ptr[0], ptr[1] );
         ptr += 2;
     }

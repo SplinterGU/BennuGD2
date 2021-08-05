@@ -49,31 +49,19 @@
 
     #include <SDL.h>
 
-    typedef struct _keyequiv {
-        int64_t             sdlk_equiv;
-        struct _keyequiv    * next;
-    } key_equiv;
-
     typedef int (* HOTKEY_CALLBACK) (SDL_Keysym);
 
     #ifndef __LIBBGINPUT
     extern DLLIMPORT void hotkey_add(int mod, int scancode, HOTKEY_CALLBACK callback);
-
-    extern DLLIMPORT key_equiv key_table[];    /* Now we have a search table with equivs */
-    extern DLLIMPORT Uint8 * keystate;         /* Pointer to key states */
     #endif
 
     extern void process_key_events();
     extern void key_init();
     extern void key_exit();
 
-    #define IKEY_MASK_KEY_DOWN      0x4000
-    #define IKEY_MASK_KEY_UP        0x8000
-
-    #define key_up( scancode ) key_event_happend( scancode, IKEY_MASK_KEY_UP )
-    #define key_down( scancode ) key_event_happend( scancode, IKEY_MASK_KEY_DOWN )
-
-    extern int key_event_happend( SDL_Scancode scancode, uint16_t mask_event );
+    extern int get_key( int code );
+    extern int get_key_down( int code );
+    extern int get_key_up( int code );
 
     #endif
 

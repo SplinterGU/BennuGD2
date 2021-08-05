@@ -39,86 +39,21 @@
 #include "libbginput.h"
 
 /* --------------------------------------------------------------------------- */
-/*
- *  FUNCTION : _get_key
- *
- *  Returns the current status of a key (pressed or not)
- *
- *  PARAMS :
- *      key             Internal code of the key
- *
- *  RETURN VALUE :
- *      A non-zero positive value if the key is pressed, 0 otherwise
- */
-
-static inline int _get_key( int code ) {
-    key_equiv * curr;
-    int found = 0;
-
-    if ( !keystate ) return 0;
-
-    curr = &key_table[code];
-
-    while ( curr && found == 0 ) {
-        found = keystate[curr->sdlk_equiv];
-        curr = curr->next;
-    }
-
-    return found;
-}
-
-/* --------------------------------------------------------------------------- */
-
-static inline int _get_key_down( int code ) {
-    key_equiv * curr;
-    int found = 0;
-
-    if ( !keystate ) return 0;
-
-    curr = &key_table[code];
-
-    while ( curr && found == 0 ) {
-        found = key_down(curr->sdlk_equiv);
-        curr = curr->next;
-    }
-
-    return found;
-}
-
-/* --------------------------------------------------------------------------- */
-
-static inline int _get_key_up( int code ) {
-    key_equiv * curr;
-    int found = 0;
-
-    if ( !keystate ) return 0;
-
-    curr = &key_table[code];
-
-    while ( curr && found == 0 ) {
-        found = key_up(curr->sdlk_equiv);
-        curr = curr->next;
-    }
-
-    return found;
-}
-
-/* --------------------------------------------------------------------------- */
 
 static int64_t libmod_input_key( INSTANCE * my, int64_t * params ) {
-    return ( _get_key( params[0] ) );
+    return ( get_key( params[0] ) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int64_t libmod_input_key_up( INSTANCE * my, int64_t * params ) {
-    return ( _get_key_up( params[0] ) );
+    return ( get_key_up( params[0] ) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int64_t libmod_input_key_down( INSTANCE * my, int64_t * params ) {
-    return ( _get_key_down( params[0] ) );
+    return ( get_key_down( params[0] ) );
 }
 
 /* --------------------------------------------------------------------------- */
