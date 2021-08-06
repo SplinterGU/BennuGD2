@@ -3711,7 +3711,7 @@ void m_debug_init() {
         hotkey_add( KMOD_LALT, SDLK_x, force_exit_cb                );
         hotkey_add( 0,              0, console_keyboard_handler_cb  );
 
-        gr_new_object( -2147483647L - 1, ( OBJ_INFO * ) console_info, ( OBJ_DRAW * ) console_draw, ( void * ) 0 );
+        gr_new_object(  INT64_MIN, ( OBJ_INFO * ) console_info, ( OBJ_DRAW * ) console_draw, ( void * ) 0 );
     }
 }
 
