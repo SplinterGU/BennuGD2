@@ -200,6 +200,7 @@ void __bgdexport( libbggfx, module_initialize )() {
     gr_video_init();
     gr_font_init();
     frame_init();
+    gr_fade_initalize();
 }
 
 /* --------------------------------------------------------------------------- */

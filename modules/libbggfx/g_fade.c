@@ -90,7 +90,7 @@ void gr_fade_init( int r, int g, int b, int a, int duration, int region ) {
 
 /* -------------------------------------------------------------------------- */
 
-void gr_fade_step() {
+static void gr_fade_step() {
     double delta;
     int currtime = SDL_GetTicks();
 
@@ -170,4 +170,23 @@ void gr_fade_step() {
     }
 }
 
-/* -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
+static int __gr_fade_info( void * what, REGION * bbox, int64_t * z, int64_t * drawme ) {
+    * drawme = ( fade_on || fade_set );
+    return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+static void __gr_fade_draw( void * what, REGION * clip ) {
+    gr_fade_step();
+}
+
+/* --------------------------------------------------------------------------- */
+
+void gr_fade_initalize() {
+    gr_new_object(  INT64_MIN + 1, ( OBJ_INFO * ) __gr_fade_info, ( OBJ_DRAW * ) __gr_fade_draw, ( void * ) 0 );
+}
+
+/* --------------------------------------------------------------------------- */

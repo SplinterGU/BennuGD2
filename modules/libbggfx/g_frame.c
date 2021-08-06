@@ -261,7 +261,7 @@ void gr_draw_frame() {
     /* Dump everything */
     gr_draw_objects();
 
-    if ( fade_on || fade_set ) gr_fade_step();
+//    if ( fade_on || fade_set ) gr_fade_step();
 
     //Update screen
 #ifdef USE_SDL2

@@ -33,6 +33,7 @@ extern int fade_on;
 extern int fade_set;
 
 extern void gr_fade_init( int to_r, int to_g, int to_b, int to_a, int duration, int region ) ;
-extern void gr_fade_step() ;
+// extern void gr_fade_step() ;
+extern void gr_fade_initalize();
 
 #endif
