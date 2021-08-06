@@ -394,11 +394,16 @@ static int64_t gr_font_loadfrom( file * fp ) {
     uint32_t rmask, gmask, bmask, amask;
     getRGBA_mask( bpp, &rmask, &gmask, &bmask, &amask );
 
+    int min_xadvance = 0;
+
     /* Load the character bitmaps */
 
     for ( i = 0; i < 256; i++ ) {
         f->glyph[i].xadvance = chardata[i].xadvance;
         f->glyph[i].yadvance = chardata[i].yadvance;
+
+        if ( !min_xadvance ) min_xadvance = chardata[i].xadvance;
+        else if ( chardata[i].xadvance > 0 && chardata[i].xadvance < min_xadvance ) min_xadvance = chardata[i].xadvance;
 
         if ( chardata[i].fileoffset == 0 || chardata[i].width == 0 || chardata[i].height == 0 ) continue;
 
@@ -472,7 +477,7 @@ static int64_t gr_font_loadfrom( file * fp ) {
         f->glyph[i].yoffset = chardata[i].yoffset;
     }
 
-    if ( f->glyph[32].xadvance == 0 ) f->glyph[32].xadvance = f->glyph['j'].xadvance;
+    if ( f->glyph[32].xadvance == 0 ) f->glyph[32].xadvance = min_xadvance; // f->glyph['j'].xadvance;
 
     if ( pal ) SDL_FreePalette( pal );
 
