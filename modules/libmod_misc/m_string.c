@@ -89,7 +89,7 @@ int64_t libmod_misc_string_strcasecmp( INSTANCE * my, int64_t * params ) {
  */
 
 int64_t libmod_misc_string_substr( INSTANCE * my, int64_t * params ) {
-    int64_t r = string_substr( params[0], params[1], ( params[2] < 0 ) ? ( params[2] - 1 ) : params[2] ) ;
+    int64_t r = string_substr( params[0], params[1], params[2] < 0 ? params[2] - 1 : params[2] ) ;
     string_discard( params[0] ) ;
     string_use( r ) ;
     return r ;

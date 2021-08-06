@@ -659,6 +659,7 @@ int64_t string_char( int64_t n, int nchar ) {
 /* - 0 or positive: count this character from the left (0 = leftmost)       */
 /* - negative: count this character from the right (-1 = rightmost)         */
 /*                                                                          */
+/* negative value on len remove characters ( if len < 0 then use len + 1 )  */
 /* NO MORE: If first > last, the two values are swapped before returning the result  */
 /****************************************************************************/
 
@@ -673,16 +674,18 @@ int64_t string_substr( int64_t code, int first, int len ) {
 
     if ( first < 0 ) {
         first = rlen + first;
-        if ( first < 0 ) return string_new( "" );
+//        if ( first < 0 ) return string_new( "" );
+        if ( first < 0 ) first = 0;
     } else
         if ( first > ( rlen - 1 ) ) return string_new( "" );
 
     if ( len < 0 ) {
-        len = rlen + ( len + 2 ) - first - 1;
+        len = ( rlen - first ) + ( len + 1 );
+//        len = rlen + ( len + 2 ) - first - 1;
         if ( len < 1 ) return string_new( "" );
     }
 
-    if (( first + len ) > rlen ) len = ( rlen - first );
+    if ( first + len > rlen ) len = ( rlen - first );
 
     ptr = ( char * )malloc( len + 1 );
     memcpy( ptr, str + first, len );
