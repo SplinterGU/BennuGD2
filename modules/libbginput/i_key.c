@@ -41,7 +41,7 @@
 /* ---------------------------------------------------------------------- */
 
 typedef struct _keyequiv {
-    int64_t             sdlk_equiv;
+    int64_t             keycode;
     struct _keyequiv    * next;
 } key_equiv;
 
@@ -66,19 +66,19 @@ static int hotkey_count = 0;
 #define MAX_KEY_CODES   128
 
 static uint16_t key_serial = 1;
-static uint16_t key_evt[MAX_KEY_CODES];
+static uint16_t key_evt[MAX_KEY_CODES+1];
 static int key_evt_clean_idx = 0;
 
 /* ---------------------------------------------------------------------- */
 
 /* the size of this array must be at least the number of the largest BGD key code + 1 */
 /* 128 is a good value */
-static key_equiv key_table[MAX_KEY_CODES]; /* Now we have a search table with equivs */
-static const Uint8 * keystate = NULL;          /* Pointer to key states */
+static key_equiv key_table[MAX_KEY_CODES+1];        /* Now we have a search table with equivs */
+static const Uint8 * keystate = NULL;               /* Pointer to key states */
+
+static key_equiv sdlkey_table[SDL_NUM_SCANCODES+1]; /* SDL to key code */
 
 /* ---------------------------------------------------------------------- */
-
-static int sdl_equiv[SDL_NUM_SCANCODES+1];
 
 static int64_t equivs[] = {
     SDL_SCANCODE_ESCAPE,        1,
@@ -120,10 +120,9 @@ static int64_t equivs[] = {
     SDL_SCANCODE_RIGHTBRACKET,  27,
     SDL_SCANCODE_RETURN,        28,
     SDL_SCANCODE_KP_ENTER,      28,
-    SDL_SCANCODE_LCTRL,         29,
-    SDL_SCANCODE_RCTRL,         29,
-    SDL_SCANCODE_LCTRL,         96,
-    SDL_SCANCODE_RCTRL,         94,
+
+    // 29 is CTRL
+
     SDL_SCANCODE_A,             30,
     SDL_SCANCODE_S,             31,
     SDL_SCANCODE_D,             32,
@@ -153,14 +152,10 @@ static int64_t equivs[] = {
     SDL_SCANCODE_RSHIFT,        54,
     SDL_SCANCODE_PRINTSCREEN,   55,
     SDL_SCANCODE_KP_MULTIPLY,   55,
-    SDL_SCANCODE_LALT,          56,
-    SDL_SCANCODE_RALT,          56,
-    SDL_SCANCODE_LALT,          95,
-    SDL_SCANCODE_RALT,          93,
-    SDL_SCANCODE_MODE,          93,
-    SDL_SCANCODE_MODE,          56,
-    SDL_SCANCODE_RGUI,          56,
-    SDL_SCANCODE_LGUI,          56,
+    SDL_SCANCODE_SYSREQ,        55,
+
+    // 56 is ALT
+
     SDL_SCANCODE_SPACE,         57,
     SDL_SCANCODE_CAPSLOCK,      58,
     SDL_SCANCODE_F1,            59,
@@ -180,6 +175,9 @@ static int64_t equivs[] = {
     SDL_SCANCODE_PAGEUP,        73,
     SDL_SCANCODE_KP_MINUS,      74,
     SDL_SCANCODE_LEFT,          75,
+
+    // 76 is CENTER (missing ?)
+
     SDL_SCANCODE_RIGHT,         77,
     SDL_SCANCODE_KP_PLUS,       78,
     SDL_SCANCODE_END,           79,
@@ -187,23 +185,46 @@ static int64_t equivs[] = {
     SDL_SCANCODE_PAGEDOWN,      81,
     SDL_SCANCODE_INSERT,        82,
     SDL_SCANCODE_DELETE,        83,
+
     SDL_SCANCODE_F11,           87,
     SDL_SCANCODE_F12,           88,
     SDL_SCANCODE_KP_LESS,       89,
-    SDL_SCANCODE_KP_PLUS,       90,
+    SDL_SCANCODE_KP_PLUS,       90, // ??? maybe SDL_SCANCODE_KP_EQUALS
     SDL_SCANCODE_KP_GREATER,    91,
+
 //    SDL_SCANCODE_QUESTION,      92,
-    SDL_SCANCODE_GRAVE,         93,
-    SDL_SCANCODE_SYSREQ,        55,
-    SDL_SCANCODE_PAUSE,         95,
+//    SDL_SCANCODE_GRAVE,         93,
+
+    SDL_SCANCODE_RALT,          93,
+    SDL_SCANCODE_RCTRL,         94,
+    SDL_SCANCODE_LALT,          95,
+//    SDL_SCANCODE_PAUSE,         95,
+    SDL_SCANCODE_LCTRL,         96,
     SDL_SCANCODE_MENU,          97,
     SDL_SCANCODE_LGUI,          98,
     SDL_SCANCODE_RGUI,          99,
+
+    /* Here must be combined scancodes */
+
+    SDL_SCANCODE_LCTRL,         29, /* CTRL */
+    SDL_SCANCODE_RCTRL,         29, /* CTRL */
+
+    SDL_SCANCODE_LALT,          56, /* ALT */
+    SDL_SCANCODE_RALT,          56, /* ALT */
+
+
+
+//    SDL_SCANCODE_MODE,          93,
+//    SDL_SCANCODE_MODE,          56,
+//    SDL_SCANCODE_RGUI,          56, /* GUI */
+//    SDL_SCANCODE_LGUI,          56,
+
 //    SDL_SCANCODE_COMPOSE,       99,
 //    SDL_SCANCODE_VOLUMEUP,     100,
 //    SDL_SCANCODE_VOLUMEDOWN,   101,
 //    SDL_SCANCODE_AC_BACK,      102,
 //    SDL_SCANCODE_AC_SEARCH,    103,
+
     -1, -1
 };
 
@@ -229,7 +250,7 @@ int get_key( int keyconst ) {
     curr = &key_table[keyconst];
 
     while ( curr && found == 0 ) {
-        found = keystate[curr->sdlk_equiv];
+        found = keystate[curr->keycode];
         curr = curr->next;
     }
 
@@ -252,18 +273,43 @@ int get_key_up( int keyconst ) {
 
 /* ---------------------------------------------------------------------- */
 
+static void set_evt( int keyconst, uint16_t value ) {
+    key_equiv * curr = &sdlkey_table[keyconst];
+    while ( curr ) {
+        key_evt[curr->keycode] = value ;
+        curr = curr->next;
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+
 static void add_key_equiv( int64_t equiv, int64_t keyconst ) {
+    // key to SDL
     key_equiv * curr = &key_table[keyconst];
 
     while ( curr->next != NULL ) curr = curr->next;
 
-    if ( curr->sdlk_equiv != 0 ) {
+    if ( curr->keycode != 0 ) {
         curr->next = malloc( sizeof( key_equiv ) );
         curr = curr->next;
         curr->next = NULL;
     }
 
-    curr->sdlk_equiv = equiv;
+    curr->keycode = equiv;
+
+    // SDL to key
+    curr = &sdlkey_table[equiv];
+
+    while ( curr->next != NULL ) curr = curr->next;
+
+    if ( curr->keycode != 0 ) {
+        curr->next = malloc( sizeof( key_equiv ) );
+        curr = curr->next;
+        curr->next = NULL;
+    }
+
+    curr->keycode = keyconst;
+
 }
 
 /* ---------------------------------------------------------------------- */
@@ -315,7 +361,7 @@ static void process_key( SDL_Event *e, int64_t ascii, int *keypress ) {
 
     /* Save key */
 
-    int k = sdl_equiv[e->key.keysym.scancode];
+    int k = sdlkey_table[e->key.keysym.scancode].keycode;
 
     if ( !*keypress ) {
         GLOQWORD( libbginput, SCANCODE ) = scancode = k;
@@ -372,7 +418,7 @@ void process_key_events() {
     if ( scancode ) {
         curr = &key_table[scancode]; // need fix!
         while ( curr != NULL && pressed == 0 ) {
-            if ( keystate[curr->sdlk_equiv] ) pressed = 1;
+            if ( keystate[curr->keycode] ) pressed = 1;
             curr = curr->next;
         }
     }
@@ -389,7 +435,10 @@ void process_key_events() {
         switch ( e.type ) {
             case SDL_KEYDOWN:
                 // keydown
-                if ( !e.key.repeat ) key_evt[ sdl_equiv[ e.key.keysym.scancode ] ] = key_serial | IKEY_MASK_KEY_DOWN;
+                if ( !e.key.repeat ) {
+                    set_evt( e.key.keysym.scancode, key_serial | IKEY_MASK_KEY_DOWN );
+//                    key_evt[ sdl_equiv[ e.key.keysym.scancode ] ] = key_serial | IKEY_MASK_KEY_DOWN;
+                }
 
                 if ( ready ) process_key( &keydown_e, ascii, &keypress );
 
@@ -403,7 +452,8 @@ void process_key_events() {
 
             case SDL_KEYUP:
                 // keyup
-                key_evt[ sdl_equiv[ e.key.keysym.scancode ] ] = key_serial | IKEY_MASK_KEY_UP;
+                set_evt( e.key.keysym.scancode, key_serial | IKEY_MASK_KEY_UP );
+//                key_evt[ sdl_equiv[ e.key.keysym.scancode ] ] = key_serial | IKEY_MASK_KEY_UP;
                 break;
 
             case SDL_TEXTINPUT: // this handles text input events
@@ -456,11 +506,10 @@ void key_init() {
 
     SDL_EventState(SDL_TEXTEDITING, SDL_DISABLE);
 
-    memset( sdl_equiv, 0, sizeof( sdl_equiv ) );
+    memset( sdlkey_table, 0, sizeof( sdlkey_table ) );
     memset( key_table, 0, sizeof( key_table ) );
 
     while ( *ptr != -1 ) {
-        sdl_equiv[ptr[0]] = ptr[1];
         add_key_equiv( ptr[0], ptr[1] );
         ptr += 2;
     }
