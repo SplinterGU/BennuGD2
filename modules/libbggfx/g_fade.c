@@ -135,6 +135,11 @@ static void gr_fade_step() {
     if ( fade_set ) {
         REGION * region = region_get( fade_region );
 
+#ifdef USE_SDL2
+        SDL_RenderSetClipRect( gRenderer, NULL );
+#else
+        GPU_UnsetClip( gRenderer );
+#endif
         if ( !fade_on && ( int ) fade_pos_a == 0 ) fade_set = 0;
 
         shader_deactivate();
