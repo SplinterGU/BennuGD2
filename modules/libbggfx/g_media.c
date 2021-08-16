@@ -204,6 +204,7 @@ void media_unload( MEDIA * mh ) {
 
         if ( mh->objectid ) gr_destroy_object( mh->objectid );
 
+        libvlc_media_slaves_clear( mh->m );
         libvlc_media_release( mh->m );
         libvlc_media_player_release( mh->mp );
         if ( mh->surface ) SDL_FreeSurface( mh->surface );
@@ -348,6 +349,291 @@ int media_get_volume( MEDIA * mh ) {
 int media_set_volume( MEDIA * mh, int volume ) {
     if ( !mh ) return -1;
     return libvlc_audio_set_volume( mh->mp, volume );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_get_track( MEDIA * mh ) {
+    if ( !mh ) return -1;
+    return libvlc_video_get_track( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_set_track( MEDIA * mh, int i_track ) {
+    if ( !mh ) return -1;
+    return libvlc_video_set_track( mh->mp, i_track );
+}
+
+/* --------------------------------------------------------------------------- */
+/* Slaves                                                                      */
+/* --------------------------------------------------------------------------- */
+
+static int __get_slave_id_by_uri( MEDIA * mh, const char * uri, libvlc_media_slave_type_t type ) {
+    int res = 0, i;
+    if ( !mh ) return 0;
+    libvlc_media_slave_t **slaves_list = NULL;
+    unsigned int slaves = libvlc_media_slaves_get( mh->m, &slaves_list );
+    for ( i = 0; i < slaves; i++ ) if ( slaves_list[i]->i_type == type && ( res = ( !strcmp( slaves_list[i]->psz_uri, uri ) ) ) ) break;
+    libvlc_media_slaves_release( slaves_list, slaves );
+    return res;
+}
+
+/* --------------------------------------------------------------------------- */
+
+static int __media_add_slave( MEDIA * mh, const char * uri, libvlc_media_slave_type_t type ) {
+    int res = 0;
+
+    if ( !mh ) return -1;
+    // TODO: save subtitle list
+
+    char * resource = ( char * ) uri;
+
+    if ( strcmp( uri, "://") ) { 
+        resource = malloc( strlen ( uri ) + 8 /*strlen( "file://" ) + 1*/ );
+        strcpy( resource, "file://" );
+        strcat( resource, uri );
+    }
+
+    if ( !__get_slave_id_by_uri( mh, resource, type ) ) res = libvlc_media_player_add_slave( mh->mp, type, resource, true );
+
+    if ( resource != uri ) free( resource );
+
+    return res;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Subtitles                                                                   */
+/* --------------------------------------------------------------------------- */
+
+int media_add_subtitle( MEDIA * mh, const char * uri ) {
+    return __media_add_slave( mh, uri, libvlc_media_slave_type_subtitle );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_get_subtitle( MEDIA * mh ) {
+    if ( !mh ) return -1;
+    return libvlc_video_get_spu( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_set_subtitle( MEDIA * mh, int id ) {
+    if ( !mh ) return -1;
+    return libvlc_video_set_spu( mh->mp, id );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t media_get_subtitle_delay( MEDIA * mh ) {
+    if ( !mh ) return -1;
+    return libvlc_video_get_spu_delay( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_set_subtitle_delay( MEDIA * mh, int64_t d ) {
+    if ( !mh ) return -1;
+    return libvlc_video_set_spu_delay( mh->mp, d );
+}
+
+/* --------------------------------------------------------------------------- */
+/* Audio                                                                       */
+/* --------------------------------------------------------------------------- */
+
+int media_add_audio( MEDIA * mh, const char * uri ) {
+    return __media_add_slave( mh, uri, libvlc_media_slave_type_audio );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_get_audio( MEDIA * mh ) {
+    if ( !mh ) return -1;
+    return libvlc_audio_get_track( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_set_audio( MEDIA * mh, int id ) {
+    if ( !mh ) return -1;
+    return libvlc_audio_set_track( mh->mp, id );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t media_get_audio_delay( MEDIA * mh ) {
+    if ( !mh ) return -1;
+    return libvlc_audio_get_delay( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_set_audio_delay( MEDIA * mh, int64_t d ) {
+    if ( !mh ) return -1;
+    return libvlc_audio_set_delay( mh->mp, d );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_get_audio_channel( MEDIA * mh ) {
+    if ( !mh ) return -1;
+    return libvlc_audio_get_channel( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_set_audio_channel( MEDIA * mh, int channel ) {
+    if ( !mh ) return -1;
+    return libvlc_audio_set_channel( mh->mp, channel );
+}
+
+/* --------------------------------------------------------------------------- */
+/* Tracks                                                                      */
+/* --------------------------------------------------------------------------- */
+
+int media_get_track_list( MEDIA * mh, media_track_t **tracks ) {
+
+    if ( !tracks ) return 0;
+
+    libvlc_media_track_t **tl = NULL;
+
+    int tracks_count = libvlc_media_tracks_get( mh->m, &tl );
+
+    if ( tracks_count > 0 ) {
+        media_track_t *t = ( media_track_t * ) calloc( tracks_count, sizeof( media_track_t ) );
+
+        if ( !t ) {
+            libvlc_media_tracks_release( tl, tracks_count );
+            return 0;
+        }
+
+        int i;
+
+        for ( i = 0; i < tracks_count; i++ ) {
+            t[i].id = tl[i]->i_id;
+            t[i].description = tl[i]->psz_description ? strdup( tl[i]->psz_description ) : NULL;
+            t[i].language = tl[i]->psz_language ? strdup( tl[i]->psz_language ) : NULL;
+
+            switch( tl[i]->i_type ) {
+                case libvlc_track_unknown:
+                    t[i].type = MEDIA_TRACK_UNKNOWN;
+                    break;
+
+                case libvlc_track_audio:
+                    t[i].type = MEDIA_TRACK_AUDIO;
+                    break;
+
+                case libvlc_track_video:
+                    t[i].type = MEDIA_TRACK_VIDEO;
+                    break;
+
+                case libvlc_track_text:
+                    t[i].type = MEDIA_TRACK_SUBTITLE;
+                    break;
+            }
+        }
+        libvlc_media_tracks_release( tl, tracks_count );
+        *tracks = t;
+    }
+
+    return tracks_count;
+}
+
+/* --------------------------------------------------------------------------- */
+
+void media_track_list_release( media_track_t **tracks, int count ) {
+    if ( tracks && *tracks ) {
+        int i;
+        for ( i = 0; i < count; i++ ) {
+            if ( (*tracks)[i].description ) free( (*tracks)[i].description );
+            if ( (*tracks)[i].language ) free( (*tracks)[i].language );
+        }
+        free( *tracks );
+        *tracks = NULL;
+    }
+}
+
+/* --------------------------------------------------------------------------- */
+/* Chapters                                                                    */
+/* --------------------------------------------------------------------------- */
+
+int media_get_chapter( MEDIA * mh ) {
+    if ( !mh ) return -1;
+    return libvlc_media_player_get_chapter( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void media_set_chapter( MEDIA * mh, int i_chapter ) {
+    if ( !mh ) return;
+    libvlc_media_player_set_chapter( mh->mp, i_chapter );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_get_chapter_count( MEDIA * mh ) {
+    if ( !mh ) return -1;
+    return libvlc_media_player_get_chapter_count( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void media_prev_chapter( MEDIA * mh ) {
+    if ( !mh ) return;
+    libvlc_media_player_previous_chapter( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+void media_next_chapter( MEDIA * mh ) {
+    if ( !mh ) return;
+    libvlc_media_player_next_chapter( mh->mp );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int media_get_chapter_list( MEDIA * mh, media_chapter_t **chapters ) {
+
+    if ( !chapters ) return 0;
+
+    libvlc_chapter_description_t **cd = NULL;
+
+    int chapters_count = libvlc_media_player_get_full_chapter_descriptions( mh->mp, -1, &cd );
+
+    if ( chapters_count > 0 ) {
+        media_chapter_t *c = ( media_chapter_t * ) calloc( chapters_count, sizeof( media_chapter_t ) );
+
+        if ( !c ) {
+            libvlc_chapter_descriptions_release( cd, chapters_count );
+            return 0;
+        }
+
+        int i;
+
+        for ( i = 0; i < chapters_count; i++ ) {
+            c[i].time_offset = cd[i]->i_time_offset;
+            c[i].duration = cd[i]->i_duration;
+            c[i].name = cd[i]->psz_name ? strdup( cd[i]->psz_name ) : NULL;
+        }
+        libvlc_chapter_descriptions_release( cd, chapters_count );
+        *chapters = c;
+    }
+
+    return chapters_count;
+}
+
+/* --------------------------------------------------------------------------- */
+
+void media_chapter_list_release( media_chapter_t **chapters, int count ) {
+    if ( chapters && *chapters ) {
+        int i;
+        for ( i = 0; i < count; i++ ) {
+            if ( (*chapters)[i].name ) free( (*chapters)[i].name );
+        }
+        free( *chapters );
+        *chapters = NULL;
+    }
 }
 
 /* --------------------------------------------------------------------------- */

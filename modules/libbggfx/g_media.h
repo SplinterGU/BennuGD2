@@ -38,26 +38,27 @@
 #include "libbggfx.h"
 
 /* --------------------------------------------------------------------------- */
-/*
-void * MEDIA_Load( string * media, int * graph_id )
-int MEDIA_GetType()
-void MEDIA_Play( void * media_id )
-void MEDIA_Pause( void * media_id )
-void MEDIA_Stop( void * media_id )
-void MEDIA_Release( void * media_id )
-int MEDIA_getDimensions( void * media_id, POINT_T * dimension )
-int MEDIA_GetPosition( void * media_id )
-void MEDIA_SetPosition( void * media_id, int position )
 
+enum {
+    MEDIA_STATUS_CLOSE = 0,
+    MEDIA_STATUS_OPENING,
+    MEDIA_STATUS_PLAYING,
+    MEDIA_STATUS_PAUSED,
+    MEDIA_STATUS_STOPPING,
+    MEDIA_STATUS_ENDED,
+    MEDIA_STATUS_ERROR
+};
 
-    libvlc_instance_t *libvlc;
-*/
+enum {
+    MEDIA_TRACK_UNKNOWN,
+    MEDIA_TRACK_AUDIO,
+    MEDIA_TRACK_VIDEO,
+    MEDIA_TRACK_SUBTITLE
+};
 
 typedef struct media {
     libvlc_media_t *m;
     libvlc_media_player_t *mp;
-    int tracks_count;
-    libvlc_media_track_t **tracks;
 
     int video_width;
     int video_height;
@@ -73,16 +74,21 @@ typedef struct media {
 
 } MEDIA;
 
-enum {
-    MEDIA_STATUS_CLOSE = 0,
-    MEDIA_STATUS_OPENING,
-    MEDIA_STATUS_PLAYING,
-    MEDIA_STATUS_PAUSED,
-    MEDIA_STATUS_STOPPING,
-    MEDIA_STATUS_ENDED,
-    MEDIA_STATUS_ERROR
-};
+typedef struct media_track_t {
+    int id;
+    int type;
+    char * language;
+    char * description;
+} media_track_t;
 
+typedef struct media_chapter_t {
+    int64_t time_offset;
+    int64_t duration;
+    char *name;
+} media_chapter_t;
+
+/* --------------------------------------------------------------------------- */
+/* General                                                                     */
 /* --------------------------------------------------------------------------- */
 
 extern void media_init();
@@ -111,6 +117,50 @@ extern int media_get_mute( MEDIA * mh );
 extern void media_set_mute( MEDIA * mh, int status );
 extern int media_get_volume( MEDIA * mh );
 extern int media_set_volume( MEDIA * mh, int volume );
+
+extern int media_get_track( MEDIA * mh );
+extern int media_set_track( MEDIA * mh, int i_track );
+
+/* --------------------------------------------------------------------------- */
+/* Subtitles                                                                   */
+/* --------------------------------------------------------------------------- */
+
+extern int media_add_subtitle( MEDIA * mh, const char * uri );
+extern int media_get_subtitle( MEDIA * mh );
+extern int media_set_subtitle( MEDIA * mh, int id );
+extern int64_t media_get_subtitle_delay( MEDIA * mh );
+extern int media_set_subtitle_delay( MEDIA * mh, int64_t d );
+
+/* --------------------------------------------------------------------------- */
+/* Audio                                                                       */
+/* --------------------------------------------------------------------------- */
+
+extern int media_add_audio( MEDIA * mh, const char * uri );
+extern int media_get_audio( MEDIA * mh );
+extern int media_set_audio( MEDIA * mh, int id );
+extern int64_t media_get_audio_delay( MEDIA * mh );
+extern int media_set_audio_delay( MEDIA * mh, int64_t d );
+extern int media_get_audio_channel( MEDIA * mh );
+extern int media_set_audio_channel( MEDIA * mh, int channel );
+
+/* --------------------------------------------------------------------------- */
+/* Tracks                                                                      */
+/* --------------------------------------------------------------------------- */
+
+extern int media_get_track_list( MEDIA * mh, media_track_t **tracks );
+extern void media_track_list_release( media_track_t **tracks, int count );
+
+/* --------------------------------------------------------------------------- */
+/* Chapters                                                                    */
+/* --------------------------------------------------------------------------- */
+
+extern int media_get_chapter( MEDIA * mh );
+extern void media_set_chapter( MEDIA * mh, int i_chapter );
+extern int media_get_chapter_count( MEDIA * mh );
+extern void media_prev_chapter( MEDIA * mh );
+extern void media_next_chapter( MEDIA * mh );
+extern int media_get_chapter_list( MEDIA * mh, media_chapter_t **chapters );
+extern void media_chapter_list_release( media_chapter_t **chapters, int count );
 
 /* --------------------------------------------------------------------------- */
 
