@@ -780,6 +780,30 @@ int64_t libmod_gfx_map_block_copy4( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_map_block_copy5( INSTANCE * my, int64_t * params ) {
+    return __libmod_gfx_map_block_copy(
+        params[0],
+        params[1],
+        params[2],
+        params[3],
+        params[0],
+        params[4],
+        params[5],
+        params[6],
+        params[7],
+        params[8],
+        params[9],
+        255,
+        255,
+        255,
+        255,
+        BLEND_DISABLED,
+        NULL
+    );
+}
+
+/* --------------------------------------------------------------------------- */
 /* Funciones de carga de nivel superior */
 
 /* ------------------------------------- */

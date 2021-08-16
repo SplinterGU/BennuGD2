@@ -116,7 +116,7 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "GRAPH_AVERAGE_SIZE"  , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE   },
 
     /* MEDIA */
-#if 0
+
     { "MEDIA_STATUS_CLOSE"      , TYPE_INT      , MEDIA_STATUS_CLOSE                    },
     { "MEDIA_STATUS_OPENING"    , TYPE_INT      , MEDIA_STATUS_OPENING                  },
     { "MEDIA_STATUS_PLAYING"    , TYPE_INT      , MEDIA_STATUS_PLAYING                  },
@@ -124,7 +124,7 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "MEDIA_STATUS_STOPPING"   , TYPE_INT      , MEDIA_STATUS_STOPPING                 },
     { "MEDIA_STATUS_ENDED"      , TYPE_INT      , MEDIA_STATUS_ENDED                    },
     { "MEDIA_STATUS_ERROR"      , TYPE_INT      , MEDIA_STATUS_ERROR                    },
-#endif
+ 
     { NULL                  , 0                 , 0                                     }
 } ;
 
@@ -251,6 +251,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIBBBB" , TYPE_INT        , libmod_gfx_map_block_copy2      ),
     FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIBBBBI", TYPE_INT        , libmod_gfx_map_block_copy3      ),
     FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIIIIBBBBIIIIIII", TYPE_INT  , libmod_gfx_map_block_copy4      ),
+    FUNC( "MAP_BLOCK_COPY"      , "IIIIIIIIII"      , TYPE_INT        , libmod_gfx_map_block_copy5      ),
     FUNC( "MAP_PUT"             , "IIIIII"          , TYPE_INT        , libmod_gfx_map_put              ),
     FUNC( "MAP_PUT"             , "IIIIIIIIIIBBBB"  , TYPE_INT        , libmod_gfx_map_put2             ),
     FUNC( "MAP_PUT"             , "IIIIIIIIIIBBBBI" , TYPE_INT        , libmod_gfx_map_put3             ),
@@ -473,7 +474,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "SHADER_SETUNIFORMMATRIX"     , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniformmatrix      ),
 
     /* MEDIA */
-#if 0
+
     FUNC( "MEDIA_LOAD"          , "SP"              , TYPE_POINTER      , libmod_gfx_media_load                 ),
     FUNC( "MEDIA_LOAD"          , "SPI"             , TYPE_POINTER      , libmod_gfx_media_load2                ),
     FUNC( "MEDIA_LOAD"          , "SPII"            , TYPE_POINTER      , libmod_gfx_media_load3                ),
@@ -495,7 +496,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "MEDIA_SET_MUTE"      , "PI"              , TYPE_INT          , libmod_gfx_media_set_mute             ),
     FUNC( "MEDIA_GET_VOLUME"    , "P"               , TYPE_INT          , libmod_gfx_media_get_volume           ),
     FUNC( "MEDIA_SET_VOLUME"    , "PI"              , TYPE_INT          , libmod_gfx_media_set_volume           ),
-#endif
+
     FUNC( NULL                  , NULL              , 0               , NULL                                    )
 };
 

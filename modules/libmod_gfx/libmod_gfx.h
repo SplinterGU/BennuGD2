@@ -52,9 +52,8 @@
 #include "m_wm.h"
 #include "m_draw.h"
 #include "m_shaders.h"
-#if 0
 #include "m_media.h"
-#endif
+
 /* --------------------------------------------------------------------------- */
 
 #define G_WIDE          0
