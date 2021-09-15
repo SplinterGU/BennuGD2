@@ -256,7 +256,7 @@ void bitmap_destroy( GRAPH * map ) {
     if ( map->tex ) SDL_DestroyTexture( map->tex );
 #endif
 #ifdef USE_SDL2_GPU
-    if ( map->tex->target ) GPU_FreeTarget( map->tex->target );
+    if ( map->tex && map->tex->target ) GPU_FreeTarget( map->tex->target );
     GPU_FreeImage( map->tex );
 #endif
     if ( map->nsegments ) {
