@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -114,7 +114,7 @@ void scroll_update( int64_t n ) {
 
     SCROLL_EXTRA_DATA * data;
 
-    if ( system_paused ) return;
+    if ( system_paused || debugger_show_console ) return;
 
     if ( n < 0 || n >= MAX_SCROLLS ) return;
 

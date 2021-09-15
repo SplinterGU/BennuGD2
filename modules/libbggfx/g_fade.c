@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -98,7 +98,7 @@ static void gr_fade_step() {
         fade_set = 1;
         GLOQWORD( libbggfx, FADING ) = 1;
 
-        if ( system_paused ) fade_time_pos = currtime;
+        if ( system_paused || debugger_show_console ) fade_time_pos = currtime;
 
         if ( fade_time_step == 0.0 ) {
             fade_pos_r = fade_to_r;

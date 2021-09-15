@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -37,20 +37,22 @@
 #ifndef __XSTRINGS_H
 #define __XSTRINGS_H
 
-extern void _string_ptoa( char *t, void * p );
-extern void _string_ntoa( char *p, uint64_t n );
-extern void _string_utoa( char *p, uint64_t n );
+extern int decode_utf8_strings;
+
+extern void _string_ptoa( unsigned char *t, void * p );
+extern void _string_ntoa( unsigned char *p, uint64_t n );
+extern void _string_utoa( unsigned char *p, uint64_t n );
 
 extern void         string_init() ;
-extern const char * string_get( int64_t code ) ;
+extern const unsigned char * string_get( int64_t code ) ;
 extern void         string_dump( void ( *wlog )( const char *fmt, ... ) );
 extern void         string_load( void *, int64_t, int64_t, int64_t, int64_t ) ;
-extern int64_t      string_new( const char * ptr ) ;
-extern int64_t      string_newa( const char * ptr, unsigned count ) ;
+extern int64_t      string_new( const unsigned char * ptr ) ;
+extern int64_t      string_newa( const unsigned char * ptr, unsigned count ) ;
 extern void         string_use( int64_t code ) ;
 extern void         string_discard( int64_t code ) ;
 extern int64_t      string_add( int64_t code1, int64_t code2 ) ;
-extern int64_t      string_compile( const char ** source ) ;
+extern int64_t      string_compile( const unsigned char ** source ) ;
 extern int64_t      string_itoa( int64_t n ) ;
 extern int64_t      string_uitoa( int64_t n ) ;
 extern int64_t      string_ftoa( double n ) ;
@@ -65,6 +67,6 @@ extern int64_t      string_lcase( int64_t code1 ) ;
 extern int64_t      string_strip( int64_t code ) ;
 extern int64_t      string_pad( int64_t code, int length, int align ) ;
 extern int64_t      string_format( double number, int dec, char point, char thousands ) ;
-extern int64_t      string_concat( int64_t code1, char * str2 ) ;
+extern int64_t      string_concat( int64_t code1, unsigned char * str2 ) ;
 
 #endif

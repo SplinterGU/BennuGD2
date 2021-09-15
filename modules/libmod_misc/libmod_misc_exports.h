@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -335,6 +335,16 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "STRING_RESIZEA"  , "PI"      , TYPE_INT          , modstring_string_resize_array      ),
     FUNC( "STRING_DELA"     , "P"       , TYPE_INT          , modstring_string_delete_array      ),
     FUNC( "STRING_DUMP"     , ""        , TYPE_INT          , modstring_string_dump              ),
+
+    FUNC( "ISALPHA"         , "B"       , TYPE_INT          , modstring_string_isalpha           ),
+    FUNC( "ISSPACE"         , "B"       , TYPE_INT          , modstring_string_isspace           ),
+    FUNC( "ISNUM"           , "B"       , TYPE_INT          , modstring_string_isnum             ),
+    FUNC( "ISXNUM"          , "B"       , TYPE_INT          , modstring_string_isxnum            ),
+    FUNC( "ISALNUM"         , "B"       , TYPE_INT          , modstring_string_isalnum           ),
+    FUNC( "ISWORDCHAR"      , "B"       , TYPE_INT          , modstring_string_iswordchar        ),
+    FUNC( "ISWORDFIRST"     , "B"       , TYPE_INT          , modstring_string_iswordfirst       ),
+    FUNC( "TOUPPER"         , "B"       , TYPE_INT          , modstring_string_toupper           ),
+    FUNC( "TOLOWER"         , "B"       , TYPE_INT          , modstring_string_tolower           ),
 
     FUNC( 0                 , 0         , 0                , 0                                   )
 };

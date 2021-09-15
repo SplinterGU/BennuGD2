@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -42,7 +42,7 @@
 
 extern void token_dump();
 
-static char * import_filename = NULL;
+static unsigned char * import_filename = NULL;
 static int64_t import_line = 0;
 
 int64_t nimports_hnd = 0;
@@ -280,8 +280,8 @@ void compile_init() {
 /* ---------------------------------------------------------------------- */
 
 void compile_error( const char *fmt, ... ) {
-    char text[4000];
-    char * fname = ( import_filename ) ? import_filename : (( current_file != -1 && files[current_file] && *files[current_file] ) ? files[current_file] : NULL );
+    unsigned char text[4000];
+    unsigned char * fname = ( import_filename ) ? import_filename : (( current_file != -1 && files[current_file] && *files[current_file] ) ? files[current_file] : NULL );
 
     va_list ap;
     va_start( ap, fmt );
@@ -290,7 +290,7 @@ void compile_error( const char *fmt, ... ) {
 
     fprintf( stdout, MSG_COMPILE_ERROR,
             ( fname && ( fname[0] != '/' && fname[0] != '\\' && fname[1] != ':' ) ) ?  main_path : "",
-            fname ? fname : "N/A",
+            fname ? fname : ( unsigned char * ) "N/A",
             ( import_filename ) ? import_line : line_count,
             text );
     fprintf( stdout, " ( token error: " );

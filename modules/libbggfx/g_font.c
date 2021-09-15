@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -327,7 +327,7 @@ int64_t gr_font_new( int64_t charset ) {
     if ( !fonts[ fontid ] ) return -1; // No memory
 
     memset( fonts[ fontid ], 0, sizeof( FONT ) );
-    fonts[ fontid ]->charset = charset; // CHARSET_CP850
+    fonts[ fontid ]->charset = charset; // CHARSET_ISO8859
     fonts[ fontid ]->maxwidth = 0;
     fonts[ fontid ]->maxheight = 0;
 
@@ -338,7 +338,7 @@ int64_t gr_font_new( int64_t charset ) {
 /* Utility function used by gr_new_fontfrombitmap to align characters */
 
 static int align_bitmap_char_left( unsigned char *data, int64_t width, int64_t height, int64_t pitch, int64_t bpp ) {
-    int n, c, x, align = width;
+    int n, c, x, align = width + 1;
 
     switch( bpp ) {
         case    1: {
@@ -382,7 +382,7 @@ static int align_bitmap_char_left( unsigned char *data, int64_t width, int64_t h
             }
     }
 
-    return ( align == width ) ? 0 : align;
+    return ( align == width + 1 ) ? 0 : align;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -461,16 +461,17 @@ static int get_bitmap_char_width( unsigned char *data, int64_t width, int64_t he
  */
 
 #ifdef USE_SDL2
-int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
+int64_t gr_font_new_from_bitmap( GRAPH * map, REGION * clip, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap, int64_t cell_width, int64_t cell_height, int64_t cell_margin_left, int64_t cell_margin_top, int64_t spacing ) {
 #endif
 #ifdef USE_SDL2_GPU
-int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap ) {
+int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, REGION * clip, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap, int64_t cell_width, int64_t cell_height, int64_t cell_margin_left, int64_t cell_margin_top, int64_t spacing ) {
 #endif
     FONT * f;
     char * chardata, * charptr;
     int i, id;
     int charrowsize, charcolsize;
     int w, h, cw, ch;
+    int maxwidth = 0;
     SDL_Surface * surface;
 #ifdef USE_SDL2
     surface = map->surface;
@@ -483,76 +484,104 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
     else surface = source;
 #endif
 
+    if ( !cell_width ) cell_width = width;
+    if ( !cell_height ) cell_height = height;
+
     f = fonts[ id ];
 
     f->fontmap = map;
 
-    charrowsize = surface->pitch * height;
-    charcolsize = surface->format->BytesPerPixel * width;
+    charrowsize = surface->pitch * cell_height;
+    charcolsize = surface->format->BytesPerPixel * cell_width;
 
-    ch = map->height / height;
-    cw = map->width / width;
+    int clip_x = 0, clip_y = 0, clip_w = map->width, clip_h = map->height;
+
+    if ( clip ) {
+        clip_x = clip->x;
+        clip_y = clip->y;
+        if ( clip->x2 > clip->x ) clip_w = clip->x2 - clip->x + 1;
+        if ( clip->y2 > clip->y ) clip_h = clip->y2 - clip->y + 1;
+
+        if ( clip_x > map->width || clip_y > map->height ) {
+    #ifdef USE_SDL2_GPU
+            if ( !source ) SDL_FreeSurface( surface );
+    #endif
+            gr_font_destroy( id );
+            return -1;
+        }
+
+        if ( clip_x + clip_w > map->width ) clip_w = map->width - clip_x;
+        if ( clip_y + clip_h > map->height ) clip_h = map->height - clip_y;
+    }
+
+    cw = clip_w / cell_width;
+    ch = clip_h / cell_height;
 
     i = charmap ? 0 : first;
 
+    if ( ( ( ~options & NFB_FIXEDWIDTH ) || ( options & NFB_FIXEDWIDTHCENTER ) ) && !spacing ) spacing = 1;
+
     for ( h = 0; h < ch; h++ ) {
-        chardata = surface->pixels + h * charrowsize;
+        int base_y = clip_y + cell_margin_top + h * cell_height;
+        int base_x = clip_x + cell_margin_left;
+        chardata = surface->pixels + base_x * surface->format->BytesPerPixel + base_y * surface->pitch;
 
         for ( charptr = chardata, w = 0; w < cw; w++, charptr += charcolsize, i++ ) {
-            if ( (  charmap && !charmap[ i ] ) || ( !charmap && i > last ) ) { ch = h; break; }
+            if ( ( charmap && !charmap[ i ] ) || ( !charmap && i > last ) ) { ch = h; break; }
 
             int align = 0;
 //            int idx = ( charmap ) ? dos_to_win[charmap[ i ]] : i ;
-            int idx = ( charmap ) ? ( charset == CHARSET_CP850 ? charmap[ i ] : dos_to_win[ charmap[ i ] ] ) : i ;
-
-            if ( options != NFB_FIXEDWIDTH )
+            int idx = ( charmap ) ? ( charset == CHARSET_CP850 ? iso8859_1_to_cp850[ charmap[ i ] ] : charmap[ i ] ) : i ;
+//            int idx = ( charmap ) ? charmap[ i ] : i ;
+            
+            // not Fixed Width ( Variable Width or Fixed Width Centered )
+            if ( ~options & NFB_FIXEDWIDTH ) {
                 align = align_bitmap_char_left( ( ( unsigned char * ) charptr ),
                                                     width,
                                                     height,
                                                     surface->pitch,
                                                     surface->format->BitsPerPixel );
+            }
 
-            f->glyph[ idx ].fontsource.x = w * width + align;
-            f->glyph[ idx ].fontsource.y = h * height;
+            f->glyph[ idx ].fontsource.x = base_x + cell_width * w + align;
+            f->glyph[ idx ].fontsource.y = base_y;
             f->glyph[ idx ].fontsource.w = width - align;
             f->glyph[ idx ].fontsource.h = height;
-            f->glyph[ idx ].xoffset = 0;
             f->glyph[ idx ].yoffset = 0;
 
-            if ( options != NFB_FIXEDWIDTH ) {
-                int delta1 = 0, delta2 = 1,
-                    ww = get_bitmap_char_width( surface->pixels +
-                                                surface->pitch                 * ( ( int ) f->glyph[ idx ].fontsource.y ) +
-                                                surface->format->BytesPerPixel * ( ( int ) f->glyph[ idx ].fontsource.x ),
-                                                width - align,
-                                                height,
-                                                surface->pitch,
-                                                surface->format->BitsPerPixel );
+            // not Fixed Width ( Variable Width or Fixed Width Centered )
+            if ( ~options & NFB_FIXEDWIDTH ) {
+                int ww = get_bitmap_char_width( ( ( unsigned char * ) charptr ) + align * surface->format->BytesPerPixel,
+                                                    width - align,
+                                                    height,
+                                                    surface->pitch,
+                                                    surface->format->BitsPerPixel );
 
-#if 0
-               if ( ww & 1 ) {
-                    if ( ( ww + align ) < width ) {
-                        ww++;
-                        delta2 = 0;
-                    } else if ( align > 0 ) {
-                        f->glyph[ idx ].fontsource.x--;
-                        f->glyph[ idx ].xoffset = -1;
-                        delta1 = 1;
-                    } /* else bad font format */
+                if ( options & NFB_FIXEDWIDTHCENTER ) {
+                    f->glyph[ idx ].xoffset = ( width - ww ) / 2 ;
+                    f->glyph[ idx ].xadvance = width;
+                } else {
+                    f->glyph[ idx ].xoffset = 0;
+                    f->glyph[ idx ].xadvance = ww + spacing;
                 }
-#endif
-                f->glyph[ idx ].fontsource.w = ww + delta1;
-                f->glyph[ idx ].xadvance = ww + delta2;
-            }
-            else
+                f->glyph[ idx ].fontsource.w = ww;
+            } else {
+                f->glyph[ idx ].xoffset = 0;
                 f->glyph[ idx ].xadvance = width;
+            }
+
+            if ( f->glyph[ idx ].fontsource.w > maxwidth ) maxwidth = f->glyph[ idx ].fontsource.w;
         }
     }
 
     /* Set a reasonable size for the space */
 
-    f->glyph[ 32 ].xadvance = ( options != NFB_FIXEDWIDTH ) ? width * 65 / 100 : width;
-    f->maxwidth = width;
+    if ( f->glyph[ 32 ].xadvance - spacing <= 0 ) {
+        if ( !options ) f->glyph[ 32 ].xadvance = maxwidth * 0.65; // width * 65 / 100;
+        else            f->glyph[ 32 ].xadvance = width;
+    }
+
+    f->maxwidth = maxwidth;
     f->maxheight = height;
 
 #ifdef USE_SDL2_GPU
@@ -560,7 +589,6 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, int64_t char
 #endif
     return id;
 }
-
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -613,10 +641,10 @@ int gr_font_systemfont() {
     int fontid;
 
 #ifdef USE_SDL2
-    fontid = gr_font_new_from_bitmap( map, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
+    fontid = gr_font_new_from_bitmap( map, NULL, CHARSET_CP850, 8, 8, 0, 255, 0, NULL, 0, 0, 0, 0, 0 );
 #endif
 #ifdef USE_SDL2_GPU
-    fontid = gr_font_new_from_bitmap( map, surface, CHARSET_CP850, 8, 8, 0, 255, 0, NULL );
+    fontid = gr_font_new_from_bitmap( map, surface, NULL, CHARSET_CP850, 8, 8, 0, 255, 0, NULL, 0, 0, 0, 0, 0 );
 #endif
 
     SDL_FreeSurface( surface );

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 Jos√© Luis Cebri√°n Pag√ºe (Fenix)
  *
@@ -31,15 +31,17 @@
 
 #include <xctype_st.h>
 
-extern int dos_chars ;		/* 1 = CÛdigo fuente en caracteres MS-DOS */
-extern char c_type[256] ;
-extern unsigned char c_upper[256] ;
-extern unsigned char c_lower[256] ;
+extern int dos_chars;		   /* 1 = CÛdigo fuente en caracteres MS-DOS */
+extern char c_type[256];
+extern unsigned char c_upper[256];
+extern unsigned char c_lower[256];
 
-extern unsigned char convert (unsigned char c) ;
-extern void init_c_type () ;
+extern unsigned char convert (unsigned char c);
+extern void init_c_type ();
 
-extern unsigned char dos_to_win[256] ;
-extern unsigned char win_to_dos[256] ;
+extern unsigned char cp850_to_iso8859_1[256];
+extern unsigned char iso8859_1_to_cp850[256];
+
+extern int utf8_to_iso8859_1( unsigned char * in, int inlen, unsigned char * out, int outlen );
 
 #endif

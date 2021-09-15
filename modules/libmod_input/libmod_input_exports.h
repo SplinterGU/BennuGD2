@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -38,7 +38,9 @@
 DLSYSFUNCS  __bgdexport( libmod_input, functions_exports )[] = {
 
     FUNC( "KEY"                 , "I"       , TYPE_INT    , libmod_input_key                          ),
+    FUNC( "KEYUP"               , "I"       , TYPE_INT    , libmod_input_key_up                       ),
     FUNC( "KEY_UP"              , "I"       , TYPE_INT    , libmod_input_key_up                       ),
+    FUNC( "KEYDOWN"             , "I"       , TYPE_INT    , libmod_input_key_down                     ),
     FUNC( "KEY_DOWN"            , "I"       , TYPE_INT    , libmod_input_key_down                     ),
 
     FUNC( "JOY_AXES"            , ""        , TYPE_INT    , libmod_input_joy_axes                     ),

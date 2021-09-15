@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -36,13 +36,18 @@
 #define MAX_FONTS       256
 #define MAX_GLYPH       256
 
-#define NFB_FIXEDWIDTH  1
-
 /* -------------------------------------------------------------------------- */
 
 enum {
+    NFB_VARIABLEWIDTH = 0,
+    NFB_FIXEDWIDTH,
+    NFB_FIXEDWIDTHCENTER
+};
+
+enum {
     CHARSET_ISO8859 = 0,
-    CHARSET_CP850   = 1
+    CHARSET_CP850,
+    CHARSET_UTF8
 };
 
 /* -------------------------------------------------------------------------- */
@@ -80,9 +85,10 @@ extern void gr_font_destroy( int64_t fontid );
 extern FONT * gr_font_get( int64_t id );
 extern int64_t gr_font_new( int64_t charset );
 #ifdef USE_SDL2
-extern int64_t gr_font_new_from_bitmap( GRAPH * map, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap );
-#else
-extern int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * surface, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap );
+extern int64_t gr_font_new_from_bitmap( GRAPH * map, REGION * clip, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap, int64_t cell_width, int64_t cell_height, int64_t cell_margin_left, int64_t cell_margin_top, int64_t spacing );
+#endif
+#ifdef USE_SDL2_GPU
+extern int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, REGION * clip, int64_t charset, int64_t width, int64_t height, int64_t first, int64_t last, int64_t options, const unsigned char * charmap, int64_t cell_width, int64_t cell_height, int64_t cell_margin_left, int64_t cell_margin_top, int64_t spacing );
 #endif
 extern int gr_font_systemfont();
 extern void gr_font_init();

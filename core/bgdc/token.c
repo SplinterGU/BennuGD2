@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -58,29 +58,32 @@ struct _token token_saved;
 static int use_saved = 0;
 
 typedef struct _define {
-    int     code;
-    char *  text;
-    int     param_count;
-    int     param_id[MAX_MACRO_PARAMS];
+    int             code;
+    unsigned char * text;
+    int             param_count;
+    int             param_id[MAX_MACRO_PARAMS];
 } DEFINE;
 
-static const char * source_ptr;
-static char       * source_start;
-static const char * old_sources[MAX_SOURCES];
-static char       * old_sources_start[MAX_SOURCES];
-static int          old_line_counts[MAX_SOURCES];
-static int          old_current_file[MAX_SOURCES];
-static int          sources = 0;
-static DEFINE  *    defines = NULL;
-static int          defines_allocated = 0;
-static int          defines_count = 0;
-static int          id_define;
-static int          id_undef;
-static int          id_ifdef;
-static int          id_ifndef;
-static int          id_endif;
-static int          id_else;
-static int          id_if;
+static const unsigned char  * source_ptr;
+static unsigned char        * source_start;
+static const unsigned char  * old_sources[MAX_SOURCES];
+static unsigned char        * old_sources_start[MAX_SOURCES];
+static int                  old_line_counts[MAX_SOURCES];
+static int                  old_current_file[MAX_SOURCES];
+static int                  sources = 0;
+static DEFINE               * defines = NULL;
+static int                  defines_allocated = 0;
+static int                  defines_count = 0;
+static int                  id_define;
+static int                  id_undef;
+static int                  id_ifdef;
+static int                  id_ifndef;
+static int                  id_endif;
+static int                  id_else;
+static int                  id_if;
+static int                  id_pragma;
+static int                  id_decode_utf8_strings;
+static int                  id_no_decode_utf8_strings;
 
 /* --------------------------------------------------------------------------- */
 
@@ -90,23 +93,23 @@ static int token_endfile();
 
 #define SKIP_C89_COMMENTS \
     if (*source_ptr && *source_ptr == '/' && *(source_ptr + 1) == '*') { \
-        * ((char *) source_ptr++) = ' '; * ((char *) source_ptr++) = ' '; \
+        * ((unsigned char *) source_ptr++) = ' '; * ((unsigned char *) source_ptr++) = ' '; \
         while (*source_ptr && (*source_ptr != '*' || *(source_ptr + 1) != '/')) { \
-            if (*source_ptr == '\n')  { line_count++; * ((char *) source_ptr++) = ' '; continue;} \
-            * ((char *) source_ptr++) = ' '; \
+            if (*source_ptr == '\n')  { line_count++; * ((unsigned char *) source_ptr++) = ' '; continue;} \
+            * ((unsigned char *) source_ptr++) = ' '; \
         } \
         if (*source_ptr == '*' && *(source_ptr + 1) == '/') { \
-            * ((char *) source_ptr++) = ' '; * ((char *) source_ptr++) = ' '; \
+            * ((unsigned char *) source_ptr++) = ' '; * ((unsigned char *) source_ptr++) = ' '; \
         } \
         continue;\
     }
 
 #define SKIP_C99_COMMENTS \
     if (*source_ptr && *source_ptr == '/' && *(source_ptr + 1) == '/') { \
-        * ((char *) source_ptr++) = ' '; * ((char *) source_ptr++) = ' '; \
+        * ((unsigned char *) source_ptr++) = ' '; * ((unsigned char *) source_ptr++) = ' '; \
         while (*source_ptr && *source_ptr != '\n') { \
-            if (*source_ptr == '\\' && *(source_ptr + 1) == '\n') { line_count++; * ((char *) source_ptr++) = ' ';} \
-            * ((char *) source_ptr++) = ' '; \
+            if (*source_ptr == '\\' && *(source_ptr + 1) == '\n') { line_count++; * ((unsigned char *) source_ptr++) = ' ';} \
+            * ((unsigned char *) source_ptr++) = ' '; \
         } \
         continue; \
     }
@@ -180,13 +183,13 @@ static int token_endfile();
 
 /* ---------------------------------------------------------------------- */
 
-int n_files = 0;                        /* Includes */
-char files[MAX_SOURCES][__MAX_PATH];    /* Includes */
-char *source_data[MAX_SOURCES];         /* Includes */
+int n_files = 0;                                /* Includes */
+unsigned char files[MAX_SOURCES][__MAX_PATH];   /* Includes */
+unsigned char *source_data[MAX_SOURCES];        /* Includes */
 
 /* ---------------------------------------------------------------------- */
 
-int load_file( char * filename ) {
+int load_file( unsigned char * filename ) {
     long   size;
     file * fp = file_open( filename, "rb0" );
     int n;
@@ -198,11 +201,10 @@ int load_file( char * filename ) {
         strcpy( files[n_files], filename );
         if ( !fp ) compile_error( MSG_FILE_NOT_FOUND, filename );
         size = file_size( fp );
-        source_data[n_files] = ( char * ) calloc( size + 1, sizeof( char ) );
+        source_data[n_files] = ( unsigned char * ) calloc( size + 1, sizeof( unsigned char ) );
         if ( !source_data[n_files] ) compile_error( MSG_FILE_TOO_BIG, filename );
         if ( size == 0 ) compile_error( MSG_FILE_EMPTY, filename );
         if ( !file_read( fp, source_data[n_files], size ) ) compile_error( MSG_READ_ERROR, filename );
-
         source_data[n_files][size] = 0;
         file_close( fp );
         n = n_files++;
@@ -215,8 +217,8 @@ int load_file( char * filename ) {
 /* ---------------------------------------------------------------------- */
 
 void include_file( int bprepro ) {
-    static char buffer[1024];
-    char * buffer_ptr = buffer;
+    static unsigned char buffer[1024];
+    unsigned char * buffer_ptr = buffer;
     int actual_line = line_count;
 
     SKIP_SPACES_UNTIL_LF_AND_COUNT_LINES;
@@ -264,7 +266,7 @@ int find_define( int code ) {
 
 /* ---------------------------------------------------------------------- */
 
-void add_simple_define( char * macro, char *text ) {
+void add_simple_define( unsigned char * macro, unsigned char *text ) {
     int code = identifier_search_or_add( macro );
 
     if ( find_define( code ) != -1 ) compile_error( MSG_MACRO_ERROR, identifier_name( code ) );
@@ -394,11 +396,11 @@ void preprocessor_jumpto( int64_t id, int64_t id2 ) {
  */
 
 void preprocessor_expand( DEFINE * def ) {
-    const char * param_left[MAX_MACRO_PARAMS] = { NULL };
-    const char * param_right[MAX_MACRO_PARAMS] = { NULL };
-    const char * begin = NULL;
-    const char * old_source = NULL;
-    char * text;
+    const unsigned char * param_left[MAX_MACRO_PARAMS] = { NULL };
+    const unsigned char * param_right[MAX_MACRO_PARAMS] = { NULL };
+    const unsigned char * begin = NULL;
+    const unsigned char * old_source = NULL;
+    unsigned char * text;
     int i, count, depth, allocated, size, part, actual_line_count;
 
     /* No params - easy case */
@@ -456,7 +458,7 @@ void preprocessor_expand( DEFINE * def ) {
 
     allocated = 128;
     size = 0;
-    text = ( char * )calloc( allocated, sizeof( char ) );
+    text = ( unsigned char * )calloc( allocated, sizeof( unsigned char ) );
     old_source = source_ptr;
     source_ptr = def->text;
     actual_line_count = line_count;
@@ -485,7 +487,7 @@ void preprocessor_expand( DEFINE * def ) {
                         part = param_right[i] - param_left[i];
                         if ( size + part + 2 >= allocated ) {
                             allocated += (( part + 256 ) & ~127 );
-                            text = ( char * )realloc( text, allocated );
+                            text = ( unsigned char * )realloc( text, allocated );
                         }
                         text[size++] = ' ';
                         if ( param_left[i] ) memcpy( text + size, param_left[i], part );
@@ -500,7 +502,7 @@ void preprocessor_expand( DEFINE * def ) {
                 part = source_ptr - begin;
                 if ( size + part + 2 >= allocated ) {
                     allocated += (( part + 256 ) & ~127 );
-                    text = ( char * )realloc( text, allocated );
+                    text = ( unsigned char * )realloc( text, allocated );
                 }
                 text[size++] = ' ';
                 memcpy( text + size, begin, part );
@@ -543,19 +545,23 @@ void preprocessor_expand( DEFINE * def ) {
 
 void preprocessor() {
     int i, ifdef;
-    char * ptr;
+    unsigned char * ptr;
     int actual_line_count;
 
     static int initialized = 0;
 
     if ( !initialized ) {
-        id_define  = identifier_search_or_add( "DEFINE" );
-        id_undef   = identifier_search_or_add( "UNDEF" );
-        id_ifdef   = identifier_search_or_add( "IFDEF" );
-        id_ifndef  = identifier_search_or_add( "IFNDEF" );
-        id_else    = identifier_search_or_add( "ELSE" );
-        id_endif   = identifier_search_or_add( "ENDIF" );
-        id_if      = identifier_search_or_add( "IF" );
+        id_define                   = identifier_search_or_add( "DEFINE" );
+        id_undef                    = identifier_search_or_add( "UNDEF" );
+        id_ifdef                    = identifier_search_or_add( "IFDEF" );
+        id_ifndef                   = identifier_search_or_add( "IFNDEF" );
+        id_else                     = identifier_search_or_add( "ELSE" );
+        id_endif                    = identifier_search_or_add( "ENDIF" );
+        id_if                       = identifier_search_or_add( "IF" );
+        id_pragma                   = identifier_search_or_add( "PRAGMA");
+        id_decode_utf8_strings      = identifier_search_or_add( "DECODE_UTF8_STRINGS");
+        id_no_decode_utf8_strings   = identifier_search_or_add( "NO_DECODE_UTF8_STRINGS");
+
         initialized = 1;
     }
 
@@ -607,7 +613,7 @@ void preprocessor() {
 
         SKIP_SPACES_UNTIL_LF_AND_COUNT_LINES;
 
-        ptr = ( char * ) source_ptr;
+        ptr = ( unsigned char * ) source_ptr;
         while ( *ptr && *ptr != '\n' ) {
             if ( *ptr == '\\' && *( ptr + 1 ) == '\n' ) {
                 *ptr++ = ' ';
@@ -620,7 +626,7 @@ void preprocessor() {
 
         while ( ptr > source_ptr && ( !*ptr || ISSPACE( *ptr ) ) ) ptr--;
 
-        defines[defines_count].text = ( char * )calloc( ptr - source_ptr + 2, sizeof( char ) );
+        defines[defines_count].text = ( unsigned char * )calloc( ptr - source_ptr + 2, sizeof( unsigned char ) );
         strncpy( defines[defines_count].text, source_ptr, ptr - source_ptr + 1 );
         defines[defines_count].text[ptr - source_ptr + 1] = 0;
 
@@ -700,11 +706,11 @@ void preprocessor() {
     if ( token.code == ( int64_t ) id_if ) {
         int actual_sources;
         expresion_result res;
-        char c;
+        unsigned char c;
 
         prepro_stack[prepro_sp++] = token.code;
 
-        ptr = ( char * ) source_ptr;
+        ptr = ( unsigned char * ) source_ptr;
 
         while ( *ptr && *ptr != '\n' && *ptr != ';' ) {
             if ( *ptr == '\\' && *( ptr + 1 ) == '\n' ) {
@@ -812,13 +818,29 @@ void preprocessor() {
         return;
     }
 
+    /* #pragma option [value]*/
+
+    if ( token.code == ( int64_t ) id_pragma ) {
+        token_next();
+        if ( token.type != IDENTIFIER ) compile_error( MSG_INVALID_IDENTIFIER );
+
+        if ( token.code == ( int64_t ) id_decode_utf8_strings ) {
+            decode_utf8_strings = 1;
+        } else if ( token.code == ( int64_t ) id_no_decode_utf8_strings ) {
+            decode_utf8_strings = 0;
+        } else {
+            compile_error( MSG_INVALID_IDENTIFIER );            
+        }
+        return;
+    }
+
     /* Unknown preprocessor directive */
     compile_error( MSG_UNKNOWN_PREP );
 }
 
-void token_init( const char * source, int file ) {
-    char * ptr;
-    char * clean_source;
+void token_init( const unsigned char * source, int file ) {
+    unsigned char * ptr;
+    unsigned char * clean_source;
 
     if ( sources == MAX_SOURCES ) compile_error( MSG_TOO_MANY_INCLUDES );
 
@@ -829,7 +851,7 @@ void token_init( const char * source, int file ) {
 
     /* Perform cleaning of the source file */
 
-    clean_source = ( char * ) calloc( strlen( source ) + 2, sizeof( char ) );
+    clean_source = ( unsigned char * ) calloc( strlen( source ) + 2, sizeof( unsigned char ) );
     ptr = clean_source;
     *ptr++ = '\n';          /* Adds a blank line to detect first-line # directives */
     while ( *source ) {
@@ -894,8 +916,8 @@ extern int c_type_initialized;
 
 void token_next() {
     static int  i, len;
-    static char buffer[1024];
-    char * buffer_ptr = buffer;
+    static unsigned char buffer[1024];
+    unsigned char * buffer_ptr = buffer;
 
     if ( !source_ptr ) {
         token.type = NOTOKEN;
@@ -918,7 +940,7 @@ void token_next() {
 
         if ( !disable_prepro && *source_ptr == '#' ) {
             int line;
-            const char * old_source_ptr;
+            const unsigned char * old_source_ptr;
 
             identifiers_as_strings = 0;
 
@@ -1079,7 +1101,7 @@ void token_next() {
 
             /* Calculate the number value */
 
-            while ( ISNUM( *source_ptr ) || ( base > 10 && ISALNUM( *source_ptr ) ) ) {
+            while ( ISNUM( *source_ptr ) || ( base > 10 && ISXNUM( *source_ptr ) ) ) {
                 ch = TOUPPER( *source_ptr );
                 if ( base == 2 && ch != '0' && ch != '1' ) break;
                 if ( base == 8 && ( ch < '0' || ch > '7' ) ) break;
@@ -1176,7 +1198,7 @@ void token_next() {
             if ( !disable_expand_defines ) {
                 if ( !strcmp( buffer, "__FILE__" ) ) {
                     token.type = STRING;
-                    token.code = ( int64_t ) string_new(( current_file != -1 && files[current_file] && *files[current_file] ) ? files[current_file] : "N/A" );
+                    token.code = ( int64_t ) string_new(( current_file != -1 && files[current_file] && *files[current_file] ) ? files[current_file] : ( unsigned char * ) "N/A" );
                     token.line = line_count;
                     token.file = current_file;
                     return;
@@ -1269,7 +1291,7 @@ tok_pos token_pos() {
     tp.line_count   = line_count;
     tp.current_file = current_file;
     tp.token_prev   = token_prev;
-    tp.source_ptr   = ( char * ) source_ptr;
+    tp.source_ptr   = ( unsigned char * ) source_ptr;
 
     return tp;
 }

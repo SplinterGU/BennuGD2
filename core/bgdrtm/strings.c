@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -62,27 +62,27 @@
 /****************************************************************************/
 
 /* Fixed string memory. The DCB fixed strings are stored here */
-static char     * string_mem = NULL;
+static unsigned char    * string_mem = NULL;
 
-static int      string_reserved = 0;        /* Last fixed string */
+static int              string_reserved = 0;        /* Last fixed string */
 
-static char     ** string_ptr = NULL;      /* Pointers to each string's text. Every string is allocated using strdup() or malloc().
-                                               A pointer of a unused slot is 0.
-                                               Exception: "fixed" strings are stored in a separate memory block and should not be freed */
-static uint64_t * string_uct = NULL;       /* Usage count for each string. An unused slot has a count of 0 */
+static unsigned char    ** string_ptr = NULL;       /* Pointers to each string's text. Every string is allocated using strdup() or malloc().
+                                                       A pointer of a unused slot is 0.
+                                                       Exception: "fixed" strings are stored in a separate memory block and should not be freed */
+static uint64_t         * string_uct = NULL;        /* Usage count for each string. An unused slot has a count of 0 */
 
-static uint64_t * string_bmp = NULL;       /* Bitmap for speed up string creation, and reused freed slots */
+static uint64_t         * string_bmp = NULL;        /* Bitmap for speed up string creation, and reused freed slots */
 
-static int      string_allocated = 0;      /* How many string slots are available in the ptr, uct and dontfree arrays */
+static int              string_allocated = 0;       /* How many string slots are available in the ptr, uct and dontfree arrays */
 
-static int      string_bmp_start = 0;      /* Offset of assignable string for reused (64bits each one) */
+static int              string_bmp_start = 0;       /* Offset of assignable string for reused (64bits each one) */
 
-static int      string_last_id = 1;        /* How many strings slots are used. This is only the bigger id in use + 1.
-                                               There may be unused slots in this many positions */
+static int              string_last_id = 1;         /* How many strings slots are used. This is only the bigger id in use + 1.
+                                                      There may be unused slots in this many positions */
 
 /* --------------------------------------------------------------------------- */
 
-void _string_ptoa( char *t, void * ptr )  {
+void _string_ptoa( unsigned char *t, void * ptr )  {
     unsigned char c;
     int64_t p = ( int64_t )( intptr_t )ptr;
 
@@ -139,8 +139,8 @@ void _string_ptoa( char *t, void * ptr )  {
 
 /* --------------------------------------------------------------------------- */
 
-void _string_ntoa( char *p, uint64_t n ) {
-    char * i = p;
+void _string_ntoa( unsigned char *p, uint64_t n ) {
+    unsigned char * i = p;
 
     p += 20; // Max int64 digits - 1
     if ( ( int64_t ) n < 0 ) {
@@ -158,8 +158,8 @@ void _string_ntoa( char *p, uint64_t n ) {
 
 /* --------------------------------------------------------------------------- */
 
-void _string_utoa( char *p, uint64_t n ) {
-    char * i = p;
+void _string_utoa( unsigned char *p, uint64_t n ) {
+    unsigned char * i = p;
 
     p += 20; // Max int64 digits - 1
 
@@ -190,7 +190,7 @@ static void string_alloc( int count ) {
 
     string_allocated += count;
 
-    string_ptr = ( char ** ) realloc( string_ptr, string_allocated * sizeof( char * ) );
+    string_ptr = ( unsigned char ** ) realloc( string_ptr, string_allocated * sizeof( unsigned char * ) );
     string_uct = ( uint64_t * ) realloc( string_uct, string_allocated * sizeof( uint64_t ) );
     string_bmp = ( uint64_t * ) realloc( string_bmp, ( string_allocated >> 6 ) * sizeof( uint64_t ) );
 
@@ -264,7 +264,7 @@ void string_dump( void ( *wlog )( const char *fmt, ... ) ) {
 /* valid while no other string function is called.                          */
 /****************************************************************************/
 
-const char * string_get( int64_t code ) {
+const unsigned char * string_get( int64_t code ) {
     assert( code < string_allocated && code >= 0 );
     return string_ptr[code];
 }
@@ -416,7 +416,7 @@ static int64_t string_getid() {
 /****************************************************************************/
 
 int64_t string_new( const char * ptr ) {
-    char * str = strdup( ptr );
+    unsigned char * str = strdup( ptr );
     int64_t id;
 
     assert( str );
@@ -442,8 +442,8 @@ int64_t string_new( const char * ptr ) {
  *      ID of the new string
  */
 
-int64_t string_newa( const char * ptr, unsigned count ) {
-    char * str = malloc( count + 1 );
+int64_t string_newa( const unsigned char * ptr, unsigned count ) {
+    unsigned char * str = malloc( count + 1 );
     int64_t id;
 
     assert( str );
@@ -464,8 +464,8 @@ int64_t string_newa( const char * ptr, unsigned count ) {
 /* modify the original string, but creates a new one.                       */
 /****************************************************************************/
 
-int64_t string_concat( int64_t code1, char * str2 ) {
-    char * str1;
+int64_t string_concat( int64_t code1, unsigned char * str2 ) {
+    unsigned char * str1;
     int len1, len2;
 
     assert( code1 < string_allocated && code1 >= 0 );
@@ -494,9 +494,9 @@ int64_t string_concat( int64_t code1, char * str2 ) {
 /****************************************************************************/
 
 int64_t string_add( int64_t code1, int64_t code2 ) {
-    const char * str1 = string_get( code1 );
-    const char * str2 = string_get( code2 );
-    char * str3;
+    const unsigned char * str1 = string_get( code1 );
+    const unsigned char * str2 = string_get( code2 );
+    unsigned char * str3;
     int64_t id;
     int len1, len2;
 
@@ -527,10 +527,10 @@ int64_t string_add( int64_t code1, int64_t code2 ) {
 /****************************************************************************/
 
 int64_t string_ptoa( void * n ) {
-    char * str;
+    unsigned char * str;
     int64_t id;
 
-    str = ( char * ) malloc( 17 );
+    str = ( unsigned char * ) malloc( 17 );
     assert( str ) ;
 
     _string_ptoa( str, n );
@@ -549,7 +549,7 @@ int64_t string_ptoa( void * n ) {
 /****************************************************************************/
 
 int64_t string_ftoa( double n ) {
-    char * str = ( char * ) malloc( 384 ), * ptr = str;
+    unsigned char * str = ( unsigned char * ) malloc( 384 ), * ptr = str;
     int64_t id;
 
     assert( str ) ;
@@ -580,10 +580,10 @@ int64_t string_ftoa( double n ) {
 /****************************************************************************/
 
 int64_t string_itoa( int64_t n ) {
-    char * str;
+    unsigned char * str;
     int64_t id;
 
-    str = ( char * ) malloc( 22 );
+    str = ( unsigned char * ) malloc( 22 );
     assert( str ) ;
 
     _string_ntoa( str, n );
@@ -602,10 +602,10 @@ int64_t string_itoa( int64_t n ) {
 /****************************************************************************/
 
 int64_t string_uitoa( uint64_t n ) {
-    char * str;
+    unsigned char * str;
     int64_t id;
 
-    str = ( char * ) malloc( 22 );
+    str = ( unsigned char * ) malloc( 22 );
     assert( str ) ;
 
     _string_utoa( str, n );
@@ -624,8 +624,8 @@ int64_t string_uitoa( uint64_t n ) {
 /****************************************************************************/
 
 int64_t string_comp( int64_t code1, int64_t code2 ) {
-    const char * str1 = string_get( code1 );
-    const char * str2 = string_get( code2 );
+    const unsigned char * str1 = string_get( code1 );
+    const unsigned char * str2 = string_get( code2 );
     return strcmp( str1, str2 );
 }
 
@@ -639,8 +639,8 @@ int64_t string_comp( int64_t code1, int64_t code2 ) {
 /* that is create in the process and contains only the extracted character  */
 /****************************************************************************/
 
-int64_t string_char( int64_t n, int nchar ) {
-    const char * str = string_get( n );
+uint64_t string_char( int64_t n, int nchar ) {
+    const unsigned char * str = ( const unsigned char * ) string_get( n );
 
     assert( str );
 
@@ -664,10 +664,10 @@ int64_t string_char( int64_t n, int nchar ) {
 /****************************************************************************/
 
 int64_t string_substr( int64_t code, int first, int len ) {
-    const char * str = string_get( code );
-    char       * ptr;
-    int          rlen;
-    int64_t     n;
+    const unsigned char * str = string_get( code );
+    unsigned char * ptr;
+    int rlen;
+    int64_t n;
 
     assert( str );
     rlen = strlen( str );
@@ -687,7 +687,7 @@ int64_t string_substr( int64_t code, int first, int len ) {
 
     if ( first + len > rlen ) len = ( rlen - first );
 
-    ptr = ( char * )malloc( len + 1 );
+    ptr = ( unsigned char * ) malloc( len + 1 );
     memcpy( ptr, str + first, len );
     ptr[len] = '\0';
 
@@ -715,9 +715,9 @@ int64_t string_substr( int64_t code, int first, int len ) {
  */
 
 int64_t string_find( int64_t code1, int64_t code2, int first ) {
-    char * str1 = ( char * ) string_get( code1 );
-    char * str2 = ( char * ) string_get( code2 );
-    char * p = str1, * p1, * p2;
+    unsigned char * str1 = ( unsigned char * ) string_get( code1 );
+    unsigned char * str2 = ( unsigned char * ) string_get( code2 );
+    unsigned char * p = str1, * p1, * p2;
 
     assert( str1 && str2 );
 
@@ -763,13 +763,13 @@ int64_t string_find( int64_t code1, int64_t code2, int first ) {
  */
 
 int64_t string_ucase( int64_t code ) {
-    const char * str = string_get( code );
-    char       * base, * ptr;
-    int64_t   id;
+    const unsigned char * str = string_get( code );
+    unsigned char * base, * ptr;
+    int64_t id;
 
     assert( str );
 
-    base = ( char * )malloc( strlen( str ) + 1 );
+    base = ( unsigned char * ) malloc( strlen( str ) + 1 );
     assert( base );
 
     for ( ptr = base; *str; ptr++, str++ ) *ptr = TOUPPER( *str );
@@ -796,13 +796,13 @@ int64_t string_ucase( int64_t code ) {
  */
 
 int64_t string_lcase( int64_t code ) {
-    const char * str = string_get( code );
-    char       * base, * ptr;
-    int64_t    id;
+    const unsigned char * str = string_get( code );
+    unsigned char * base, * ptr;
+    int64_t id;
 
     assert( str );
 
-    base = ( char * )malloc( strlen( str ) + 1 );
+    base = ( unsigned char * ) malloc( strlen( str ) + 1 );
     assert( base );
 
     for ( ptr = base; *str; ptr++, str++ ) *ptr = TOLOWER( *str );
@@ -828,11 +828,11 @@ int64_t string_lcase( int64_t code ) {
  */
 
 int64_t string_strip( int64_t code ) {
-    const char * str = string_get( code );
-    char * base, * ptr;
+    const unsigned char * str = string_get( code );
+    unsigned char * base, * ptr;
     int64_t id = string_new( str );
 
-    ptr = base = ( char * )string_get( id );
+    ptr = base = ( unsigned char * )string_get( id );
 
     assert( ptr );
 
@@ -858,8 +858,8 @@ int64_t string_strip( int64_t code ) {
  */
 
 int64_t string_format( double number, int dec, char point, char thousands ) {
-    char * str = malloc( 384 );
-    char * s = str, * t, * p = NULL;
+    unsigned char * str = malloc( 384 );
+    unsigned char * s = str, * t, * p = NULL;
     int c, neg;
     int64_t id;
 
@@ -947,10 +947,10 @@ int64_t string_casecmp( int64_t code1, int64_t code2 ) {
  */
 
 int64_t string_pad( int64_t code, int total, int align ) {
-    const char * ptr = string_get( code );
-    int    len, spaces = 0;
-    int64_t    id;
-    char * str;
+    const unsigned char * ptr = string_get( code );
+    int len, spaces = 0;
+    int64_t id;
+    unsigned char * str;
 
     assert( ptr );
     len = strlen( ptr );

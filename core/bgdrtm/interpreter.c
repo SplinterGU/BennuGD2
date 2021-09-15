@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -168,7 +168,8 @@ int64_t instance_go( INSTANCE * r ) {
 
     register int64_t * ptr = r->codeptr;
 
-    int64_t n, return_value = LOCQWORD( r, PROCESS_ID );
+    uint64_t return_value = LOCQWORD( r, PROCESS_ID );
+    int64_t n;
     SYSPROC * p = NULL;
     INSTANCE * i = NULL;
     char * str = NULL;

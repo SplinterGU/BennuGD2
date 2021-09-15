@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -29,20 +29,22 @@
 #ifndef __XCTYPE_ST_H
 #define __XCTYPE_ST_H
 
-#define ISALPHA(c)     (c_type [(unsigned char)c] & CTYPE_ALPHA)
-#define ISSPACE(c)     (c_type [(unsigned char)c] & CTYPE_SPACE)
-#define ISNUM(c)       (c_type [(unsigned char)c] & CTYPE_NUM)
-#define ISALNUM(c)     (c_type [(unsigned char)c] & CTYPE_ALNUM)
-#define ISWORDCHAR(c)  (c_type [(unsigned char)c] & CTYPE_WORDCHAR)
-#define ISWORDFIRST(c) (c_type [(unsigned char)c] & CTYPE_WORDFIRST)
-#define TOUPPER(c)     (c_upper[(unsigned char)c])
-#define TOLOWER(c)     (c_lower[(unsigned char)c])
+#define ISALPHA(c)      (c_type [(unsigned char)c] & CTYPE_ALPHA)
+#define ISSPACE(c)      (c_type [(unsigned char)c] & CTYPE_SPACE)
+#define ISNUM(c)        (c_type [(unsigned char)c] & CTYPE_NUM)
+#define ISXNUM(c)       (c_type [(unsigned char)c] & CTYPE_XNUM)
+#define ISWORDCHAR(c)   (c_type [(unsigned char)c] & CTYPE_WORDCHAR)
+#define ISWORDFIRST(c)  (c_type [(unsigned char)c] & CTYPE_WORDFIRST)
+#define ISALNUM(c)      (c_type [(unsigned char)c] & CTYPE_ALNUM)
+#define TOUPPER(c)      (c_upper[(unsigned char)c])
+#define TOLOWER(c)      (c_lower[(unsigned char)c])
 
-#define CTYPE_ALPHA     1
-#define CTYPE_NUM       2
-#define CTYPE_WORDCHAR  4
-#define CTYPE_WORDFIRST 8
-#define CTYPE_SPACE     16
-#define CTYPE_ALNUM     32
+#define CTYPE_ALPHA         1
+#define CTYPE_NUM           2
+#define CTYPE_WORDCHAR      4
+#define CTYPE_WORDFIRST     8
+#define CTYPE_SPACE         16
+#define CTYPE_XNUM          32
+#define CTYPE_ALNUM         64
 
 #endif

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -52,7 +52,7 @@
 
 extern int load_file( char * filename );
 extern void import_files( char * filename );
-extern void add_simple_define( char * macro, char *text );
+extern void add_simple_define( unsigned char * macro, unsigned char *text );
 extern int dcb_options;
 
 extern int dcb_load_lib( const char * filename );
@@ -120,7 +120,7 @@ int main( int argc, char *argv[] ) {
     printf( BGDC_VERSION "\n"
             "Bennu Game Development Compiler\n"
             "\n"
-            "Copyright (c) 2006-2019 SplinterGU (Fenix/BennuGD)\n"
+            "Copyright (c) SplinterGU (Fenix/BennuGD) (Since 2006)\n"
             "Copyright (c) 2002-2006 Fenix Team (Fenix)\n"
             "Copyright (c) 1999-2002 José Luis Cebrián Pagüe (Fenix)\n"
             "\n" );
@@ -219,7 +219,7 @@ int main( int argc, char *argv[] ) {
                     break;
                 }
 
-                if ( argv[i][j] == 'c' ) dos_chars = 1;
+//                if ( argv[i][j] == 'c' ) dos_chars = 1;
 
                 if ( argv[i][j] == 'a' ) autoinclude = 1;
 

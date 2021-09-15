@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -41,7 +41,7 @@
 /* Gestor de cadenas                                                      */
 /* ---------------------------------------------------------------------- */
 
-char * string_mem = NULL;
+unsigned char * string_mem = NULL;
 int64_t string_allocated = 0;
 int64_t string_used = 0;
 
@@ -51,8 +51,10 @@ int64_t string_count = 0;
 
 int64_t autoinclude = 0;
 
+int decode_utf8_strings = 1;
+
 void string_init() {
-    string_mem = ( char * ) calloc( 4096, sizeof( char ) );
+    string_mem = ( unsigned char * ) calloc( 4096, sizeof( unsigned char ) );
     string_allocated = 4096;
     string_used = 1;
     string_count = 1;
@@ -63,7 +65,7 @@ void string_init() {
 }
 
 void string_alloc( int64_t bytes ) {
-    string_mem = ( char * ) realloc( string_mem, string_allocated += bytes );
+    string_mem = ( unsigned char * ) realloc( string_mem, string_allocated += bytes );
     if ( !string_mem ) {
         fprintf( stdout, "string_alloc: out of memory\n" );
         exit( 1 );
@@ -77,7 +79,7 @@ void string_dump( void ( *wlog )( const char *fmt, ... ) ) {
         printf( "%4" PRId64 ": %s\n", i, string_mem + string_offset[ i ] );
 }
 
-int64_t string_new( const char * text ) {
+int64_t string_new( const unsigned char * text ) {
     int64_t len = strlen( text ) + 1, i;
 
     /* Reuse strings */
@@ -101,13 +103,13 @@ int64_t string_new( const char * text ) {
 }
 
 
-char * validchars = "\\/.";
-char * invalidchars = \
+unsigned char * validchars = "\\/.";
+unsigned char * invalidchars = \
         "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F" \
         "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F" \
         "*?\"<>|";
 
-int64_t check_for_valid_pathname( char * pathname ) {
+int64_t check_for_valid_pathname( unsigned char * pathname ) {
     int n, l;
 
     if ( !pathname || ( l = strlen( pathname ) ) > __MAX_PATH ) return 0;
@@ -126,9 +128,9 @@ int64_t check_for_valid_pathname( char * pathname ) {
 
 int64_t no_include_this_file = 0;
 
-int64_t string_compile( const char ** source ) {
-    unsigned char c = *( *source )++, conv, cc;
-    const char * ptr;
+int64_t string_compile( const unsigned char ** source ) {
+    unsigned char c = *( *source )++, /*conv,*/ cc;
+    const unsigned char * ptr;
     int64_t string_used_back = string_used;
 
     if ( string_count == string_max ) {
@@ -195,8 +197,8 @@ int64_t string_compile( const char ** source ) {
                 }
             }
             if ( cc ) {
-                conv = convert( cc );
-                string_mem[ string_used++ ] = conv;
+//                conv = convert( cc );
+                string_mem[ string_used++ ] = cc; // conv;
             }
         } else if ( cc == c ) {  /* Termina la string? */
             ( *source )++;
@@ -211,8 +213,8 @@ int64_t string_compile( const char ** source ) {
             string_mem[ string_used++ ] = '\n';
             ( *source )++;
         } else {
-            conv = convert( cc );
-            string_mem[ string_used++ ] = conv;
+//            conv = convert( cc );
+            string_mem[ string_used++ ] = cc; //conv;
             ( *source )++;
         }
 
@@ -222,10 +224,13 @@ int64_t string_compile( const char ** source ) {
 
     string_mem[ string_used++ ] = 0;
 
-    int i;
+    /* Utf8 to iso8859-1 */
+
+    if ( decode_utf8_strings ) utf8_to_iso8859_1( string_mem + string_used_back, string_used - string_used_back, string_mem + string_used_back, string_used - string_used_back );
 
     /* Reuse strings */
 
+    int i;
     for ( i = 0; i < string_count; i++ ) {
         if ( !strcmp( string_mem + string_used_back, string_mem + string_offset[ i ] ) ) {
             string_used = string_used_back;
@@ -245,7 +250,7 @@ int64_t string_compile( const char ** source ) {
     return string_count++;
 }
 
-const char * string_get( int64_t code ) {
+const unsigned char * string_get( int64_t code ) {
     assert( code < string_count && code >= 0 );
     return string_mem + string_offset[ code ];
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -623,14 +623,15 @@ int64_t gr_text_width( int64_t fontid, const unsigned char * text ) {
         case CHARSET_ISO8859:
             while ( *text ) {
                 SKIP_ANSI();
-                l += f->glyph[dos_to_win[*text++]].xadvance;
+//                l += f->glyph[cp850_to_iso8859_1[*text++]].xadvance;
+                l += f->glyph[*text++].xadvance;
             }
             break;
 
         case CHARSET_CP850:
             while ( *text ) {
                 SKIP_ANSI();
-                l += f->glyph[*text++].xadvance;
+                l += f->glyph[iso8859_1_to_cp850[*text++]].xadvance;
             }
             break;
     }
@@ -650,14 +651,15 @@ int64_t gr_text_margintop( int64_t fontid, const unsigned char * text ) {
     switch ( f->charset ) {
         case CHARSET_ISO8859:
             while ( *text ) {
-                if ( minyoffset > ( t = f->glyph[dos_to_win[*text]].yoffset ) ) minyoffset = t;
+//                if ( minyoffset > ( t = f->glyph[cp850_to_iso8859_1[*text]].yoffset ) ) minyoffset = t;
+                if ( minyoffset > ( t = f->glyph[*text].yoffset ) ) minyoffset = t;
                 text++;
             }
             break;
 
         case CHARSET_CP850:
             while ( *text ) {
-                if ( minyoffset > ( t = f->glyph[*text].yoffset ) ) minyoffset = t;
+                if ( minyoffset > ( t = f->glyph[iso8859_1_to_cp850[*text]].yoffset ) ) minyoffset = t;
                 text++;
             }
             break;
@@ -679,14 +681,15 @@ int64_t gr_text_height_no_margin( int64_t fontid, const unsigned char * text ) {
         switch ( f->charset ) {
             case CHARSET_ISO8859:
                 while ( *text ) {
-                    if ( l < ( t = f->glyph[dos_to_win[*text]].yoffset + ( int64_t )f->glyph[dos_to_win[*text]].fontsource.h ) ) l = t;
+//                    if ( l < ( t = f->glyph[cp850_to_iso8859_1[*text]].yoffset + ( int64_t )f->glyph[cp850_to_iso8859_1[*text]].fontsource.h ) ) l = t;
+                    if ( l < ( t = f->glyph[*text].yoffset + ( int64_t )f->glyph[*text].fontsource.h ) ) l = t;
                     text++;
                 }
                 break;
 
             case CHARSET_CP850:
                 while ( *text ) {
-                    if ( l < ( t = f->glyph[*text].yoffset + ( int64_t )f->glyph[*text].fontsource.h ) ) l = t;
+                    if ( l < ( t = f->glyph[iso8859_1_to_cp850[*text]].yoffset + ( int64_t )f->glyph[iso8859_1_to_cp850[*text]].fontsource.h ) ) l = t;
                     text++;
                 }
                 break;
@@ -696,14 +699,15 @@ int64_t gr_text_height_no_margin( int64_t fontid, const unsigned char * text ) {
         switch ( f->charset ) {
             case CHARSET_ISO8859:
                 while ( *text ) {
-                    if ( f->glyph[*text].glymap && l < ( t = f->glyph[dos_to_win[*text]].yoffset + ( int64_t )f->glyph[dos_to_win[*text]].glymap->height ) ) l = t;
+//                    if ( f->glyph[cp850_to_iso8859_1[*text]].glymap && l < ( t = f->glyph[cp850_to_iso8859_1[*text]].yoffset + ( int64_t )f->glyph[cp850_to_iso8859_1[*text]].glymap->height ) ) l = t;
+                    if ( f->glyph[*text].glymap && l < ( t = f->glyph[*text].yoffset + ( int64_t )f->glyph[*text].glymap->height ) ) l = t;
                     text++;
                 }
                 break;
 
             case CHARSET_CP850:
                 while ( *text ) {
-                    if ( f->glyph[*text].glymap && l < ( t = f->glyph[*text].yoffset + ( int64_t )f->glyph[*text].glymap->height ) ) l = t;
+                    if ( f->glyph[iso8859_1_to_cp850[*text]].glymap && l < ( t = f->glyph[iso8859_1_to_cp850[*text]].yoffset + ( int64_t )f->glyph[iso8859_1_to_cp850[*text]].glymap->height ) ) l = t;
                     text++;
                 }
                 break;
@@ -763,21 +767,23 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
     if ( f->fontmap ) {
         switch ( f->charset ) {
             case CHARSET_ISO8859:
-                WRITE_TEXT_FNT_CHARMAP(dos_to_win[*text]);
+//                WRITE_TEXT_FNT_CHARMAP(cp850_to_iso8859_1[*text]);
+                WRITE_TEXT_FNT_CHARMAP(*text);
                 break;
 
             case CHARSET_CP850:
-                WRITE_TEXT_FNT_CHARMAP(*text);
+                WRITE_TEXT_FNT_CHARMAP(iso8859_1_to_cp850[*text]);
                 break;
         }
     } else {
         switch ( f->charset ) {
             case CHARSET_ISO8859:
-                WRITE_TEXT_FNT_MAP(dos_to_win[*text]);
+//                WRITE_TEXT_FNT_MAP(cp850_to_iso8859_1[*text]);
+                WRITE_TEXT_FNT_MAP(*text);
                 break;
 
             case CHARSET_CP850:
-                WRITE_TEXT_FNT_MAP(*text);
+                WRITE_TEXT_FNT_MAP(iso8859_1_to_cp850[*text]);
                 break;
         }
     }

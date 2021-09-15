@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -224,7 +224,7 @@ console_vars[] = {
 
 static int console_scroll_pos = 0 ;
 static int console_scroll_lateral_pos = 0 ;
-static char console_input[128] ;
+static char console_input[256] ;
 
 /* --------------------------------------------------------------------------- */
 
@@ -945,6 +945,24 @@ static uint8_t sysfont[] = {
                                 0b00100000,
                                 0b00000000,
 
+                                0b00100000,
+                                0b01010000,
+                                0b01010000,
+                                0b00100000,
+                                0b01010100,
+                                0b01001000,
+                                0b00110100,
+                                0b00000000,
+
+                                0b000100000,
+                                0b001111000,
+                                0b010100000,
+                                0b001110000,
+                                0b000101000,
+                                0b000101000,
+                                0b011110000,
+                                0b000100000,
+
                                 0b00000000,
                                 0b00000000,
                                 0b00000000,
@@ -1062,7 +1080,7 @@ static uint8_t sysfont[] = {
                                 0b01110000,
                                 0b00000000,
 
-                                0b01100110, //
+                                0b01100110,
                                 0b11011000,
                                 0b00000000,
                                 0b00000000,
@@ -1071,7 +1089,7 @@ static uint8_t sysfont[] = {
                                 0b00000000,
                                 0b00000000,
 
-                                0b00100000, //
+                                0b00100000,
                                 0b01010000,
                                 0b10001000,
                                 0b00000000,
@@ -1249,11 +1267,20 @@ static uint8_t sysfont[] = {
                                 0b11111100,
                                 0b11111100,
                                 0b11111100,
-                                0b11111100
+                                0b11111100,
+
+                                0b01100000,
+                                0b10010000,
+                                0b10010000,
+                                0b01100000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
+                                0b00000000,
 
                             };
 
-static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|-><_,\\/+*!¡?¿~^\"'`\x01\x02\x03ÁÉÍÓÚÑáéíóúñ\xff" ;
+static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|&$-><_,\\/+*!¡?¿~^\"'`\x01\x02\x03ÁÉÍÓÚÑáéíóúñ\xffº" ;
 
 static int64_t debug_sysfont = -1;
 
@@ -1294,10 +1321,10 @@ static void create_debug_sysfont() {
     bitmap_add_cpoint( map, 0, 0 );
 
 #ifdef USE_SDL2
-    debug_sysfont = gr_font_new_from_bitmap( map, CHARSET_CP850, CHARWIDTH, CHARHEIGHT, 0, 0, NFB_FIXEDWIDTH, letters );
+    debug_sysfont = gr_font_new_from_bitmap( map, NULL, /*CHARSET_CP850*/ CHARSET_ISO8859, CHARWIDTH, CHARHEIGHT, 0, 0, NFB_FIXEDWIDTH, letters, 0, 0, 0, 0, 0 );
 #endif
 #ifdef USE_SDL2_GPU
-    debug_sysfont = gr_font_new_from_bitmap( map, surface, CHARSET_CP850, CHARWIDTH, CHARHEIGHT, 0, 0, NFB_FIXEDWIDTH, letters );
+    debug_sysfont = gr_font_new_from_bitmap( map, surface, NULL, /*CHARSET_CP850*/ CHARSET_ISO8859, CHARWIDTH, CHARHEIGHT, 0, 0, NFB_FIXEDWIDTH, letters, 0, 0, 0, 0, 0 );
 #endif
 
     SDL_FreeSurface( surface );
@@ -1454,7 +1481,7 @@ static void console_getkey( int sym ) {
         }
     }
 
-    if ( sym >= ' ' && sym <= '~' && strlen( console_input ) < sizeof( console_input ) - 3 ) {
+    if ( sym >= ' ' && sym <= 255 && strlen( console_input ) < sizeof( console_input ) - 3 ) {
         buffer[0] = sym ;
         buffer[1] = 0 ;
         strcat( console_input, buffer ) ;
@@ -1725,7 +1752,7 @@ static void get_token() {
 
         /* Calculate the number value */
 
-        while ( ISNUM( *token_ptr ) || ( base > 10 && ISALNUM( *token_ptr ) ) ) {
+        while ( ISNUM( *token_ptr ) || ( base > 10 && ISXNUM( *token_ptr ) ) ) {
             if ( base == 2 && *token_ptr != '0' && *token_ptr != '1' ) break;
             if ( base == 8 && ( *token_ptr < '0' || *token_ptr > '7' ) ) break;
             if ( base == 10 && !ISNUM( *token_ptr ) ) break;
@@ -1758,7 +1785,7 @@ static void get_token() {
                 token_ptr--;
             else {
                 dec = 1.0 / ( double )base;
-                while ( ISNUM( *token_ptr ) || ( base > 100 && ISALNUM( *token_ptr ) ) ) {
+                while ( ISNUM( *token_ptr ) || ( base > 100 && ISXNUM( *token_ptr ) ) ) {
                     if ( ISNUM( *token_ptr ) ) num = num + dec * ( *token_ptr++ - '0' );
                     if ( *token_ptr >= 'a' && *token_ptr <= 'f' && base > 10 ) num = num + dec * ( *token_ptr++ - 'a' + 10 );
                     if ( *token_ptr >= 'A' && *token_ptr <= 'F' && base > 10 ) num = num + dec * ( *token_ptr++ - 'A' + 10 );
@@ -2450,7 +2477,7 @@ static void console_instance_dump_all_brief() {
         if ( LOCQWORD( libmod_debug, i, STATUS ) & STATUS_PAUSED_MASK  ) strcat( status, "pause+" );
         switch ( LOCQWORD( libmod_debug, i, STATUS ) & ~( STATUS_WAITING_MASK | STATUS_PAUSED_MASK ) ) {
             case STATUS_DEAD        :   strcat( status, COLOR_OLIVE  "dead"     ) ; break ;
-            case STATUS_KILLED      :   strcat( status, COLOR_RED "killed"   ) ; break ;
+            case STATUS_KILLED      :   strcat( status, COLOR_RED    "killed"   ) ; break ;
             case STATUS_SLEEPING    :   strcat( status, COLOR_BLUE   "sleeping" ) ; break ;
             case STATUS_FROZEN      :   strcat( status, COLOR_TEAL   "frozen"   ) ; break ;
             case STATUS_RUNNING     :   strcat( status, COLOR_LIME   "running"  ) ; break ;

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -83,7 +83,7 @@ int64_t libmod_gfx_unload_fnt( INSTANCE * my, int64_t * params ) {
  */
 
 int64_t libmod_gfx_fnt_new( INSTANCE * my, int64_t * params ) {
-    return gr_font_new( CHARSET_CP850 );
+    return gr_font_new( CHARSET_ISO8859 );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -103,11 +103,11 @@ int64_t libmod_gfx_fnt_new_charset( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_fnt_new_from_bitmap( INSTANCE * my, int64_t * params ) {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
     if ( !bmp ) return -1;
-#ifdef USE_SDL2_GPU
-    return gr_font_new_from_bitmap( bmp, NULL, params[2], params[3], params[4], params[5], params[6], params[7], NULL );
-#endif
 #ifdef USE_SDL2
-    return gr_font_new_from_bitmap( bmp, params[2], params[3], params[4], params[5], params[6], params[7], NULL );
+    return gr_font_new_from_bitmap( bmp, NULL, params[2], params[3], params[4], params[5], params[6], params[7], NULL, 0, 0, 0, 0, 0 );
+#endif
+#ifdef USE_SDL2_GPU
+    return gr_font_new_from_bitmap( bmp, NULL, NULL, params[2], params[3], params[4], params[5], params[6], params[7], NULL, 0, 0, 0, 0, 0 );
 #endif
 }
 
@@ -119,13 +119,119 @@ int64_t libmod_gfx_fnt_new_from_bitmap( INSTANCE * my, int64_t * params ) {
 int64_t libmod_gfx_fnt_new_from_bitmap2( INSTANCE * my, int64_t * params ) {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
     if ( !bmp ) return -1;
-#ifdef USE_SDL2_GPU
-    int64_t ret = gr_font_new_from_bitmap( bmp, NULL, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ) );
-#endif
 #ifdef USE_SDL2
-    int64_t ret = gr_font_new_from_bitmap( bmp, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ) );
+    int64_t ret = gr_font_new_from_bitmap( bmp, NULL, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ), 0, 0, 0, 0, 0 );
+#endif
+#ifdef USE_SDL2_GPU
+    int64_t ret = gr_font_new_from_bitmap( bmp, NULL, NULL, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ), 0, 0, 0, 0, 0 );
 #endif
     string_discard( params[8] );
+    return ret;
+}
+
+/* --------------------------------------------------------------------------- */
+/** FNT_NEW (FILE, GRAPH, CHARSET, WIDTH, HEIGHT, FIRST, LAST, FLAGS)
+ *  Create a new font in memory (returns the font ID)
+ */
+
+int64_t libmod_gfx_fnt_new_from_bitmap3( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
+    if ( !bmp ) return -1;
+    REGION r = { params[2], params[3], params[4] ? params[2] + params[4] - 1 : 0, params[5] ? params[3] + params[5] - 1 : 0 };
+#ifdef USE_SDL2
+    return gr_font_new_from_bitmap( bmp, &r, params[6], params[7], params[8], params[9], params[10], params[11], NULL, 0, 0, 0, 0, 0 );
+#endif
+#ifdef USE_SDL2_GPU
+    return gr_font_new_from_bitmap( bmp, NULL, &r, params[6], params[7], params[8], params[9], params[10], params[11], NULL, 0, 0, 0, 0, 0 );
+#endif
+}
+
+/* --------------------------------------------------------------------------- */
+/** FNT_NEW (FILE, GRAPH, CHARSET, WIDTH, HEIGHT, FIRST, LAST, FLAGS, CHARMAP)
+ *  Create a new font in memory (returns the font ID)
+ */
+
+int64_t libmod_gfx_fnt_new_from_bitmap4( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
+    if ( !bmp ) return -1;
+    REGION r = { params[2], params[3], params[4] ? params[2] + params[4] - 1 : 0, params[5] ? params[3] + params[5] - 1 : 0 };
+#ifdef USE_SDL2
+    int64_t ret = gr_font_new_from_bitmap( bmp, &r, params[6], params[7], params[8], params[9], params[10], params[11], string_get( params[12] ), 0, 0, 0, 0, 0 );
+#endif
+#ifdef USE_SDL2_GPU
+    int64_t ret = gr_font_new_from_bitmap( bmp, NULL, &r, params[6], params[7], params[8], params[9], params[10], params[11], string_get( params[12] ), 0, 0, 0, 0, 0 );
+#endif
+    string_discard( params[12] );
+    return ret;
+}
+
+/* --------------------------------------------------------------------------- */
+/** FNT_NEW (FILE, GRAPH, CHARSET, WIDTH, HEIGHT, FIRST, LAST, FLAGS)
+ *  Create a new font in memory (returns the font ID)
+ */
+
+int64_t libmod_gfx_fnt_new_from_bitmap5( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
+    if ( !bmp ) return -1;
+#ifdef USE_SDL2
+    return gr_font_new_from_bitmap( bmp, NULL, params[2], params[3], params[4], params[5], params[6], params[7], NULL, params[8], params[9], params[10], params[11], params[12] );
+#endif
+#ifdef USE_SDL2_GPU
+    return gr_font_new_from_bitmap( bmp, NULL, NULL, params[2], params[3], params[4], params[5], params[6], params[7], NULL, params[8], params[9], params[10], params[11], params[12] );
+#endif
+}
+
+/* --------------------------------------------------------------------------- */
+/** FNT_NEW (FILE, GRAPH, CHARSET, WIDTH, HEIGHT, FIRST, LAST, FLAGS, CHARMAP)
+ *  Create a new font in memory (returns the font ID)
+ */
+
+int64_t libmod_gfx_fnt_new_from_bitmap6( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
+    if ( !bmp ) return -1;
+#ifdef USE_SDL2
+    int64_t ret = gr_font_new_from_bitmap( bmp, NULL, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ), params[9], params[10], params[11], params[12], params[13] );
+#endif
+#ifdef USE_SDL2_GPU
+    int64_t ret = gr_font_new_from_bitmap( bmp, NULL, NULL, params[2], params[3], params[4], params[5], params[6], params[7], string_get( params[8] ), params[9], params[10], params[11], params[12], params[13] );
+#endif
+    string_discard( params[8] );
+    return ret;
+}
+
+/* --------------------------------------------------------------------------- */
+/** FNT_NEW (FILE, GRAPH, CHARSET, WIDTH, HEIGHT, FIRST, LAST, FLAGS)
+ *  Create a new font in memory (returns the font ID)
+ */
+
+int64_t libmod_gfx_fnt_new_from_bitmap7( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
+    if ( !bmp ) return -1;
+    REGION r = { params[2], params[3], params[4] ? params[2] + params[4] - 1 : 0, params[5] ? params[3] + params[5] - 1 : 0 };
+#ifdef USE_SDL2
+    return gr_font_new_from_bitmap( bmp, &r, params[6], params[7], params[8], params[9], params[10], params[11], NULL, params[12], params[13], params[14], params[15], params[16] );
+#endif
+#ifdef USE_SDL2_GPU
+    return gr_font_new_from_bitmap( bmp, NULL, &r, params[6], params[7], params[8], params[9], params[10], params[11], NULL, params[12], params[13], params[14], params[15], params[16] );
+#endif
+}
+
+/* --------------------------------------------------------------------------- */
+/** FNT_NEW (FILE, GRAPH, CHARSET, WIDTH, HEIGHT, FIRST, LAST, FLAGS, CHARMAP)
+ *  Create a new font in memory (returns the font ID)
+ */
+
+int64_t libmod_gfx_fnt_new_from_bitmap8( INSTANCE * my, int64_t * params ) {
+    GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
+    if ( !bmp ) return -1;
+    REGION r = { params[2], params[3], params[4] ? params[2] + params[4] - 1 : 0, params[5] ? params[3] + params[5] - 1 : 0 };
+#ifdef USE_SDL2
+    int64_t ret = gr_font_new_from_bitmap( bmp, &r, params[6], params[7], params[8], params[9], params[10], params[11], string_get( params[12] ), params[13], params[14], params[15], params[16], params[17] );
+#endif
+#ifdef USE_SDL2_GPU
+    int64_t ret = gr_font_new_from_bitmap( bmp, NULL, &r, params[6], params[7], params[8], params[9], params[10], params[11], string_get( params[12] ), params[13], params[14], params[15], params[16], params[17] );
+#endif
+    string_discard( params[12] );
     return ret;
 }
 
@@ -139,7 +245,7 @@ int64_t libmod_gfx_get_glyph( INSTANCE * my, int64_t * params ) {
     GRAPH * map ;
     unsigned char c = params[1];
 
-    if ( font->charset == /*CHARSET_CP850*/ CHARSET_ISO8859 ) c = win_to_dos[c];
+    if ( font->charset == CHARSET_CP850 ) c = iso8859_1_to_cp850[c];
     if ( !font ) return 0;
     if ( !font->glyph[c].glymap ) return 0;
 
@@ -167,7 +273,7 @@ int64_t libmod_gfx_set_glyph( INSTANCE * my, int64_t * params ) {
     GRAPH * map  = bitmap_get( params[2], params[3] );
     unsigned char c = params[1];
 
-    if ( font->charset == /*CHARSET_CP850*/ CHARSET_ISO8859 ) c = win_to_dos[c];
+    if ( font->charset == CHARSET_CP850 ) c = iso8859_1_to_cp850[c];
 
     if ( font && map ) {
         if ( font->glyph[c].glymap ) grlib_unload_map( 0, font->glyph[c].glymap->code );

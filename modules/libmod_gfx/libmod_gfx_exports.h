@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -65,8 +65,9 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "CHARSET_ISO8859"     , TYPE_INT          , CHARSET_ISO8859                       },
     { "CHARSET_CP850"       , TYPE_INT          , CHARSET_CP850                         },
 
-    { "NFB_VARIABLEWIDTH"   , TYPE_INT          , 0                                     },
+    { "NFB_VARIABLEWIDTH"   , TYPE_INT          , NFB_VARIABLEWIDTH                     },
     { "NFB_FIXEDWIDTH"      , TYPE_INT          , NFB_FIXEDWIDTH                        },
+    { "NFB_FIXEDWIDTHCENTER", TYPE_INT          , NFB_FIXEDWIDTHCENTER                  },
 
     /* Text */
     { "ALL_TEXT"            , TYPE_INT          , 0                                     },
@@ -125,6 +126,11 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "MEDIA_STATUS_ENDED"      , TYPE_INT      , MEDIA_STATUS_ENDED                    },
     { "MEDIA_STATUS_ERROR"      , TYPE_INT      , MEDIA_STATUS_ERROR                    },
  
+    { "MEDIA_TRACK_UNKNOWN"     , TYPE_INT      , MEDIA_TRACK_UNKNOWN                   },
+    { "MEDIA_TRACK_AUDIO"       , TYPE_INT      , MEDIA_TRACK_AUDIO                     },
+    { "MEDIA_TRACK_VIDEO"       , TYPE_INT      , MEDIA_TRACK_VIDEO                     },
+    { "MEDIA_TRACK_SUBTITLE"    , TYPE_INT      , MEDIA_TRACK_SUBTITLE                  },
+
     { NULL                  , 0                 , 0                                     }
 } ;
 
@@ -152,6 +158,25 @@ char * __bgdexport( libmod_gfx, locals_def ) =
     "   INT collided_cbox;\n"
     "   INT penetration_x;\n"
     "   INT penetration_y;\n"
+    "END\n"
+    ;
+
+/* --------------------------------------------------------------------------- */
+
+char * __bgdexport( libmod_gfx, types_def ) =
+    /* m_media */
+
+    "TYPE MEDIA_TRACK_T\n"
+    "   INT id;\n"
+    "   INT type;\n"
+    "   STRING language;\n"
+    "   STRING description;\n"
+    "END\n"
+
+    "TYPE MEDIA_CHAPTER_T\n"
+    "   INT time_offset;\n"
+    "   INT duration;\n"
+    "   STRING name;\n"
     "END\n"
     ;
 
@@ -317,6 +342,12 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "FNT_NEW"             , "I"               , TYPE_INT        , libmod_gfx_fnt_new_charset      ),
     FUNC( "FNT_NEW"             , "IIIIIIII"        , TYPE_INT        , libmod_gfx_fnt_new_from_bitmap  ),
     FUNC( "FNT_NEW"             , "IIIIIIIIS"       , TYPE_INT        , libmod_gfx_fnt_new_from_bitmap2 ),
+    FUNC( "FNT_NEW"             , "IIIIIIIIIIII"    , TYPE_INT        , libmod_gfx_fnt_new_from_bitmap3 ),
+    FUNC( "FNT_NEW"             , "IIIIIIIIIIIIS"   , TYPE_INT        , libmod_gfx_fnt_new_from_bitmap4 ),
+    FUNC( "FNT_NEW"             , "IIIIIIIIIIIII"   , TYPE_INT        , libmod_gfx_fnt_new_from_bitmap5 ),
+    FUNC( "FNT_NEW"             , "IIIIIIIISIIIII"  , TYPE_INT        , libmod_gfx_fnt_new_from_bitmap6 ),
+    FUNC( "FNT_NEW"             , "IIIIIIIIIIIIIIIII", TYPE_INT       , libmod_gfx_fnt_new_from_bitmap7 ),
+    FUNC( "FNT_NEW"             , "IIIIIIIIIIIISIIIII", TYPE_INT      , libmod_gfx_fnt_new_from_bitmap8 ),
     FUNC( "FNT_LOAD"            , "S"               , TYPE_INT        , libmod_gfx_load_fnt             ),
     FUNC( "FNT_LOAD"            , "SP"              , TYPE_INT        , libmod_gfx_bgload_fnt           ),
     FUNC( "FNT_UNLOAD"          , "I"               , TYPE_INT        , libmod_gfx_unload_fnt           ),
@@ -475,29 +506,52 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     /* MEDIA */
 
-    FUNC( "MEDIA_LOAD"          , "SP"              , TYPE_POINTER      , libmod_gfx_media_load                 ),
-    FUNC( "MEDIA_LOAD"          , "SPI"             , TYPE_POINTER      , libmod_gfx_media_load2                ),
-    FUNC( "MEDIA_LOAD"          , "SPII"            , TYPE_POINTER      , libmod_gfx_media_load3                ),
-    FUNC( "MEDIA_LOAD"          , "SPIII"           , TYPE_POINTER      , libmod_gfx_media_load4                ),
-    FUNC( "MEDIA_UNLOAD"        , "P"               , TYPE_INT          , libmod_gfx_media_unload               ),
-    FUNC( "MEDIA_PLAY"          , "P"               , TYPE_INT          , libmod_gfx_media_play                 ),
-    FUNC( "MEDIA_PAUSE"         , "P"               , TYPE_INT          , libmod_gfx_media_pause                ),
-    FUNC( "MEDIA_PAUSE"         , "PI"              , TYPE_INT          , libmod_gfx_media_pause_action         ),
-    FUNC( "MEDIA_RESUME"        , "P"               , TYPE_INT          , libmod_gfx_media_resume               ),
-    FUNC( "MEDIA_STOP"          , "P"               , TYPE_INT          , libmod_gfx_media_stop                 ),
-    FUNC( "MEDIA_GET_TIME"      , "P"               , TYPE_INT          , libmod_gfx_media_get_time             ),
-    FUNC( "MEDIA_SET_TIME"      , "PI"              , TYPE_INT          , libmod_gfx_media_set_time             ),
-    FUNC( "MEDIA_GET_DURATION"  , "P"               , TYPE_INT          , libmod_gfx_media_get_duration         ),
-    FUNC( "MEDIA_GET_STATUS"    , "P"               , TYPE_INT          , libmod_gfx_media_get_status           ),
-    FUNC( "MEDIA_GET_RATE"      , "P"               , TYPE_FLOAT        , libmod_gfx_media_get_rate             ),
-    FUNC( "MEDIA_SET_RATE"      , "PF"              , TYPE_INT          , libmod_gfx_media_set_rate             ),
-    FUNC( "MEDIA_NEXT_FRAME"    , "P"               , TYPE_INT          , libmod_gfx_media_next_frame           ),
-    FUNC( "MEDIA_GET_MUTE"      , "P"               , TYPE_INT          , libmod_gfx_media_get_mute             ),
-    FUNC( "MEDIA_SET_MUTE"      , "PI"              , TYPE_INT          , libmod_gfx_media_set_mute             ),
-    FUNC( "MEDIA_GET_VOLUME"    , "P"               , TYPE_INT          , libmod_gfx_media_get_volume           ),
-    FUNC( "MEDIA_SET_VOLUME"    , "PI"              , TYPE_INT          , libmod_gfx_media_set_volume           ),
+    FUNC( "MEDIA_LOAD"                  , "SP"          , TYPE_POINTER      , libmod_gfx_media_load                 ),
+    FUNC( "MEDIA_LOAD"                  , "SPI"         , TYPE_POINTER      , libmod_gfx_media_load2                ),
+    FUNC( "MEDIA_LOAD"                  , "SPII"        , TYPE_POINTER      , libmod_gfx_media_load3                ),
+    FUNC( "MEDIA_LOAD"                  , "SPIII"       , TYPE_POINTER      , libmod_gfx_media_load4                ),
+    FUNC( "MEDIA_UNLOAD"                , "P"           , TYPE_INT          , libmod_gfx_media_unload               ),
+    FUNC( "MEDIA_PLAY"                  , "P"           , TYPE_INT          , libmod_gfx_media_play                 ),
+    FUNC( "MEDIA_PAUSE"                 , "P"           , TYPE_INT          , libmod_gfx_media_pause                ),
+    FUNC( "MEDIA_PAUSE"                 , "PI"          , TYPE_INT          , libmod_gfx_media_pause_action         ),
+    FUNC( "MEDIA_RESUME"                , "P"           , TYPE_INT          , libmod_gfx_media_resume               ),
+    FUNC( "MEDIA_STOP"                  , "P"           , TYPE_INT          , libmod_gfx_media_stop                 ),
+    FUNC( "MEDIA_GET_TIME"              , "P"           , TYPE_INT          , libmod_gfx_media_get_time             ),
+    FUNC( "MEDIA_SET_TIME"              , "PI"          , TYPE_INT          , libmod_gfx_media_set_time             ),
+    FUNC( "MEDIA_GET_DURATION"          , "P"           , TYPE_INT          , libmod_gfx_media_get_duration         ),
+    FUNC( "MEDIA_GET_STATUS"            , "P"           , TYPE_INT          , libmod_gfx_media_get_status           ),
+    FUNC( "MEDIA_GET_RATE"              , "P"           , TYPE_FLOAT        , libmod_gfx_media_get_rate             ),
+    FUNC( "MEDIA_SET_RATE"              , "PF"          , TYPE_INT          , libmod_gfx_media_set_rate             ),
+    FUNC( "MEDIA_NEXT_FRAME"            , "P"           , TYPE_INT          , libmod_gfx_media_next_frame           ),
+    FUNC( "MEDIA_GET_MUTE"              , "P"           , TYPE_INT          , libmod_gfx_media_get_mute             ),
+    FUNC( "MEDIA_SET_MUTE"              , "PI"          , TYPE_INT          , libmod_gfx_media_set_mute             ),
+    FUNC( "MEDIA_GET_VOLUME"            , "P"           , TYPE_INT          , libmod_gfx_media_get_volume           ),
+    FUNC( "MEDIA_SET_VOLUME"            , "PI"          , TYPE_INT          , libmod_gfx_media_set_volume           ),
+    FUNC( "MEDIA_GET_TRACK"             , "P"           , TYPE_INT          , libmod_gfx_media_get_track            ),
+    FUNC( "MEDIA_SET_TRACK"             , "PI"          , TYPE_INT          , libmod_gfx_media_set_track            ),
+    FUNC( "MEDIA_ADD_SUBTITLE"          , "PS"          , TYPE_INT          , libmod_gfx_add_subtitle               ),
+    FUNC( "MEDIA_GET_SUBTITLE"          , "P"           , TYPE_INT          , libmod_gfx_media_get_subtitle         ),
+    FUNC( "MEDIA_SET_SUBTITLE"          , "PI"          , TYPE_INT          , libmod_gfx_media_set_subtitle         ),
+    FUNC( "MEDIA_GET_SUBTITLE_DELAY"    , "P"           , TYPE_INT          , libmod_gfx_media_get_subtitle_delay   ),
+    FUNC( "MEDIA_SET_SUBTITLE_DELAY"    , "PI"          , TYPE_INT          , libmod_gfx_media_set_subtitle_delay   ),
+    FUNC( "MEDIA_ADD_AUDIO"             , "PS"          , TYPE_INT          , libmod_gfx_add_audio                  ),
+    FUNC( "MEDIA_GET_AUDIO"             , "P"           , TYPE_INT          , libmod_gfx_media_get_audio            ),
+    FUNC( "MEDIA_SET_AUDIO"             , "PI"          , TYPE_INT          , libmod_gfx_media_set_audio            ),
+    FUNC( "MEDIA_GET_AUDIO_DELAY"       , "P"           , TYPE_INT          , libmod_gfx_media_get_audio_delay      ),
+    FUNC( "MEDIA_SET_AUDIO_DELAY"       , "PI"          , TYPE_INT          , libmod_gfx_media_set_audio_delay      ),
+    FUNC( "MEDIA_GET_AUDIO_CHANNEL"     , "P"           , TYPE_INT          , libmod_gfx_media_get_audio_channel    ),
+    FUNC( "MEDIA_SET_AUDIO_CHANNEL"     , "PI"          , TYPE_INT          , libmod_gfx_media_set_audio_channel    ),
+    FUNC( "MEDIA_GET_TRACK_LIST"        , "PP"          , TYPE_INT          , libmod_gfx_media_get_track_list       ),
+    FUNC( "MEDIA_TRACK_LIST_RELEASE"    , "PI"          , TYPE_INT          , libmod_gfx_media_track_list_release   ),
+    FUNC( "MEDIA_GET_CHAPTER"           , "P"           , TYPE_INT          , libmod_gfx_media_get_chapter          ),
+    FUNC( "MEDIA_SET_CHAPTER"           , "PI"          , TYPE_INT          , libmod_gfx_media_set_chapter          ),
+    FUNC( "MEDIA_GET_CHAPTER_COUNT"     , "P"           , TYPE_INT          , libmod_gfx_media_get_chapter_count    ),
+    FUNC( "MEDIA_PREV_CHAPTER"          , "P"           , TYPE_INT          , libmod_gfx_media_prev_chapter         ),
+    FUNC( "MEDIA_NEXT_CHAPTER"          , "P"           , TYPE_INT          , libmod_gfx_media_next_chapter         ),
+    FUNC( "MEDIA_GET_CHAPTER_LIST"      , "PP"          , TYPE_INT          , libmod_gfx_media_get_chapter_list     ),
+    FUNC( "MEDIA_CHAPTER_LIST_RELEASE"  , "PI"          , TYPE_INT          , libmod_gfx_media_chapter_list_release ),
 
-    FUNC( NULL                  , NULL              , 0               , NULL                                    )
+    FUNC( NULL                          , NULL          , 0                 , NULL                                  )
 };
 
 /* --------------------------------------------------------------------------- */

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -53,16 +53,16 @@ extern struct _token {
     } token;
 
 typedef struct _tok_pos {
-        int             use_saved;
-        struct _token   token;
-        struct _token   token_saved;
-        struct _token   token_prev;
-        int             line_count;
-        int             current_file;
-        const char      *source_ptr;
+        int                 use_saved;
+        struct _token       token;
+        struct _token       token_saved;
+        struct _token       token_prev;
+        int                 line_count;
+        int                 current_file;
+        const unsigned char *source_ptr;
     } tok_pos;
 
-extern void token_init( const char * source, int file );
+extern void token_init( const unsigned char * source, int file );
 extern void token_next();
 extern void token_back();
 extern void token_dump();
@@ -70,12 +70,12 @@ extern void token_dump();
 extern tok_pos token_pos();
 extern void token_set_pos( tok_pos tp );
 
-extern void add_simple_define( char * macro, char *text );
+extern void add_simple_define( unsigned char * macro, unsigned char *text );
 
 extern int line_count;
 extern int current_file;
 extern int n_files;
-extern char files[MAX_SOURCES][__MAX_PATH];
+extern unsigned char files[MAX_SOURCES][__MAX_PATH];
 
 /* Se exportan todos los token */
 extern struct _token token;

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -55,5 +55,15 @@ extern int64_t modstring_string_new_array( INSTANCE * my, int64_t * params );
 extern int64_t modstring_string_resize_array( INSTANCE * my, int64_t * params );
 extern int64_t modstring_string_delete_array( INSTANCE * my, int64_t * params );
 extern int64_t modstring_string_dump( INSTANCE * my, int64_t * params );
+
+extern int64_t modstring_string_isalpha( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_isspace( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_isnum( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_isxnum( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_isalnum( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_iswordchar( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_iswordfirst( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_toupper( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_tolower( INSTANCE * my, int64_t * params );
 
 #endif

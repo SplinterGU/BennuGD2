@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *
  *  This file is part of Bennu Game Development
  *
@@ -50,7 +50,7 @@ enum {
 };
 
 enum {
-    MEDIA_TRACK_UNKNOWN,
+    MEDIA_TRACK_UNKNOWN = -1,
     MEDIA_TRACK_AUDIO,
     MEDIA_TRACK_VIDEO,
     MEDIA_TRACK_SUBTITLE
@@ -72,6 +72,9 @@ typedef struct media {
 
     int64_t objectid;
 
+    // Used for interaction with debbuger && system paused
+    int in_hold_state;
+    int is_paused;
 } MEDIA;
 
 typedef struct media_track_t {

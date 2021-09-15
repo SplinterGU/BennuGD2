@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -174,7 +174,7 @@ static int sound_init() {
         }
     }
 
-    fprintf( stderr, "[SOUND] No se pudo inicializar el audio: %s\n", SDL_GetError() ) ;
+    // fprintf( stderr, "[SOUND] No se pudo inicializar el audio: %s\n", SDL_GetError() ) ;
     audio_initialized = 0;
     return -1 ;
 }
@@ -237,7 +237,7 @@ static int64_t load_music( const char * filename ) {
 
     if ( !( music = Mix_LoadMUS_RW( SDL_RWFromBGDFP( fp ), 0 ) ) ) {
         file_close( fp );
-        fprintf( stderr, "Couldn't load %s: %s\n", filename, SDL_GetError() );
+        // fprintf( stderr, "Couldn't load %s: %s\n", filename, SDL_GetError() );
         return( 0 );
     }
 
@@ -263,10 +263,10 @@ static int64_t load_music( const char * filename ) {
 static int play_music( int64_t id, int loops ) {
     if ( audio_initialized && id ) {
         int result = Mix_PlayMusic(( Mix_Music * )( intptr_t )id, loops );
-        if ( result == -1 ) fprintf( stderr, "%s", Mix_GetError() );
+        // if ( result == -1 ) fprintf( stderr, "%s\n", Mix_GetError() );
         return result;
     }
-    fprintf( stderr, "Play music called with invalid handle" );
+    // fprintf( stderr, "Play music called with invalid handle\n" );
     return( -1 );
 }
 
@@ -566,7 +566,7 @@ static int64_t load_sound( const char * filename ) {
 
     if ( !( sound = Mix_LoadWAV_RW( SDL_RWFromBGDFP( fp ), 1 ) ) ) {
         file_close( fp );
-        fprintf( stderr, "Couldn't load %s: %s\n", filename, SDL_GetError() );
+        // fprintf( stderr, "Couldn't load %s: %s\n", filename, SDL_GetError() );
         return( 0 );
     }
     return (( int64_t ) ( intptr_t ) sound );

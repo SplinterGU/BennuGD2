@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -40,6 +40,12 @@ extern int64_t libmod_gfx_fnt_new( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_fnt_new_charset( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_fnt_new_from_bitmap( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_fnt_new_from_bitmap2( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_fnt_new_from_bitmap3( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_fnt_new_from_bitmap4( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_fnt_new_from_bitmap5( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_fnt_new_from_bitmap6( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_fnt_new_from_bitmap7( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_fnt_new_from_bitmap8( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_glyph( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_set_glyph( INSTANCE * my, int64_t * params );
 

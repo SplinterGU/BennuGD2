@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -55,8 +55,30 @@ extern int64_t libmod_gfx_media_get_mute( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_set_mute( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_get_volume( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_set_volume( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_track( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_set_track( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_add_subtitle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_subtitle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_set_subtitle( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_subtitle_delay( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_set_subtitle_delay( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_add_audio( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_audio( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_set_audio( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_audio_delay( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_set_audio_delay( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_audio_channel( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_set_audio_channel( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_track_list( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_track_list_release( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_chapter( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_set_chapter( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_chapter_count( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_prev_chapter( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_next_chapter( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_get_chapter_list( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_media_chapter_list_release( INSTANCE * my, int64_t * params );
 
 /* --------------------------------------------------------------------------- */
-
 
 #endif

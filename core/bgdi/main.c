@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -179,7 +179,7 @@ int main( int argc, char *argv[] ) {
             printf( BGDI_VERSION "\n"
                     "Bennu Game Development Interpreter\n"
                     "\n"
-                    "Copyright (c) 2006-2019 SplinterGU (Fenix/BennuGD)\n"
+                    "Copyright (c) SplinterGU (Fenix/BennuGD) (Since 2006)\n"
                     "Copyright (c) 2002-2006 Fenix Team (Fenix)\n"
                     "Copyright (c) 1999-2002 José Luis Cebrián Pagüe (Fenix)\n"
                     "\n"

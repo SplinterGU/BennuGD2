@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -461,7 +461,7 @@ void process_key_events() {
                     char c = e.text.text[i];
                     // cancel if a non-ascii char is encountered
                     if ( c < ' ' || c > '~' ) break;
-                    if ( ready ) process_key( &keydown_e, win_to_dos[c], &keypress );
+                    if ( ready ) process_key( &keydown_e, c, &keypress );
                     ready = 0;
                     ascii = 0;
                 }

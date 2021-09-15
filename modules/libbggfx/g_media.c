@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2021 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *
  *  This file is part of Bennu Game Development
  *
@@ -49,6 +49,18 @@ static void *_media_lock( void * data, void **p_pixels ) {
 #ifdef USE_SDL2_GPU
     *p_pixels = mh->surface->pixels;
 #endif
+    int hold = debugger_show_console || system_paused;
+    if ( hold != mh->in_hold_state ) {
+        if ( hold ) {
+            // Need pause
+            mh->is_paused = media_get_status( mh ) == MEDIA_STATUS_PAUSED;
+            if ( !mh->is_paused ) media_pause( mh );
+        } else {
+            // Need resume
+            if ( !mh->is_paused ) media_resume( mh );
+        }
+        mh->in_hold_state = hold;
+    }
     return NULL;
 }
 
@@ -103,8 +115,12 @@ MEDIA * media_load( const char * media, int64_t * graph_id, int w, int h, int ti
     MEDIA * mh = calloc(1, sizeof( MEDIA ) );
     if ( !mh ) return NULL;
 
-    mh->m = libvlc_media_new_path(libvlc, media);
+    mh->m = libvlc_media_new_path( libvlc, media );
     if ( !mh->m ) mh->m = libvlc_media_new_location( libvlc, media );
+    if ( !mh->m ) {
+        free( mh );
+        return NULL;
+    }
 
     mh->mp = libvlc_media_player_new_from_media( mh->m );
     if ( !mh->mp ) {

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019 SplinterGU (Fenix/BennuGD)
+ *  Copyright (C) SplinterGU (Fenix/BennuGD) (Since 2006)
  *  Copyright (C) 2002-2006 Fenix Team (Fenix)
  *  Copyright (C) 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
@@ -231,7 +231,7 @@ void libmod_misc_advance_timers( void ) {
 
     /* TODO: Here add checking for console_mode, don't advance in this mode */
     timer = ( int64_t * ) ( &GLOQWORD( libmod_misc, TIMER ) );
-    if ( system_paused ) {
+    if ( system_paused || debugger_show_console ) {
         for ( i = 0; i < 10; i++ ) {
             initial_ticktimer[i] += curr_ticktimer - last_curr_ticktimer;
         }
