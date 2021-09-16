@@ -1,5 +1,7 @@
 project(bgdi)
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Modules/common_defs.cmake)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../bin/")
+
+find_package(ZLIB REQUIRED)
 
 add_definitions(-D__BGDI__ -DVERSION="2.0.0")
 
@@ -12,4 +14,4 @@ file(GLOB SOURCES
 link_directories(../build/bin)
 
 add_executable(bgdi ${SOURCES})
-target_link_libraries(bgdi -L../../bin bgdrtm -lm)
+target_link_libraries(bgdi -L../../bin -lbgdrtm -lm)
