@@ -10,6 +10,8 @@ pipelines:
         name: 'Build'
         script:
           - apt -y update
+          - apt -y install tzdata
+          - apt -y install wget lsb-release
           - apt -y install git cmake ninja-build g++ libsdl2-dev libsdl2-image-dev libvlc-dev libpng-dev
           - git clone https://bitbucket.org/panreyes/bennugd2.git
           - cd bennugd2
