@@ -1,8 +1,5 @@
 project(bgdrtm)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "../../bin/")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../bin/")
-
-find_package(ZLIB REQUIRED)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Modules/common_defs.cmake)
 
 option (USE_CRYPT "Use crypt functions." 0)
 if (USE_CRYPT)
@@ -25,5 +22,5 @@ file(GLOB SOURCES_BGDRTM
     "../../core/common/*.c"
     )
 
-add_library(bgdrtm SHARED ${SOURCES_BGDRTM})
+add_library(bgdrtm ${LIB_TYPE} ${SOURCES_BGDRTM})
 target_link_libraries(bgdrtm -lz ${extra_libs})

@@ -33,7 +33,9 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
-#include <vlc/vlc.h>
+#ifdef USE_VLC
+	#include <vlc/vlc.h>
+#endif
 
 #include "libbggfx.h"
 

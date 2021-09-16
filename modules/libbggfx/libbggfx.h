@@ -172,7 +172,9 @@ enum {
 #include "g_draw.h"
 #include "g_screen.h"
 #include "g_pathfind.h"
-#include "g_media.h"
+#ifdef USE_VLC
+	#include "g_media.h"
+#endif
 
 /* --------------------------------------------------------------------------- */
 
