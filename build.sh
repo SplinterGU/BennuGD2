@@ -38,6 +38,7 @@ do
 
         linux)
             TARGET=linux-gnu
+            CMAKE_EXTRA="-G Ninja"
             ;;
 
         windows32)
