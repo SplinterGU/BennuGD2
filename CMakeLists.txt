@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(bennugd2)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/common_defs.cmake)
 
 # core
 add_subdirectory(core/bgdc)

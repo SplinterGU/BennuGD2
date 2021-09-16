@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [use_sdl2] [use_sdl2_gpu] [verbose]"
+    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [use_sdl2 / use_sdl2_gpu] [use_vlc] [static_modules] [verbose]"
     exit 1
 }
 
@@ -12,22 +12,33 @@ for i in "$@"
 do
     case $i in
         use_sdl2)
-            EXTRA_CFLAGS="-DUSE_SDL2"
+            EXTRA_CFLAGS="${EXTRA_CFLAGS} -DUSE_SDL2"
             ;;
 
         use_sdl2_gpu)
-            EXTRA_CFLAGS="-DUSE_SDL2_GPU"
+            EXTRA_CFLAGS="${EXTRA_CFLAGS} -DUSE_SDL2_GPU"
+            ;;
+            
+        use_vlc)
+            EXTRA_CFLAGS="${EXTRA_CFLAGS} -DUSE_VLC"
+            ;;
+            
+        static_modules)
+            EXTRA_CFLAGS="${EXTRA_CFLAGS} -DSTATIC_MODULES"
             ;;
 
         windows)
             TARGET=x86_64-w64-mingw32
             COMPILER="-MINGW"
             SDL2GPUDIR="../../vendor/sdl-gpu/build/build-$ENV{TARGET}"
-            CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2"
+            if [ "`uname -o`" != "Msys" ]; then
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2"
+            fi
             ;;
 
         linux)
             TARGET=linux-gnu
+            CMAKE_EXTRA="-G Ninja"
             ;;
 
         windows32)
@@ -96,11 +107,25 @@ then
     rm CMakeCache.txt
 fi
 cmake ../.. $DEBUG -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DTARGET=$TARGET
-if [ "$CLEAN" == "1" ]
+
+if [ -f "Makefile" ]
 then
-    make clean
+    if [ "$CLEAN" == "1" ]
+    then
+        make clean
+    fi
+    make
 fi
-make
+
+if [ -f "build.ninja" ]
+then
+    if [ "$CLEAN" == "1" ]
+    then
+        ninja clean
+    fi
+    ninja
+fi
+
 cd -
 
 echo "### Build done! ###"

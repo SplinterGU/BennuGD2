@@ -52,7 +52,9 @@
 #include "m_wm.h"
 #include "m_draw.h"
 #include "m_shaders.h"
-#include "m_media.h"
+#ifdef USE_VLC
+	#include "m_media.h"
+#endif
 
 /* --------------------------------------------------------------------------- */
 
