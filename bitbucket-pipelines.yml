@@ -17,4 +17,4 @@ pipelines:
           - cd bennugd2
           - ./build.sh linux use_sdl2
         artifacts:
-          - build/build-linux-gnu/bin
+          - bennugd2/build/build-linux-gnu/bin/**
