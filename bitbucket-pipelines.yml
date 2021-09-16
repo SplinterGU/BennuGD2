@@ -16,5 +16,5 @@ pipelines:
           - git clone https://bitbucket.org/panreyes/bennugd2.git
           - cd bennugd2
           - ./build.sh linux use_sdl2
-       artifacts:
-          - bin/*
+        artifacts:
+          - bennugd2/bin/**
