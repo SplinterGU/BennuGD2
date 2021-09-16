@@ -1,5 +1,7 @@
 project(bgdc)
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Modules/common_defs.cmake)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../bin/")
+
+find_package(ZLIB REQUIRED)
 
 option (USE_CRYPT "Use crypt functions." 0)
 if (USE_CRYPT)

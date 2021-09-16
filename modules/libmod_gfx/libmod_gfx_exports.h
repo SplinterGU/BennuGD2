@@ -117,7 +117,7 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "GRAPH_AVERAGE_SIZE"  , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE   },
 
     /* MEDIA */
-#ifdef USE_VLC
+
     { "MEDIA_STATUS_CLOSE"      , TYPE_INT      , MEDIA_STATUS_CLOSE                    },
     { "MEDIA_STATUS_OPENING"    , TYPE_INT      , MEDIA_STATUS_OPENING                  },
     { "MEDIA_STATUS_PLAYING"    , TYPE_INT      , MEDIA_STATUS_PLAYING                  },
@@ -130,7 +130,6 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "MEDIA_TRACK_AUDIO"       , TYPE_INT      , MEDIA_TRACK_AUDIO                     },
     { "MEDIA_TRACK_VIDEO"       , TYPE_INT      , MEDIA_TRACK_VIDEO                     },
     { "MEDIA_TRACK_SUBTITLE"    , TYPE_INT      , MEDIA_TRACK_SUBTITLE                  },
-#endif
 
     { NULL                  , 0                 , 0                                     }
 } ;
@@ -506,7 +505,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "SHADER_SETUNIFORMMATRIX"     , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniformmatrix      ),
 
     /* MEDIA */
-#ifdef USE_VLC
+
     FUNC( "MEDIA_LOAD"                  , "SP"          , TYPE_POINTER      , libmod_gfx_media_load                 ),
     FUNC( "MEDIA_LOAD"                  , "SPI"         , TYPE_POINTER      , libmod_gfx_media_load2                ),
     FUNC( "MEDIA_LOAD"                  , "SPII"        , TYPE_POINTER      , libmod_gfx_media_load3                ),
@@ -551,7 +550,6 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "MEDIA_NEXT_CHAPTER"          , "P"           , TYPE_INT          , libmod_gfx_media_next_chapter         ),
     FUNC( "MEDIA_GET_CHAPTER_LIST"      , "PP"          , TYPE_INT          , libmod_gfx_media_get_chapter_list     ),
     FUNC( "MEDIA_CHAPTER_LIST_RELEASE"  , "PI"          , TYPE_INT          , libmod_gfx_media_chapter_list_release ),
-#endif
 
     FUNC( NULL                          , NULL          , 0                 , NULL                                  )
 };
