@@ -65,7 +65,7 @@ typedef struct media {
 
     GRAPH * graph;
 
-#ifdef USE_SDL2_GPU
+#if defined(USE_SDL2_GPU) || defined(USE_SDL2)
     SDL_Surface * surface;
     int texture_must_update;
 #endif

@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [use_sdl2] [use_sdl2_gpu] [verbose]"
+    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [use_sdl2|use_sdl2_gpu] [verbose]"
     exit 1
 }
 
