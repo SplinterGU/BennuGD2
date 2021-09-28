@@ -1,0 +1,57 @@
+--- renderer_GL_common.inl	2021-09-28 01:41:28.837837501 -0300
++++ sdl-gpu/src/renderer_GL_common.inl	2021-09-28 01:57:33.000000000 -0300
+@@ -1191,7 +1191,7 @@
+ 
+ static void get_camera_matrix(GPU_Target* target, float* result)
+ {
+-	float offsetX, offsetY;
++	float offsetX = 0.0, offsetY = 0.0;
+ 
+     GPU_MatrixIdentity(result);
+ 
+@@ -4373,7 +4373,7 @@
+     dy1 = y - h * image->anchor_y;
+     dx2 = x + w * (1.0f - image->anchor_x);
+     dy2 = y + h * (1.0f - image->anchor_y);
+-
++/* Commented by SplinterGU
+     if(image->snap_mode == GPU_SNAP_DIMENSIONS || image->snap_mode == GPU_SNAP_POSITION_AND_DIMENSIONS)
+     {
+         float fractional;
+@@ -4384,7 +4384,7 @@
+         dy1 += fractional;
+         dy2 += fractional;
+     }
+-
++*/
+     if(renderer->coordinate_mode)
+     {
+         float temp = dy1;
+@@ -4559,6 +4559,9 @@
+         // Avoid rounding errors in texture sampling by insisting on integral pixel positions
+         x = floorf(x);
+         y = floorf(y);
++        // Add by SplinterGU, fix odd texture size
++        pivot_x = floorf(pivot_x);
++        pivot_y = floorf(pivot_y);
+     }
+ 
+     /*
+@@ -4602,7 +4605,7 @@
+     dy1 = -pivot_y;
+     dx2 = w - pivot_x;
+     dy2 = h - pivot_y;
+-
++/* Commented by SplinterGU
+     if(image->snap_mode == GPU_SNAP_DIMENSIONS || image->snap_mode == GPU_SNAP_POSITION_AND_DIMENSIONS)
+     {
+         // This is a little weird for rotating sprites, but oh well.
+@@ -4614,7 +4617,7 @@
+         dy1 += fractional;
+         dy2 += fractional;
+     }
+-
++*/
+     if(renderer->coordinate_mode == 1)
+     {
+         float temp = dy1;
