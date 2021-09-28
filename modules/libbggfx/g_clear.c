@@ -95,12 +95,10 @@ void gr_clear_as( GRAPH * dest, int color ) {
 
         case 16: {
             uint8_t * data = dest->surface->pixels ;
-            int16_t * ptr ;
-            int n, y ;
-            y = dest->height;
+            int y = dest->height;
             while ( y-- ) {
-                ptr = ( int16_t * ) data;
-                n = dest->width;
+                int16_t * ptr = ( int16_t * ) data;
+                int n = dest->width;
                 while ( n-- ) * ptr++ = color ;
                 data += dest->surface->pitch;
             }
@@ -109,12 +107,10 @@ void gr_clear_as( GRAPH * dest, int color ) {
 
         case 32: {
             uint8_t * data = dest->surface->pixels ;
-            uint32_t * ptr ;
-            int n, y ;
-            y = dest->height;
+            int y = dest->height;
             while ( y-- ) {
-                ptr = ( uint32_t * ) data;
-                n = dest->width;
+                uint32_t * ptr = ( uint32_t * ) data;
+                int n = dest->width;
                 while ( n-- ) * ptr++ = color ;
                 data += dest->surface->pitch;
             }
@@ -192,11 +188,11 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
         }
 
         case 8: {
-            uint8_t * mem, * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x;
+            uint8_t * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x;
             int w2, h2;
 
             for ( h2 = 0; h2 < h; h2++ ) {
-                mem = pmem;
+                uint8_t *mem = pmem;
                 for ( w2 = 0; w2 < w; w2++ ) {
                     *mem++ = color;
                 }
@@ -208,11 +204,10 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
 
         case 16: {
             uint8_t * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x * 2;
-            uint16_t * mem;
             int w2, h2;
 
             for ( h2 = 0; h2 < h; h2++ ) {
-                mem = ( uint16_t * ) pmem;
+                uint16_t * mem = ( uint16_t * ) pmem;
                 for ( w2 = 0; w2 < w; w2++ ) {
                     *mem++ = color;
                 }
@@ -224,11 +219,10 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
 
         case 32: {
             uint8_t * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x * 4;
-            uint32_t * mem;
             int w2, h2;
 
             for ( h2 = 0; h2 < h; h2++ ) {
-                mem = ( uint32_t * ) pmem;
+                uint32_t * mem = ( uint32_t * ) pmem;
                 for ( w2 = 0; w2 < w; w2++ ) {
                     *mem++ = color;
                 }

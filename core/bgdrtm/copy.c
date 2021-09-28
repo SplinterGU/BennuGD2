@@ -64,10 +64,10 @@ static int64_t copytype( void * dst, void * src, DCB_TYPEDEF * var );
  */
 
 int64_t copyvars( void * dst, void * src, DCB_VAR * var, int nvars ) {
-    int64_t result = 0, partial;
+    int64_t result = 0;
 
     for ( ; nvars > 0; nvars--, var++ ) {
-        partial = copytype( dst, src, &var->Type );
+        int64_t partial = copytype( dst, src, &var->Type );
         src = (( uint8_t* )src ) + partial;
         dst = (( uint8_t* )dst ) + partial;
         result += partial;

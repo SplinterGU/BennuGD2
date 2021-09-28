@@ -55,12 +55,10 @@ int64_t libmod_misc_regex_regex (INSTANCE * my, int64_t * params) {
     const char * reg = string_get(params[0]),
                * str = string_get(params[1]);
     int64_t result = -1;
-    unsigned n;
 
     struct re_pattern_buffer pb;
     struct re_registers re;
     int start[16], end[16];
-    int64_t * regex_reg;
 
     /* Alloc the pattern resources */
 
@@ -83,7 +81,10 @@ int64_t libmod_misc_regex_regex (INSTANCE * my, int64_t * params) {
 
         if (result != -1) {
             /* Fill the regex_reg global variables */
-            regex_reg = (int64_t *) &GLOQWORD( libmod_misc, REGEX_REG);
+            int64_t * regex_reg = (int64_t *) &GLOQWORD( libmod_misc, REGEX_REG);
+            
+            unsigned n;
+            
             for (n = 0; n < 16 && n <= pb.re_nsub; n++) {
                 string_discard (regex_reg[n]);
                 regex_reg[n] = string_newa (str + re.start[n], re.end[n] - re.start[n]);
@@ -117,24 +118,19 @@ int64_t libmod_misc_regex_regex_replace (INSTANCE * my, int64_t * params) {
     unsigned reg_len = strlen(reg);
     unsigned str_len = strlen(str);
     unsigned rep_len = strlen(rep);
-    char * replacement;
-    unsigned replacement_len;
+
     int fixed_replacement = strchr(rep, '\\') ? 0:1;
 
     struct re_pattern_buffer pb;
     struct re_registers re;
     int start[16], end[16];
-    int64_t * regex_reg;
 
     unsigned startpos = 0;
     unsigned nextpos;
-    int regex_filled = 0;
 
     char * result = 0;
     unsigned result_allocated = 0;
     int64_t result_string = 0;
-
-    unsigned n;
 
     /* Alloc a buffer for the resulting string */
 
@@ -161,17 +157,23 @@ int64_t libmod_misc_regex_regex_replace (INSTANCE * my, int64_t * params) {
     /* Run the regex */
 
     if (re_compile_pattern (reg, reg_len, &pb) == 0) {
+        int regex_filled = 0;
+
         startpos = 0;
 
         while (startpos < str_len) {
+            char * replacement;
+            unsigned replacement_len;
+
             nextpos = re_search (&pb, str, str_len, startpos, str_len - startpos, &re);
             if ((int)nextpos < 0) break;
 
             /* Fill the REGEX_REG global variables */
 
             if (regex_filled == 0) {
+                unsigned n;
                 regex_filled = 1;
-                regex_reg = (int64_t *)&GLOQWORD( libmod_misc, REGEX_REG);
+                int64_t * regex_reg = (int64_t *)&GLOQWORD( libmod_misc, REGEX_REG);
                 for (n = 0; n < 16 && n <= pb.re_nsub; n++) {
                     string_discard (regex_reg[n]);
                     regex_reg[n] = string_newa (str + re.start[n], re.end[n] - re.start[n]);
@@ -276,7 +278,6 @@ int64_t libmod_misc_regex_split (INSTANCE * my, int64_t * params) {
     int64_t * result_array = (int64_t *)(intptr_t)params[2];
     int result_array_size = params[3];
     int64_t count = 0;
-    int pos, lastpos = 0;
 
     struct re_pattern_buffer pb;
     struct re_registers re;
@@ -299,8 +300,10 @@ int64_t libmod_misc_regex_split (INSTANCE * my, int64_t * params) {
     /* Match the regex */
 
     if (re_compile_pattern (reg, strlen(reg), &pb) == 0) {
+        int lastpos = 0;
+
         for (;;) {
-            pos = re_search (&pb, str, strlen(str), lastpos, strlen(str), &re);
+            int pos = re_search (&pb, str, strlen(str), lastpos, strlen(str), &re);
             if (pos == -1) break;
             *result_array = string_newa (str + lastpos, pos-lastpos);
             string_use(*result_array);

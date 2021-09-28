@@ -202,7 +202,6 @@ void gr_destroy_object( int64_t id ) {
 void gr_update_objects( void ) {
     CONTAINER * ctr = NULL, * next_ctr, * fix_ctr;
     OBJECT * object, * next_object ;
-    int64_t key;
 
     if ( !sorted_object_list ) return ;
 
@@ -213,7 +212,7 @@ void gr_update_objects( void ) {
         /* Get Next Container */
         next_ctr = ctr->next ;
 
-        key = ctr->key;
+        int64_t key = ctr->key;
 
         next_object = ctr->first_in_key;
         while ( ctr && ( object = next_object ) ) {

@@ -331,7 +331,7 @@ int64_t get_var_size( char * var, DCB_VAR * basevar, int nvars ) {
     for (;;) {
         if ( token.name[0] == '.' ) {
             DCB_VARSPACE * v;
-            DCB_VAR * var;
+            DCB_VAR * variable;
 
             if ( rvar.Type.BaseType[0] != TYPE_STRUCT ) return -1; /* not an struct */
 
@@ -339,12 +339,12 @@ int64_t get_var_size( char * var, DCB_VAR * basevar, int nvars ) {
             if ( token.type != IDENTIFIER ) return -1; /* not a member */
 
             v = &dcb.varspace[rvar.Type.Members];
-            var = dcb.varspace_vars[rvar.Type.Members];
-            for ( n = 0; n < v->NVars; n++ ) if ( var[n].ID == token.code ) break;
+            variable = dcb.varspace_vars[rvar.Type.Members];
+            for ( n = 0; n < v->NVars; n++ ) if ( variable[n].ID == token.code ) break;
 
             if ( n == v->NVars ) return -1; /* not a member */
 
-            rvar = var[n];
+            rvar = variable[n];
 
             get_token();
             continue;
@@ -448,7 +448,7 @@ static char * dlsearchpath[] = {
 /* ---------------------------------------------------------------------- */
 
 void sysproc_init() {
-    SYSPROC       * proc = sysprocs;
+    SYSPROC       * proc;
     void          * library = NULL;
     const char    * filename;
     unsigned int    n;

@@ -55,10 +55,10 @@
  */
 
 int64_t loadvars( file * fp, void * data, DCB_VAR * var, int64_t nvars, int64_t dcbformat ) {
-    int64_t result = 0, partial;
+    int64_t result = 0;
 
     for ( ; nvars > 0; nvars--, var++ ) {
-        partial = loadtype( fp, data, &var->Type, dcbformat );
+        int64_t partial = loadtype( fp, data, &var->Type, dcbformat );
         data = ( uint8_t* )data + partial;
         result += partial;
     }
@@ -84,10 +84,10 @@ int64_t loadvars( file * fp, void * data, DCB_VAR * var, int64_t nvars, int64_t 
  */
 
 int64_t loadtypes( file * fp, void * data, DCB_TYPEDEF * var, int64_t nvars, int64_t dcbformat ) {
-    int64_t result = 0, partial;
+    int64_t result = 0;
 
     for ( ; nvars > 0; nvars--, var++ ) {
-        partial = loadtype( fp, data, var, dcbformat );
+        int64_t partial = loadtype( fp, data, var, dcbformat );
         data = (( uint8_t* )data ) + partial;
         result += partial;
     }
@@ -112,10 +112,10 @@ int64_t loadtypes( file * fp, void * data, DCB_TYPEDEF * var, int64_t nvars, int
  */
 
 int64_t savevars( file * fp, void * data, DCB_VAR * var, int64_t nvars, int64_t dcbformat ) {
-    int64_t result = 0, partial;
+    int64_t result = 0;
 
     for ( ; nvars > 0; nvars--, var++ ) {
-        partial = savetype( fp, data, &var->Type, dcbformat );
+        int64_t partial = savetype( fp, data, &var->Type, dcbformat );
         data = (( uint8_t* ) data ) + partial;
         result += partial;
     }
@@ -141,10 +141,10 @@ int64_t savevars( file * fp, void * data, DCB_VAR * var, int64_t nvars, int64_t 
  */
 
 int64_t savetypes( file * fp, void * data, DCB_TYPEDEF * var, int64_t nvars, int64_t dcbformat ) {
-    int64_t result = 0, partial;
+    int64_t result = 0;
 
     for ( ; nvars > 0; nvars--, var++ ) {
-        partial = savetype( fp, data, var, dcbformat );
+        int64_t partial = savetype( fp, data, var, dcbformat );
         result += partial;
         data = (( uint8_t* )data ) + partial;
     }

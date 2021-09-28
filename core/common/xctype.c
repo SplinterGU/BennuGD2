@@ -94,13 +94,14 @@ unsigned char convert( unsigned char c ) {
 }
 
 int utf8_to_iso8859_1( unsigned char * in, int inlen, unsigned char * out, int outlen ) {
-    unsigned char c, d, e;
-    int trailing, ix, ox, is_binary = 0;
+    unsigned char c;
+    int ix, ox, is_binary = 0;
 
     ox = ix = 0;
 
     while ( ix < inlen && ox < outlen ) {
-        e = d = in[ix++];
+        int trailing;
+        unsigned char d = in[ix++];
         
         trailing = 0;
 
@@ -154,9 +155,11 @@ static void set_c_upper( const unsigned char * from, const unsigned char * to ) 
 //    if ( dos_chars )  while ( *from ) c_upper[cp850_to_iso8859_1[*from++]] = cp850_to_iso8859_1[*to++];
 //    else              
 //    while ( *from ) c_upper[*from++] = *to++;
-    unsigned char * f = malloc( strlen( from ) ),
-                  * t = malloc( strlen( to ) ),
+    unsigned char * f = malloc( strlen( from ) + 1 ),
+                  * t = malloc( strlen( to ) + 1 ),
                   * fp = f, *tp = t;
+    f[ strlen( from ) ] = '\0';
+    t[ strlen( to ) ] = '\0';
     utf8_to_iso8859_1( ( unsigned char * ) from, strlen(from), f, strlen(from) );
     utf8_to_iso8859_1( ( unsigned char * ) to, strlen(to), t, strlen(to) );
     while ( *f ) c_upper[*f++] = *t++;
@@ -168,9 +171,11 @@ static void set_c_lower( const unsigned char * from, const unsigned char * to ) 
 //    if ( dos_chars )  while ( *from ) c_lower[cp850_to_iso8859_1[*from++]] = cp850_to_iso8859_1[*to++];
 //    else              
 //    while ( *from ) c_lower[*from++] = *to++;
-    unsigned char * f = malloc( strlen( from ) ),
-                  * t = malloc( strlen( to ) ),
+    unsigned char * f = malloc( strlen( from ) + 1 ),
+                  * t = malloc( strlen( to ) + 1 ),
                   * fp = f, *tp = t;
+    f[ strlen( from ) ] = '\0';
+    t[ strlen( to ) ] = '\0';
     utf8_to_iso8859_1( ( unsigned char * ) from, strlen(from), f, strlen(from) );
     utf8_to_iso8859_1( ( unsigned char * ) to, strlen(to), t, strlen(to) );
     while ( *f ) c_lower[*f++] = *t++;

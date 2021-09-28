@@ -433,7 +433,6 @@ int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params ) {
             r2 = *( double * ) &params[5];
 
     double acos_a, x0, y0;
-    int nret;
 
     double dx = cx2 - cx1;
     double dy = cy2 - cy1;
@@ -451,8 +450,6 @@ int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params ) {
     }
 
     acos_a = acos( ( r1 * r1 + dist * dist - r2 * r2 ) / ( ( r1 + r1 ) * dist ) );
-
-    nret = 0;
 
     if ( finite( acos_a ) ) {
         acos_a *= 180000.0 / M_PI;
@@ -485,7 +482,7 @@ int64_t libmod_misc_math_normal_projection( INSTANCE * my, int64_t * params ) {
             px = *( double * ) &params[4],
             py = *( double * ) &params[5];
 
-    double m1, m2, b1, b2, x0, y0;
+    double m1, m2, b1, b2, x0, y0 = y1;
 
     if ( x1 == x2 ) {
         x0 = px;
@@ -501,8 +498,8 @@ int64_t libmod_misc_math_normal_projection( INSTANCE * my, int64_t * params ) {
         y0 = b2 + m1 * x0;
     }
 
-    * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
-    * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
+    * ( int64_t * ) ( params[6] ) = * ( int64_t * ) &x0;
+    * ( int64_t * ) ( params[7] ) = * ( int64_t * ) &y0;
 /*
     double dx =   ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
            s  = ( ( px - x0 ) + ( py - y0 ) ) < 0 ? -1 : 1;

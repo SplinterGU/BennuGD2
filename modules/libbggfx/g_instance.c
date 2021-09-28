@@ -58,13 +58,13 @@
  */
 
 GRAPH * instance_graph( INSTANCE * i ) {
-    int64_t * xgraph, c, a;
+    int64_t * xgraph, c;
 
     if (( xgraph = ( int64_t * ) ( intptr_t ) LOCQWORD( libbggfx, i, XGRAPH ) ) ) { // Get offset of XGRAPH table
         c = *xgraph++;  // Get number of graphs ids in XGRAPH table
         if ( c ) {
             // Normalize ANGLE
-            a = LOCINT64( libbggfx, i, ANGLE ) % 360000;
+            int64_t a = LOCINT64( libbggfx, i, ANGLE ) % 360000;
             if ( a < 0 ) a += 360000;
 
             // Get graph id in XGRAPH table to draw

@@ -1448,13 +1448,12 @@ static const char * console_getcommand( int offset ) {
 
 static void console_getkey( int sym ) {
     static int history_offset = 0;
-    char buffer[2] ;
-    const char * command;
+    const char * cmd;
 
     if ( sym == SDLK_UP ) {
-        command = console_getcommand( --history_offset );
-        if ( command == NULL )  history_offset++;
-        else                    strncpy( console_input, command, sizeof( console_input ) - 3 );
+        cmd = console_getcommand( --history_offset );
+        if ( cmd == NULL )  history_offset++;
+        else                    strncpy( console_input, cmd, sizeof( console_input ) - 3 );
     }
 
     if ( sym == SDLK_DOWN ) {
@@ -1462,9 +1461,9 @@ static void console_getkey( int sym ) {
             *console_input = 0;
             history_offset++;
         } else {
-            command = console_getcommand( ++history_offset );
-            if ( command == NULL )  history_offset--;
-            else                    strncpy( console_input, command, sizeof( console_input ) - 3 );
+            cmd = console_getcommand( ++history_offset );
+            if ( cmd == NULL )  history_offset--;
+            else                    strncpy( console_input, cmd, sizeof( console_input ) - 3 );
         }
     }
 
@@ -1482,6 +1481,7 @@ static void console_getkey( int sym ) {
     }
 
     if ( sym >= ' ' && sym <= 255 && strlen( console_input ) < sizeof( console_input ) - 3 ) {
+        char buffer[2] ;
         buffer[0] = sym ;
         buffer[1] = 0 ;
         strcat( console_input, buffer ) ;
@@ -1734,12 +1734,11 @@ static void get_token() {
     /* Numbers */
 
     if ( ISNUM( *token_ptr ) ) {
-        const char * ptr;
-        double num = 0, dec;
+        double num = 0;
         int base = 10;
 
         /* Hex/Bin/Octal numbers with the h/b/o sufix */
-        ptr = token_ptr;
+        ptr = ( char * ) token_ptr;
         while ( ISNUM( *ptr ) || ( *ptr >= 'a' && *ptr <= 'f' ) || ( *ptr >= 'A' && *ptr <= 'F' ) ) ptr++;
 
         if ( *ptr != 'h' && *ptr != 'H' && *ptr != 'o' && *ptr != 'O' && ( ptr[-1] == 'b' || ptr[-1] == 'B' ) ) ptr--;
@@ -1784,7 +1783,7 @@ static void get_token() {
             if ( !ISNUM( *token_ptr ) )
                 token_ptr--;
             else {
-                dec = 1.0 / ( double )base;
+                double dec = 1.0 / ( double )base;
                 while ( ISNUM( *token_ptr ) || ( base > 100 && ISXNUM( *token_ptr ) ) ) {
                     if ( ISNUM( *token_ptr ) ) num = num + dec * ( *token_ptr++ - '0' );
                     if ( *token_ptr >= 'a' && *token_ptr <= 'f' && base > 10 ) num = num + dec * ( *token_ptr++ - 'a' + 10 );
@@ -2356,7 +2355,8 @@ static void console_instance_dump( INSTANCE * father, int indent ) {
     DCB_PROC * dcbproc ;
     char buffer[128] ;
     char line[128] ;
-    int n, nid, bigbro, son ;
+    int n, nid ;
+    int64_t son ;
 
     i = father ;
     if ( !father ) i = first_instance ;
@@ -2433,6 +2433,7 @@ static void console_instance_dump( INSTANCE * father, int indent ) {
             console_printf( COLOR_SILVER "%s", line ) ;
         }
 
+        int64_t bigbro;
         if ( ( bigbro = LOCINT64( libmod_debug, i, BIGBRO ) ) ) {
             next = instance_get( bigbro ) ;
             if ( !next ) console_printf( COLOR_RED "\12**PANIC**\7 BIGBRO %d does not exist" COLOR_SILVER, bigbro ) ;
@@ -2447,11 +2448,11 @@ static void console_instance_dump( INSTANCE * father, int indent ) {
 
 static void console_instance_dump_all() {
     INSTANCE * i ;
-    int64_t father;
 
     console_printf( COLOR_GREEN "INSTANCES TREE" COLOR_SILVER "\n\n" );
 
     for ( i = first_instance ; i ; i = i->next ) {
+        int64_t father;
         if ( !( father = LOCINT64( libmod_debug, i, FATHER )) || !instance_get( father ) ) {
             console_instance_dump( i, 1 ) ;
         }
@@ -2465,7 +2466,6 @@ static void console_instance_dump_all() {
 static void console_instance_dump_all_brief() {
     INSTANCE * i ;
     char status[32] ;
-    int64_t father;
     int sz = 20 + strlen( COLOR_BLACK );
 
     console_printf( COLOR_GREEN "INSTANCES BRIEF LIST" COLOR_SILVER "\n\n" );
@@ -2483,7 +2483,7 @@ static void console_instance_dump_all_brief() {
             case STATUS_RUNNING     :   strcat( status, COLOR_LIME   "running"  ) ; break ;
         }
 
-        father = LOCINT64( libmod_debug, i, FATHER );
+        int64_t father = LOCINT64( libmod_debug, i, FATHER );
 
         console_printf( "%-10d %s%-10d" COLOR_GRAY " %-*.*s " COLOR_WHITE "%s" COLOR_SILVER "\n",
                 LOCINT64( libmod_debug, i, PROCESS_ID ),
@@ -2621,11 +2621,9 @@ static void show_list_window() {
 
 static INSTANCE * findproc( INSTANCE * last, char * action, char * ptr ) {
     INSTANCE * i = NULL;
-    char * aptr;
-    int64_t procno = 0;
-    int n;
 
     if ( *ptr ) {
+        int64_t procno;
         if ( *ptr >= '0' && *ptr <= '9' ) {
             if ( last ) return NULL;
             procno = atol( ptr );
@@ -2637,11 +2635,13 @@ static INSTANCE * findproc( INSTANCE * last, char * action, char * ptr ) {
                 return NULL;
             }
         } else {
-            aptr = action;
+            char * aptr = action;
             while ( ISWORDCHAR( *ptr ) ) {
                 *aptr++ = TOUPPER( *ptr ); ptr++;
             }
             *aptr = 0;
+
+            int n;
 
             for ( n = 0 ; n < ( int64_t )dcb.data.NID ; n++ )
                 if ( strcmp( ( char * )dcb.id[n].Name, action ) == 0 )
@@ -2668,7 +2668,7 @@ static INSTANCE * findproc( INSTANCE * last, char * action, char * ptr ) {
 
 /* --------------------------------------------------------------------------- */
 
-static void console_do( const char * command ) {
+static void console_do( const char * cmd ) {
     char * ptr, * aptr ;
     char action[256] ;
     unsigned int var ;
@@ -2676,10 +2676,10 @@ static void console_do( const char * command ) {
     PROCDEF * p = NULL ;
     INSTANCE * i = NULL ;
 
-    ptr = ( char * ) command ;
+    ptr = ( char * ) cmd ;
     while ( *ptr && *ptr != ' ' ) ptr++ ;
-    strncpy( action, command, ptr - command ) ;
-    action[ptr - command] = 0 ;
+    strncpy( action, cmd, ptr - cmd ) ;
+    action[ptr - cmd] = 0 ;
     while ( *ptr == ' ' ) ptr++ ;
     aptr = action ;
     while ( *aptr ) {
@@ -2964,9 +2964,8 @@ static void console_do( const char * command ) {
 
     if ( strcmp( action, "SHOWDEL" ) == 0 ) {
         if ( *ptr ) {
-            char * p = ptr;
-
-            while( ISNUM( *p ) ) p++;
+//            char * p = ptr;
+//            while( ISNUM( *p ) ) p++;
 
             if ( ISNUM( *ptr ) ) {
                 int pos = atol( ptr ) - 1;
@@ -3046,16 +3045,14 @@ static void console_do( const char * command ) {
             *aptr = 0;
 
             if ( *action ) {
-                int i;
-                INSTANCE * inst ;
                 p = procdef_get_by_name( action );
                 if ( p ) {
                     token_ptr = ptr ;
                     console_printf( COLOR_SILVER "%s", ptr );
-                    inst = instance_new( p, NULL );
-
-                    for ( i = 0; i < p->params; i++ ) {
-                        int type = dcb.proc[p->type].privar[i].Type.BaseType[0];
+                    INSTANCE * inst = instance_new( p, NULL );
+    
+                    for ( n = 0; n < p->params; n++ ) {
+                        int type = dcb.proc[p->type].privar[n].Type.BaseType[0];
                         get_token() ;
                         eval_subexpression() ;
 
@@ -3066,11 +3063,11 @@ static void console_do( const char * command ) {
                             case T_CONSTANT:
                                 switch ( type ) {
                                     case    TYPE_DOUBLE:
-                                        PRIDOUBLE( inst, 4*i ) = *( int64_t * ) & result.value ;
+                                        PRIDOUBLE( inst, 4*n ) = *( int64_t * ) & result.value ;
                                         break;
 
                                     case    TYPE_FLOAT:
-                                        PRIFLOAT( inst, 4*i ) = *( int64_t * ) & result.value ;
+                                        PRIFLOAT( inst, 4*n ) = *( int64_t * ) & result.value ;
                                         break;
 
                                     case    TYPE_INT:
@@ -3083,26 +3080,26 @@ static void console_do( const char * command ) {
                                     case    TYPE_BYTE:
                                     case    TYPE_SBYTE:
                                     case    TYPE_CHAR:
-                                        PRIQWORD( inst, 4*i ) = ( int64_t ) result.value ;
+                                        PRIQWORD( inst, 4*n ) = ( int64_t ) result.value ;
                                         break;
 
                                     case    TYPE_STRING:
                                     default:
                                         instance_destroy( inst );
-                                        console_printf( COLOR_RED "Invalid argument %d" COLOR_SILVER, i );
+                                        console_printf( COLOR_RED "Invalid argument %d" COLOR_SILVER, n );
                                         return;
                                 }
                                 break;
 
                             case T_STRING:
-                                PRIQWORD( inst, 4*i ) = ( int64_t ) string_new( result.name ) ;
-                                string_use( PRIQWORD( inst, 4*i ) );
+                                PRIQWORD( inst, 4*n ) = ( int64_t ) string_new( result.name ) ;
+                                string_use( PRIQWORD( inst, 4*n ) );
                                 break;
 
                             case T_VARIABLE:
                             default:
                                 instance_destroy( inst );
-                                console_printf( COLOR_RED "Invalid argument %d" COLOR_SILVER, i );
+                                console_printf( COLOR_RED "Invalid argument %d" COLOR_SILVER, n );
                                 return;
                         }
                     }
@@ -3282,7 +3279,7 @@ static void console_do( const char * command ) {
 
     /* Expresiones */
 
-    eval_expression( command, 1 ) ;
+    eval_expression( cmd, 1 ) ;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -3301,8 +3298,6 @@ static int force_exit_cb( SDL_Keysym k ) {
 /* --------------------------------------------------------------------------- */
 
 static int console_keyboard_handler_cb( SDL_Keysym k ) {
-    char cmd[256];
-
     if ( debug_sysfont == -1 ) create_debug_sysfont();
 
     if ( dcb.data.NSourceFiles ) {
@@ -3370,6 +3365,8 @@ static int console_keyboard_handler_cb( SDL_Keysym k ) {
                 }
 
                 if ( console_list_current_instance && console_list_current == 1 ) {
+                    char cmd[256];
+
                     if ( k.sym == SDLK_F3 ) {
                         int64_t id = LOCINT64( libmod_debug, console_list_current_instance, PROCESS_ID ) ;
                         console_printf( COLOR_GREEN "%s (%d) LOCALS" COLOR_SILVER "\n\n",

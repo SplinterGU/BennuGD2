@@ -393,9 +393,10 @@ int gr_set_mode( int width, int height, int flags ) {
 /* --------------------------------------------------------------------------- */
 
 void gr_video_init() {
+/*
     char * e;
     int flags = 0;
-
+*/
     if ( !SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_InitSubSystem( SDL_INIT_VIDEO );
 
     SDL_DisableScreenSaver();

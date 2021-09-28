@@ -106,11 +106,10 @@ void scroll_stop( int64_t n ) {
 /* --------------------------------------------------------------------------- */
 
 void scroll_update( int64_t n ) {
-    double x0, y0, x1, y1, cx, cy, speed;
     int64_t w, h;
 
     REGION bbox;
-    GRAPH * gr, * graph, * back;
+    GRAPH * graph, * back;
 
     SCROLL_EXTRA_DATA * data;
 
@@ -161,13 +160,19 @@ void scroll_update( int64_t n ) {
     if ( scrolls[n].camera ) {
         /* Mira a ver si entra dentro de la region 1 o 2 */
 
+        double cx, cy, speed;
+
         speed = scrolls[n].speed;
         if ( scrolls[n].speed == 0.0 ) speed = 9999999;
 
         /* Update speed */
 
+        GRAPH * gr;
+
         if (( gr = instance_graph( scrolls[n].camera ) ) ) {
             instance_get_bbox( scrolls[n].camera, gr, &bbox );
+
+            double x0, y0, x1, y1;
 
             x0 = bbox.x - data->x0;
             y0 = bbox.y - data->y0;
@@ -209,10 +214,8 @@ void scroll_update( int64_t n ) {
 
     /* Scrolls no c�clicos y posici�n del background */
 
-    if ( graph ) {
-        if ( !( scrolls[n].flags & GRAPH_HWRAP ) ) data->x0 = MAX( 0, MIN( data->x0, ( int64_t )graph->width  - w ) );
-        if ( !( scrolls[n].flags & GRAPH_VWRAP ) ) data->y0 = MAX( 0, MIN( data->y0, ( int64_t )graph->height - h ) );
-    }
+    if ( !( scrolls[n].flags & GRAPH_HWRAP ) ) data->x0 = MAX( 0, MIN( data->x0, ( int64_t )graph->width  - w ) );
+    if ( !( scrolls[n].flags & GRAPH_VWRAP ) ) data->y0 = MAX( 0, MIN( data->y0, ( int64_t )graph->height - h ) );
 
     if ( scrolls[n].ratio ) {
         data->x1 = data->x0 * 100.0 / scrolls[n].ratio;
@@ -256,7 +259,6 @@ static int compare_instances( const void * ptr1, const void * ptr2 ) {
 /* --------------------------------------------------------------------------- */
 
 void scroll_draw( int64_t n, REGION * clipping ) {
-    int64_t nproc;
     double x, y, cx, cy;
 
     static INSTANCE ** proclist = 0;
@@ -387,7 +389,12 @@ void scroll_draw( int64_t n, REGION * clipping ) {
 
             if ( proclist_count == proclist_reserved ) {
                 proclist_reserved += 16;
-                proclist = ( INSTANCE ** ) realloc( proclist, sizeof( INSTANCE * ) * proclist_reserved );
+                INSTANCE ** pl = ( INSTANCE ** ) realloc( proclist, sizeof( INSTANCE * ) * proclist_reserved );
+                if ( !pl ) {
+                    fprintf( stderr, "no enough memory\n");
+                    exit(1);
+                }
+                proclist = pl;
             }
 
             proclist[proclist_count++] = i;
@@ -398,6 +405,8 @@ void scroll_draw( int64_t n, REGION * clipping ) {
     if ( proclist_count ) {
         /* Ordena la listilla */
         qsort( proclist, proclist_count, sizeof( INSTANCE * ), compare_instances );
+
+        int64_t nproc;
 
         /* Visualiza los procesos */
         for ( nproc = 0; nproc < proclist_count; nproc++ ) {

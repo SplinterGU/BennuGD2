@@ -141,11 +141,10 @@ int64_t libmod_misc_file_fputs( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_misc_file_fgets( INSTANCE * my, int64_t * params ) {
     char buffer[1025];
-    int64_t len, done = 0;
-    int64_t str = string_new( "" );
+    int64_t str = string_new( "" ), done = 0;
 
     while ( !done ) {
-        len = file_gets(( file * )( intptr_t )params[0], buffer, sizeof( buffer ) - 1);
+        int64_t len = file_gets(( file * )( intptr_t )params[0], buffer, sizeof( buffer ) - 1);
         if ( len < 1 ) break;
 
         if ( buffer[len-1] == '\r' || buffer[len-1] == '\n' ) {
@@ -161,15 +160,16 @@ int64_t libmod_misc_file_fgets( INSTANCE * my, int64_t * params ) {
 }
 
 int64_t libmod_misc_file_file( INSTANCE * my, int64_t * params ) {
-    char buffer[1025];
-    int64_t str = string_new( "" ), l;
+    int64_t str = string_new( "" );
     file * f;
 
     f = file_open( string_get( params[0] ), "rb" );
     string_discard( params[0] );
 
     if ( f ) {
+        char buffer[1025];
         while ( !file_eof( f ) ) {
+            int64_t l;
             l = file_read( f, buffer, sizeof( buffer ) - 1 );
             buffer[l] = '\0';
             if ( l ) {

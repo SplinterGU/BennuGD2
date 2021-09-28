@@ -175,7 +175,7 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "C_60"                            , TYPE_QWORD    , 1LL << 60                     },
     { "C_61"                            , TYPE_QWORD    , 1LL << 61                     },
     { "C_62"                            , TYPE_QWORD    , 1LL << 62                     },
-    { "C_63"                            , TYPE_QWORD    , 1LL << 63                     },
+    { "C_63"                            , TYPE_QWORD    , 1ULL << 63                    },
 
     { NULL                              , 0             , 0                             }
 } ;

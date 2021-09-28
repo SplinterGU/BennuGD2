@@ -112,7 +112,12 @@ unsigned char * invalidchars = \
 int64_t check_for_valid_pathname( unsigned char * pathname ) {
     int n, l;
 
-    if ( !pathname || ( l = strlen( pathname ) ) > __MAX_PATH ) return 0;
+    if ( !pathname || ( 
+#if WIN32
+                        l = 
+#endif
+                            strlen( pathname ) 
+                      ) > __MAX_PATH ) return 0;
 
 #if WIN32
     /* Only ':' with this sintax: "L:..." */
@@ -165,7 +170,8 @@ int64_t string_compile( const unsigned char ** source ) {
         if ( cc == '\\' ) { // ESCAPE
 //            cc = *( *source )++;
             ( *source )++;
-            switch ( cc = *( *source ) ) {
+            cc = *( *source );
+            switch ( cc ) {
                 case 'a':   cc = '\a'; ( *source )++; break; /* Alert (Beep, Bell) (added in C89)[1] */
                 case 'b':   cc = '\b'; ( *source )++; break; /* Backspace */
                 case 'e':   cc = '\e'; ( *source )++; break; /* escape character */

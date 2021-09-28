@@ -55,6 +55,18 @@ static GRAPH * scrbitmap = NULL;
 
 /* --------------------------------------------------------------------------- */
 
+static void __grlib_destroy( GRLIB * lib ) {
+    int i;
+
+    for ( i = 0; i < lib->map_reserved; i++ ) bitmap_destroy( lib->maps[ i ] );
+
+    free( lib->maps );
+    free( lib );
+
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t grlib_newid() {
     int64_t n, nb, lim, ini;
 
@@ -93,11 +105,19 @@ int64_t grlib_newid() {
     /* Increment space, no more slots availables
        256 new maps available for alloc */
 
-    libs_allocated += 256;
-    libs_bmp = ( uint64_t * ) realloc( libs_bmp, sizeof( uint64_t ) * ( libs_allocated >> 6 ) );
-    memset( &libs_bmp[( libs_last >> 6 )], 0, sizeof( uint64_t ) * ( ( libs_allocated - libs_last ) >> 6 ) );
+    uint64_t * lb = ( uint64_t * ) realloc( libs_bmp, sizeof( uint64_t ) * ( ( libs_allocated + 256 ) >> 6 ) );
+    if ( !lb ) return -1;
 
-    libs = ( GRLIB ** ) realloc( libs, sizeof( GRLIB * ) * libs_allocated );
+    libs_bmp = lb;
+
+    GRLIB ** lbs = ( GRLIB ** ) realloc( libs, sizeof( GRLIB * ) * ( libs_allocated + 256 ) );
+    if ( !lbs ) return -1;
+
+    libs = lbs;
+
+    libs_allocated += 256;
+
+    memset( &libs_bmp[( libs_last >> 6 )], 0, sizeof( uint64_t ) * ( ( libs_allocated - libs_last ) >> 6 ) );
     memset( &libs[ libs_last ], 0, sizeof( GRLIB * ) * 256 );
 
     /* Devuelvo libs_last e incremento en 1, ya que ahora tengo BLOCK_INCR mas que antes */
@@ -126,6 +146,11 @@ int64_t grlib_new() {
     if ( !lib ) return -1;
 
     i = grlib_newid();
+    if ( i == -1 ) {
+        __grlib_destroy( lib );
+        return -1;
+    }
+
     libs[ i ] = lib;
 
     return ( i );
@@ -184,16 +209,12 @@ GRLIB * grlib_get( int64_t libid ) {
  */
 
 void grlib_destroy( int64_t libid ) {
-    int i;
     GRLIB * lib = grlib_get( libid );
     if ( !lib ) return;
 
     libs[ libid ] = 0;
 
-    for ( i = 0; i < lib->map_reserved; i++ ) bitmap_destroy( lib->maps[ i ] );
-
-    free( lib->maps );
-    free( lib );
+    __grlib_destroy( lib );
 
     bit_clr( libs_bmp, libid );
 }
@@ -278,21 +299,18 @@ int64_t grlib_add_map( int64_t libid, GRAPH * map ) {
  *  Get a bitmap using the DIV syntax (libcode, mapcode)
  *
  *  PARAMS :
- *  libid   Library code or 0 for system/global bitmap
- *  mapcode   Code of the bitmap
+ *      libid     Library code or 0 for system/global bitmap
+ *      mapcode   Code of the bitmap
  *
  *  RETURN VALUE :
  *      Pointer to the graphic required or NULL if not found
- *
- *  (0, -1) gets the scrbitmap graphic (undocumented!)
- *  (0,  0) gets the background
  *
  */
 
 GRAPH * bitmap_get( int64_t libid, int64_t mapcode ) {
     GRLIB * lib = NULL;
 
-    if ( !lib && !mapcode ) return NULL;
+    if ( !libid && !mapcode ) return NULL;
 
     if ( mapcode < 0 ) return NULL;
 

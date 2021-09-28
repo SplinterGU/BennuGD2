@@ -227,12 +227,9 @@ void bitmap_add_cpoint( GRAPH * map, int64_t x, int64_t y ) {
  */
 
 void bitmap_set_cpoint( GRAPH * map, uint64_t point, int64_t x, int64_t y ) {
-    uint64_t n;
-
-    if ( point < 0 ) return;
-
     if ( map->ncpoints <= point ) {
         map->cpoints = ( CPOINT * ) realloc( map->cpoints, ( point + 1 ) * sizeof( CPOINT ) );
+        uint64_t n;
         for ( n = map->ncpoints; n < point; n++ ) {
             map->cpoints[ n ].x = CPOINT_UNDEFINED;
             map->cpoints[ n ].y = CPOINT_UNDEFINED;
@@ -317,8 +314,12 @@ int64_t bitmap_next_code() {
     // Increment space, no more slots availables
     // 256 new maps available for alloc
 
+    uint64_t * mcb = ( uint64_t * ) realloc( map_code_bmp, sizeof( uint64_t ) * ( ( map_code_allocated + 256 ) >> 6 ) );
+
+    if ( !mcb ) return -1;
+
     map_code_allocated += 256;
-    map_code_bmp = ( uint64_t * ) realloc( map_code_bmp, sizeof( uint64_t ) * ( map_code_allocated >> 6 ) );
+    map_code_bmp = mcb;
 
     memset( &map_code_bmp[( map_code_last >> 6 )], 0, sizeof( uint64_t ) * ( ( map_code_allocated - map_code_last ) >> 6 ) );
 

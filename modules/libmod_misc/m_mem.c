@@ -89,8 +89,7 @@ static int kernel_version_type( void ) {
     int kernel_v[3];
     int i, t, fv = 0;
 
-    if ( uname( &sysinf ) == -1 )
-        return -1;
+    if ( uname( &sysinf ) == -1 ) return -1;
 
     bzero(( int* )kernel_v, sizeof( int )*3 );
 
@@ -103,12 +102,9 @@ static int kernel_version_type( void ) {
         }
     }
 
-    if ( !fv && kernel_v[0] > KERNELC_V_1 ) fv = 1;
-    if ( !fv && kernel_v[0] < KERNELC_V_1 ) fv = 2;
-    if ( !fv && kernel_v[1] > KERNELC_V_2 ) fv = 1;
-    if ( !fv && kernel_v[1] < KERNELC_V_2 ) fv = 2;
-    if ( !fv && kernel_v[2] > KERNELC_V_3 ) fv = 1;
-    if ( !fv && kernel_v[2] < KERNELC_V_3 ) fv = 2;
+               if ( kernel_v[0] > KERNELC_V_1 ) fv = 1; else if ( kernel_v[0] < KERNELC_V_1 ) fv = 2;
+    if ( !fv ) if ( kernel_v[1] > KERNELC_V_2 ) fv = 1; else if ( kernel_v[1] < KERNELC_V_2 ) fv = 2;
+    if ( !fv ) if ( kernel_v[2] > KERNELC_V_3 ) fv = 1; else if ( kernel_v[2] < KERNELC_V_3 ) fv = 2;
 
     return fv;
 }

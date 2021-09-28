@@ -458,12 +458,11 @@ static int info_text( void * what, REGION * bbox, int64_t * z, int64_t * drawme 
 void draw_text( void * what, REGION * clip ) {
     TEXT * text = ( TEXT * ) what;
     const char * str = get_text( text );
-    FONT * font;
 
     // Splinter
     if ( !str || !*str ) return;
 
-    if ( !( font = gr_font_get( text->fontid ) ) ) {
+    if ( !gr_font_get( text->fontid ) ) {
         gr_text_destroy( text->id );
         return;
     }
@@ -612,7 +611,7 @@ void gr_text_destroy( int64_t textid ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t gr_text_width( int64_t fontid, const unsigned char * text ) {
-    int stop = 0, idx, dummy;
+    int stop = 0, dummy;
     int64_t l = 0;
     FONT * f;
 
@@ -727,7 +726,6 @@ int64_t gr_text_height( int64_t fontid, const unsigned char * text ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, int64_t x, int64_t y, const unsigned char * text ) {
-    GRAPH * ch;
     FONT * f;
     uint8_t current_char, alpha, *r, *g, *b;
     int64_t flags;
@@ -776,6 +774,8 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
                 break;
         }
     } else {
+        GRAPH * ch;
+
         switch ( f->charset ) {
             case CHARSET_ISO8859:
 //                WRITE_TEXT_FNT_MAP(cp850_to_iso8859_1[*text]);
@@ -934,8 +934,6 @@ int64_t gr_text_getrgba( int64_t textid, uint8_t * r, uint8_t * g, uint8_t * b, 
 void * gr_text_alloc() {
     TEXT * t = ( TEXT * ) malloc( sizeof( TEXT ) );
     if ( !t ) return NULL;
-
-    t->id = -1;
 
     t->id = -1;
     t->on = TEXT_TEXT;

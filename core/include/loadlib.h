@@ -160,7 +160,6 @@ static void * dlibopen( const char * fname ) {
 
 static void * dlibaddr( void * _handle, const char * symbol ) {
     dlibhandle * handle = ( dlibhandle * ) _handle;
-    char * ptr, * f;
 
 #ifdef _WIN32
     void * addr = GetProcAddress( (HMODULE)handle->hnd, symbol );
@@ -179,7 +178,7 @@ static void * dlibaddr( void * _handle, const char * symbol ) {
     Dl_info dli;
     dladdr( addr, &dli );
 
-    ptr = ( char * ) dli.dli_fname; f = NULL;
+    char * ptr = ( char * ) dli.dli_fname, * f = NULL;
 /*
     printf( "dli_fname=%s\n", dli.dli_fname );
     printf( "dli_fbase=%p\n", dli.dli_fbase );

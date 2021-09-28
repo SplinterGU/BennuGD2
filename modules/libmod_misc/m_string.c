@@ -232,12 +232,11 @@ int64_t libmod_misc_string_trim( INSTANCE * my, int64_t * params ) {
 static char * strrev( char * str ) {
     char *start = str;
     char *left = str;
-    char ch;
 
     while ( *str++ ); str -= 2;
 
     while ( left < str ) {
-        ch = *left;
+        char ch = *left;
         *left++ = *str;
         *str-- = ch;
     }

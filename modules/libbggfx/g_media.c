@@ -108,7 +108,7 @@ void media_exit() {
 /* --------------------------------------------------------------------------- */
 
 MEDIA * media_load( const char * media, int64_t * graph_id, int w, int h, int timeout ) {
-    int i, vw, vh;
+    int vw, vh;
 
     if ( !libvlc ) media_init();
 

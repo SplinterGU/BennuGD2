@@ -109,7 +109,7 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
 
     if ( x < 0 || y < 0 ) return;
 
-    if ( gr && gr_create_image_for_graph( gr ) ) return;
+    if ( gr_create_image_for_graph( gr ) ) return;
 
 #ifdef USE_SDL2
     if ( x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return;

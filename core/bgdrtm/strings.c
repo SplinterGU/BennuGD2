@@ -53,9 +53,9 @@
 
 #define BLOCK_INCR  1024
 
-#define bit_set(m,b)    (((uint64_t *)(m))[(b)>>6] |=   1<<((b)&0x3F))
-#define bit_clr(m,b)    (((uint64_t *)(m))[(b)>>6] &= ~(1<<((b)&0x3F)))
-#define bit_tst(m,b)    (((uint64_t *)(m))[(b)>>6] &   (1<<((b)&0x3F)))
+#define bit_set(m,b)    (((uint64_t *)(m))[(b)>>6] |=   1ULL<<((b)&0x3F))
+#define bit_clr(m,b)    (((uint64_t *)(m))[(b)>>6] &= ~(1ULL<<((b)&0x3F)))
+#define bit_tst(m,b)    (((uint64_t *)(m))[(b)>>6] &   (1ULL<<((b)&0x3F)))
 
 /****************************************************************************/
 /* STATIC VARIABLES :                                                       */

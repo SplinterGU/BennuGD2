@@ -86,7 +86,7 @@ static char * gr_read_pal_with_gamma( file * fp ) {
 static int64_t gr_read_lib( file * fp ) {
     char header[8];
     short int px, py;
-    int bpp, i, ii;
+    int bpp, ii;
     int64_t libid;
     uint32_t y;
     unsigned c;
@@ -138,6 +138,8 @@ static int64_t gr_read_lib( file * fp ) {
             free( colors );
             return -1;
         }
+
+        int i;
 
         for ( i = 0; i < 256; i++ ) {
             cl[i].r = colors[i*3];
@@ -489,7 +491,7 @@ static int64_t gr_font_loadfrom( file * fp ) {
 static GRAPH * gr_read_map( file * fp ) {
     char header[8], name[32];
     unsigned short int w, h, c;
-    int height, width, i, ii;
+    int height, width, ii;
     uint32_t y;
     int bpp, code;
     int st = 0;
@@ -530,6 +532,8 @@ static GRAPH * gr_read_map( file * fp ) {
             free( colors );
             return NULL;
         }
+
+        int i;
 
         for ( i = 0; i < 256; i++ ) {
             cl[i].r = colors[i*3];

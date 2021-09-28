@@ -122,8 +122,8 @@ void instance_remove_from_list_by_instance( INSTANCE * r ) {
 /* By type                                                                */
 /* ---------------------------------------------------------------------- */
 
-void instance_add_to_list_by_type( INSTANCE * r, uint64_t type ) {
-    unsigned int hash = HASH( type );
+void instance_add_to_list_by_type( INSTANCE * r, uint64_t itype ) {
+    unsigned int hash = HASH( itype );
 
     if ( !hashed_by_type ) hashed_by_type = calloc( HASH_SIZE, sizeof( INSTANCE * ) );
 
@@ -135,8 +135,8 @@ void instance_add_to_list_by_type( INSTANCE * r, uint64_t type ) {
 
 /* ---------------------------------------------------------------------- */
 
-void instance_remove_from_list_by_type( INSTANCE * r, uint64_t type ) {
-    unsigned int hash = HASH( type );
+void instance_remove_from_list_by_type( INSTANCE * r, uint64_t itype ) {
+    unsigned int hash = HASH( itype );
 
     if ( r->prev_by_type ) r->prev_by_type->next_by_type = r->next_by_type;
     if ( r->next_by_type ) r->next_by_type->prev_by_type = r->prev_by_type;
@@ -292,8 +292,9 @@ int64_t instance_getid() {
  */
 
 INSTANCE * instance_duplicate( INSTANCE * father ) {
-    INSTANCE * r, * brother;
-    uint64_t type, pid;
+    INSTANCE * r;
+    uint64_t itype;
+    int64_t pid;
     int n;
 
     if ( ( pid = instance_getid() ) == -1 ) return NULL;
@@ -329,13 +330,14 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
 
     /* Crea el proceso clonico como si lo hubiera llamado el padre */
 
-    type = LOCQWORD( father, PROCESS_TYPE );
+    itype = LOCQWORD( father, PROCESS_TYPE );
     LOCQWORD( r, PROCESS_ID )   = pid;
     LOCQWORD( r, SON )          = 0;
     LOCQWORD( r, SMALLBRO )     = 0;
 
     LOCQWORD( r, FATHER )       = LOCQWORD( father, PROCESS_ID );
-    brother = instance_get( LOCQWORD( father, SON ) );
+
+    INSTANCE * brother = instance_get( LOCQWORD( father, SON ) );
     if ( brother ) {
         LOCQWORD( r, BIGBRO )         = LOCQWORD( brother, PROCESS_ID );
         LOCQWORD( brother, SMALLBRO ) = pid;
@@ -357,7 +359,7 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
 
     instance_add_to_list_by_id( r, pid );
     instance_add_to_list_by_instance( r );
-    instance_add_to_list_by_type( r, type );
+    instance_add_to_list_by_type( r, itype );
     instance_add_to_list_by_priority( r, LOCINT64( father, PRIORITY ) ); // Use father for avoid scan-build warning, can use 'r'
 
     /* The called_by pointer should be set only when the caller
@@ -399,7 +401,7 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
  */
 
 INSTANCE * instance_new( PROCDEF * proc, INSTANCE * father ) {
-    INSTANCE * r, * brother;
+    INSTANCE * r;
     int64_t pid;
     int n;
 
@@ -441,7 +443,8 @@ INSTANCE * instance_new( PROCDEF * proc, INSTANCE * father ) {
 
     if ( father ) {
         LOCQWORD( r, FATHER )     = LOCQWORD( father, PROCESS_ID );
-        brother = instance_get( LOCQWORD( father, SON ) );
+
+        INSTANCE * brother = instance_get( LOCQWORD( father, SON ) );
         if ( brother ) {
             LOCQWORD( r, BIGBRO )         = LOCQWORD( brother, PROCESS_ID );
             LOCQWORD( brother, SMALLBRO ) = pid;
@@ -689,13 +692,13 @@ context = pointer = continue scan
 context = -1 = end scan
 */
 
-INSTANCE * instance_get_by_type( uint64_t type, INSTANCE ** context ) {
+INSTANCE * instance_get_by_type( uint64_t itype, INSTANCE ** context ) {
     INSTANCE * i;
 
-    if ( !context || !hashed_by_type || !type /* || type >= FIRST_INSTANCE_ID */ ) return NULL;
+    if ( !context || !hashed_by_type || !itype /* || itype >= FIRST_INSTANCE_ID */ ) return NULL;
 
     if ( !*context ) /* start scan */
-        i = hashed_by_type[HASH( type )];
+        i = hashed_by_type[HASH( itype )];
     else if ( ( i = *context ) == ( INSTANCE * ) -1 ) /* End scan */
         return ( *context = NULL );
 
@@ -709,7 +712,7 @@ INSTANCE * instance_get_by_type( uint64_t type, INSTANCE ** context ) {
         return i;
     }
 
-    /* Here only if hashed_by_type[HASH( type )] is NULL */
+    /* Here only if hashed_by_type[HASH( itype )] is NULL */
     return ( *context = NULL ); /* return is null, then end scan */
 }
 

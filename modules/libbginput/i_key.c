@@ -344,7 +344,6 @@ static int64_t scancode = 0;
 
 static void process_key( SDL_Event *e, int64_t ascii, int *keypress ) {
     int n;
-    SDL_Keymod m;
     int ignore_key = 0;
 
     /* KeyDown HotKey */
@@ -392,11 +391,8 @@ static void process_key( SDL_Event *e, int64_t ascii, int *keypress ) {
 void process_key_events() {
     SDL_Event e, keydown_e;
     SDL_Keymod m;
-    int k, ascii;
-    int pressed;
+    int ascii, pressed, keypress;
     key_equiv * curr;
-    int keypress;
-    int ignore_key, n;
 
     /* Update events */
 

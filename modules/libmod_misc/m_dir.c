@@ -163,7 +163,6 @@ int64_t __moddir_read(__DIR_ST * dh ) {
 int64_t libmod_misc_dir_glob( INSTANCE * my, int64_t * params ) {
     const char * path = string_get( params[ 0 ] );
     static __DIR_ST * dh = NULL;
-    int64_t result;
 
     if ( dh && strcmp( dh->path, path ) ) {
         dir_close( dh );
@@ -175,7 +174,7 @@ int64_t libmod_misc_dir_glob( INSTANCE * my, int64_t * params ) {
     string_discard( params[ 0 ] );
 
     if ( !dh ) {
-        result = string_new( "" );
+        int64_t result = string_new( "" );
         string_use( result );
         return ( result );
     }

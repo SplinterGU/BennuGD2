@@ -255,22 +255,22 @@ void bgdrtm_entry( int argc, char * argv[] ) {
     {
         FILE * fp = fopen( "/usr/gp2x/version", "r" );
         if ( fp ) {
-            char *p1, *p2;
-            char b[32] = "";
+            char *p1, b[32] = "";
 
             fgets( b, sizeof(b), fp );
             fclose( fp );
 
-            if ( ( p2 = strchr( b, '.' ) ) ) {
-                *p2++ = '\0';
+            if ( ( p1 = strchr( b, '.' ) ) ) {
+                *p1++ = '\0';
                 caanoo_firmware_version = atol( b ) * 1000000L;
-                if ( ( p1 = strchr( p2, '.' ) ) )
+                char * p2;
+                if ( ( p2 = strchr( p1, '.' ) ) )
                 {
-                    *p1++ = '\0';
-                    caanoo_firmware_version += atol( p2 ) * 1000L;
-                    caanoo_firmware_version += atol( p1 );
+                    *p2++ = '\0';
+                    caanoo_firmware_version += atol( p1 ) * 1000L;
+                    caanoo_firmware_version += atol( p2 );
                 } else {
-                    caanoo_firmware_version += atol( p2 ) * 1000L;
+                    caanoo_firmware_version += atol( p1 ) * 1000L;
                 }
             }
         }

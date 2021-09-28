@@ -171,7 +171,8 @@ int file_qgets( file * fp, char * buffer, int len ) {
     if ( fp->type == F_XFILE ) {
         XFILE * xf;
         int l = 0;
-        char * ptr = result = buffer;
+
+        ptr = result = buffer;
 
         xf = &x_file[fp->n];
 
@@ -182,7 +183,7 @@ int file_qgets( file * fp, char * buffer, int len ) {
                 break;
             }
             sz = fread( ptr, 1, 1, fp->fp ) ;
-            if ( sz <= 0 ) {
+            if ( !sz ) {
                 if ( feof( fp->fp ) ) fp->eof = 1;
                 break;
             }
@@ -193,7 +194,7 @@ int file_qgets( file * fp, char * buffer, int len ) {
         *ptr = 0;
         fp->pos = ftell( fp->fp );
 
-        if ( l == 0 ) return 0;
+        if ( !l ) return 0;
     }
 #ifndef NO_ZLIB
     else if ( fp->type == F_GZFILE ) {
@@ -252,7 +253,7 @@ int file_gets( file * fp, char * buffer, int len ) {
                 break;
             }
             sz = fread( ptr, 1, 1, fp->fp ) ;
-            if ( sz <= 0 ) {
+            if ( !sz ) {
                 if ( feof( fp->fp ) ) fp->eof = 1;
                 break;
             }
@@ -263,7 +264,7 @@ int file_gets( file * fp, char * buffer, int len ) {
         *ptr = 0;
         fp->pos = ftell( fp->fp );
 
-        if ( l == 0 ) return 0;
+        if ( !l ) return 0;
     }
 #ifndef NO_ZLIB
     else if ( fp->type == F_GZFILE ) {
@@ -528,7 +529,7 @@ int file_write( file * fp, void * buffer, int len ) {
 #ifndef NO_ZLIB
     if ( fp->type == F_GZFILE ) {
         int result = gzwrite( fp->gz, buffer, len );
-        if (( fp->error = ( result < 0 ) ) != 0 ) result = 0;
+        if ( ( fp->error = ( result < 0 ) ) ) result = 0;
         return ( result < len ) ? 0 : len;
     }
 #endif
@@ -693,7 +694,7 @@ file * file_open( const char * filename, char * mode ) {
          !strchr( mode, '+' ) && !strchr( mode, 'w' ) )
     {
         for ( i = 0; i < x_files_count; i++ ) {
-            if ( strcmp( filename, x_file[i].name ) == 0 ) {
+            if ( !strcmp( filename, x_file[i].name ) ) {
                 f->eof  = 0;
                 f->pos  = x_file[i].offset;
                 f->type = F_XFILE;
@@ -745,8 +746,7 @@ file * file_open( const char * filename, char * mode ) {
 
 void file_close( file * fp ) {
     if ( fp == NULL ) return;
-    if ( fp->type == F_FILE ) fclose( fp->fp );
-    if ( fp->type == F_XFILE ) fclose( fp->fp );
+    if ( fp->type == F_FILE || fp->type == F_XFILE ) fclose( fp->fp );
 #ifndef NO_ZLIB
     if ( fp->type == F_GZFILE ) gzclose( fp->gz );
 #endif
@@ -767,7 +767,7 @@ void file_addp( const char * path ) {
     for ( n = 0; truepath[n]; n++ ) if ( truepath[n] == '\\' ) truepath[n] = '/';
     if ( truepath[strlen( truepath )-1] != '/' ) strcat( truepath, "/" );
 
-    for ( n = 0; n < MAX_POSSIBLE_PATHS - 1 && possible_paths[n]; n++ );
+    for ( n = 0; n < MAX_POSSIBLE_PATHS - 2 && possible_paths[n]; n++ );
 
     possible_paths[n] = strdup( truepath );
     possible_paths[n+1] = NULL;

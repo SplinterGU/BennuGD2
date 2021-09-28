@@ -77,7 +77,7 @@
             hi = (x & 0xFFFFFFFF);
             SDL_Swap32(&lo);
             SDL_Swap32(&hi);
-            *D = ( lo << 32 ) || hi;
+            *D = ( ( ( uint64_t ) lo ) << 32 ) || hi;
         }
 
         #define ARRANGE_QWORD(x)    DO_Swap64(x)

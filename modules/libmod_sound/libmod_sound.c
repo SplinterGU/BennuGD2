@@ -143,30 +143,24 @@ static SDL_RWops *SDL_RWFromBGDFP( file *fp ) {
  */
 
 static int sound_init() {
-    int audio_rate;
-    Uint16 audio_format;
-    int audio_channels;
-    int audio_buffers;
-    int audio_mix_channels;
-
     if ( !audio_initialized ) {
         /* Initialize variables: but limit quality to some fixed options */
 
-        audio_rate = GLOQWORD( libmod_sound, SOUND_FREQ );
+        int audio_rate = GLOQWORD( libmod_sound, SOUND_FREQ );
 
         if ( audio_rate > 22050 )       audio_rate = 44100;
         else if ( audio_rate > 11025 )  audio_rate = 22050;
         else                            audio_rate = 11025;
 
-        audio_format = AUDIO_S16;
-        audio_channels = GLOQWORD( libmod_sound, SOUND_MODE ) + 1;
-        audio_buffers = 1024 * audio_rate / 22050;
+        Uint16 audio_format = AUDIO_S16;
+        int audio_channels = GLOQWORD( libmod_sound, SOUND_MODE ) + 1;
+        int audio_buffers = 1024 * audio_rate / 22050;
 
         /* Open the audio device */
         if ( Mix_OpenAudio( audio_rate, audio_format, audio_channels, audio_buffers ) >= 0 ) {
             GLOQWORD( libmod_sound, SOUND_CHANNELS ) <= 32 ? Mix_AllocateChannels( GLOQWORD( libmod_sound, SOUND_CHANNELS ) ) : Mix_AllocateChannels( 32 ) ;
             Mix_QuerySpec( &audio_rate, &audio_format, &audio_channels );
-            audio_mix_channels = Mix_AllocateChannels( -1 ) ;
+            int audio_mix_channels = Mix_AllocateChannels( -1 ) ;
             GLOQWORD( libmod_sound, SOUND_CHANNELS ) = audio_mix_channels ;
 
             audio_initialized = 1;

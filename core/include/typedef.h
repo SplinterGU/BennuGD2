@@ -46,6 +46,4 @@ extern int			typedef_is_equal (TYPEDEF a, TYPEDEF b);
 extern TYPEDEF    * typedef_by_name  (int64_t code) ;
 extern void         typedef_name     (TYPEDEF t, int64_t code) ;
 
-extern int64_t		type			 (TYPEDEF type, int accept_structs);
-
 #endif
