@@ -510,7 +510,7 @@ void preprocessor_expand( DEFINE * def ) {
                 if ( size + part + 2 >= allocated ) {
                     allocated += (( part + 256 ) & ~127 );
                     unsigned char * t = ( unsigned char * )realloc( text, allocated );
-                    if ( !text ) { free( text ); compile_error( MSG_OUT_OF_MEMORY ); }
+                    if ( !t ) { free( text ); compile_error( MSG_OUT_OF_MEMORY ); }
                     text = t;
                 }
                 text[size++] = ' ';
