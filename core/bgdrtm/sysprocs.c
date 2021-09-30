@@ -93,8 +93,8 @@ int64_t module_finalize_count = 0;
         } \
         \
         if (!(hook_list)) { \
-            fprintf (stderr, "No memory for alloc hook\n"); \
-            exit(-1); \
+            fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ ); \
+            exit(2); \
         } \
         (hook_list)[hook_count] = (new_hook); \
         (hook_count)++; \
@@ -581,6 +581,10 @@ void sysproc_init() {
     }
 
     sysproc_tab = calloc( maxcode + 1 , sizeof( SYSPROC * ) );
+    if ( !( sysproc_tab ) ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
 
     proc = sysprocs;
     while ( proc->func ) {

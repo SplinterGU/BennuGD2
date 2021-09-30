@@ -75,11 +75,11 @@ void identifier_init() {
 
 void identifier_dump() {
 	identifier * ptr;
-    int i, ii;
+    int i;
 	printf("\n---- %d identifiers ----\n\n", identifier_count);
 	for (i = 0; i < 64; i++) {
 		ptr = identifier_hash[i];
-		ii = 0;
+		int ii = 0;
 		while (ptr) {
 			ii++;
 			printf("%4d: %-32s [%04d] [%3d]\n", ( int ) ptr->code, ptr->name, i, ii);

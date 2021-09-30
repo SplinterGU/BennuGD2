@@ -40,11 +40,11 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef TARGET_BEOS
-#include <posix/assert.h>
-#else
-#include <assert.h>
-#endif
+//#ifdef TARGET_BEOS
+//#include <posix/assert.h>
+//#else
+//#include <assert.h>
+//#endif
 
 #include "files.h"
 #include "xctype.h"
@@ -195,7 +195,7 @@ static void string_alloc( int count ) {
     string_bmp = ( uint64_t * ) realloc( string_bmp, ( string_allocated >> 6 ) * sizeof( uint64_t ) );
 
     if ( !string_ptr || !string_uct || !string_bmp ) {
-        fprintf( stderr, "ERROR: Runtime error - string_alloc: out of memory\n" );
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
         exit( 0 );
     }
 
@@ -265,7 +265,11 @@ void string_dump( void ( *wlog )( const char *fmt, ... ) ) {
 /****************************************************************************/
 
 const unsigned char * string_get( int64_t code ) {
-    assert( code < string_allocated && code >= 0 );
+//    assert( code < string_allocated && code >= 0 );
+    if ( code >= string_allocated || code < 0 ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
     return string_ptr[code];
 }
 
@@ -287,10 +291,18 @@ void string_load( void * fp, int64_t ostroffs, int64_t ostrdata, int64_t nstring
     int n;
 
     string_mem = malloc( totalsize );
-    assert( string_mem );
+    if ( !string_mem ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( string_mem );
 
     string_offset = ( uint64_t * ) malloc( sizeof( uint64_t ) * nstrings );
-    assert( string_offset );
+    if ( !string_offset ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( string_offset );
 
     file_seek(( file * )fp, ostroffs, SEEK_SET );
     file_readUint64A(( file * )fp, string_offset, nstrings );
@@ -401,7 +413,7 @@ static int64_t string_getid() {
     /* Incremento espacio, no habia libres */
     string_alloc( BLOCK_INCR );
 
-    assert( !bit_tst( string_bmp, string_last_id ) );
+//    assert( !bit_tst( string_bmp, string_last_id ) );
 
     /* Devuelvo string_last_id e incremento en 1, ya que ahora tengo BLOCK_INCR mas que antes */
     bit_set( string_bmp, string_last_id );
@@ -419,7 +431,12 @@ int64_t string_new( const char * ptr ) {
     unsigned char * str = strdup( ptr );
     int64_t id;
 
-    assert( str );
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+
+//    assert( str );
 
     id = string_getid();
 
@@ -446,7 +463,11 @@ int64_t string_newa( const unsigned char * ptr, unsigned count ) {
     unsigned char * str = malloc( count + 1 );
     int64_t id;
 
-    assert( str );
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str );
     id = string_getid();
 
     strncpy( str, ptr, count );
@@ -468,16 +489,28 @@ int64_t string_concat( int64_t code1, unsigned char * str2 ) {
     unsigned char * str1;
     int len1, len2;
 
-    assert( code1 < string_allocated && code1 >= 0 );
+    if ( code1 >= string_allocated || code1 < 0 ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( code1 < string_allocated && code1 >= 0 );
 
     str1 = string_ptr[code1];
-    assert( str1 );
+    if ( !str1 ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str1 );
 
     len1 = strlen( str1 );
     len2 = strlen( str2 ) + 1;
 
     str1 = ( char * ) realloc( str1, len1 + len2 );
-    assert( str1 );
+    if ( !str1 ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str1 );
 
     memmove( str1 + len1, str2, len2 );
 
@@ -500,14 +533,22 @@ int64_t string_add( int64_t code1, int64_t code2 ) {
     int64_t id;
     int len1, len2;
 
-    assert( str1 );
-    assert( str2 );
+    if ( !str1 || !str2 ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str1 );
+//    assert( str2 );
 
     len1 = strlen( str1 );
     len2 = strlen( str2 ) + 1;
 
     str3 = ( char * ) malloc( len1 + len2 );
-    assert( str3 );
+    if ( !str3 ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str3 );
 
     memmove( str3, str1, len1 );
     memmove( str3 + len1, str2, len2 );
@@ -531,7 +572,11 @@ int64_t string_ptoa( void * n ) {
     int64_t id;
 
     str = ( unsigned char * ) malloc( 17 );
-    assert( str ) ;
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str ) ;
 
     _string_ptoa( str, n );
 
@@ -552,7 +597,11 @@ int64_t string_ftoa( double n ) {
     unsigned char * str = ( unsigned char * ) malloc( 384 ), * ptr = str;
     int64_t id;
 
-    assert( str ) ;
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str ) ;
 
     ptr += sprintf( str, "%lf", n ) - 1;
 
@@ -584,7 +633,11 @@ int64_t string_itoa( int64_t n ) {
     int64_t id;
 
     str = ( unsigned char * ) malloc( 22 );
-    assert( str ) ;
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str ) ;
 
     _string_ntoa( str, n );
 
@@ -606,7 +659,11 @@ int64_t string_uitoa( uint64_t n ) {
     int64_t id;
 
     str = ( unsigned char * ) malloc( 22 );
-    assert( str ) ;
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str ) ;
 
     _string_utoa( str, n );
 
@@ -642,7 +699,11 @@ int64_t string_comp( int64_t code1, int64_t code2 ) {
 uint64_t string_char( int64_t n, int nchar ) {
     const unsigned char * str = ( const unsigned char * ) string_get( n );
 
-    assert( str );
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str );
 
     if ( nchar < 0 ) {
         nchar = strlen( str ) + nchar;
@@ -669,7 +730,11 @@ int64_t string_substr( int64_t code, int first, int len ) {
     int rlen;
     int64_t n;
 
-    assert( str );
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str );
     rlen = strlen( str );
 
     if ( first < 0 ) {
@@ -688,6 +753,10 @@ int64_t string_substr( int64_t code, int first, int len ) {
     if ( first + len > rlen ) len = ( rlen - first );
 
     ptr = ( unsigned char * ) malloc( len + 1 );
+    if ( !ptr ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
     memcpy( ptr, str + first, len );
     ptr[len] = '\0';
 
@@ -719,7 +788,11 @@ int64_t string_find( int64_t code1, int64_t code2, int first ) {
     unsigned char * str2 = ( unsigned char * ) string_get( code2 );
     unsigned char * p = str1, * p1, * p2;
 
-    assert( str1 && str2 );
+    if ( !str1 || !str2 ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str1 && str2 );
 
     if ( first < 0 ) {
         first += strlen( str1 );
@@ -767,10 +840,18 @@ int64_t string_ucase( int64_t code ) {
     unsigned char * base, * ptr;
     int64_t id;
 
-    assert( str );
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str );
 
     base = ( unsigned char * ) malloc( strlen( str ) + 1 );
-    assert( base );
+    if ( !base ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( base );
 
     for ( ptr = base; *str; ptr++, str++ ) *ptr = TOUPPER( *str );
     ptr[0] = '\0';
@@ -800,10 +881,18 @@ int64_t string_lcase( int64_t code ) {
     unsigned char * base, * ptr;
     int64_t id;
 
-    assert( str );
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str );
 
     base = ( unsigned char * ) malloc( strlen( str ) + 1 );
-    assert( base );
+    if ( !base ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( base );
 
     for ( ptr = base; *str; ptr++, str++ ) *ptr = TOLOWER( *str );
     ptr[0] = '\0';
@@ -834,7 +923,11 @@ int64_t string_strip( int64_t code ) {
 
     ptr = base = ( unsigned char * )string_get( id );
 
-    assert( ptr );
+    if ( !ptr ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( ptr );
 
     while ( *str == ' ' || *str == '\n' || *str == '\r' || *str == '\t' ) str++;
     while ( *str ) *ptr++ = *str++;
@@ -863,7 +956,11 @@ int64_t string_format( double number, int dec, char point, char thousands ) {
     int c, neg;
     int64_t id;
 
-    assert( str );
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str );
 
     if ( dec == -1 ) s += sprintf( str, "%f", number );
     else             s += sprintf( str, "%.*f", dec, number );
@@ -952,14 +1049,22 @@ int64_t string_pad( int64_t code, int total, int align ) {
     int64_t id;
     unsigned char * str;
 
-    assert( ptr );
+    if ( !ptr ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( ptr );
     len = strlen( ptr );
     if ( len < total ) spaces = total - len;
 
     if ( !spaces ) return string_new( ptr );
 
     str = malloc( total + 1 );
-    assert( str );
+    if ( !str ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
+//    assert( str );
 
     if ( !align ) {
         memset( str, ' ', spaces );

@@ -194,7 +194,9 @@ void typedef_name( TYPEDEF t, int64_t code ) {
     if ( named_count >= named_reserved ) {
         named_reserved += 16;
         named_types = ( TYPEDEF * ) realloc( named_types, named_reserved * sizeof( TYPEDEF ) );
+        if ( !named_types ) compile_error( MSG_OUT_OF_MEMORY );
         named_codes = ( int64_t * ) realloc( named_codes, named_reserved * sizeof( int64_t ) );
+        if ( !named_codes ) compile_error( MSG_OUT_OF_MEMORY );
         if ( !named_types || !named_codes ) compile_error( "typedef_name: out of memory\n" );
     }
     named_codes[named_count] = code;

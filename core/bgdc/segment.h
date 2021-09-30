@@ -47,12 +47,12 @@ extern segment * segment_duplicate(segment * s);
 extern segment * segment_get(int64_t id);
 
 /* Devuelven el offset del nuevo dato */
-extern int64_t segment_add_as(segment * s, int64_t value, BASETYPE t);
-extern int64_t segment_add_qword(segment * s, int64_t value);
-extern int64_t segment_add_dword(segment * s, int32_t value);
-extern int64_t segment_add_word(segment * s, int16_t value);
-extern int64_t segment_add_byte(segment * s, int8_t  value);
-extern int64_t segment_add_from(segment * s, segment * from);
+extern int64_t segment_add_as(segment * n, int64_t value, BASETYPE t);
+extern int64_t segment_add_qword(segment * n, int64_t value);
+extern int64_t segment_add_dword(segment * n, int32_t value);
+extern int64_t segment_add_word(segment * n, int16_t value);
+extern int64_t segment_add_byte(segment * n, int8_t  value);
+extern int64_t segment_add_from(segment * n, segment * s);
 
 extern void segment_dump(segment *);
 extern void segment_destroy(segment *);

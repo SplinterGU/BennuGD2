@@ -110,7 +110,10 @@ unsigned char * invalidchars = \
         "*?\"<>|";
 
 int64_t check_for_valid_pathname( unsigned char * pathname ) {
-    int n, l;
+    int n;
+#if WIN32
+    int l;
+#endif
 
     if ( !pathname || ( 
 #if WIN32
@@ -135,7 +138,6 @@ int64_t no_include_this_file = 0;
 
 int64_t string_compile( const unsigned char ** source ) {
     unsigned char c = *( *source )++, /*conv,*/ cc;
-    const unsigned char * ptr;
     int64_t string_used_back = string_used;
 
     if ( string_count == string_max ) {

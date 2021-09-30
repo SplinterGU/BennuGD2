@@ -149,10 +149,9 @@ static struct {
 
 void core_init() {
     int i = 0;
-    int64_t code;
 
     while ( constants_def[i].name ) {
-        code = identifier_search_or_add( constants_def[i].name );
+        int64_t code = identifier_search_or_add( constants_def[i].name );
         constants_add( code, typedef_new( constants_def[i].type ), constants_def[i].code );
         i++;
     }

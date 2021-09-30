@@ -218,7 +218,9 @@ void segment_name(segment * s, int64_t code) {
     if (named_count >= named_reserved) {
         named_reserved += 16;
         named_segs = realloc(named_segs, named_reserved * sizeof (segment *));
+	    if ( !named_segs ) compile_error( MSG_OUT_OF_MEMORY );
         named_codes = realloc(named_codes, named_reserved * sizeof (int64_t));
+    	if ( !named_codes ) compile_error( MSG_OUT_OF_MEMORY );
         if (!named_segs || !named_codes) compile_error("segment_name: out of memory\n");
     }
 	named_segs[named_count] = s;

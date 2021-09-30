@@ -117,7 +117,7 @@ static char * trim( char * ptr ) {
 
 static int load_file( const char * filename, int n ) {
     char line[2048], ** lines;
-    int allocated = 16, count = 0;
+    int allocated = 16, count = 0, i;
     file * fp;
 
     fp = file_open( filename, "r0" );
@@ -128,20 +128,45 @@ static int load_file( const char * filename, int n ) {
         return 0;
     }
 
-    lines = ( char ** ) calloc( 16, sizeof( char* ) );
+    lines = ( char ** ) calloc( allocated, sizeof( char* ) );
+    if ( !lines ) {
+        file_close( fp );
+        return -1;
+    }
 
     while ( !file_eof( fp ) ) {
         file_qgets( fp, line, 2048 );
         trim( line );
         if ( allocated == count ) {
+            char ** l;
+            l = realloc( lines, sizeof( char* ) * ( allocated + 16 ) );
+            if ( !l) {
+                for ( i = 0; i < count; i++ ) free( lines[ i ] );
+                free( lines );
+                file_close( fp );
+                return -1;
+            }
+            lines = l;
             allocated += 16;
-            lines = realloc( lines, sizeof( char* ) * allocated );
         }
-        lines[count++] = strdup( line );
+        lines[count] = strdup( line );
+        if ( !lines[count]) {
+            for ( i = 0; i < count; i++ ) free( lines[ i ] );
+            free( lines );
+            file_close( fp );
+            return -1;
+        }
+        count++;
     }
     file_close( fp );
 
     dcb.sourcefiles[n] = ( uint8_t * ) strdup( filename );
+    if ( !dcb.sourcefiles[n] ) {
+        for ( i = 0; i < count; i++ ) free( lines[ i ] );
+        free( lines );
+        file_close( fp );
+        return -1;
+    }
     dcb.sourcelines[n] = ( uint8_t ** ) lines;
     dcb.sourcecount[n] = count;
     return 1;
@@ -169,6 +194,10 @@ int dcb_load( const char * filename ) {
 DCB_VAR * read_and_arrange_varspace( file * fp, int count ) {
     int n, n1;
     DCB_VAR * vars = ( DCB_VAR * ) calloc( count, sizeof( DCB_VAR ) );
+    if ( !vars ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
 
     for ( n = 0; n < count; n++ ) {
         file_read( fp, &vars[n], sizeof( DCB_VAR ) );
@@ -234,6 +263,11 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
     localstr   = ( int64_t * ) calloc( dcb.data.NLocStrings + 8, sizeof( int64_t ) );
     dcb.proc   = ( DCB_PROC * ) calloc(( 1 + dcb.data.NProcs ), sizeof( DCB_PROC ) );
     procs      = ( PROCDEF * ) calloc(( 1 + dcb.data.NProcs ), sizeof( PROCDEF ) );
+
+    if ( !globaldata || !localdata || !localstr || !dcb.proc || !procs ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
 
     procdef_count = dcb.data.NProcs;
     local_size    = dcb.data.SLocal;
@@ -320,6 +354,10 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
 
     if ( dcb.data.NImports ) {
         dcb.imports = ( uint64_t * )calloc( dcb.data.NImports, sizeof( uint64_t ) );
+        if ( !dcb.imports ) {
+            fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+            exit(2);
+        }
         file_seek( fp, offset + dcb.data.OImports, SEEK_SET );
         file_readUint64A( fp, dcb.imports, dcb.data.NImports );
     }
@@ -328,6 +366,10 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
 
     if ( dcb.data.NID ) {
         dcb.id = ( DCB_ID * ) calloc( dcb.data.NID, sizeof( DCB_ID ) );
+        if ( !dcb.id ) {
+            fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+            exit(2);
+        }
         file_seek( fp, offset + dcb.data.OID, SEEK_SET );
 
         for ( n = 0; n < dcb.data.NID; n++ ) {
@@ -349,6 +391,12 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
     if ( dcb.data.NVarSpaces ) {
         dcb.varspace = ( DCB_VARSPACE * ) calloc( dcb.data.NVarSpaces, sizeof( DCB_VARSPACE ) );
         dcb.varspace_vars = ( DCB_VAR ** ) calloc( dcb.data.NVarSpaces, sizeof( DCB_VAR * ) );
+
+        if ( !dcb.varspace || !dcb.varspace_vars ) {
+            fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+            exit(2);
+        }
+
         file_seek( fp, offset + dcb.data.OVarSpaces, SEEK_SET );
 
         for ( n = 0; n < dcb.data.NVarSpaces; n++ ) {
@@ -371,11 +419,26 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         dcb.sourcecount = ( uint64_t * ) calloc( dcb.data.NSourceFiles, sizeof( uint64_t ) );
         dcb.sourcelines = ( uint8_t *** ) calloc( dcb.data.NSourceFiles, sizeof( uint8_t ** ) );
         dcb.sourcefiles = ( uint8_t ** ) calloc( dcb.data.NSourceFiles, sizeof( uint8_t * ) );
+
+        if ( !dcb.sourcecount || !dcb.sourcelines || !dcb.sourcefiles ) {
+            fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+            exit(2);
+        }
+
         file_seek( fp, offset + dcb.data.OSourceFiles, SEEK_SET );
         for ( n = 0; n < dcb.data.NSourceFiles; n++ ) {
             file_readUint64( fp, &size );
             file_read( fp, fname, size );
-            if ( !load_file( fname, n ) ) fprintf( stdout, "WARNING: Runtime warning - file not found (%s)\n", fname );
+            switch ( load_file( fname, n ) ) {
+                case 0:
+                    fprintf( stdout, "WARNING: Runtime warning - file not found (%s)\n", fname );
+                    break;
+
+                case -1:
+                    fprintf( stdout, "ERROR: Runtime error - no enough memory for load (%s)\n", fname );
+                    exit(2);
+                    break;
+            }
         }
     }
 
@@ -396,18 +459,30 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
 
         if ( dcb.proc[n].data.SPrivate ) {
             procs[n].pridata = ( uint8_t * )calloc( dcb.proc[n].data.SPrivate, sizeof( uint8_t ) ); /* El size ya esta calculado en bytes */
+            if ( !procs[n].pridata ) {
+                fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+                exit(2);
+            }
             file_seek( fp, offset + dcb.proc[n].data.OPrivate, SEEK_SET );
             file_read( fp, procs[n].pridata, dcb.proc[n].data.SPrivate );      /* *** */
         }
 
         if ( dcb.proc[n].data.SPublic ) {
             procs[n].pubdata = ( uint8_t * )calloc( dcb.proc[n].data.SPublic, sizeof( uint8_t ) ); /* El size ya esta calculado en bytes */
+            if ( !procs[n].pubdata ) {
+                fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+                exit(2);
+            }
             file_seek( fp, offset + dcb.proc[n].data.OPublic, SEEK_SET );
             file_read( fp, procs[n].pubdata, dcb.proc[n].data.SPublic );       /* *** */
         }
 
         if ( dcb.proc[n].data.SCode ) {
             procs[n].code = ( int64_t * ) calloc( dcb.proc[n].data.SCode / sizeof( int64_t ), sizeof( int64_t ) ); /* El size ya esta calculado en bytes */
+            if ( !procs[n].code ) {
+                fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+                exit(2);
+            }
             file_seek( fp, offset + dcb.proc[n].data.OCode, SEEK_SET );
             file_readUint64A( fp, (uint64_t *)procs[n].code, dcb.proc[n].data.SCode / sizeof(uint64_t) );
 
@@ -420,12 +495,20 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
 
         if ( dcb.proc[n].data.NPriStrings ) {
             procs[n].strings = ( int64_t * )calloc( dcb.proc[n].data.NPriStrings, sizeof( int64_t ) );
+            if ( !procs[n].strings ) {
+                fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+                exit(2);
+            }
             file_seek( fp, offset + dcb.proc[n].data.OPriStrings, SEEK_SET );
             file_readUint64A( fp, (uint64_t *)procs[n].strings, dcb.proc[n].data.NPriStrings );
         }
 
         if ( dcb.proc[n].data.NPubStrings ) {
             procs[n].pubstrings = ( int64_t * )calloc( dcb.proc[n].data.NPubStrings, sizeof( int64_t ) );
+            if ( !procs[n].pubstrings ) {
+                fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+                exit(2);
+            }
             file_seek( fp, offset + dcb.proc[n].data.OPubStrings, SEEK_SET );
             file_readUint64A( fp, (uint64_t *)procs[n].pubstrings, dcb.proc[n].data.NPubStrings );
         }
@@ -444,6 +527,10 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
     /* Recupero tabla de fixup de sysprocs */
 
     sysproc_code_ref = calloc( dcb.data.NSysProcsCodes, sizeof( DCB_SYSPROC_CODE2 ) );
+    if ( !sysproc_code_ref ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+        exit(2);
+    }
     file_seek( fp, offset + dcb.data.OSysProcsCodes, SEEK_SET );
     for ( n = 0; n < dcb.data.NSysProcsCodes; n++ ) {
         DCB_SYSPROC_CODE sdcb;
@@ -459,6 +546,10 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         sysproc_code_ref[n].Params = sdcb.Params;
         sysproc_code_ref[n].Code = sdcb.Code;
         sysproc_code_ref[n].ParamTypes = ( uint8_t * ) calloc( sdcb.Params + 1, sizeof( uint8_t ) );
+        if ( !sysproc_code_ref[n].ParamTypes ) {
+            fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
+            exit(2);
+        }
         if ( sdcb.Params ) file_read( fp, sysproc_code_ref[n].ParamTypes, sdcb.Params );
     }
 

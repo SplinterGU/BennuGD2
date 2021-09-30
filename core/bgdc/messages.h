@@ -155,4 +155,8 @@
 
 #define MSG_INLINE_ASSIGNATION_ERROR            "Inline declaration variables don't allow value assignation"
 
+#define MSG_CAST_POINTER_INCOMPATIBLE           "Assignment to pointer without a compatible cast"
+
+#define MSG_OUT_OF_MEMORY                       "Out of memory"
+
 #endif

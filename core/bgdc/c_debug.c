@@ -42,9 +42,9 @@
 /* ---------------------------------------------------------------------- */
 
 void codeblock_dump (CODEBLOCK * c) {
-	int i, n, showdir;
+	int i, n;
 	for (i = 0; i < c->current; i += MN_PARAMS(c->data[i])+1) {
-		showdir = 0;
+		int showdir = 0;
 		for (n = 0; n < c->label_count; n++) {
 			if (c->labels[n] == i) {
 				if (!showdir) printf ("\n");

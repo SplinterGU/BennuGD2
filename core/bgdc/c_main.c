@@ -566,7 +566,6 @@ void compile_import( void ) {
 void compile_constants() {
     int64_t code;
     expresion_result res;
-    BASETYPE t;
 
     for ( ;; ) {
         token_next();
@@ -1050,7 +1049,6 @@ void compile_process() {
 
 void compile_program() {
     /* Ahora lo del program es opcional :-P */
-    int block_var = 0;
 
     token_next();
     if ( token.type == IDENTIFIER && token.code == identifier_program ) {
@@ -1063,7 +1061,7 @@ void compile_program() {
         token_back();
 
     for ( ;; ) {
-        block_var = 0;
+        int block_var = 0;
         token_next();
 
         while ( token.type == IDENTIFIER && token.code == identifier_semicolon ) token_next();

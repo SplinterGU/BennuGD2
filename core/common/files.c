@@ -98,7 +98,7 @@ void file_add_xfile( file * fp, const char * stubname, long offset, char * name,
 /* Read a datablock from file */
 
 int file_read( file * fp, void * buffer, int len ) {
-    assert( len != 0 );
+    if ( !fp || !len ) return 0;
 
     if ( fp->type == F_XFILE ) {
         XFILE * xf;
@@ -542,6 +542,8 @@ int file_write( file * fp, void * buffer, int len ) {
 int file_size( file * fp ) {
     long pos, size;
 
+    if ( !fp ) return 0;
+
     if ( fp->type == F_XFILE ) return x_file[fp->n].size;
 
     pos = file_pos( fp );
@@ -861,7 +863,7 @@ char * getfullpath( char *rel_path ) {
     #define ENV_PATH_SEP    ':'
 #endif
 
-char * whereis( char *file ) {
+char * whereis( const char *file ) {
     char * path = getenv( "PATH" ), *pact = path, *p;
     char fullname[ __MAX_PATH ];
 

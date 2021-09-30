@@ -191,6 +191,8 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub ) {
     int elements = 0, position = 0;
     expresion_result res;
 
+    if ( !n ) return 0;
+
     for (;;) {
         token_next();
 
@@ -371,7 +373,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
     expresion_result res;
     BASETYPE basetype = TYPE_UNDEFINED;
     TYPEDEF type, typeaux;
-    VARIABLE * var;
     segment * segm = NULL;
     PROCDEF * proc = NULL;
 
@@ -578,7 +579,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
         }
 
-        if (( var = varspace_search( n, token.code ) ) ) {
+        if ( varspace_search( n, token.code ) ) {
             if ( duplicateignore ) {
                 int skip_all_until_semicolon = 0,
                     skip_equal = 0;
@@ -654,10 +655,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             for ( j = 0 ; j <= i ; j++ ) type.chunk[ j ]    = typeaux.chunk[ j ];
 
             members = ( VARSPACE * )calloc( 1, sizeof( VARSPACE ) );
-            if ( !members ) {
-                fprintf( stdout, "compile_varspace: out of memory\n" );
-                exit( 1 );
-            }
+            if ( !members ) compile_error( MSG_OUT_OF_MEMORY );
             varspace_init( members );
 
             ( void ) compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0, level + 1, inline_assignation_disabled );
@@ -743,7 +741,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                     }
                 }
             } else if ( segm ) {
-                int string_offset = 0, j;
+                int string_offset = 0;
 
                 if ( total_count == 0 ) compile_error( MSG_EXPECTED, "=" );
 
@@ -853,7 +851,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
 
     /* n->size *= copies ; */
     while ( copies-- > 1 ) {
-        int i;
         for ( i = 0 ; i < n->stringvar_count ; i++ ) {
             if ( n->stringvars[i] >= base_offset && n->stringvars[i] < base_offset + total_length ) {
                 varspace_varstring( n, n->stringvars[i] - base_offset + data->current );

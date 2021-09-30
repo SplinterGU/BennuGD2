@@ -44,13 +44,8 @@ struct _errindex errtable[10];
 void err_buildErrorTable() {
     file * fp;
     char   fname[64];
-    char   line[1024];
-    char * token;
-    int    code;
-    int    size;
     char * msg = NULL;
     struct _errmsg * err = NULL;
-    int len;
 
     /* open the desired localized error file, check for existence if not open EN default */
     strcpy( fname, "msg/" );
@@ -62,14 +57,15 @@ void err_buildErrorTable() {
     fp = file_open( fname, "r" );
     if ( fp ) {
         while ( !file_eof( fp ) ) {
-            len = file_qgets( fp, line, 1024 );
+            char line[1024];
+            int len = file_qgets( fp, line, 1024 );
             if ( file_eof( fp ) ) break;
             if ( !len ) continue;
             /* Check for multiline... */
             if ( line[0] == '_' ) {
                 /* must resize the string and concatenate */
                 if ( err ) {
-                    size = strlen( err->msg ) + strlen( line ) + 2 ;
+                    int size = strlen( err->msg ) + strlen( line ) + 2 ;
                     msg = ( char * )calloc( size, sizeof( char ) );
                     strcpy( msg, err->msg );
                     line[0] = '\n';
@@ -79,14 +75,14 @@ void err_buildErrorTable() {
                 }
             } else {
                 /* Check for comment */
-                token = strtok( line, "#" );
-                code = 0;
-                while ( token != NULL ) {
+                char * tok = strtok( line, "#" );
+                int code = 0;
+                while ( tok != NULL ) {
                     /* don't process comments */
-                    if ( strlen( token ) == 0 ) break;
-                    if ( !code ) code = atoi( token );
-                    else msg = token;
-                    token = strtok( NULL, "#" );
+                    if ( strlen( tok ) == 0 ) break;
+                    if ( !code ) code = atoi( tok );
+                    else msg = tok;
+                    tok = strtok( NULL, "#" );
                 }
                 if ( code ) err = err_addError( code, msg );
             }
@@ -96,7 +92,6 @@ void err_buildErrorTable() {
 }
 
 struct _errmsg * err_addError( int code, const char * msg ) {
-    int idx;
     struct _errmsg * err;
     struct _errmsg * cerr;
 
@@ -110,7 +105,7 @@ struct _errmsg * err_addError( int code, const char * msg ) {
         err->next = NULL;
 
         /* determine index to use... */
-        idx = code / 100;
+        int idx = code / 100;
 
         /* find insertion point */
 

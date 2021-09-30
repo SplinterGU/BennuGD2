@@ -30,8 +30,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <unistd.h>
-
 #include <time.h>
 
 #ifdef WIN32
@@ -41,6 +39,10 @@
 #include <winnls.h>
 #include "shlwapi.h"
 #endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "bgdc.h"
 
@@ -97,26 +99,37 @@ int main( int argc, char *argv[] ) {
     /* get my executable name */
     ptr = argv[0] + strlen( argv[0] );
     while ( ptr > argv[0] && ptr[-1] != '\\' && ptr[-1] != '/' ) ptr-- ;
+
     appexename = strdup( ptr );
 
     /* get executable full pathname  */
     appexefullpath = getfullpath( argv[0] );
-    if ( ( !strchr( argv[0], '\\' ) && !strchr( argv[0], '/' ) ) && !file_exists( appexefullpath ) ) {
-        char *p = whereis( appexename );
-        if ( p ) {
-            char * tmp = calloc( 1, strlen( p ) + strlen( appexename ) + 2 );
-            free( appexefullpath );
-            sprintf( tmp, "%s/%s", p, appexename );
-            appexefullpath = getfullpath( tmp );
-            free( tmp );
+    if ( ( !strchr( argv[0], '\\' ) && !strchr( argv[0], '/' ) ) ) {
+        struct stat st;
+        if ( stat( appexefullpath, &st ) || !S_ISREG( st.st_mode ) ) {
+            if ( appexename ) {
+                char *p = whereis( appexename );
+                if ( p ) {
+                    char * tmp = calloc( 1, strlen( p ) + strlen( appexename ) + 2 );
+                    if ( tmp ) {
+                        free( appexefullpath );
+                        sprintf( tmp, "%s/%s", p, appexename );
+                        appexefullpath = getfullpath( tmp );
+                        free( tmp );
+                    }
+                    free( p );
+                }
+            }
         }
     }
 
-    /* get pathname of executable */
-    ptr = strstr( appexefullpath, appexename );
-    appexepath = calloc( 1, ptr - appexefullpath + 1 );
-    strncpy( appexepath, appexefullpath, ptr - appexefullpath );
-
+    if ( appexename ) {
+        /* get pathname of executable */
+        ptr = strstr( appexefullpath, appexename );
+        appexepath = calloc( 1, ptr - appexefullpath + 1 );
+        strncpy( appexepath, appexefullpath, ptr - appexefullpath );
+    }
+    
     printf( BGDC_VERSION "\n"
             "Bennu Game Development Compiler\n"
             "\n"
@@ -188,7 +201,7 @@ int main( int argc, char *argv[] ) {
 
     /* Get command line parameters */
 
-    for ( i = 1 ; argv[i] && i < argc ; i++ ) {
+    for ( i = 1 ; i < argc && argv[i]; i++ ) {
         if ( argv[i][0] == '-' ) {
             if ( !strcmp( argv[i], "--pedantic" ) ) {
                 autodeclare = 0 ;
@@ -411,7 +424,7 @@ int main( int argc, char *argv[] ) {
 
 //            PathRemoveFileSpec( exepath );
 
-            const char * ptr = exepath + strlen( exepath );
+            ptr = exepath + strlen( exepath );
             while ( ptr > exepath && *ptr != '\\' && *ptr != '/' ) ptr--;
             if ( *ptr == '\\' || *ptr == '/' ) ptr++;
             if ( ptr > exepath ) {
@@ -420,7 +433,7 @@ int main( int argc, char *argv[] ) {
                 memcpy( stubname, exepath, strlen( exepath ) );
             }
 #else
-            const char * ptr = argv[0] + strlen( argv[0] );
+            ptr = argv[0] + strlen( argv[0] );
             while ( ptr > argv[0] && *ptr != '\\' && *ptr != '/' ) ptr--;
             if ( *ptr == '\\' || *ptr == '/' ) ptr++;
             if ( ptr > argv[0] ) {

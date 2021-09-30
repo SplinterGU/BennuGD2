@@ -129,7 +129,9 @@ static int dcb_varspace( VARSPACE * v ) {
         if ( dcb_orig_varspace[n] == v ) return n;
 
     dcb.varspace = ( DCB_VARSPACE * ) realloc( dcb.varspace, sizeof( DCB_VARSPACE ) * ( dcb_varspaces + 1 ) );
+    if ( !dcb.varspace ) compile_error( MSG_OUT_OF_MEMORY );
     dcb_orig_varspace = ( VARSPACE ** ) realloc( dcb_orig_varspace, sizeof( VARSPACE * ) * ( dcb_varspaces + 1 ) );
+    if ( !dcb_orig_varspace ) compile_error( MSG_OUT_OF_MEMORY );
 
     dcb_orig_varspace[dcb_varspaces] = v;
 
@@ -180,7 +182,6 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
     long offset, stubsize = 0;
     uint64_t n, i, size;
     identifier * id;
-    void * stubdata;
     file * fp;
 
     int64_t NPriVars = 0,
@@ -210,7 +211,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
         }
 
         stubsize = file_size( stub );
-        stubdata = calloc( stubsize, sizeof( char ) );
+        void * stubdata = calloc( stubsize, sizeof( char ) );
         if ( !stubdata ) {
             fprintf( stdout, "ERROR: Stub %s too big\n", stubname );
             return 0;
@@ -508,11 +509,12 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
     for ( n = 0; n < dcb_filecount; n++ ) {
         char buffer[8192];
         file * fp_r = file_open( dcb_fullname[n], "rb" );
-        int64_t chunk_size, siz = 0;
+        int64_t siz = 0;
 
         assert( fp_r );
         while ( !file_eof( fp_r ) ) {
-            siz += chunk_size = file_read( fp_r, buffer, 8192 );
+            int64_t chunk_size = file_read( fp_r, buffer, 8192 );
+            siz += chunk_size;
             file_write( fp, buffer, chunk_size );
             if ( chunk_size < 8192 ) break;
         }
@@ -887,7 +889,7 @@ int dcb_load_lib( const char * filename ) {
     /* Load sources */
 
     if ( dcb.data.NSourceFiles ) {
-        char filename[__MAX_PATH] ;
+        char scrfile[__MAX_PATH] ;
 
         fileid = calloc( dcb.data.NSourceFiles, sizeof( int64_t ) );
 
@@ -899,11 +901,11 @@ int dcb_load_lib( const char * filename ) {
             int m;
             uint64_t size;
             file_readUint64( fp, &size ) ;
-            file_read( fp, filename, size ) ;
+            file_read( fp, scrfile, size ) ;
             fileid[n] = -1;
-            for( m = 0; m < n_files; m++ ) if ( !strcmp( filename, files[m] ) ) fileid[n] = m;
+            for( m = 0; m < n_files; m++ ) if ( !strcmp( scrfile, files[m] ) ) fileid[n] = m;
             if ( fileid[n] == -1 ) {
-                strcpy( files[n_files], filename );
+                strcpy( files[n_files], scrfile );
                 fileid[n] = n_files++;
             }
         }
@@ -953,13 +955,13 @@ int dcb_load_lib( const char * filename ) {
     }
 
     if ( dcb.data.NLocStrings ) {
-        int64_t o, newoff, found, m;
+        int64_t o, found, m;
         int64_t * locstr = ( int64_t * ) calloc( dcb.data.NLocStrings + 8, sizeof( int64_t ) ) ;
 
         file_seek( fp, dcb.data.OLocStrings, SEEK_SET ) ;
         file_readUint64A( fp, (uint64_t *)locstr, dcb.data.NLocStrings ) ;
         for ( m = 0; m < dcb.data.NLocStrings; m++ ) {
-            newoff = get_new_off( locstr[m], locvaroffs, dcb.data.NLocStrings );
+            int64_t newoff = get_new_off( locstr[m], locvaroffs, dcb.data.NLocStrings );
             for ( found = 0, o = 0; o < local.stringvar_count; o++ ) if ( newoff == local.stringvars[o] ) { found = 1; break; }
             if ( !found ) varspace_varstring( &local, newoff );
         }

@@ -190,17 +190,18 @@ unsigned char *source_data[MAX_SOURCES];        /* Includes */
 /* ---------------------------------------------------------------------- */
 
 int load_file( unsigned char * filename ) {
-    long   size;
-    file * fp = file_open( filename, "rb0" );
     int n;
 
     for( n = 0; n < n_files; n++ ) if ( !strcmp( files[n], filename ) ) break;
 
     if ( n >= n_files ) {
         if ( n_files == MAX_SOURCES ) compile_error( MSG_TOO_MANY_FILES );
-        strcpy( files[n_files], filename );
+
+        file * fp = file_open( filename, "rb0" );
         if ( !fp ) compile_error( MSG_FILE_NOT_FOUND, filename );
-        size = file_size( fp );
+
+        strcpy( files[n_files], filename );
+        long size = file_size( fp );
         source_data[n_files] = ( unsigned char * ) calloc( size + 1, sizeof( unsigned char ) );
         if ( !source_data[n_files] ) compile_error( MSG_FILE_TOO_BIG, filename );
         if ( size == 0 ) compile_error( MSG_FILE_EMPTY, filename );
@@ -276,11 +277,13 @@ void add_simple_define( unsigned char * macro, unsigned char *text ) {
     if ( defines_allocated == defines_count ) {
         defines_allocated += 8;
         defines = ( DEFINE * ) realloc( defines, sizeof( DEFINE ) * defines_allocated );
+        if ( !defines ) compile_error( MSG_OUT_OF_MEMORY );
     }
 
     defines[defines_count].param_count = -1;
     defines[defines_count].code = code;
     defines[defines_count].text = strdup( text );
+    if ( !defines[defines_count].text ) compile_error( MSG_OUT_OF_MEMORY );
     defines_count++;
 }
 
@@ -401,7 +404,7 @@ void preprocessor_expand( DEFINE * def ) {
     const unsigned char * begin = NULL;
     const unsigned char * old_source = NULL;
     unsigned char * text;
-    int i, count, depth, allocated, size, part, actual_line_count;
+    int i, allocated, size, part, actual_line_count;
 
     /* No params - easy case */
 
@@ -422,8 +425,9 @@ void preprocessor_expand( DEFINE * def ) {
     /* Mark parameters' starting and ending positions */
 
     if ( def->param_count > 0 ) {
+        int count;
         for ( count = 0; count < def->param_count; count++ ) {
-            depth = 0;
+            int depth = 0;
             param_left[count] = source_ptr;
             param_right[count] = source_ptr;
 
@@ -459,6 +463,7 @@ void preprocessor_expand( DEFINE * def ) {
     allocated = 128;
     size = 0;
     text = ( unsigned char * )calloc( allocated, sizeof( unsigned char ) );
+    if ( !text ) { compile_error( MSG_OUT_OF_MEMORY ); return; }
     old_source = source_ptr;
     source_ptr = def->text;
     actual_line_count = line_count;
@@ -487,7 +492,9 @@ void preprocessor_expand( DEFINE * def ) {
                         part = param_right[i] - param_left[i];
                         if ( size + part + 2 >= allocated ) {
                             allocated += (( part + 256 ) & ~127 );
-                            text = ( unsigned char * )realloc( text, allocated );
+                            unsigned char * t = ( unsigned char * )realloc( text, allocated );
+                            if ( !t ) { free( text ); compile_error( MSG_OUT_OF_MEMORY ); }
+                            text = t;
                         }
                         text[size++] = ' ';
                         if ( param_left[i] ) memcpy( text + size, param_left[i], part );
@@ -502,7 +509,9 @@ void preprocessor_expand( DEFINE * def ) {
                 part = source_ptr - begin;
                 if ( size + part + 2 >= allocated ) {
                     allocated += (( part + 256 ) & ~127 );
-                    text = ( unsigned char * )realloc( text, allocated );
+                    unsigned char * t = ( unsigned char * )realloc( text, allocated );
+                    if ( !text ) { free( text ); compile_error( MSG_OUT_OF_MEMORY ); }
+                    text = t;
                 }
                 text[size++] = ' ';
                 memcpy( text + size, begin, part );
@@ -544,9 +553,8 @@ void preprocessor_expand( DEFINE * def ) {
  */
 
 void preprocessor() {
-    int i, ifdef;
+    int i;
     unsigned char * ptr;
-    int actual_line_count;
 
     static int initialized = 0;
 
@@ -584,6 +592,7 @@ void preprocessor() {
         if ( defines_allocated == defines_count ) {
             defines_allocated += 8;
             defines = ( DEFINE * ) realloc( defines, sizeof( DEFINE ) * defines_allocated );
+            if ( !defines ) compile_error( MSG_OUT_OF_MEMORY );
         }
 
         defines[defines_count].code = token.code;
@@ -661,7 +670,7 @@ void preprocessor() {
     /* #ifdef CONST / #ifndef CONST*/
 
     if ( token.code == ( int64_t ) id_ifdef || token.code == ( int64_t ) id_ifndef ) {
-        ifdef = ( token.code == ( int64_t ) id_ifdef );
+        int ifdef = ( token.code == ( int64_t ) id_ifdef );
 
         prepro_stack[prepro_sp++] = token.code;
 
@@ -725,7 +734,7 @@ void preprocessor() {
         c = *ptr;
         *ptr = '\0';
 
-        actual_line_count = line_count;
+        int actual_line_count = line_count;
         actual_sources = sources;
 
         token_init( source_ptr, current_file );
@@ -1040,7 +1049,7 @@ void token_next() {
                 else                        len = 2;
             }
             else if ( source_ptr[1] == '=' ) len = 2;
-            else if ( source_ptr[1] == '>' ) len = 2;
+/*            else if ( source_ptr[1] == '>' ) len = 2; */
             else                             len = 1;
         } else if ( *source_ptr == '|' ) {
             if ( source_ptr[1] == '|' ) {
@@ -1078,8 +1087,8 @@ void token_next() {
         /* Numbers */
 
         if ( ISNUM( *source_ptr ) ) {
-            unsigned char ch, *ptr;
-            double num = 0.0, dec;
+            unsigned char ch;
+            double num = 0.0;
             int64_t base = 10;
 
             /* Hex/Bin/Octal numbers with the h/b/o sufix */
@@ -1087,7 +1096,7 @@ void token_next() {
                 base = 16;
                 source_ptr += 2;
             } else {
-                ptr = ( unsigned char * ) source_ptr;
+                unsigned char * ptr = ( unsigned char * ) source_ptr;
                 while ( ISNUM( *ptr ) || ( *ptr >= 'a' && *ptr <= 'f' ) || ( *ptr >= 'A' && *ptr <= 'F' ) ) ptr++;
 
                 if ( *ptr != 'h' && *ptr != 'H' && *ptr != 'o' && *ptr != 'O' && ( ptr[-1] == 'b' || ptr[-1] == 'B' ) ) ptr--;
@@ -1132,7 +1141,7 @@ void token_next() {
                 if ( !ISNUM( *source_ptr ) ) {
                     source_ptr--;
                 } else {
-                    dec = 0.1;
+                    double dec = 0.1;
                     while ( ISNUM( *source_ptr ) ) {
                         num = num + dec * ( *source_ptr++ - '0' );
                         dec /= 10.0;

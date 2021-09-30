@@ -55,7 +55,7 @@ int64_t mntype( TYPEDEF type, int accept_structs ) {
         case TYPE_SHORT     : return MN_WORD;
         case TYPE_BYTE      : return MN_BYTE | MN_UNSIGNED;
         case TYPE_SBYTE     : return MN_BYTE;
-        case TYPE_CHAR      : return MN_BYTE;
+        case TYPE_CHAR      : return MN_BYTE | MN_UNSIGNED;
         case TYPE_FLOAT     : return MN_FLOAT;
         case TYPE_DOUBLE    : return MN_DOUBLE;
         case TYPE_STRING    : return MN_STRING;
@@ -380,7 +380,7 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
     VARSPACE * here = from;
     VARSPACE * privars = ( proc ? proc->privars : NULL );
     VARSPACE * pubvars = ( proc ? proc->pubvars : NULL );
-    expresion_result res, ind;
+    expresion_result res = { 0 }, ind;
 
     if ( here ) token_next();
 
@@ -520,7 +520,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     expresion_result ind;
     TYPEDEF type, * usertype;
     int64_t * _content_type = NULL, tcode;
-    int base = 0, _content_size = 0, _parent_count = 0, /*check_datatype = 0, */ index_pointer = 0, ret;
+    int base = 0, _content_size = 0, _parent_count = 0, /*check_datatype = 0, */ index_pointer = 0;
 
     if ( !content_size ) content_size = &_content_size;
     if ( !content_type ) content_type = _content_type = ( int64_t * ) calloc( MAX_EXPR_LEVEL, sizeof( int64_t ) );
@@ -707,6 +707,8 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     }
 
     if ( token.type == IDENTIFIER && token.code == identifier_point ) { /* "." */
+        int ret;
+
         if ( typedef_is_pointer( type ) ) type = typedef_reduce( type );
         if ( !typedef_is_struct( type ) && typedef_base( type ) != TYPE_QWORD && typedef_base( type ) != TYPE_INT ) { /* Soporte de process type para publicas */
            compile_error( MSG_STRUCT_REQUIRED );
@@ -878,19 +880,19 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                     segment_alloc( globaldata, size );
                     codeblock_add( code, MN_GLOBAL, globaldata->current );
                     for ( nvar = 0; nvar < res.type.varspace->count; nvar++ ) {
-                        DCB_TYPEDEF type;
-                        dcb_settype( &type, &res.type.varspace->vars[nvar].type );
-                        memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &type, sizeof( DCB_TYPEDEF ) );
+                        DCB_TYPEDEF dcbtype;
+                        dcb_settype( &dcbtype, &res.type.varspace->vars[nvar].type );
+                        memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &dcbtype, sizeof( DCB_TYPEDEF ) );
                         globaldata->current += sizeof( DCB_TYPEDEF );
                     }
                     codeblock_add( code, MN_PUSH, res.type.varspace->count );
                     count += 2;
                 } else {
-                    DCB_TYPEDEF type;
-                    dcb_settype( &type, &res.type );
+                    DCB_TYPEDEF dcbtype;
+                    dcb_settype( &dcbtype, &res.type );
                     segment_alloc( globaldata, sizeof( DCB_TYPEDEF ) );
                     codeblock_add( code, MN_GLOBAL, globaldata->current );
-                    memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &type, sizeof( DCB_TYPEDEF ) );
+                    memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &dcbtype, sizeof( DCB_TYPEDEF ) );
                     globaldata->current += sizeof( DCB_TYPEDEF );
                     codeblock_add( code, MN_PUSH, 1 );
                     count += 2;
@@ -1043,10 +1045,10 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
 
 int compile_paramlist( BASETYPE * types, const char * paramtypes ) {
     expresion_result res;
-    int count = 0, type;
+    int count = 0;
 
     for (;;) {
-        type = types ? *types : TYPE_UNDEFINED;
+        int type = types ? *types : TYPE_UNDEFINED;
         if ( paramtypes ) {
             switch ( *paramtypes++ ) {
                 case 'I':
@@ -1318,9 +1320,14 @@ expresion_result compile_cast() {
             codeblock_add( code, MN_A2STR, 0 );
             codeblock_add( code, MN_STR2CHR, 0 );
             res.type = typedef_new( TYPE_CHAR );
-        } else {
-            compile_error( MSG_CONVERSION );
         }
+
+        if ( res.constant ) {
+            res.fvalue = res.value = ( uint8_t ) res.value;
+        }
+//        else {
+//            compile_error( MSG_CONVERSION );
+//        }
     } else if ( typedef_is_integer( type ) ) {
         /* Conversion of float, string or integer to integer */
         if ( typedef_is_double( res.type ) ) {
@@ -1364,16 +1371,33 @@ expresion_result compile_cast() {
                         res.fvalue = res.value = ( uint64_t ) res.value;
                         break;
 
+                    case TYPE_INT:
+                        res.fvalue = res.value = ( int64_t ) res.value;
+                        break;
+
                     case TYPE_DWORD:
                         res.fvalue = res.value = ( uint32_t ) res.value;
+                        break;
+
+                    case TYPE_INT32:
+                        res.fvalue = res.value = ( int32_t ) res.value;
                         break;
 
                     case TYPE_WORD:
                         res.fvalue = res.value = ( uint16_t ) res.value;
                         break;
 
+                    case TYPE_SHORT:
+                        res.fvalue = res.value = ( int16_t ) res.value;
+                        break;
+
                     case TYPE_BYTE:
+                    case TYPE_CHAR:
                         res.fvalue = res.value = ( uint8_t ) res.value;
+                        break;
+
+                    case TYPE_SBYTE:
+                        res.fvalue = res.value = ( int8_t ) res.value;
                         break;
                 }
             }
@@ -1385,32 +1409,38 @@ expresion_result compile_cast() {
         if ( typedef_is_integer( res.type ) ) {
             switch ( type.chunk[0].type ) {
                 case    TYPE_BYTE:
+                case    TYPE_CHAR:
+                        res.fvalue = res.value = ( uint8_t ) res.value;
                         codeblock_add( code, MN_INT2BYTE | MN_UNSIGNED, 0 );
                         res.type = type;
                         break;
 
                 case    TYPE_SBYTE:
-                case    TYPE_CHAR:
+                        res.fvalue = res.value = ( int8_t ) res.value;
                         codeblock_add( code, MN_INT2BYTE, 0 );
                         res.type = type;
                         break;
 
                 case    TYPE_WORD:
+                        res.fvalue = res.value = ( uint16_t ) res.value;
                         codeblock_add( code, MN_INT2WORD | MN_UNSIGNED, 0 );
                         res.type = type;
                         break;
 
                 case    TYPE_SHORT:
+                        res.fvalue = res.value = ( int16_t ) res.value;
                         codeblock_add( code, MN_INT2WORD, 0 );
                         res.type = type;
                         break;
 
                 case    TYPE_DWORD:
+                        res.fvalue = res.value = ( uint32_t ) res.value;
                         codeblock_add( code, MN_INT2DWORD | MN_UNSIGNED, 0 );
                         res.type = type;
                         break;
 
                 case    TYPE_INT32:
+                        res.fvalue = res.value = ( int32_t ) res.value;
                         codeblock_add( code, MN_INT2DWORD, 0 );
                         res.type = type;
                         break;
@@ -1493,9 +1523,6 @@ expresion_result compile_cast() {
 
 expresion_result compile_value() {
     CONSTANT * c;
-    SYSPROC * sysproc;
-    PROCDEF * cproc;
-    int param_count;
     int64_t id;
 
     expresion_result res;
@@ -1669,13 +1696,14 @@ expresion_result compile_value() {
 
     if ( token.type == IDENTIFIER && token.code == identifier_leftp ) { /* "(" */
         SYSPROC ** sysproc_list = sysproc_getall( id );
+        int param_count;
 
         if ( sysproc_list ) {
             if ( !code ) {
                 token_back();
                 compile_error( MSG_INVALID_INITIALIZER );
             }
-            sysproc = compile_bestproc( sysproc_list );
+            SYSPROC * sysproc = compile_bestproc( sysproc_list );
             free( sysproc_list );
 
             token_next();
@@ -1693,7 +1721,7 @@ expresion_result compile_value() {
 
         /* Llama a un procedimiento del usuario */
 
-        cproc = procdef_search( id );
+        PROCDEF * cproc = procdef_search( id );
         if ( !cproc ) {
             if ( autodeclare ) {
                 cproc = procdef_new( procdef_getid(), id );
@@ -2538,7 +2566,6 @@ expresion_result compile_logical_or() {
 /* Paso 1 */
 expresion_result compile_ternarycond() {
     CODEBLOCK_POS pos = { 0 };
-    int et1, et2;
 
     if ( code ) pos = codeblock_pos( code );
 
@@ -2570,6 +2597,7 @@ expresion_result compile_ternarycond() {
                 res = compile_expresion( 0, 0, 0, right.type.chunk[0].type );
             }
         } else {
+            int et1, et2;
             et1 = codeblock_label_add( code, -1 );
             et2 = codeblock_label_add( code, -1 );
             codeblock_add( code, MN_JFALSE, et1 );
@@ -2609,7 +2637,6 @@ expresion_result compile_ternarycond() {
 /* Paso 1 */
 expresion_result compile_subexpresion() {
     expresion_result base = compile_ternarycond(), right, res;
-    int64_t op, type;
 
     token_next();
     if ( token.type == IDENTIFIER ) {
@@ -2647,20 +2674,21 @@ expresion_result compile_subexpresion() {
                 }
 
                 if ( typedef_is_double( right.type ) ) {
-                    compile_warning( 1, "implicit conversion (DOUBLE to POINTER)" );
+//                    compile_warning( 1, "implicit conversion (DOUBLE to POINTER)" );
                     codeblock_add( code, MN_DOUBLE2INT, 0 );
-                    right.type = base.type;
+//                    right.type = base.type;
                 }
 
                 if ( typedef_is_float( right.type ) ) {
-                    compile_warning( 1, "implicit conversion (FLOAT to POINTER)" );
+//                    compile_warning( 1, "implicit conversion (FLOAT to POINTER)" );
                     codeblock_add( code, MN_FLOAT2INT, 0 );
-                    right.type = base.type;
+//                    right.type = base.type;
                 }
 
                 /* Un puntero "void" puede asignarse a otro cualquiera */
+                if ( typedef_base( typedef_reduce( right.type ) ) != typedef_base( pointer_type ) ) compile_warning( 1, MSG_CAST_POINTER_INCOMPATIBLE );
+
                 right.type = typedef_pointer( pointer_type );
-                if ( typedef_base( typedef_reduce( right.type ) ) != typedef_base( pointer_type ) ) compile_error( MSG_TYPES_NOT_THE_SAME );
 
                 codeblock_add( code, MN_QWORD | MN_LET, 0 );
 
@@ -2739,6 +2767,8 @@ expresion_result compile_subexpresion() {
                 return res;
             }
         }
+
+        int64_t op, type;
 
         /* Puntero += entero */
 
@@ -2847,7 +2877,6 @@ expresion_result compile_subexpresion() {
             SYSPROC * proc_copy = sysproc_get( identifier_search_or_add( "#COPY#" ) );
             SYSPROC * proc_memcopy = sysproc_get( identifier_search_or_add( "#MEMCOPY#" ) );
             SYSPROC * proc_copy_string_array = sysproc_get( identifier_search_or_add( "#COPYSTRA#" ) );
-            int size, nvar;
 
             op = token.code;
 
@@ -2874,17 +2903,19 @@ expresion_result compile_subexpresion() {
                     if ( typedef_base( base.type ) != TYPE_STRUCT ) {
                         compile_error( MSG_STRUCT_REQUIRED );
                     } else {
-                        size = right.type.varspace->count * sizeof( DCB_TYPEDEF );
+                        int size = right.type.varspace->count * sizeof( DCB_TYPEDEF );
 
                         if ( right.type.varspace->stringvar_count > 0 ) {
                             /* True struct copy version */
 
+                            int nvar;
+
                             segment_alloc( globaldata, size );
                             codeblock_add( code, MN_GLOBAL, globaldata->current );
                             for ( nvar = 0 ; nvar < right.type.varspace->count ; nvar++ ) {
-                                DCB_TYPEDEF type;
-                                dcb_settype( &type, &right.type.varspace->vars[nvar].type );
-                                memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &type, sizeof( DCB_TYPEDEF ) );
+                                DCB_TYPEDEF dcbtype;
+                                dcb_settype( &dcbtype, &right.type.varspace->vars[nvar].type );
+                                memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &dcbtype, sizeof( DCB_TYPEDEF ) );
                                 globaldata->current += sizeof( DCB_TYPEDEF );
                             }
                             codeblock_add( code, MN_PUSH, right.type.varspace->count );
@@ -3180,9 +3211,9 @@ expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
                 } else if ( typedef_is_string( res.type ) ) {
                     codeblock_add( code, MN_STR2INT, 0 );
                     if ( res.constant == 1 ) res.value = atoi( string_get( res.value ) );
-                } else if ( typedef_base( res.type ) == TYPE_CHAR ) {
-                    res.type = typedef_new( t );
-                } else
+                } else if ( typedef_base( res.type ) != TYPE_CHAR ) //{
+//                    res.type = typedef_new( t );
+//                } else
                     compile_error( MSG_INTEGER_REQUIRED );
                 break;
 
@@ -3681,7 +3712,7 @@ void compile_block( PROCDEF * p ) {
 
                 token_next();
                 if ( token.type == IDENTIFIER && token.code == identifier_step ) { /* "STEP" */
-                    CODEBLOCK_POS p = codeblock_pos( code );
+                    CODEBLOCK_POS pos = codeblock_pos( code );
                     expresion_result r = compile_expresion( 1, 0, 0, res_type );
                     if ( !r.constant ) compile_error( MSG_CONSTANT_EXP );
                     if ( !typedef_is_numeric( r.type ) ) compile_error( MSG_NUMBER_REQUIRED );
@@ -3694,7 +3725,7 @@ void compile_block( PROCDEF * p ) {
                         inc = r.value;
                     }
 
-                    codeblock_setpos( code, p );
+                    codeblock_setpos( code, pos );
                     if ( ( ( res_type == TYPE_FLOAT || res_type == TYPE_DOUBLE ) && r.fvalue > 0 ) || ( ( res_type != TYPE_FLOAT && res_type != TYPE_DOUBLE ) && r.value > 0 ) )
                         codeblock_add( code, MN_LTE | is_float | is_unsigned, 0 );
                     else
