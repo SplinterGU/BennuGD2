@@ -123,7 +123,9 @@ BGD_SHADER * shader_create( char * vertex, char * fragment ) {
 
 void shader_activate( BGD_SHADER * shader ) {
 #ifdef USE_SDL2_GPU
-    if ( g_current_shader != shader ) {
+    if ( !shader && g_current_shader ) {
+        shader_deactivate();
+    } else if ( g_current_shader != shader ) {
         GPU_ActivateShaderProgram( shader ? shader->shader : 0, shader ? &shader->block : NULL );
         g_current_shader = shader;
     }
