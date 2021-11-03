@@ -493,7 +493,7 @@ void preprocessor_expand( DEFINE * def ) {
                         if ( size + part + 2 >= allocated ) {
                             allocated += (( part + 256 ) & ~127 );
                             unsigned char * t = ( unsigned char * )realloc( text, allocated );
-                            if ( !t ) { free( text ); compile_error( MSG_OUT_OF_MEMORY ); }
+                            if ( !t ) { free( text ); compile_error( MSG_OUT_OF_MEMORY ); return; }
                             text = t;
                         }
                         text[size++] = ' ';
@@ -510,7 +510,7 @@ void preprocessor_expand( DEFINE * def ) {
                 if ( size + part + 2 >= allocated ) {
                     allocated += (( part + 256 ) & ~127 );
                     unsigned char * t = ( unsigned char * )realloc( text, allocated );
-                    if ( !t ) { free( text ); compile_error( MSG_OUT_OF_MEMORY ); }
+                    if ( !t ) { free( text ); compile_error( MSG_OUT_OF_MEMORY ); return; }
                     text = t;
                 }
                 text[size++] = ' ';
@@ -524,7 +524,7 @@ void preprocessor_expand( DEFINE * def ) {
         }
     }
 
-    text[size] = 0;
+    text[size] = '\0';
     source_ptr = old_source;
     line_count = actual_line_count;
 
