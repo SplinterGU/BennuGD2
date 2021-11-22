@@ -113,7 +113,7 @@ static int SDLCALL __libmod_sound_close_cb( struct SDL_RWops *context ) {
 
 static SDL_RWops *SDL_RWFromBGDFP( file *fp ) {
     SDL_RWops *rwops = SDL_AllocRW();
-    if ( rwops != NULL ) {
+    if ( rwops ) {
         rwops->size = __libmod_sound_size_cb;
         rwops->seek = __libmod_sound_seek_cb;
         rwops->read = __libmod_sound_read_cb;
@@ -227,12 +227,12 @@ static int64_t load_music( const char * filename ) {
 
     if ( !audio_initialized && sound_init() ) return ( 0 );
 
-    SDL_RWops * rwops = SDL_RWFromBGDFP( fp );
-    if ( !rwops ) return( 0 );
+    if ( !( fp = file_open( filename, "rb0" ) ) ) return ( 0 );
 
-    if ( !( fp = file_open( filename, "rb0" ) ) ) {
-        SDL_FreeRW( rwops );
-        return ( 0 );
+    SDL_RWops * rwops = SDL_RWFromBGDFP( fp );
+    if ( !rwops ) {
+        file_close( fp );
+        return( 0 );
     }
 
     // Don't need free rwops, SDL will do
@@ -559,16 +559,16 @@ static int64_t load_sound( const char * filename ) {
 
     if ( !audio_initialized && sound_init() ) return ( 0 );
 
-    SDL_RWops * rwops = SDL_RWFromBGDFP( fp );
-    if ( !rwops ) return( 0 );
+    if ( !( fp = file_open( filename, "rb0" ) ) ) return ( 0 );
 
-    if ( !( fp = file_open( filename, "rb0" ) ) ) {
-        SDL_FreeRW( rwops );
-        return ( 0 );
+    SDL_RWops * rwops = SDL_RWFromBGDFP( fp );
+    if ( !rwops ) {
+        file_close( fp );
+        return( 0 );
     }
 
     // Don't need free rwops, SDL will do
-    if ( !( sound = Mix_LoadWAV_RW( SDL_RWFromBGDFP( fp ), 1 ) ) ) return( 0 );
+    if ( !( sound = Mix_LoadWAV_RW( rwops, 1 ) ) ) return( 0 );
 
     return (( int64_t ) ( intptr_t ) sound );
 }
