@@ -116,6 +116,7 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "GRAPH_MAX_SIZE"      , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE       },
     { "GRAPH_AVERAGE_SIZE"  , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE   },
 
+#ifdef LIBVLC_ENABLED
     /* MEDIA */
 
     { "MEDIA_STATUS_CLOSE"      , TYPE_INT      , MEDIA_STATUS_CLOSE                    },
@@ -130,6 +131,8 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "MEDIA_TRACK_AUDIO"       , TYPE_INT      , MEDIA_TRACK_AUDIO                     },
     { "MEDIA_TRACK_VIDEO"       , TYPE_INT      , MEDIA_TRACK_VIDEO                     },
     { "MEDIA_TRACK_SUBTITLE"    , TYPE_INT      , MEDIA_TRACK_SUBTITLE                  },
+
+#endif
 
     { NULL                  , 0                 , 0                                     }
 } ;
@@ -163,6 +166,8 @@ char * __bgdexport( libmod_gfx, locals_def ) =
 
 /* --------------------------------------------------------------------------- */
 
+#ifdef LIBVLC_ENABLED
+
 char * __bgdexport( libmod_gfx, types_def ) =
     /* m_media */
 
@@ -179,6 +184,8 @@ char * __bgdexport( libmod_gfx, types_def ) =
     "   STRING name;\n"
     "END\n"
     ;
+
+#endif
 
 /* --------------------------------------------------------------------------- */
 
@@ -504,6 +511,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     FUNC( "SHADER_SETUNIFORMMATRIX"     , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniformmatrix      ),
 
+#ifdef LIBVLC_ENABLED
     /* MEDIA */
 
     FUNC( "MEDIA_LOAD"                  , "SP"          , TYPE_POINTER      , libmod_gfx_media_load                 ),
@@ -550,6 +558,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "MEDIA_NEXT_CHAPTER"          , "P"           , TYPE_INT          , libmod_gfx_media_next_chapter         ),
     FUNC( "MEDIA_GET_CHAPTER_LIST"      , "PP"          , TYPE_INT          , libmod_gfx_media_get_chapter_list     ),
     FUNC( "MEDIA_CHAPTER_LIST_RELEASE"  , "PI"          , TYPE_INT          , libmod_gfx_media_chapter_list_release ),
+
+#endif
 
     FUNC( NULL                          , NULL          , 0                 , NULL                                  )
 };

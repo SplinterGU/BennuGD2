@@ -31,6 +31,8 @@
 #ifndef __M_MEDIA_H
 #define __M_MEDIA_H
 
+#ifdef LIBVLC_ENABLED
+
 #include "bgdrtm.h"
 #include "bgddl.h"
 
@@ -80,5 +82,7 @@ extern int64_t libmod_gfx_media_get_chapter_list( INSTANCE * my, int64_t * param
 extern int64_t libmod_gfx_media_chapter_list_release( INSTANCE * my, int64_t * params );
 
 /* --------------------------------------------------------------------------- */
+
+#endif
 
 #endif

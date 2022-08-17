@@ -28,6 +28,7 @@ do
 
         linux)
             TARGET=linux-gnu
+            LIBVLC=1
             ;;
 
         windows32)
@@ -78,6 +79,13 @@ fi
 if [ "$EXTRA_CFLAGS" == "" ]
 then
     EXTRA_CFLAGS="-DUSE_SDL2_GPU"
+fi
+
+if [ "$LIBVLC" == "1" ]
+then
+    EXTRA_CFLAGS+=" -DLIBVLC_ENABLED"
+    LIBVLC_ENABLED=1
+    export LIBVLC_ENABLED
 fi
 
 export PKG_CONFIG_PATH

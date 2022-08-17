@@ -26,6 +26,8 @@
 
 /* --------------------------------------------------------------------------- */
 
+#ifdef LIBVLC_ENABLED
+
 #include <SDL.h>
 #ifdef USE_SDL2_GPU
     #include <SDL_gpu.h>
@@ -653,3 +655,5 @@ void media_chapter_list_release( media_chapter_t **chapters, int count ) {
 }
 
 /* --------------------------------------------------------------------------- */
+
+#endif

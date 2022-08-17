@@ -27,6 +27,8 @@
 #ifndef __MEDIA_H
 #define __MEDIA_H
 
+#ifdef LIBVLC_ENABLED
+
 #include <SDL.h>
 #ifdef USE_SDL2_GPU
     #include <SDL_gpu.h>
@@ -166,5 +168,7 @@ extern int media_get_chapter_list( MEDIA * mh, media_chapter_t **chapters );
 extern void media_chapter_list_release( media_chapter_t **chapters, int count );
 
 /* --------------------------------------------------------------------------- */
+
+#endif
 
 #endif

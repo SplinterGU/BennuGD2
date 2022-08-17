@@ -26,6 +26,8 @@
 
 /* --------------------------------------------------------------------------- */
 
+#ifdef LIBVLC_ENABLED
+
 #include "bgdrtm.h"
 #include "bgddl.h"
 
@@ -456,3 +458,5 @@ int64_t libmod_gfx_media_chapter_list_release( INSTANCE * my, int64_t * params )
 }
 
 /* --------------------------------------------------------------------------- */
+
+#endif
