@@ -197,7 +197,8 @@
 #define MN_INT2DOUBLE           (0x54 | MN_1_PARAMS)
 #define MN_DOUBLE2INT           (0x55 | MN_1_PARAMS)
 
-/*** Free 56, 57, 58, 59, 5A, 5B, 5C, 5D, 5E, 5F ****/
+#define MN_STR2CHARNUL          (0x56 | MN_0_PARAMS)
+/*** Free 57, 58, 59, 5A, 5B, 5C, 5D, 5E, 5F ****/
 
 #define MN_A2STR                (0x60 | MN_1_PARAMS)
 #define MN_STR2A                (0x61 | MN_1_PARAMS)
@@ -227,7 +228,7 @@
 #define MN_RETRUE               (0x73 | MN_1_PARAMS)
 #define MN_REFALSE              (0x74 | MN_1_PARAMS)
 
-/* Strings (2) */
+/* Strings */
 
 #define MN_POINTER2STR          (0x75 | MN_1_PARAMS)
 #define MN_STR2INT              (0x76 | MN_1_PARAMS)

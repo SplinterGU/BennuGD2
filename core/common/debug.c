@@ -153,6 +153,8 @@ struct {
     { "INT2DOUBLE"                  , MN_INT2DOUBLE             , 1 },
     { "DOUBLE2INT"                  , MN_DOUBLE2INT             , 1 },
 
+    { "STR2CHARNUL"                 , MN_STR2CHARNUL            , 0 },
+
     { "A2STR"                       , MN_A2STR                  , 1 },
     { "STR2A"                       , MN_STR2A                  , 1 },
     { "STRACAT"                     , MN_STRACAT                , 1 },

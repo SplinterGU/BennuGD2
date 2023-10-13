@@ -1784,8 +1784,12 @@ main_loop_instance_go:
                 ptr += 2;
                 break;
 
-
-
+            case MN_STR2CHARNUL:
+                strcpy( *( char ** )( intptr_t )( r->stack_ptr[-2] ), string_get( r->stack_ptr[-1] ) );
+                r->stack_ptr[-2] = r->stack_ptr[-1];
+                r->stack_ptr--;
+                ptr += 2;
+                break;
 
             /* Direct operations with variables QWORD type */
 

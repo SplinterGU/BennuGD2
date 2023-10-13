@@ -1098,6 +1098,37 @@ int compile_paramlist( BASETYPE * types, const char * paramtypes ) {
 }
 
 /*
+ *  FUNCTION : compile_cast_cstr
+ *
+ *  Compiles a cast C string (null terminated string)
+ *
+ *  PARAMS :
+ *      None
+ *
+ *  RETURN VALUE :
+ *      Returns the expression result
+ *
+ */
+
+expresion_result compile_cast_cstr() {
+    expresion_result res = compile_value();
+
+    if ( typedef_is_pointer( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) {
+        /* ( string ) <char pointer> */
+        if ( res.lvalue ) {
+            codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
+            res.lvalue = 0;
+        }
+        codeblock_add( code, MN_A2STR, 0 );
+        res.type = typedef_new( TYPE_STRING );
+    } 
+    else
+        compile_error( MSG_CONVERSION );
+
+    return res;
+}
+
+/*
  *  FUNCTION : compile_cast
  *
  *  Compiles a cast operator(c-like type conversion:([type])value)
@@ -1532,6 +1563,11 @@ expresion_result compile_value() {
     /* ( ... ) */
 
     if ( token.type == IDENTIFIER ) {
+        if ( token.code == identifier_c_char_ptr ) {
+            /* Compile cast null terminated string */
+            return compile_cast_cstr();
+        }
+
         if ( token.code == identifier_leftp ) { /* "(" */
             /* Check for cast-type expressions */
 
@@ -2682,6 +2718,12 @@ expresion_result compile_subexpresion() {
                 if ( typedef_is_float( right.type ) ) {
 //                    compile_warning( 1, "implicit conversion (FLOAT to POINTER)" );
                     codeblock_add( code, MN_FLOAT2INT, 0 );
+//                    right.type = base.type;
+                }
+
+                if ( typedef_is_string( right.type ) && base.type.chunk[1].type == TYPE_CHAR ) {
+//                    compile_warning( 1, "implicit conversion (STRING to C CHAR*)" );
+                    codeblock_add( code, MN_STR2CHARNUL, 0 );
 //                    right.type = base.type;
                 }
 
