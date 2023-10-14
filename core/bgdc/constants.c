@@ -92,8 +92,24 @@ void constants_add( int64_t code, TYPEDEF type, int64_t value ) {
 
 void constants_dump() {
     int i ;
-    printf( "---- %d constants of %d ----\n", constants_used, constants_reserved ) ;
-    for ( i = 0 ; i < constants_used ; i++ )
-        printf( "%4d: %-16s= %" PRId64 "\n", i,
-                identifier_name( constants[i].code ), constants[i].value ) ;
+    printf( "\n---- %d constants ----\n\n", constants_used ) ;
+    for ( i = 0 ; i < constants_used ; i++ ) {
+        printf( "%4d: %-32s= ", i, identifier_name( constants[i].code ) ) ;
+    
+        if ( typedef_is_integer( constants[i].type ) ) {
+            if ( typedef_is_unsigned( constants[i].type ) ) {
+                printf( "%" PRIu64 "\n", constants[i].value ) ;
+            } else {
+                printf( "%" PRId64 "\n", constants[i].value ) ;
+            }
+        }
+        else
+        if ( typedef_is_float( constants[i].type ) || typedef_is_double( constants[i].type ) ) {
+            printf("%f\n", *(double *)(&constants[i].value));
+        }
+        else
+        if ( typedef_is_string( constants[i].type ) ) {
+            printf("%s\n", string_get(constants[i].value));
+        }
+    }
 }

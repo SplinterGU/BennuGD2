@@ -779,7 +779,7 @@ void compile_process() {
         type = typeb;
         ctype = ctypeb;
 
-        /* Recogo signo del parametro */
+        /* Recojo signo del parametro */
         if ( token.type == IDENTIFIER && token.code == identifier_unsigned ) {
             unsigned_prefix = 1;
             token_next();
@@ -788,7 +788,7 @@ void compile_process() {
             token_next();
         }
 
-        /* Recogo tipo del parametro */
+        /* Recojo tipo del parametro */
         if ( token.type == IDENTIFIER && token.code == identifier_qword ) {
             type_implicit = 0;
             type = signed_prefix ? TYPE_INT : TYPE_QWORD;
@@ -1137,6 +1137,7 @@ void compile_program() {
 
     if ( debug > 2 ) {
         identifier_dump();
+        constants_dump();
         string_dump( NULL );
     }
 }
