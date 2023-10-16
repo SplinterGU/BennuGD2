@@ -281,49 +281,61 @@ void compile_init() {
 
 /* ---------------------------------------------------------------------- */
 
-void compile_error( const char *fmt, ... ) {
-    unsigned char text[4000];
-    unsigned char * fname = ( import_filename ) ? import_filename : (( current_file != -1 && files[current_file] && *files[current_file] ) ? files[current_file] : NULL );
-
-    va_list ap;
-    va_start( ap, fmt );
-    vsprintf( text, fmt, ap );
-    va_end( ap );
-
-    fprintf( stdout, MSG_COMPILE_ERROR,
-            ( fname && ( fname[0] != '/' && fname[0] != '\\' && fname[1] != ':' ) ) ?  main_path : "",
-            fname ? fname : ( unsigned char * ) "N/A",
-            ( import_filename ) ? import_line : line_count,
-            text );
-    fprintf( stdout, " ( token error: " );
-    token_dump();
-    fprintf( stdout, " ).\n" );
-    exit( 2 );
-}
-
-/* ---------------------------------------------------------------------- */
-
-void compile_warning( int notoken, const char *fmt, ... ) {
-    char text[4000];
+void compile_message( int notoken, int errl, const char *fmt, va_list ap ) {
     char * fname = ( import_filename ) ? import_filename : (( current_file != -1 && files[current_file] && *files[current_file] ) ? files[current_file] : NULL );
 
-    va_list ap;
-    va_start( ap, fmt );
-    vsprintf( text, fmt, ap );
-    va_end( ap );
+    va_list ap_copy;
+    va_copy( ap_copy, ap );
 
-    fprintf( stdout, MSG_COMPILE_WARNING,
+    int size = vsnprintf( NULL, 0, fmt, ap );
+    if ( size < 0 ) {
+        va_end( ap_copy );
+        return; // Error in vsprintf
+    }
+
+    // Allocate memory for the buffer and format the string
+    unsigned char *text = ( char * ) malloc( size + 1 );
+    if ( !text ) {
+        va_end( ap_copy );
+        return; // Error in memory allocation
+    }
+
+    vsprintf( text, fmt, ap );
+    va_end( ap_copy );
+
+    fprintf( stdout, errl ? MSG_COMPILE_ERROR : MSG_COMPILE_WARNING,
             ( fname && ( fname[0] != '/' && fname[0] != '\\' && fname[1] != ':' ) ) ?  main_path : "",
             fname ? fname : "N/A",
             ( import_filename ) ? import_line : line_count,
             text );
+    free( text );
     if ( !notoken ) {
-        fprintf( stdout, " ( token warning: " );
+        if ( errl )
+            fprintf( stdout, " ( token error: " );
+        else
+            fprintf( stdout, " ( token warning: " );
         token_dump();
-        fprintf( stdout, " ).\n" );
-    } else {
-        fprintf( stdout, ".\n" );
+        fprintf( stdout, " )");
     }
+    fprintf( stdout, ".\n" );
+}
+
+/* ---------------------------------------------------------------------- */
+
+void compile_warning(int notoken, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    compile_message( notoken, 0, fmt, ap );
+    va_end(ap);
+}
+
+/* ---------------------------------------------------------------------- */
+
+void compile_error(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    compile_message( 0, 1, fmt, ap );
+    va_end(ap);
 }
 
 /* ---------------------------------------------------------------------- */
