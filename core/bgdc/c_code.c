@@ -434,12 +434,12 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
        )
     {
         codeblock_add( code, (
-                    ( remote && ( here == remote ) )            ? MN_REMOTE_PUBLIC  :
-                    here == &global                             ? MN_GLOBAL         :
-                    (( here == &local ) && ( here == from ) )   ? MN_REMOTE         :
-                    here == &local                              ? MN_LOCAL          :
-                    ( privars && ( here == privars ) )          ? MN_PRIVATE        :
-                    ( pubvars && ( here == pubvars ) )          ? MN_PUBLIC         :
+                    remote && here == remote            ? MN_REMOTE_PUBLIC  :
+                    here == &global                     ? MN_GLOBAL         :
+                    here == &local && here == from      ? MN_REMOTE         :
+                    here == &local                      ? MN_LOCAL          :
+                    privars && here == privars          ? MN_PRIVATE        :
+                    pubvars && here == pubvars          ? MN_PUBLIC         :
                     MN_INDEX
                 ) | mntype( var->type, 1 ), var->offset - base_offset );
 

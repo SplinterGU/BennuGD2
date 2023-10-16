@@ -65,7 +65,8 @@ void varspace_dump( VARSPACE * n, int64_t indent ) {
         printf( "[%04" PRId64 ":%04" PRId64 "]\t", n->vars[i].offset, to );
         for ( t = 0; t < indent; t++ ) printf( " + " );
         typedef_describe( buffer, n->vars[i].type );
-        printf( "%s %s", buffer, identifier_name( n->vars[i].code ) );
+        const char * name = identifier_name( n->vars[i].code );
+        printf( "%s %s", buffer, name ? name : "[N/A]" );
 
         /* Describe arrays of structs */
 

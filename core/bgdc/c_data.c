@@ -538,8 +538,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
         }
 
-        if ( varspace_search( n, token.code ) ) {
+        VARIABLE * var;
+        if ( ( var = varspace_search( n, token.code ) ) ) {
             if ( duplicateignore ) {
+                if ( !typedef_is_equal( type, var->type )) compile_error( MSG_VARIABLE_REDECLARE_DIFF );
+
                 int skip_all_until_semicolon = 0,
                     skip_equal = 0;
 

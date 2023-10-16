@@ -300,7 +300,7 @@ void compile_message( int notoken, int errl, const char *fmt, va_list ap ) {
         return; // Error in memory allocation
     }
 
-    vsprintf( text, fmt, ap );
+    vsprintf( text, fmt, ap_copy );
     va_end( ap_copy );
 
     fprintf( stdout, errl ? MSG_COMPILE_ERROR : MSG_COMPILE_WARNING,
@@ -318,6 +318,8 @@ void compile_message( int notoken, int errl, const char *fmt, va_list ap ) {
         fprintf( stdout, " )");
     }
     fprintf( stdout, ".\n" );
+
+    if ( errl ) exit( 1 );
 }
 
 /* ---------------------------------------------------------------------- */
@@ -689,19 +691,14 @@ void compile_process() {
     if ( token.type != IDENTIFIER || token.code < reserved_words ) compile_error( MSG_PROCESS_NAME_EXP );
 
     /* Create the process if it is not defined already */
-    proc = procdef_search( token.code );
-    int is_new = !proc;
-    if ( is_new ) proc = procdef_new( procdef_getid(), token.code );
+    if ( !( proc = procdef_search( token.code ) ) ) proc = procdef_new( procdef_getid(), token.code );
 
-    if ( !proc ) compile_error( MSG_OUT_OF_MEMORY );
+    if ( !proc ) compile_error( "Can't create process/function" );
 
-    if ( proc->defined ) compile_error( MSG_PROC_ALREADY_DEFINED );
-    else
-    if ( is_declare && proc->declared ) compile_error( MSG_PROC_ALREADY_DECLARED );
-
-    if ( !is_new && is_declare && proc->declared && proc->type != return_type ) compile_error( MSG_PROTO_ERROR );   
-
-    if ( !is_declare ) proc->defined = 1;
+    if ( proc->defined ) {
+        if ( !is_declare ) compile_error( MSG_PROC_ALREADY_DEFINED );
+        if ( proc->type != return_type ) compile_error( MSG_PROTO_ERROR );   
+    }
 
     proc->type = return_type;
 
@@ -807,9 +804,12 @@ void compile_process() {
 
                 if ( proc->privars->reserved == proc->privars->count ) varspace_alloc( proc->privars, 16 );
 
-                proc->privars->vars[proc->privars->count].type   = ctype; // typedef_new( TYPE_INT ); // FIX JJP ???
+                proc->privars->vars[proc->privars->count].type   = ctype;
                 proc->privars->vars[proc->privars->count].offset = proc->pridata->current;
-                proc->privars->vars[proc->privars->count].code   = -1; // for runtime search the right var
+                proc->privars->vars[proc->privars->count].code   = -1; // I set code to -1 to prevent the variable from being found in a remote access
+                                                                       // (since it's a private variable to the process).
+                                                                       // Those parameters that are public take on the initial value (the argument's value)
+                                                                       // of the private variable.
 
                 proc->privars->count++;
 
@@ -888,20 +888,18 @@ void compile_process() {
             token.code == identifier_private ) )
     {
         wait_for_end = 1;
-        if ( !proc->declared && ( token.code == identifier_local || token.code == identifier_public ) ) {
+        if ( ( token.code == identifier_local || token.code == identifier_public ) ) {
             /* Local declarations are only local to the process but visible from every process */
             /* It is allowed to declare a variable as local/public that has been declared as global; it's a local variable, not the global one */
             VARSPACE * v[] = {&local, proc->privars, NULL};
-            compile_varspace( proc->pubvars, proc->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
+            compile_varspace( proc->pubvars, proc->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         }
         else
         if ( token.code == identifier_private ) {
             /* It is allowed to declare a variable as private that has been declared as global; it's a private variable, not the global one */
             VARSPACE * v[] = {&local, proc->pubvars, NULL};
-            compile_varspace( proc->privars, proc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
+            compile_varspace( proc->privars, proc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         }
-        else
-        if ( proc->declared ) compile_error( MSG_PROC_FUNC_ALREADY_DECLARED, is_function ? "Function" : "Process" );
 
         token_next();
     }
@@ -926,6 +924,7 @@ void compile_process() {
         if ( token.code != identifier_end && token.code != identifier_semicolon ) compile_error( MSG_EXPECTED, "; or END" );
     }
 
+    if ( !is_declare ) proc->defined = 1;
     proc->declared = 1;
 
 }

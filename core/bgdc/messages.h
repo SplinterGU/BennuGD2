@@ -151,6 +151,5 @@
 #define MSG_INLINE_ASSIGNATION_ERROR            "Inline declaration variables don't allow value assignation"
 #define MSG_CAST_POINTER_INCOMPATIBLE           "Assignment to pointer without a compatible cast"
 #define MSG_OUT_OF_MEMORY                       "Out of memory"
-#define MSG_PROC_FUNC_ALREADY_DECLARED          "%s already declared; it is no longer possible to modify or add public or local variables"
 
 #endif
