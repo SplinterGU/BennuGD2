@@ -33,7 +33,7 @@
 
 #include "typedef.h"
 
-/* Un segmento es una zona lineal de datos que puede crecer dinámicamente */
+/* A segment is a linear area of data that can grow dynamically */
 
 typedef struct _segment {
 	void * bytes;
@@ -46,7 +46,7 @@ extern segment * segment_new();
 extern segment * segment_duplicate(segment * s);
 extern segment * segment_get(int64_t id);
 
-/* Devuelven el offset del nuevo dato */
+/* They return the offset of the new data */
 extern int64_t segment_add_as(segment * n, int64_t value, BASETYPE t);
 extern int64_t segment_add_qword(segment * n, int64_t value);
 extern int64_t segment_add_dword(segment * n, int32_t value);
@@ -62,7 +62,7 @@ extern void segment_alloc(segment * n, int64_t count);
 extern segment  * globaldata;
 extern segment  * localdata;
 
-/* Segmentos nombrados (para tipos definidos por el usuario */
+/* Named segments (for user-defined data types) */
 
 extern segment * segment_by_name (int64_t code);
 extern void      segment_name(segment * s, int64_t code);

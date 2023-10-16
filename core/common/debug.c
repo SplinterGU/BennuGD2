@@ -42,8 +42,8 @@
 #endif
 
 /* ---------------------------------------------------------------------- */
-/* Este modulo contiene funciones que muestran el equivalente             */
-/* en texto de una instruccion o mnemonico                                */
+/* This module contains functions that display the textual equivalent of  */
+/* an instruction or mnemonic.                                            */
 /* ---------------------------------------------------------------------- */
 
 struct {

@@ -33,7 +33,7 @@
 
 #include "typedef.h"
 
-/* Un VARSPACE es una zona de definicion de variables */
+/* A VARSPACE is a variable definition zone */
 
 typedef struct _varspace {
 	struct _variable * vars;
@@ -61,7 +61,7 @@ extern void       varspace_dump(VARSPACE * n, int64_t indent);
 extern void       varspace_destroy(VARSPACE * n);
 extern void	      varspace_varstring(VARSPACE * n, int64_t offset);
 
-/* Datos globales y locales */
+/* Global and local data */
 
 extern VARSPACE global;
 extern VARSPACE local;

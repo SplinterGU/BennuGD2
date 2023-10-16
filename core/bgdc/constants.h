@@ -28,7 +28,8 @@
 
 #ifndef __CONSTANTS_H
 #define __CONSTANTS_H
-/* Gestor de constantes */
+
+/* Constants manager */
 
 #include "typedef.h"
 

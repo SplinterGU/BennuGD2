@@ -29,10 +29,12 @@
 #ifndef __CODEBLOCK_H
 #define __CODEBLOCK_H
 
-/* Bloques de c�digo compilado. Contienen estructuras que s�lo se emplean
- * durante el compilado: la funci�n program_postprocess() independiza los
- * datos (CODEBLOCK.data[]) de dichas estructuras, que el intérprete
- * no necesita */
+/* ---------------------------------------------------------------------- */
+/* Compiled code blocks. They contain structures that are only used       */
+/* during compilation: the program_postprocess() function separates the   */
+/* data (CODEBLOCK.data[]) from these structures, which the interpreter   */
+/* doesn't need                                                           */
+/* ---------------------------------------------------------------------- */
 
 typedef struct _codeblock {
 	int64_t * data;

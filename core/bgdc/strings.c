@@ -38,7 +38,7 @@
 #include "bgdc.h"
 
 /* ---------------------------------------------------------------------- */
-/* Gestor de cadenas                                                      */
+/* String manager                                                         */
 /* ---------------------------------------------------------------------- */
 
 unsigned char * string_mem = NULL;
@@ -208,11 +208,11 @@ int64_t string_compile( const unsigned char ** source ) {
 //                conv = convert( cc );
                 string_mem[ string_used++ ] = cc; // conv;
             }
-        } else if ( cc == c ) {  /* Termina la string? */
+        } else if ( cc == c ) {  /* Does the string end? */
             ( *source )++;
-            /* Elimino todos los espacios para buscar si hay otra string, esto es para strings divididas */
+            /* I remove all spaces to look for another string, this is for divided strings */
             while ( ISSPACE( * ( * source ) ) ) if ( *( * source )++ == '\n' ) line_count++;
-            /* Si despues de saltar todos los espacios, no tengo un delimitador de string, salgo */
+            /* If after skipping all spaces, I don't have a string delimiter, I exit */
             if ( *( * source ) != c ) break;
             ( *source )++;
             continue;
@@ -248,7 +248,7 @@ int64_t string_compile( const unsigned char ** source ) {
 
     if ( string_used >= string_allocated ) string_alloc( 1024 );
 
-    /* Hack: a�ade el posible fichero al DCB */
+    /* Hack: add the possible file to the DCB */
 
     if ( !no_include_this_file && autoinclude && check_for_valid_pathname( string_mem + string_offset[ string_count ] ) )
         dcb_add_file( string_mem + string_offset[ string_count ] );

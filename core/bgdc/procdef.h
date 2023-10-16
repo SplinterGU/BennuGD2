@@ -29,7 +29,7 @@
 #ifndef __PROCDEF_H
 #define __PROCDEF_H
 
-/* Procesos (un "PROCDEF" es, en realidad, simplemente su definicion) */
+/* Processes (a "PROCDEF" is, in fact, just its definition) */
 
 #include "segment.h"
 #include "varspace.h"
@@ -54,10 +54,8 @@ typedef struct _procdef {
     VARSPACE    * privars;
     segment     * pridata;
 
-    /* (2006/11/19 23:15 GMT-03:00, Splinter - splintergu@gmail.com) */
     VARSPACE    * pubvars;
     segment     * pubdata;
-    /* (2006/11/19 23:15 GMT-03:00, Splinter - splintergu@gmail.com) */
 
     int64_t     typeid;
     int64_t     identifier;
@@ -93,7 +91,7 @@ extern void procdef_destroy( PROCDEF * );
 
 extern void procdef_dump( PROCDEF * proc );
 
-/* Proceso "principal", el primero en definirse y ejecutarse */
+/* The "main" process, the first one to be defined and executed */
 extern PROCDEF * mainproc;
 
 extern void program_dumpprocesses();

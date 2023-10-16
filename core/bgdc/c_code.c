@@ -37,8 +37,9 @@ extern int autodeclare;
 int reduce_arrays = 1;
 
 /* ---------------------------------------------------------------------- */
-/* Devuelve el codigo que hay que adjuntar a un mnemonico para producir   */
-/* una variante del mismo, adecuada al tipo de dato concreto              */
+/* Returns the code that needs to be appended to a mnemonic to produce    */
+/* a variant of it suitable for the specific data type                    */
+/* ---------------------------------------------------------------------- */
 
 int64_t mntype( TYPEDEF type, int accept_structs ) {
     BASETYPE t;
@@ -143,15 +144,15 @@ void basetype_describe( char * buffer, BASETYPE t ) {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Compilador de expresiones y sentencias. En este modulo están todas las */
-/* funciones de compilado que generan codigo efectivo.                    */
+/* Expression and statement compiler. This module contains all the        */
+/* compilation functions that generate effective code.                    */
 /* ---------------------------------------------------------------------- */
 
 PROCDEF * proc = NULL;
 CODEBLOCK * code = NULL;
 
-/* Comprueba que los parámetros de una expresion binaria sean datos */
-/* numéricos. Devuelve el tipo de operacion(MN_FLOAT o MN_QWORD)    */
+/* Checks that the parameters of a binary expression are numeric data */
+/* and returns the operation type (MN_FLOAT or MN_QWORD)               */
 
 static int64_t check_integer_type( expresion_result *exp ) {
     if ( typedef_is_pointer( exp->type ) || typedef_base( exp->type ) == TYPE_CHAR ) {
@@ -325,8 +326,9 @@ static int64_t check_numeric_types( expresion_result *left, expresion_result *ri
     return 0;
 }
 
-/* Comprueba que los parámetros de una expresion binaria sean cadenas
- * o datos numéricos. Devuelve MN_STRING o el tipo de dato numérico */
+
+/* Checks that the parameters of a binary expression are strings
+ * or numeric data and returns MN_STRING or the numeric data type */
 
 static int64_t check_numeric_or_string_types( expresion_result * left, expresion_result * right ) {
     if ( typedef_is_array( left->type ) && left->type.chunk[1].type == TYPE_CHAR && typedef_is_string( right->type ) ) {
@@ -373,7 +375,7 @@ static int64_t check_numeric_or_string_types( expresion_result * left, expresion
     return check_numeric_types( left, right );
 }
 
-/* Compila el acceso a una VARIABLE global, local, privada o publica */
+/* Compiles the access to a global, local, private, or public VARIABLE */
 
 expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE * remote ) {
     VARIABLE * var = NULL;
@@ -387,7 +389,7 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
     if ( token.type != IDENTIFIER ) compile_error( MSG_IDENTIFIER_EXP );
 
     if ( !here && !remote ) {
-        /* Splinter, se agrega localidad... */
+        /* Locals */
         if ( proc ) {
             here = privars;
             var = varspace_search( here, token.code );
@@ -441,7 +443,7 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
                     MN_INDEX
                 ) | mntype( var->type, 1 ), var->offset - base_offset );
 
-        /* Tambien las locales remotas ? */
+        /* Also the remote locals? */
         if (( pubvars && ( here == pubvars ) ) || ( remote  && ( here == remote ) ) ) {
             proc->flags |= PROC_USES_PUBLICS;
         }
@@ -461,13 +463,13 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
     res.value      = 0;
     res.count      = 1;
 
-    /* Indexado via [...] */
+    /* Indexed via [...] */
 
     while ( token.type == IDENTIFIER && token.code == identifier_leftb ) { /* "[" */
-        /* De estructuras o arrays */
+        /* From structures or arrays */
         if ( typedef_is_struct( res.type ) && typedef_count( res.type ) == 1 ) compile_error( MSG_NOT_AN_ARRAY );
 
-        /* Cadenas y punteros se indexan en otro nivel */
+        /* Strings and pointers are indexed at another level */
         if ( typedef_is_pointer( res.type ) || typedef_is_string( res.type ) ) break;
 
         if ( !typedef_is_struct( res.type ) && !typedef_is_array( res.type ) ) compile_error( MSG_NOT_AN_ARRAY );
@@ -484,13 +486,13 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
             res.type = typedef_reduce( res.type );
             codeblock_add( code, MN_ARRAY, typedef_size( res.type ) );
         } else {
-            /* estructura */
+            /* Struct */
             codeblock_add( code, MN_ARRAY, typedef_size( res.type ) / typedef_count( res.type ) );
         }
         token_next();
     }
 
-    /* Un acceso a un array es un acceso a su primer elemento */
+    /* An access to an array is an access to its first element */
 /*
     res.count = 1;
     if ( reduce_arrays == 1 && typedef_is_array( res.type ) )
@@ -511,7 +513,7 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
     return res;
 }
 
-/* Compila el tamaño de una VARIABLE o estructura local, global, privada o publica */
+/* Compiles the size of a local, global, private, or public VARIABLE or structure */
 
 #define MAX_EXPR_LEVEL 1024
 
@@ -588,7 +590,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     }
 
     if ( !here ) {
-        /* Splinter, se agrega localidad... */
+        /* Locals */
         if ( proc ) {
             here = proc->privars;
             var = varspace_search( here, token.code );
@@ -619,15 +621,15 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
 
     token_next();
 
-    /* Indexado de arrays */
+    /* Array indexing */
 
     while ( token.type == IDENTIFIER && token.code == identifier_leftb ) { /* "[" */
         CODEBLOCK_POS p = codeblock_pos( code );
 
-        /* Cadenas y punteros se indexan en otro nivel */
+        /* Strings and pointers are indexed at another level */
         if ( typedef_is_pointer( type ) || typedef_is_string( type ) ) break;
 
-        /* De estructuras o arrays */
+        /* From structures or arrays */
         if ( typedef_is_struct( type ) && typedef_count( type ) == 1 ) compile_error( MSG_NOT_AN_ARRAY );
 
         if ( !typedef_is_struct( type ) && !typedef_is_array( type ) ) compile_error( MSG_NOT_AN_ARRAY );
@@ -647,8 +649,8 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     }
 
     if ( token.type == IDENTIFIER && token.code == identifier_leftb &&
-         ( typedef_is_pointer( type ) || typedef_is_string( type ) ) ) { /* Indexado de punteros ptr[0] o cadenas */
-        /* Ningun array entra por aca */
+         ( typedef_is_pointer( type ) || typedef_is_string( type ) ) ) { /* Pointer indexing ptr[0] or strings */
+        /* No arrays come through here */
         CODEBLOCK_POS p = codeblock_pos( code );
 
         ind = compile_subexpresion();
@@ -665,7 +667,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
             index_pointer = 1;
         } else if ( typedef_is_string( type ) ) {
             if ( _content_type ) free( _content_type );
-            return 1; /* Indexado de cadenas */
+            return 1; /* String indexing */
         }
     }
 
@@ -703,14 +705,14 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     if ( index_pointer && ( token.type != IDENTIFIER || token.code != identifier_point ) ) { /* "." */
         token_back();
         if ( _content_type ) free( _content_type );
-        return typedef_size( type ); /* Indexado de punteros ptr[0] */
+        return typedef_size( type ); /* Pointer indexing ptr[0] */
     }
 
     if ( token.type == IDENTIFIER && token.code == identifier_point ) { /* "." */
         int ret;
 
         if ( typedef_is_pointer( type ) ) type = typedef_reduce( type );
-        if ( !typedef_is_struct( type ) && typedef_base( type ) != TYPE_QWORD && typedef_base( type ) != TYPE_INT ) { /* Soporte de process type para publicas */
+        if ( !typedef_is_struct( type ) && typedef_base( type ) != TYPE_QWORD && typedef_base( type ) != TYPE_INT ) { /* Support for process type for public variables */
            compile_error( MSG_STRUCT_REQUIRED );
         }
 
@@ -781,7 +783,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
 
     /* --------------------------------------------------- */
 
-    /* count function params */
+    /* Count function params */
 
     code_pos_code = codeblock_pos( code );
     token_save = token_pos();
@@ -1041,7 +1043,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
     return procs[0];
 }
 
-/* Compila una lista de parámetros */
+/* Compiles a list of parameters */
 
 int compile_paramlist( BASETYPE * types, const char * paramtypes ) {
     expresion_result res;
@@ -1144,100 +1146,38 @@ expresion_result compile_cast_cstr() {
 expresion_result compile_cast() {
     TYPEDEF  type;
     BASETYPE basetype = TYPE_INT;
-    int      tokens = 0, signed_prefix = 0, unsigned_prefix = 0;
+    int sign_prefix = 0;
 
     expresion_result res;
 
     token_next();
 
-    /* Check for signed/unsigned prefix */
-
-    if ( token.type == IDENTIFIER ) {
-        if ( token.code == identifier_signed ) {
-            signed_prefix = 1;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_unsigned ) {
-            unsigned_prefix = 1;
-            tokens++;
-            token_next();
-        }
-    }
-
     /* Create the data type definition */
 
-    if ( token.type == IDENTIFIER ) {
-        if ( token.code == identifier_qword ) {
-            basetype = signed_prefix ? TYPE_INT : TYPE_QWORD;
-            signed_prefix = unsigned_prefix = 0;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_dword ) {
-            basetype = signed_prefix ? TYPE_INT32 : TYPE_DWORD;
-            signed_prefix = unsigned_prefix = 0;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_word ) {
-            basetype = signed_prefix ? TYPE_SHORT : TYPE_WORD;
-            signed_prefix = unsigned_prefix = 0;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_byte ) {
-            basetype = signed_prefix ? TYPE_SBYTE : TYPE_BYTE;
-            signed_prefix = unsigned_prefix = 0;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_int64 ) {
-            basetype = unsigned_prefix ? TYPE_QWORD : TYPE_INT;
-            signed_prefix = unsigned_prefix = 0;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_int32 ) {
-            basetype = unsigned_prefix ? TYPE_DWORD : TYPE_INT32;
-            signed_prefix = unsigned_prefix = 0;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_short ) {
-            basetype = unsigned_prefix ? TYPE_WORD : TYPE_SHORT;
-            signed_prefix = unsigned_prefix = 0;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_char ) {
-            basetype = TYPE_CHAR;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_double ) {
-            basetype = TYPE_DOUBLE;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_float ) {
-            basetype = TYPE_FLOAT;
-            tokens++;
-            token_next();
-        } else if ( token.code == identifier_string ) {
-            basetype = TYPE_STRING;
-            tokens++;
-            token_next();
-        }
+    /* "Sign" */
+
+    if ( token.code == identifier_unsigned ) {
+        sign_prefix = 1;
+        token_next();
+    } else if ( token.code == identifier_signed ) {
+        sign_prefix = -1;
+        token_next();
     }
 
-    /* Don't allow a signed/unsigned prefix in non-integer types */
-
-    if ( signed_prefix || unsigned_prefix ) compile_error( MSG_INVALID_TYPE );
-
-    /* If type is not a basic one: check for user-defined types */
-
-    if ( tokens == 0 ) {
+    if ( identifier_is_basic_type(token.code) ) {
+        type = typedef_basic_type_by_name( token.code, sign_prefix );
+        if ( typedef_is_undefined( type ) ) compile_error( MSG_INVALID_TYPE );
+        token_next();
+    }
+    else {
+        /* If type is not a basic one: check for user-defined types */
         TYPEDEF * typep = typedef_by_name( token.code );
         if ( typep == NULL ) {
-/*            type = typedef_new(TYPE_INT); */
             compile_error( MSG_INVALID_TYPE );
             return res; /* Avoid scan-build warning */
         }
         type = *typep;
         token_next();
-    } else {
-        type = typedef_new( basetype );
     }
 
     /* Check for pointers to defined types */
@@ -1492,7 +1432,7 @@ expresion_result compile_cast() {
             }
         }
     } else if ( typedef_is_string( type ) ) {
-        /* Conversion de puntero, float, entero o cadena de ancho fijo a cadena */
+        /* Conversion of pointer, float, integer, or fixed-width string to a string */
         /* ( string ) <char[]> */
         if ( typedef_is_array( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) {
             codeblock_add( code, MN_A2STR, 0 );
@@ -1550,8 +1490,9 @@ expresion_result compile_cast() {
     return res;
 }
 
-/* Compila un valor (elemento más pequeño del lenguaje) */
+/* Compiles a value (the smallest element of the language) */
 
+/* Step 15 */
 expresion_result compile_value() {
     CONSTANT * c;
     int64_t id;
@@ -1613,7 +1554,7 @@ expresion_result compile_value() {
         }
 
         if ( token.code == identifier_offset || token.code == identifier_bandoffset ) { /* "OFFSET" or "&" */
-            res = compile_factor() ; /* Para permitir &a.b */
+            res = compile_factor() ; /* To allow &a.b */
             if ( !res.lvalue ) compile_error( MSG_NOT_AN_LVALUE );
 
             res.lvalue = 0;
@@ -1637,7 +1578,7 @@ expresion_result compile_value() {
         }
 
         if ( token.code == identifier_multiply ) { /* "*" */
-            res = compile_factor() ; /* Para aceptar *ptr++ */
+            res = compile_factor() ; /* To accept *ptr++ */
             if ( !typedef_is_pointer( res.type ) ) compile_error( MSG_NOT_A_POINTER );
 
             if ( res.lvalue ) codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
@@ -1724,7 +1665,7 @@ expresion_result compile_value() {
             break;
     }
 
-    /* Llamada a un procedimiento o funcion del sistema */
+    /* Call to a system procedure or function */
 
     id = token.code;
 
@@ -1755,7 +1696,7 @@ expresion_result compile_value() {
             return res;
         }
 
-        /* Llama a un procedimiento del usuario */
+        /* Calls a user-defined procedure */
 
         PROCDEF * cproc = procdef_search( id );
         if ( !cproc ) {
@@ -1799,12 +1740,13 @@ expresion_result compile_value() {
 
     token_back();
 
-    /* Valor asignable */
+    /* Assignable value */
 
     return compile_sublvalue( 0, 0, NULL );
 
 }
 
+/* Step 14 */
 expresion_result compile_factor() {
     expresion_result res, part;
     BASETYPE t;
@@ -1818,11 +1760,11 @@ expresion_result compile_factor() {
     res.constant    = 0;
     res.asignation  = 0;
 
-    /* "+2" (Positivo) */
+    /* "+2" (Positive) */
     if ( token.type == IDENTIFIER && token.code == identifier_plus ) token_next() ; /* "+" */
 
     if ( token.type == IDENTIFIER ) {
-        if ( token.code == identifier_minus ) { /* "-" */ /* "-2" (Negativo) */
+        if ( token.code == identifier_minus ) { /* "-" */ /* "-2" (Negative) */
             part = compile_factor();
             if ( part.lvalue ) codeblock_add( code, mntype( part.type, 0 ) | MN_PTR, 0 );
             codeblock_add( code, ( ( ( t = mntype( part.type, 0 ) ) == MN_DOUBLE || t == MN_FLOAT ) ? t : 0 ) | MN_NEG, 0 );
@@ -1896,13 +1838,13 @@ expresion_result compile_factor() {
 
     part = compile_value();
 
-    /* Sufijos (operadores ., [], etc) */
+    /* Suffixes (operators ., [], etc) */
 
     for (;;) {
         token_next();
 
         if ( token.type == IDENTIFIER ) {
-            if ( token.code == identifier_point ) { /* "." */ /* Operador "." */
+            if ( token.code == identifier_point ) { /* "." */ /* Operator "." */
                 if ( typedef_is_array( part.type ) ) {
                     while ( typedef_is_array ( part.type = typedef_reduce( part.type ) ) );
                 }
@@ -1925,10 +1867,10 @@ expresion_result compile_factor() {
                     if ( typedef_base( part.type ) != TYPE_QWORD && typedef_base( part.type ) != TYPE_INT ) compile_error( MSG_INTEGER_REQUIRED );
                     if ( part.lvalue ) codeblock_add( code, mntype( part.type, 0 ) | MN_PTR, 0 );
 
-                    part = compile_sublvalue( &local, 0, v ) ; /* referenciada REMOTA por proceso (Splinter) */
+                    part = compile_sublvalue( &local, 0, v ) ; /* REMOTE referenced by process */
                 }
                 continue;
-            } else if ( token.code == identifier_plusplus ) { /* Operador ++ posterior */
+            } else if ( token.code == identifier_plusplus ) { /* Postfix ++ operator */
                 if ( !part.lvalue ) compile_error( MSG_VARIABLE_REQUIRED );
                 if ( typedef_is_string( part.type ) ) compile_error( MSG_INCOMP_TYPE );
                 if ( typedef_is_pointer( part.type ) ) codeblock_add( code, MN_POSTINC, typedef_size( typedef_reduce( part.type ) ) );
@@ -1936,7 +1878,7 @@ expresion_result compile_factor() {
                 part.asignation = 1;
                 part.lvalue = 0;
                 continue;
-            } else if ( token.code == identifier_minusminus ) { /* Operador -- posterior */
+            } else if ( token.code == identifier_minusminus ) { /* Postfix -- operator */
                 if ( !part.lvalue ) compile_error( MSG_VARIABLE_REQUIRED );
                 if ( typedef_is_string( part.type ) ) compile_error( MSG_INCOMP_TYPE );
                 if ( typedef_is_pointer( part.type ) ) codeblock_add( code, MN_POSTDEC, typedef_size( typedef_reduce( part.type ) ) );
@@ -1947,10 +1889,10 @@ expresion_result compile_factor() {
             }
         }
 
-        /* Indexado via [...] */
+        /* Indexed via [...] */
 
         if ( token.type == IDENTIFIER && token.code == identifier_leftb ) { /* "[" */
-            if ( typedef_is_pointer( part.type ) ) { /* De punteros */
+            if ( typedef_is_pointer( part.type ) ) { /* Of pointers */
                 if ( part.lvalue ) codeblock_add( code, mntype( part.type, 0 ) | MN_PTR, 0 );
                 part.type = typedef_reduce( part.type );
 
@@ -1967,7 +1909,7 @@ expresion_result compile_factor() {
                 continue;
             }
 
-            if ( typedef_is_string( part.type ) ) { /* De cadenas */
+            if ( typedef_is_string( part.type ) ) { /* Of strings */
                 if ( part.lvalue ) codeblock_add( code, MN_STRING | MN_PTR, 0 );
 
                 res = compile_subexpresion();
@@ -1993,7 +1935,7 @@ expresion_result compile_factor() {
     return part;
 }
 
-/* Paso 7 */
+/* Step 13 */
 expresion_result compile_operand() {
     expresion_result left = compile_factor(), right, res;
     int64_t op, t;
@@ -2097,7 +2039,7 @@ expresion_result compile_operand() {
     return left;
 }
 
-/* Paso 6 */
+/* Step 12 */
 expresion_result compile_operation() {
     expresion_result left = compile_operand(), right, res;
     int64_t op, t;
@@ -2105,7 +2047,7 @@ expresion_result compile_operation() {
     for (;;) {
         token_next();
 
-        /* Suma(o resta) de un entero a un puntero */
+        /* Integer addition (or subtraction) to a pointer */
 
         if ( typedef_is_pointer( left.type ) && token.type == IDENTIFIER && ( token.code == identifier_plus || token.code == identifier_minus ) ) { /* "+" o "-" */
             TYPEDEF ptr_t = typedef_reduce( left.type );
@@ -2133,7 +2075,7 @@ expresion_result compile_operation() {
             continue;
         }
 
-        /* Suma de cadenas */
+        /* String concatenation */
 
         if ( typedef_is_array( left.type ) && left.lvalue && token.type == IDENTIFIER && token.code == identifier_plus && left.type.chunk[1].type == TYPE_CHAR ) { /* "+" */
             codeblock_add( code, MN_A2STR, 0 );
@@ -2141,14 +2083,14 @@ expresion_result compile_operation() {
             left.type = typedef_new( TYPE_STRING );
         }
 
-        /* Suma/resta de valores numéricos */
+        /* Addition/subtraction of numeric values */
 
         if ( token.type == IDENTIFIER && ( token.code == identifier_plus || token.code == identifier_minus ) ) { /* "+" or "-" */
             op = ( token.code == identifier_plus ) ? MN_ADD : MN_SUB;
             if ( left.lvalue ) codeblock_add( code, mntype( left.type, 0 ) | MN_PTR, 0 );
             right = compile_operand();
 
-            /* Concatenacion de cadenas */
+            /* String concatenation */
 
             if (( typedef_is_string( left.type ) || typedef_is_string( right.type ) ) && op == MN_ADD ) {
                 if ( typedef_is_array( right.type ) && right.lvalue && right.type.chunk[1].type == TYPE_CHAR ) {
@@ -2216,7 +2158,7 @@ expresion_result compile_operation() {
     return left;
 }
 
-/* Paso 5 */
+/* Step 11 */
 expresion_result compile_rotation() {
     expresion_result left = compile_operation(), right, res;
     BASETYPE t;
@@ -2255,7 +2197,7 @@ expresion_result compile_rotation() {
     return left;
 }
 
-/* Paso 4 */
+/* Step 10 */
 expresion_result compile_comparison_1() {
     expresion_result left = compile_rotation(), right, res;
     int64_t op, t;
@@ -2329,6 +2271,7 @@ expresion_result compile_comparison_1() {
     return left;
 }
 
+/* Step 9 */
 expresion_result compile_comparison_2() {
     expresion_result left = compile_comparison_1(), right, res;
     int64_t op, t;
@@ -2386,6 +2329,7 @@ expresion_result compile_comparison_2() {
     return left;
 }
 
+/* Step 8 */
 expresion_result compile_bitwise_and() {
     expresion_result left = compile_comparison_2(), right, res;
 
@@ -2417,6 +2361,7 @@ expresion_result compile_bitwise_and() {
     return left;
 }
 
+/* Step 7 */
 expresion_result compile_bitwise_xor() {
     expresion_result left = compile_bitwise_and(), right, res;
 
@@ -2448,7 +2393,7 @@ expresion_result compile_bitwise_xor() {
     return left;
 }
 
-/* Paso 3 */
+/* Step 6 */
 expresion_result compile_bitwise_or() {
     expresion_result left = compile_bitwise_xor(), right, res;
 
@@ -2481,7 +2426,7 @@ expresion_result compile_bitwise_or() {
 }
 
 
-/* Paso 2 */
+/* Step 5 */
 expresion_result compile_logical_and() {
     expresion_result left = compile_bitwise_or(), right, res;
     int et1;
@@ -2520,7 +2465,7 @@ expresion_result compile_logical_and() {
     return left;
 }
 
-/* Paso 2 */
+/* Step 4 */
 expresion_result compile_logical_xor() {
     expresion_result left = compile_logical_and(), right, res;
 
@@ -2552,7 +2497,7 @@ expresion_result compile_logical_xor() {
     return left;
 }
 
-/* Paso 2 */
+/* Step 3 */
 expresion_result compile_logical_or() {
     expresion_result left = compile_logical_xor(), right, res;
     int et1, et2;
@@ -2599,7 +2544,7 @@ expresion_result compile_logical_or() {
     return left;
 }
 
-/* Paso 1 */
+/* Step 2 */
 expresion_result compile_ternarycond() {
     CODEBLOCK_POS pos = { 0 };
 
@@ -2669,16 +2614,15 @@ expresion_result compile_ternarycond() {
     return base;
 }
 
-
-/* Paso 1 */
+/* Step 1 */
 expresion_result compile_subexpresion() {
     expresion_result base = compile_ternarycond(), right, res;
 
     token_next();
     if ( token.type == IDENTIFIER ) {
-        /* Asignaciones */
+        /* Assignments */
         if ( token.code == identifier_equal ) { /* "=" */
-            if ( typedef_is_array( base.type ) && base.lvalue && base.type.chunk[1].type == TYPE_CHAR ) { /* Asignaciones a cadenas de ancho fijo */
+            if ( typedef_is_array( base.type ) && base.lvalue && base.type.chunk[1].type == TYPE_CHAR ) { /* Assignments to fixed-width strings */
                 right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
                 if ( typedef_is_integer( right.type ) ) {
                     compile_warning( 1, "implicit conversion (INT64 to CHAR[])" );
@@ -2697,7 +2641,7 @@ expresion_result compile_subexpresion() {
                 return right;
             }
 
-            if ( typedef_is_pointer( base.type ) ) { /* Asignaciones a punteros */
+            if ( typedef_is_pointer( base.type ) ) { /* Assignments to pointers */
                 TYPEDEF pointer_type;
 
                 pointer_type = typedef_reduce( base.type );
@@ -2727,7 +2671,7 @@ expresion_result compile_subexpresion() {
 //                    right.type = base.type;
                 }
 
-                /* Un puntero "void" puede asignarse a otro cualquiera */
+                /* A "void" pointer can be assigned to any other */
                 if ( typedef_base( typedef_reduce( right.type ) ) != typedef_base( pointer_type ) ) compile_warning( 1, MSG_CAST_POINTER_INCOMPATIBLE );
 
                 right.type = typedef_pointer( pointer_type );
@@ -2744,7 +2688,7 @@ expresion_result compile_subexpresion() {
                 return res;
             }
 
-            if ( typedef_base( base.type ) == TYPE_CHAR ) { /* Asignaciones a chars */
+            if ( typedef_base( base.type ) == TYPE_CHAR ) { /* Assignments to chars */
                 if ( !base.lvalue ) compile_error( MSG_VARIABLE_REQUIRED );
 
                 right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
@@ -2774,7 +2718,7 @@ expresion_result compile_subexpresion() {
                 return res;
             }
 
-            if ( typedef_is_string( base.type ) ) { /* Asignaciones a cadenas */
+            if ( typedef_is_string( base.type ) ) { /* Assignments to strings */
                 if ( !base.lvalue ) compile_error( MSG_VARIABLE_REQUIRED );
 
                 right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
@@ -2812,7 +2756,7 @@ expresion_result compile_subexpresion() {
 
         int64_t op, type;
 
-        /* Puntero += entero */
+        /* Pointer += integer */
 
         if ( typedef_is_pointer( base.type ) && ( token.code == identifier_plusequal || token.code == identifier_minusequal ) ) { /* "+=" or "-=" */
             TYPEDEF pointer_type;
@@ -2848,7 +2792,7 @@ expresion_result compile_subexpresion() {
         /* Increment and assign */
 
         if ( token.code == identifier_plusequal ) { /* "+=" */
-            if ( typedef_is_array( base.type ) && base.lvalue && base.type.chunk[1].type == TYPE_CHAR ) { /* Cadena += cadena fija */
+            if ( typedef_is_array( base.type ) && base.lvalue && base.type.chunk[1].type == TYPE_CHAR ) { /* String += fixed string */
                 right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
                 if ( typedef_is_integer( right.type ) ) {
                     compile_warning( 1, "implicit conversion (INTEGER to CHAR[])" );
@@ -2902,7 +2846,7 @@ expresion_result compile_subexpresion() {
             }
         }
 
-        /* Otra posible combinacion(for not string/char[]/pointers) */
+        /* Another possible combination (for not string/char[]/pointers) */
 
         if (    token.code == identifier_plusequal      /* "+=" */
             ||  token.code == identifier_minusequal     /* "-=" */
@@ -3064,7 +3008,7 @@ expresion_result compile_expresion( int need_constant, int need_lvalue, int disc
     if ( code ) pos = codeblock_pos( code );
     res = compile_subexpresion();
 
-    /* Interpreta una estructura tal cual como un puntero a la misma */
+    /* Interprets a structure as a pointer to itself */
 
     if ( res.lvalue && typedef_base( res.type ) == TYPE_STRUCT && !need_lvalue ) {
         res.type = typedef_pointer( res.type );
@@ -3072,7 +3016,7 @@ expresion_result compile_expresion( int need_constant, int need_lvalue, int disc
         res.constant = 0;
     }
 
-    /* Interpretar arrays de byte como cadenas */
+    /* Interprets arrays of bytes as strings */
 
     if ( typedef_base( res.type ) == TYPE_ARRAY && res.type.chunk[1].type == TYPE_CHAR && res.lvalue && !need_lvalue ) {
         codeblock_add( code, MN_A2STR, 0 );
@@ -3080,18 +3024,18 @@ expresion_result compile_expresion( int need_constant, int need_lvalue, int disc
         res.lvalue = 0;
     }
 
-    /* Quita los lvalue */
+    /* Removes the lvalue */
 
     if ( !need_lvalue && res.lvalue && !typedef_is_array( res.type ) ) {
         res.lvalue = 0;
         codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
     }
 
-    /* Conversiones de tipo */
+    /* Type conversions */
 
     if ( t != TYPE_UNDEFINED ) res = convert_result_type( res, t );
 
-    /* Optimizacion de datos constantes */
+    /* Constant data optimization */
 
     if ( res.constant ) {
         if ( code ) codeblock_setpos( code, pos );
@@ -3130,7 +3074,7 @@ expresion_result compile_expresion( int need_constant, int need_lvalue, int disc
  */
 
 expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
-    /* Conversiones de tipo */
+    /* Type conversions */
 
     if ( t == TYPE_STRING && typedef_base( res.type ) == TYPE_POINTER ) {
         codeblock_add( code, MN_POINTER2STR, 0 );
@@ -3361,14 +3305,14 @@ void compile_block( PROCDEF * p ) {
 
             if ( !is_process ) {
                 token_back();
-                /* Se permite declarar privada una variable que haya sido declarada global, es una variable propia, no es la global */
+                /* It is allowed to declare a variable as private that has been declared as global; it's a local variable, not the global one */
                 VARSPACE * v[] = {&local, p->pubvars, NULL};
                 compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0, 1 );
                 continue;
             }
         } else if (( !proc->declared ) && ( token.code == identifier_local || token.code == identifier_public ) ) {
-            /* Ahora las declaraciones locales, son solo locales al proceso, pero visibles desde todo proceso */
-            /* Se permite declarar local/publica una variable que haya sido declarada global, es una variable propia, no es la global */
+            /* Local declarations are local only to the process but visible from every process */
+            /* It is allowed to declare a variable as local/public that has been declared global; it's a local variable, not the global one */
             VARSPACE * v[] = {&local, p->privars, NULL};
             compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0, 1 );
         }
@@ -3977,13 +3921,13 @@ void compile_block( PROCDEF * p ) {
            )
         {
             if ( token.code == identifier_onexit ) { /* "ONEXIT" */
-                /* Finalizo el bloque actual y todo el codigo a continuacion es onexit */
+                /* The current block is concluded, and all code following is onexit */
                 codeblock_add( code, MN_END, 0 );
                 p->exitcode = code->current;
             }
 
             if ( token.code == identifier_onerror ) { /* "ONERROR" */
-                /* Finalizo el bloque actual y todo el codigo a continuacion es onerror */
+                /* The current block is concluded, and all code following is onerror */
                 codeblock_add( code, MN_END, 0 );
                 p->errorcode = code->current;
             }

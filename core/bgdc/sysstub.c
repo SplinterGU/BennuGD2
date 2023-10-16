@@ -32,12 +32,14 @@
 
 #include "bgdc.h"
 
+/* ---------------------------------------------------------------------- */
+/* This file contains only the definitions of system functions            */
+/* ---------------------------------------------------------------------- */
+
 /* Fast access sysproc list, by identifier code */
 
 SYSPROC  ** sysproc_list = NULL ;
 int sysproc_maxid = 0 ;
-
-/* Este fichero contiene s�lo las definiciones de las funciones del sistema */
 
 #define SYSMACRO(a) 0
 #include "sysprocs.h"

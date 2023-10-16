@@ -25,7 +25,7 @@
  *     distribution.
  *
  */
-/* HECHO! */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -177,7 +177,7 @@ int typedef_size( TYPEDEF t ) {
     return typedef_subsize( t, 0 );
 }
 
-/* Tipos nombrados (structs, tipicamente) */
+/* Named types (typically structs) */
 
 static TYPEDEF * named_types = NULL;
 static int64_t * named_codes = NULL;
@@ -227,4 +227,47 @@ int typedef_is_equal( TYPEDEF a, TYPEDEF b ) {
         if ( a.chunk[n].type == TYPE_ARRAY && a.chunk[n].count != b.chunk[n].count ) return 0;
     }
     return 1;
+}
+
+BASETYPE typedef_basic_type_basetype_by_name( int identifier, int sign ) {
+    struct {
+        int identifier;
+        BASETYPE basetype;
+        BASETYPE basetype_signed;
+        BASETYPE basetype_unsigned;
+    }  i2b[] = 
+            {
+                { .identifier = identifier_qword,   .basetype = TYPE_QWORD        , .basetype_signed = TYPE_INT          , .basetype_unsigned = TYPE_QWORD        },
+                { .identifier = identifier_dword,   .basetype = TYPE_DWORD        , .basetype_signed = TYPE_INT32        , .basetype_unsigned = TYPE_DWORD        },
+                { .identifier = identifier_word,    .basetype = TYPE_WORD         , .basetype_signed = TYPE_SHORT        , .basetype_unsigned = TYPE_WORD         },
+                { .identifier = identifier_byte,    .basetype = TYPE_BYTE         , .basetype_signed = TYPE_SBYTE        , .basetype_unsigned = TYPE_BYTE         },
+                { .identifier = identifier_int64,   .basetype = TYPE_INT          , .basetype_signed = TYPE_INT          , .basetype_unsigned = TYPE_QWORD        },
+                { .identifier = identifier_int32,   .basetype = TYPE_INT32        , .basetype_signed = TYPE_INT32        , .basetype_unsigned = TYPE_DWORD        },
+                { .identifier = identifier_short,   .basetype = TYPE_SHORT        , .basetype_signed = TYPE_SHORT        , .basetype_unsigned = TYPE_WORD         },
+                { .identifier = identifier_char,    .basetype = TYPE_CHAR         , .basetype_signed = TYPE_UNDEFINED    , .basetype_unsigned = TYPE_UNDEFINED    },
+                { .identifier = identifier_double,  .basetype = TYPE_DOUBLE       , .basetype_signed = TYPE_UNDEFINED    , .basetype_unsigned = TYPE_UNDEFINED    },
+                { .identifier = identifier_float,   .basetype = TYPE_FLOAT        , .basetype_signed = TYPE_UNDEFINED    , .basetype_unsigned = TYPE_UNDEFINED    },
+                { .identifier = identifier_string,  .basetype = TYPE_STRING       , .basetype_signed = TYPE_UNDEFINED    , .basetype_unsigned = TYPE_UNDEFINED    },
+                { .identifier = 0,                  .basetype = TYPE_UNDEFINED    , .basetype_signed = TYPE_UNDEFINED    , .basetype_unsigned = TYPE_UNDEFINED    }
+            };
+
+    for ( int n = 0; i2b[n].identifier; n++ ) {
+        if ( i2b[n].identifier == identifier ) {
+            switch(sign) {
+                case -1:
+                    return i2b[n].basetype_signed;
+
+                case 0:
+                    return i2b[n].basetype;
+
+                case 1:
+                    return i2b[n].basetype_unsigned;
+            }
+        }
+    }
+    return TYPE_UNDEFINED;
+}
+
+TYPEDEF typedef_basic_type_by_name( int identifier, int sign ) {
+    return typedef_new(typedef_basic_type_basetype_by_name(identifier, sign));
 }

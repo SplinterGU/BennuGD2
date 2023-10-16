@@ -37,7 +37,7 @@ typedef struct _identifier {
 	struct _identifier * next;
 } identifier;
 
-/* Gestor de identificadores */
+/* Identifier manager */
 
 extern void identifier_init() ;
 extern void identifier_dump() ;

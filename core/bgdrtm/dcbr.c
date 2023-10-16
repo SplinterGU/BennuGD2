@@ -216,7 +216,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
     unsigned int n;
     uint64_t size;
 
-    /* Lee el contenido del fichero */
+    /* Read dcb contents */
 
     file_seek( fp, offset, SEEK_SET );
     file_read( fp, &dcb, sizeof( DCB_HEADER_DATA ) );
@@ -273,7 +273,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
     local_size    = dcb.data.SLocal;
     local_strings = dcb.data.NLocStrings;
 
-    /* Recupera las zonas de datos globales */
+    /* Retrieves global data areas */
 
     file_seek( fp, offset + dcb.data.OGlobal, SEEK_SET );
     file_read( fp, globaldata, dcb.data.SGlobal );         /* **** */
@@ -323,14 +323,14 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         ARRANGE_QWORD( &dcb.proc[n].data.OCode );
     }
 
-    /* Recupera las cadenas */
+    /* Retrieves strings */
 
     dcb.data.OStrings += offset;
     dcb.data.OText += offset;
 
     string_load( fp, dcb.data.OStrings, dcb.data.OText, dcb.data.NStrings, dcb.data.SText );
 
-    /* Recupera los ficheros incluidos */
+    /* Retrieves included files */
 
     if ( dcb.data.NFiles ) {
         DCB_FILE dcbfile;
@@ -350,7 +350,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         }
     }
 
-    /* Recupera los imports */
+    /* Retrieves the imports */
 
     if ( dcb.data.NImports ) {
         dcb.imports = ( uint64_t * )calloc( dcb.data.NImports, sizeof( uint64_t ) );
@@ -362,7 +362,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         file_readUint64A( fp, dcb.imports, dcb.data.NImports );
     }
 
-    /* Recupera los datos de depurado */
+    /* Retrieves debugging data */
 
     if ( dcb.data.NID ) {
         dcb.id = ( DCB_ID * ) calloc( dcb.data.NID, sizeof( DCB_ID ) );
@@ -442,7 +442,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         }
     }
 
-    /* Recupera los procesos */
+    /* Retrieves processes */
 
     for ( n = 0; n < dcb.data.NProcs; n++ ) {
         procs[n].params             = dcb.proc[n].data.NParams;
@@ -458,7 +458,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         procs[n].breakpoint         = 0;
 
         if ( dcb.proc[n].data.SPrivate ) {
-            procs[n].pridata = ( uint8_t * )calloc( dcb.proc[n].data.SPrivate, sizeof( uint8_t ) ); /* El size ya esta calculado en bytes */
+            procs[n].pridata = ( uint8_t * )calloc( dcb.proc[n].data.SPrivate, sizeof( uint8_t ) ); /* Size in bytes */
             if ( !procs[n].pridata ) {
                 fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
                 exit(2);
@@ -468,7 +468,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         }
 
         if ( dcb.proc[n].data.SPublic ) {
-            procs[n].pubdata = ( uint8_t * )calloc( dcb.proc[n].data.SPublic, sizeof( uint8_t ) ); /* El size ya esta calculado en bytes */
+            procs[n].pubdata = ( uint8_t * )calloc( dcb.proc[n].data.SPublic, sizeof( uint8_t ) ); /* Size in bytes */
             if ( !procs[n].pubdata ) {
                 fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
                 exit(2);
@@ -478,7 +478,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         }
 
         if ( dcb.proc[n].data.SCode ) {
-            procs[n].code = ( int64_t * ) calloc( dcb.proc[n].data.SCode / sizeof( int64_t ), sizeof( int64_t ) ); /* El size ya esta calculado en bytes */
+            procs[n].code = ( int64_t * ) calloc( dcb.proc[n].data.SCode / sizeof( int64_t ), sizeof( int64_t ) ); /* Size in bytes */
             if ( !procs[n].code ) {
                 fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
                 exit(2);
@@ -524,7 +524,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         }
     }
 
-    /* Recupero tabla de fixup de sysprocs */
+    /* Retrieves the fixup table for system procedures */
 
     sysproc_code_ref = calloc( dcb.data.NSysProcsCodes, sizeof( DCB_SYSPROC_CODE2 ) );
     if ( !sysproc_code_ref ) {

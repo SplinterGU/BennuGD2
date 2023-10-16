@@ -36,7 +36,7 @@
 
 // int dos_chars = 0;
 
-/* Tabla de conversión de caracteres cp850 ( MS-DOS ) a iso8859-1 ( isolatin-1/Windows ) */
+/* Character conversion table from cp850 (MS-DOS) to iso8859-1 (isolatin-1/Windows) */
 
 unsigned char cp850_to_iso8859_1[256] = {
       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,
@@ -57,7 +57,7 @@ unsigned char cp850_to_iso8859_1[256] = {
     173, 177,  61, 190, 182, 167, 247, 184, 176, 168, 183, 185, 179, 178, 166, 160
 };
 
-/* Tabla de conversión de caracteres iso8859-1 ( isolatin-1/Windows ) a cp850 ( MS-DOS ) */
+/* Character conversion table from iso8859-1 (isolatin-1/Windows) to cp850 (MS-DOS) */
 
 unsigned char iso8859_1_to_cp850[256] =
 {
@@ -79,7 +79,7 @@ unsigned char iso8859_1_to_cp850[256] =
     208, 164, 149, 162, 147, 228, 148, 246, 155, 151, 163, 150, 129, 236, 231, 152
 };
 
-/* Tipos de caracter */
+/* Character types */
 
 char c_type[256];
 unsigned char c_upper[256];

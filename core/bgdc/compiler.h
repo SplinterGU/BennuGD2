@@ -35,7 +35,7 @@
 #include "procdef.h"
 #include "varspace.h"
 
-/* Compilador */
+/* Compiler */
 
 typedef struct _expresion_result {
     int asignation;
@@ -44,7 +44,7 @@ typedef struct _expresion_result {
     int constant;
     TYPEDEF type;
 
-    int count; /* Usados para array genericos */
+    int count; /* Used for generic arrays */
 
     int64_t value;
     double  fvalue;
@@ -53,7 +53,7 @@ typedef struct _expresion_result {
 extern void compile_error(const char * error, ...);
 extern void compile_warning(int, const char * error, ...);
 
-/* Compilado de secciones superiores */
+/* Compilation of upper sections */
 extern void compile_init();
 extern void compile_program();
 extern void compile_sentence(PROCDEF * p);
@@ -61,14 +61,14 @@ extern void compile_block(PROCDEF *);
 
 extern void import_mod( char * libname );
 
-/* Compilado de secciones especiales (definici�n de datos, etc) */
+/* Compilation of special sections (data definition, etc) */
 extern int  compile_array_data(VARSPACE * n, segment * data, int size, int subsize, BASETYPE *t);
 extern int  compile_varspace(VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** c, int alignment, int duplicateignore, int block_without_begin, int level, int inline_assignation_disabled );
 extern void compile_constants();
 
 #define DEFAULT_ALIGNMENT 8
 
-/* Compilador de expresiones */
+/* Expression compiler */
 extern expresion_result compile_value();
 extern expresion_result compile_factor();
 extern expresion_result compile_operand();
@@ -82,8 +82,7 @@ extern expresion_result convert_result_type(expresion_result res, BASETYPE t);
 
 extern void compile_process();
 
-/* C�digos de identificadores y palabras reservadas */
-
+/* Codes for identifiers and reserved words */
 extern int64_t
     identifier_program,     identifier_debug,       identifier_const,
     identifier_begin,       identifier_end,         identifier_struct,
@@ -123,7 +122,7 @@ extern int64_t
     identifier_int64,       identifier_qword,       identifier_double
     ;
 
-extern int64_t reserved_words ;  /* N�mero de palabras reservadas */
+extern int64_t reserved_words ;  /* Number of reserved words */
 
 extern int identifier_is_type(int64_t id);
 extern int identifier_is_basic_type(int64_t id);

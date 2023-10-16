@@ -31,19 +31,22 @@
 
 #include <typedef_st.h>
 
-/* Tipos de dato */
+/* Data types */
 
-extern TYPEDEF      typedef_new      (BASETYPE type) ;
-extern TYPEDEF      typedef_enlarge  (TYPEDEF base) ;
-extern TYPEDEF      typedef_reduce   (TYPEDEF base) ;
-extern int          typedef_size     (TYPEDEF t) ;
-extern int          typedef_subsize  (TYPEDEF t, int c) ;
-extern void         typedef_describe (char * buffer, TYPEDEF t) ;
-extern TYPEDEF      typedef_pointer  (TYPEDEF to) ;
-extern int			typedef_tcount   (TYPEDEF t) ;
+extern TYPEDEF      typedef_new      (BASETYPE type);
+extern TYPEDEF      typedef_enlarge  (TYPEDEF base);
+extern TYPEDEF      typedef_reduce   (TYPEDEF base);
+extern int          typedef_size     (TYPEDEF t);
+extern int          typedef_subsize  (TYPEDEF t, int c);
+extern void         typedef_describe (char * buffer, TYPEDEF t);
+extern TYPEDEF      typedef_pointer  (TYPEDEF to);
+extern int			typedef_tcount   (TYPEDEF t);
 extern int			typedef_is_equal (TYPEDEF a, TYPEDEF b);
 
-extern TYPEDEF    * typedef_by_name  (int64_t code) ;
-extern void         typedef_name     (TYPEDEF t, int64_t code) ;
+extern TYPEDEF    * typedef_by_name  (int64_t code);
+extern void         typedef_name     (TYPEDEF t, int64_t code);
+
+extern BASETYPE     typedef_basic_type_basetype_by_name( int identifier, int sign );
+extern TYPEDEF      typedef_basic_type_by_name( int identifier, int sign );
 
 #endif

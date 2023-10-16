@@ -65,7 +65,6 @@ int64_t loadvars( file * fp, void * data, DCB_VAR * var, int64_t nvars, int64_t 
     return result;
 }
 
-
 /*
  *  FUNCTION : loadtypes
  *
@@ -121,7 +120,6 @@ int64_t savevars( file * fp, void * data, DCB_VAR * var, int64_t nvars, int64_t 
     }
     return result;
 }
-
 
 /*
  *  FUNCTION : savetypes

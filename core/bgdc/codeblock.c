@@ -84,7 +84,6 @@ void codeblock_postprocess(CODEBLOCK * code) {
     		{
     			ptr++;
     			if (*ptr == -1LL) {
-//    			    *ptr = 0;
     			    ptr++;
     			    continue;
     			}
@@ -336,8 +335,6 @@ void codeblock_add(CODEBLOCK * c, int64_t code, int64_t param) {
 					return;
 			}
 		} else if ((code & MN_MASK) == MN_PTR) {
-			/* Mismo caso */
-
 			switch(c->data[c->previous] & MN_MASK) {
 				case MN_PRIVATE:
 					c->data[c->previous] = MN_GET_PRIV   |(code & ~MN_MASK);

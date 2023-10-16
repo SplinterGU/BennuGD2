@@ -37,12 +37,12 @@
 #include "bgdc.h"
 
 /* ---------------------------------------------------------------------- */
-/* Tokenizador. La funcion token_next, ampliamente utilizada, recoge el   */
-/* siguiente token (identificador, operador, etc) del codigo fuente, y    */
-/* rellena la estructura global "token" con los datos del mismo.          */
+/* Tokenizer. The widely used function token_next retrieves the next      */
+/* token (identifier, operator, etc) from the source code and populates   */
+/* the global structure "token" with its data.                            */
 /* ---------------------------------------------------------------------- */
 
-int line_count = 0; /* Se pone a 0, ya que lo incremente con cada \n, y hasta no obtener un \n no se procesa la linea (Splinter) */
+int line_count = 0; /* It is set to 0 because it is incremented with each \n, and the line is not processed until a \n is obtained (Splinter) */
 int current_file = 0;
 
 static int prepro_sp = 0;
@@ -85,7 +85,7 @@ static int                  id_pragma;
 static int                  id_decode_utf8_strings;
 static int                  id_no_decode_utf8_strings;
 
-/* --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------- */
 
 static int token_endfile();
 
@@ -953,7 +953,7 @@ void token_next() {
 
             identifiers_as_strings = 0;
 
-            /* Comandos de preprocesador */
+            /* Preprocessor commands */
             source_ptr++;
 
             line = line_count;
@@ -990,7 +990,7 @@ void token_next() {
         }
 
         if ( !*source_ptr ) {
-            /* Casos de bloques manuales */
+            /* Manual block cases */
             if ( current_file == -1 ) {
                 token_endfile();
                 token.type = NOTOKEN;
@@ -1013,7 +1013,7 @@ void token_next() {
             continue;
         }
 
-        /* Ignora comentarios */
+        /* Ignore comments */
 
         SKIP_COMMENTS;
         if ( !*source_ptr ) {
@@ -1021,7 +1021,7 @@ void token_next() {
             return;
         }
 
-        /* Cadenas */
+        /* Strings */
 
         if ( *source_ptr == '"' || *source_ptr == '\'' ) {
             token.type = STRING;
@@ -1031,7 +1031,7 @@ void token_next() {
             return;
         }
 
-        /* Operadores de más de un caracter */
+        /* Multi-character operators */
 
         len = 0;
 
@@ -1150,6 +1150,7 @@ void token_next() {
                     token.value = num;
                 }
             }
+
             /* Skip the base sufix */
 
             if ( ( *source_ptr == 'e' || *source_ptr == 'E' ) && base == 10 ) {
@@ -1187,7 +1188,8 @@ void token_next() {
             return;
         }
 
-        /* Identificadores */
+        /* Identifiers */
+
         if ( ISWORDFIRST( *source_ptr ) ) {
             int maybe_label = source_ptr[-1] == '\n';
             GET_NEXT_TOKEN_IN_TMPBUFFER;

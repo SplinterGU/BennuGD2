@@ -116,7 +116,7 @@
 #define MN_JTTRUE               (0x1F | MN_1_PARAMS)
 #define MN_JNOCASE              (0x20 | MN_1_PARAMS)
 
-/* Operaciones unarias - Numeric data type is allowed */
+/* Unary operations - Numeric data type is allowed */
 
 #define MN_NEG                  (0x21 | MN_0_PARAMS)
 #define MN_NOT                  (0x22 | MN_0_PARAMS)
@@ -198,6 +198,7 @@
 #define MN_DOUBLE2INT           (0x55 | MN_1_PARAMS)
 
 #define MN_STR2CHARNUL          (0x56 | MN_0_PARAMS)
+
 /*** Free 57, 58, 59, 5A, 5B, 5C, 5D, 5E, 5F ****/
 
 #define MN_A2STR                (0x60 | MN_1_PARAMS)
@@ -208,11 +209,13 @@
 #define MN_INT2BYTE             (0x65 | MN_1_PARAMS)
 
 /* Flow control */
+
 #define MN_NCALL                (0x66 | MN_1_PARAMS)
 
 /*** Free67, 68, 69 ****/
 
 /* Handlers */
+
 #define MN_EXITHNDLR            (0x6A | MN_1_PARAMS)
 #define MN_ERRHNDLR             (0x6B | MN_1_PARAMS)
 #define MN_RESUME               (0x6C | MN_1_PARAMS)

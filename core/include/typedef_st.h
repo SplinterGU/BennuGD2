@@ -64,6 +64,7 @@ typedef struct _typedef {
     struct _varspace * varspace ;
 } TYPEDEF ;
 
+#define typedef_is_undefined(t) ((t).chunk[0].type == TYPE_UNDEFINED)
 #define typedef_is_numeric(t)   ((t).chunk[0].type < TYPE_STRING)
 #define typedef_is_integer(t)   ((t).chunk[0].type < TYPE_CHAR)
 #define typedef_is_float(t)     ((t).chunk[0].type == TYPE_FLOAT)

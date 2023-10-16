@@ -145,18 +145,13 @@
 #define MSG_EXTRA_CHAR                          "Extra character"
 #define MSG_INVALID_EXP                         "Invalid expression"
 #define MSG_FILENAME_EXP                        "Filename expected"
-
 #define MSG_ON_PARAM_ERR                        "ERROR/EXIT expected"
 #define MSG_GOTO_EXP                            "GOTO/JMP expected"
-
 #define MSG_DATA_TYPE_REQUIRED                  "Data type required"
-
 #define MSG_INVALID_INITIALIZER                 "Initializer element is not constant"
-
 #define MSG_INLINE_ASSIGNATION_ERROR            "Inline declaration variables don't allow value assignation"
-
 #define MSG_CAST_POINTER_INCOMPATIBLE           "Assignment to pointer without a compatible cast"
-
 #define MSG_OUT_OF_MEMORY                       "Out of memory"
+#define MSG_PROC_FUNC_ALREADY_DECLARED          "%s already declared; it is no longer possible to modify or add public or local variables"
 
 #endif

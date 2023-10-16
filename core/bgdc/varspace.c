@@ -33,9 +33,9 @@
 #include "bgdc.h"
 
 /* ---------------------------------------------------------------------- */
-/* Este modulo contiene funciones de utilidad para crear e ir rellenando  */
-/* varspaces (tablas con identificador, offset y tipo de cada VARIABLE)   */
-/* y segmentos de datos                                                   */
+/* This module contains utility functions for creating and populating     */
+/* varspaces (tables with identifier, offset, and type of each VARIABLE)  */
+/* and data segments                                                      */
 /* ---------------------------------------------------------------------- */
 
 VARSPACE global, local;

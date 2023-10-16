@@ -46,14 +46,13 @@
 #define STACK_SIZE 4096
 
 /* ---------------------------------------------------------------------- */
+/* Instance management module, with initialization and destruction        */
+/* functions, duplication, etc.                                           */
+/* ---------------------------------------------------------------------- */
 
 #define INSTANCE_MIN_PRIORITY       -32768
 #define INSTANCE_MAX_PRIORITY       32767
 #define INSTANCE_NORMALIZE_PRIORITY 32768 // used for get an array index from 0 to 65535
-/* ---------------------------------------------------------------------- */
-/* M�dulo de gesti�n de instancias, con las funciones de incializaci�n y  */
-/* destrucci�n, duplicado, etc.                                           */
-/* ---------------------------------------------------------------------- */
 
 #define HASH(id)            (uint64_t)((id)&0x0000ffff)
 #define HASH_PRIORITY(id)   (uint64_t)(((id) + INSTANCE_NORMALIZE_PRIORITY) & 0x0000ffff)
@@ -326,9 +325,9 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
     if ( father->public_size > 0 ) memcpy( r->pubdata, father->pubdata, r->public_size );
     if ( local_size > 0 ) memcpy( r->locdata, father->locdata, local_size );
 
-    /* Inicializa datos de jerarquia */
+    /* Initializes hierarchy data */
 
-    /* Crea el proceso clonico como si lo hubiera llamado el padre */
+    /* Creates the clone process as if it were called by the parent */
 
     itype = LOCQWORD( father, PROCESS_TYPE );
     LOCQWORD( r, PROCESS_ID )   = pid;
@@ -346,7 +345,7 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
     }
     LOCQWORD( father, SON )      = pid;
 
-    /* Actualiza las cuentas de uso de las cadenas */
+    /* Updates string usage counts */
 
     for ( n = 0; n < r->proc->string_count; n++ ) string_use( PRIQWORD( r, r->proc->strings[n] ) );  /* Strings privadas */
     for ( n = 0; n < r->proc->pubstring_count; n++ ) string_use( PUBQWORD( r, r->proc->pubstrings[n] ) ); /* Strings publicas */
@@ -434,7 +433,7 @@ INSTANCE * instance_new( PROCDEF * proc, INSTANCE * father ) {
     if ( proc->public_size > 0 ) memcpy( r->pubdata, proc->pubdata, proc->public_size );
     if ( local_size > 0 ) memcpy( r->locdata, localdata, local_size );
 
-    /* Inicializa datos de jerarquia */
+    /* Initializes hierarchy data */
 
     LOCQWORD( r, PROCESS_TYPE ) = proc->type;
     LOCQWORD( r, PROCESS_ID )   = pid;
@@ -457,11 +456,11 @@ INSTANCE * instance_new( PROCDEF * proc, INSTANCE * father ) {
         LOCQWORD( r, BIGBRO )     = 0;
     }
 
-    /* Cuenta los usos de las variables tipo cadena */
+    /* Counts uses of string variables */
 
-    for ( n = 0; n < proc->string_count; n++ ) string_use( PRIQWORD( r, proc->strings[n] ) );  /* Strings privadas */
-    for ( n = 0; n < proc->pubstring_count; n++ ) string_use( PUBQWORD( r, proc->pubstrings[n] ) ); /* Strings publicas */
-    for ( n = 0; n < local_strings; n++ ) string_use( LOCQWORD( r, localstr[n] ) ); /* Strings locales */
+    for ( n = 0; n < proc->string_count; n++ ) string_use( PRIQWORD( r, proc->strings[n] ) );  /* Private strings */
+    for ( n = 0; n < proc->pubstring_count; n++ ) string_use( PUBQWORD( r, proc->pubstrings[n] ) ); /* Public strings */
+    for ( n = 0; n < local_strings; n++ ) string_use( LOCQWORD( r, localstr[n] ) ); /* Local strings */
 
     r->prev = NULL;
     r->next = first_instance;
@@ -545,24 +544,24 @@ void instance_destroy( INSTANCE * r ) {
         for ( n = 0; n < instance_destroy_hook_count; n++ )
             instance_destroy_hook_list[n]( r );
 
-    /* Actualiza la cuenta de referencia de las variables tipo string */
+    /* Update the reference count of string-type variables */
 
-    for ( n = 0; n < r->proc->string_count; n++ ) string_discard( PRIQWORD( r, r->proc->strings[n] ) ); /* Strings privadas */
-    for ( n = 0; n < r->proc->pubstring_count; n++ ) string_discard( PUBQWORD( r, r->proc->pubstrings[n] ) ); /* Strings publicas */
-    for ( n = 0; n < local_strings; n++ ) string_discard( LOCQWORD( r, localstr[n] ) ); /* Strings locales */
+    for ( n = 0; n < r->proc->string_count; n++ ) string_discard( PRIQWORD( r, r->proc->strings[n] ) ); /* Private strings */
+    for ( n = 0; n < r->proc->pubstring_count; n++ ) string_discard( PUBQWORD( r, r->proc->pubstrings[n] ) ); /* Public strings */
+    for ( n = 0; n < local_strings; n++ ) string_discard( LOCQWORD( r, localstr[n] ) ); /* Local strings */
 
-    /* Actualiza árbol de jerarquias */
+    /* Update hierarchy tree */
 
-    bigbro = instance_get( LOCQWORD( r, BIGBRO ) ); /* Tengo hermano mayor? */
-    if ( bigbro ) LOCQWORD( bigbro, SMALLBRO ) = LOCQWORD( r, SMALLBRO ); /* El hermano menor de mi hermano mayor es mi hermano menor */
+    bigbro = instance_get( LOCQWORD( r, BIGBRO ) ); /* Do I have an older brother? */
+    if ( bigbro ) LOCQWORD( bigbro, SMALLBRO ) = LOCQWORD( r, SMALLBRO ); /* The younger brother of my older brother is my younger brother */
 
-    smallbro = instance_get( LOCQWORD( r, SMALLBRO ) ); /* Tengo hermano menor? */
-    if ( smallbro ) LOCQWORD( smallbro, BIGBRO ) = LOCQWORD( r, BIGBRO ); /* El hermano mayor de mi hermano menor es mi hermano mayor */
+    smallbro = instance_get( LOCQWORD( r, SMALLBRO ) ); /* Do I have a younger brother? */
+    if ( smallbro ) LOCQWORD( smallbro, BIGBRO ) = LOCQWORD( r, BIGBRO ); /* The older brother of my younger brother is my older brother */
 
-    father = instance_get( LOCQWORD( r, FATHER ) ); /* Tengo padre? */
-    if ( father && instance_get( LOCQWORD( father, SON ) ) == r ) LOCQWORD( father, SON ) = LOCQWORD( r, BIGBRO ); /* Si tengo padre y soy el hijo menor, mi hermano mayor pasa a ser el menor hijo de mi padre */
+    father = instance_get( LOCQWORD( r, FATHER ) ); /* Do I have a father? */
+    if ( father && instance_get( LOCQWORD( father, SON ) ) == r ) LOCQWORD( father, SON ) = LOCQWORD( r, BIGBRO ); /* If I have a father and I am the youngest son, my older brother becomes the youngest son of my father */
 
-    /* Quita la instancia de la lista */
+    /* Remove the instance from the list */
 
     if ( r->prev ) r->prev->next = r->next;
     if ( r->next ) r->next->prev = r->prev;

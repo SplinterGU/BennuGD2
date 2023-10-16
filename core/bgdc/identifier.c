@@ -35,7 +35,7 @@
 #include "compiler.h"
 
 /* ---------------------------------------------------------------------- */
-/* Gestor de identificadores                                              */
+/* Identifier manager                                                     */
 /* ---------------------------------------------------------------------- */
 
 static identifier * identifier_hash[64];
@@ -47,7 +47,7 @@ int identifier_hash_value(const char * string) {
     int t = 0;
 
 /*	while (*ptr) t = (t << 1) | *ptr++; */
-	while (*ptr) t = (t << 3) | ( (*ptr++) & 0x07 ); /* Mejor dispersion en el hashing */
+	while (*ptr) t = (t << 3) | ( (*ptr++) & 0x07 ); /* Improved hashing dispersion */
 
 	return (t & 63);
 }

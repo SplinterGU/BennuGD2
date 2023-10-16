@@ -33,9 +33,9 @@
 #include "bgdc.h"
 
 /* ----------------------------------------------------------------------- */
-/* Este modulo contiene las definiciones de constantes, globales y locales */
-/* predefinidos, asi como el codigo que los carga y define cada una de las */
-/* funciones del sistema (es llamado antes de empezar a compilar).         */
+/* This module contains the definitions of constants, predefined global    */
+/* and local variables, as well as the code that loads and defines each of */
+/* the system functions (it is called before starting the compilation).    */
 /* ----------------------------------------------------------------------- */
 
 static struct {

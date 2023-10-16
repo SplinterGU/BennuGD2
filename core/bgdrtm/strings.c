@@ -378,7 +378,7 @@ void string_discard( int64_t code ) {
 static int64_t string_getid() {
     int64_t n, nb, lim, ini;
 
-    /* Si tengo suficientes alocados, retorno el siguiente segun string_last_id */
+    /* If I have enough allocated, return the next one according to string_last_id */
     if ( string_last_id < string_allocated ) {
         if ( !bit_tst( string_bmp, string_last_id ) ) {
             bit_set( string_bmp, string_last_id );
@@ -386,14 +386,14 @@ static int64_t string_getid() {
         }
     }
 
-    /* Ya no tengo mas espacio, entonces busco alguno libre entre ~+64 desde el ultimo fijo y ~-64 del ultimo asignado */
+    /* No more space, so I look for a free one between ~+64 from the last fixed and ~-64 from the last assigned */
 
     ini = ( string_last_id < string_allocated ) ? ( string_last_id >> 6 ) : string_reserved;
     lim = ( string_allocated >> 6 );
 
     while ( 1 ) {
         for ( n = ini; n < lim; n++ ) {
-            if ( string_bmp[n] != ( uint64_t ) 0xFFFFFFFFFFFFFFFF ) { /* Aca hay 1 libre, busco cual es */
+            if ( string_bmp[n] != ( uint64_t ) 0xFFFFFFFFFFFFFFFF ) { /* Here, there's 1 free, I'll find which one it is */
                 for ( nb = 0; nb < 64; nb++ ) {
                     if ( !bit_tst( string_bmp + n, nb ) ) {
                         string_last_id = ( n << 6 ) + nb;
@@ -410,12 +410,12 @@ static int64_t string_getid() {
 
     string_last_id = string_allocated;
 
-    /* Incremento espacio, no habia libres */
+    /* Increment space, there were no free ones */
     string_alloc( BLOCK_INCR );
 
 //    assert( !bit_tst( string_bmp, string_last_id ) );
 
-    /* Devuelvo string_last_id e incremento en 1, ya que ahora tengo BLOCK_INCR mas que antes */
+    /* Return string_last_id and increment by 1, as now I have BLOCK_INCR more than before */
     bit_set( string_bmp, string_last_id );
     return string_last_id++;
 }
@@ -424,7 +424,6 @@ static int64_t string_getid() {
 /* FUNCTION : string_new                                                    */
 /****************************************************************************/
 /* Create a new string. It returns its ID. Note that it uses strdup()       */
-/* TODO: do something if no memory available                                */
 /****************************************************************************/
 
 int64_t string_new( const char * ptr ) {

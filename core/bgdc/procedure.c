@@ -38,9 +38,9 @@
 #include "bgdc.h"
 
 /* ---------------------------------------------------------------------- */
-/* Gestor de procesos y bloques de codigo. Este modulo contiene funciones */
-/* de utilidad para crear procesos y bloques de codigo asi como otras que */
-/* se emplean durante y después del compilado.                            */
+/* Process and Code Block Manager. This module contains utility functions */
+/* for creating processes and code blocks, as well as others used during  */
+/* and after compilation.                                                 */
 /* ---------------------------------------------------------------------- */
 
 PROCDEF * mainproc = 0;
@@ -51,6 +51,7 @@ PROCDEF ** procs = 0;
 int64_t procs_allocated = 0;
 
 int64_t procdef_getid() {
+    for ( int64_t i = 0; i <= procdef_maxid; i++ ) if ( !procs[i] ) return i;
     return ++procdef_maxid;
 }
 
@@ -66,10 +67,8 @@ PROCDEF * procdef_new( int64_t typeid, int64_t id ) {
     proc->pridata = segment_new();
     proc->privars = varspace_new();
 
-    /* (2006/11/19 23:15 GMT-03:00, Splinter - splintergu@gmail.com) */
     proc->pubdata = segment_new();
     proc->pubvars = varspace_new();
-    /* (2006/11/19 23:15 GMT-03:00, Splinter - splintergu@gmail.com) */
 
     proc->params            = -1;
     proc->defined           = 0;
@@ -123,7 +122,6 @@ void procdef_destroy (PROCDEF * proc) {
     varspace_destroy( proc->privars );
     segment_destroy( proc->pridata );
 
-    /* (2006/11/20 01:09 GMT-03:00, Splinter - splintergu@gmail.com) */
     varspace_destroy( proc->pubvars );
     segment_destroy( proc->pubdata );
 
@@ -136,10 +134,11 @@ void procdef_destroy (PROCDEF * proc) {
     procdef_count--;
 }
 
-
-/* Realiza acciones posteriores al compilado sobre el codigo:
- * - Convierte saltos de codigo de etiqueta a offset
- * - Convierte identificador de procesos en CALL o TYPE a typeid */
+/* ---------------------------------------------------------------------- */
+/* Performs post-compilation actions on the code:                         */
+/* - Converts label code jumps to offsets                                 */
+/* - Converts process identifiers to CALL or TYPE to typeid               */
+/* ---------------------------------------------------------------------- */
 
 void program_postprocess () {
     int n;

@@ -34,9 +34,9 @@
 #define MAX_SOURCES         4096
 #define MAX_MACRO_PARAMS    256
 
-/* Tokenizador */
+/* Tokenizer */
 
-/* Tipos de token */
+/* Token types */
 #define IDENTIFIER 1
 #define STRING     2
 #define NUMBER     3
@@ -77,7 +77,7 @@ extern int current_file;
 extern int n_files;
 extern unsigned char files[MAX_SOURCES][__MAX_PATH];
 
-/* Se exportan todos los token */
+/* All tokens are exported */
 extern struct _token token;
 extern struct _token token_prev;
 extern struct _token token_saved;

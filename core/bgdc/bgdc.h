@@ -60,7 +60,7 @@
 #include "xctype.h"
 
 /* ---------------------------------------------------------------------- */
-/* M�dulos generales de mantenimiento de datos                            */
+/* General data maintenance modules                                       */
 /* ---------------------------------------------------------------------- */
 
 #include "typedef.h"
@@ -69,13 +69,13 @@
 #include "xstrings.h"
 
 /* ---------------------------------------------------------------------- */
-/* Trucos de portabilidad                                                 */
+/* Portability tricks                                                     */
 /* ---------------------------------------------------------------------- */
 
 #include "arrange.h"
 
 /* ---------------------------------------------------------------------- */
-/* Compilador                                                             */
+/* Compiler                                                               */
 /* ---------------------------------------------------------------------- */
 
 #include "segment.h"
@@ -89,11 +89,13 @@ extern char * main_path;
 
 extern char * appexename;
 extern char * appexepath;
-extern char * appexefullpath;
+extern char * appexefullpth;
 
-extern int64_t autoinclude;     /* Incluye ficheros en el DCB automáticamente */
-extern int64_t imports[];       /* C�digos de cadena con nombres de imports */
-extern int64_t nimports;        /* N�mero de imports */
+/* System functions (undefined) */
+
+extern int64_t autoinclude;     /* Automatically includes files in the DCB */
+extern int64_t imports[];       /* Chain codes with import names */
+extern int64_t nimports;        /* Number of imports */
 extern int64_t libmode;
 
 extern char langinfo[64] ;  /* language setting */
@@ -102,7 +104,7 @@ extern int64_t no_include_this_file;
 
 extern int64_t debug;
 
-/* Funciones para guardar y cargar un fichero DCB */
+/* Functions for saving and loading a DCB file */
 
 #include "dcb.h"
 
@@ -110,7 +112,7 @@ extern void dcb_add_file(const char * filename);
 extern int  dcb_save(const char * filename, int options, const char * stubname);
 extern void dcb_settype(DCB_TYPEDEF * d, TYPEDEF * t);
 
-/* Funciones del sistema (no definidas) */
+/* System functions (undefined) */
 
 typedef struct _sysproc {
     int64_t  code;
@@ -136,7 +138,7 @@ extern void compile_error( const char *fmt, ... );
 
 extern void free_imports();
 
-/* Constantes */
+/* Constants */
 
 extern void core_init();
 

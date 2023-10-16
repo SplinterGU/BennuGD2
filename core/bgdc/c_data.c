@@ -39,8 +39,8 @@
 #include "xctype.h"
 
 /* ---------------------------------------------------------------------- */
-/* Este modulo contiene las funciones que compilan definiciones de datos: */
-/* declaraciones de variables e inicializacion de las mismas              */
+/* This module contains the functions that compile data definitions:      */
+/* variable declarations and their initialization.                        */
 /* ---------------------------------------------------------------------- */
 
 int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BASETYPE *t ) {
@@ -168,6 +168,7 @@ static BASETYPE get_basetype( VARSPACE * v ) {
     return type;
 }
 */
+
 /*
  *  FUNCTION : compile_struct_data
  *
@@ -239,7 +240,6 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub ) {
                 base = typedef_base( next_type );
 
                 /* Special case: array of structs */
-
                 if ( base == TYPE_STRUCT ) {
                     compile_struct_data( next_type.varspace, data, elements, 1 );
                 } else {
@@ -298,7 +298,6 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub ) {
             if ( position == n->count && size < 2 && sub ) break;
 
             /* A comma should be here */
-
             token_next();
             if ( token.type == IDENTIFIER && token.code == identifier_semicolon ) {
                 token_back();
@@ -369,22 +368,21 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         total_count, last_count = 0,
         base_offset = data->current,
         total_length, count,
-        unsigned_prefix = 0, signed_prefix = 0;
+        sign_prefix = 0;
     expresion_result res;
     BASETYPE basetype = TYPE_UNDEFINED;
-    TYPEDEF type, typeaux;
+    TYPEDEF type;
     segment * segm = NULL;
-    PROCDEF * proc = NULL;
+    PROCDEF * proc = NULL, *p;
 
     /* Backup vars */
-    BASETYPE basetypeb = TYPE_UNDEFINED;
-    TYPEDEF typeb;
-    segment * segmb = NULL;
+    BASETYPE basetype_last = TYPE_UNDEFINED;
+    TYPEDEF type_last;
+    segment * segm_last = NULL;
 
     /* Initialize some stuffs */
-
     type = typedef_new( TYPE_UNDEFINED );
-    typeb = typedef_new( TYPE_UNDEFINED );
+    type_last = typedef_new( TYPE_UNDEFINED );
 
     for (;;) {
         if ( n->reserved == n->count ) varspace_alloc( n, 16 );
@@ -404,17 +402,16 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         token_next();
         tok_pos tokp = token_pos();
 
-        /* Se salta comas y puntos y coma */
-
+        /* It skips commas and semicolons */
         if ( token.type == NOTOKEN ) break;
 
         if ( token.type != IDENTIFIER ) compile_error( MSG_INCOMP_TYPE );
 
         if ( token.code == identifier_comma ) {
-            basetype = basetypeb;
-            type = typeb;
+            basetype = basetype_last;
+            type = type_last;
 
-            segm = segmb;
+            segm = segm_last;
 
             continue;
         } else if ( token.code == identifier_semicolon ) {
@@ -423,8 +420,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             basetype = TYPE_UNDEFINED;
             set_type( &type, TYPE_UNDEFINED );
 
-            basetypeb = basetype;
-            typeb = type;
+            basetype_last = basetype;
+            type_last = type;
 
             segm = NULL;
             proc = NULL;
@@ -441,84 +438,49 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             break;
         }
 
-        /* "Unsigned" */
-
+        /* "Sign" */
         if ( token.code == identifier_unsigned ) {
-            unsigned_prefix = 1;
+            sign_prefix = 1;
             token_next();
         } else if ( token.code == identifier_signed ) {
-            signed_prefix = 1;
+            sign_prefix = -1;
             token_next();
         }
 
-        /* Tipos de datos básicos */
-
-        if ( token.code == identifier_qword ) {
-            basetype = signed_prefix ? TYPE_INT : TYPE_QWORD;
-            signed_prefix = unsigned_prefix = 0;
+        if ( identifier_is_basic_type(token.code) ) {
+            basetype = typedef_basic_type_basetype_by_name( token.code, sign_prefix );
+            if ( basetype == TYPE_UNDEFINED ) compile_error( MSG_INVALID_TYPE );
             token_next();
-        } else if ( token.code == identifier_dword ) {
-            basetype = signed_prefix ? TYPE_INT32 : TYPE_DWORD;
-            signed_prefix = unsigned_prefix = 0;
-            token_next();
-        } else if ( token.code == identifier_word ) {
-            basetype = signed_prefix ? TYPE_SHORT : TYPE_WORD;
-            signed_prefix = unsigned_prefix = 0;
-            token_next();
-        } else if ( token.code == identifier_byte ) {
-            basetype = signed_prefix ? TYPE_SBYTE : TYPE_BYTE;
-            signed_prefix = unsigned_prefix = 0;
-            token_next();
-        } else if ( token.code == identifier_int64 ) {
-            basetype = unsigned_prefix ? TYPE_QWORD : TYPE_INT;
-            signed_prefix = unsigned_prefix = 0;
-            token_next();
-        } else if ( token.code == identifier_int32 ) {
-            basetype = unsigned_prefix ? TYPE_DWORD : TYPE_INT32;
-            signed_prefix = unsigned_prefix = 0;
-            token_next();
-        } else if ( token.code == identifier_short ) {
-            basetype = unsigned_prefix ? TYPE_WORD : TYPE_SHORT;
-            signed_prefix = unsigned_prefix = 0;
-            token_next();
-        } else if ( token.code == identifier_char ) {
-            basetype = TYPE_CHAR;
-            token_next();
-        } else if ( token.code == identifier_double ) {
-            basetype = TYPE_DOUBLE;
-            token_next();
-        } else if ( token.code == identifier_float ) {
-            basetype = TYPE_FLOAT;
-            token_next();
-        } else if ( token.code == identifier_string ) {
-            basetype = TYPE_STRING;
-            token_next();
-        } else {
-            if ( !proc && ( proc = procdef_search( token.code ) ) ) { /* Variables tipo proceso, Splinter */
+            sign_prefix = 0;
+        }
+        else {
+            if ( ( p = procdef_search( token.code ) ) ) { /* Process-type variables */
+                proc = p;
                 basetype = TYPE_INT;
                 token_next();
-            } else {
-                if ( token.type == IDENTIFIER && token.code >= reserved_words && !segment_by_name( token.code ) ) {
-                    int64_t code = token.code;
-                    token_next();
-                    if ( token.type == IDENTIFIER && token.code >= reserved_words ) {
-                        proc = procdef_new( procdef_getid(), code );
-                        basetype = TYPE_INT;
-                    } else {
-                        token_back();
-                    }
+            }
+            else
+            if ( token.type == IDENTIFIER && token.code >= reserved_words && !segment_by_name( token.code ) ) {
+                int64_t code = token.code;
+                token_next();
+                if ( token.type == IDENTIFIER && token.code >= reserved_words ) {
+                    proc = procdef_new( procdef_getid(), code );
+                    basetype = TYPE_INT;
+                } else {
+                    token_back();
                 }
             }
         }
 
-        if ( signed_prefix || unsigned_prefix ) compile_error( MSG_INVALID_TYPE );
-        if ( basetype != TYPE_STRUCT ) type = typedef_new( basetype );
-
-        /* Tipos de datos definidos por el usuario */
-        if ( basetype != TYPE_STRUCT && ( segm = segment_by_name( token.code ) ) ) {
-            basetype = TYPE_STRUCT;
-            type = * typedef_by_name( token.code );
-            token_next();
+        if ( basetype != TYPE_STRUCT ) {
+            /* User-defined data type */
+            if ( ( segm = segment_by_name( token.code ) ) ) {
+                basetype = TYPE_STRUCT;
+                type = *typedef_by_name( token.code );
+                token_next();
+            } else {
+                type = typedef_new( basetype );
+            }
         }
 
         if ( block_without_begin ) {
@@ -528,16 +490,14 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
         }
 
-//        if ( !block_without_begin ) {
-            tok_pos tokp1 = token_pos();
-            token_next();
-            if ( token.code == identifier_leftp ) { // process without type
-                token_set_pos( tokp );
-                compile_process();
-                break;
-            }
-            token_set_pos( tokp1 );
-//        }
+        tok_pos tokp1 = token_pos();
+        token_next();
+        if ( token.code == identifier_leftp ) { // process without type
+            token_set_pos( tokp );
+            compile_process();
+            break;
+        }
+        token_set_pos( tokp1 );
 
         /* Variable type required */
         if ( basetype == TYPE_UNDEFINED && token.code != identifier_struct ) compile_error( MSG_DATA_TYPE_REQUIRED ); // type = typedef_new( TYPE_INT ); // Data Type Required
@@ -550,11 +510,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             segm = 0;
         }
 
-        basetypeb = basetype;
-        typeb = type;
-        segmb = segm;
+        basetype_last = basetype;
+        type_last = type;
+        segm_last = segm;
 
-        /* Tipos de datos derivados */
+        /* Derived data types */
         while ( token.type == IDENTIFIER && ( token.code == identifier_pointer || token.code == identifier_multiply ) ) {
             type = typedef_enlarge( type );
             type.chunk[0].type = TYPE_POINTER;
@@ -563,8 +523,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             token_next();
         }
 
-        /* Nombre del dato */
-
+        /* Data name */
         if ( token.type != IDENTIFIER ) compile_error( MSG_IDENTIFIER_EXP );
 
         if ( !level ) {
@@ -589,8 +548,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 for (;;) {
                     token_next();
 
-                    /* Se salta todo hasta el puntos y coma o en el end o la coma si no hay asignacion */
-
+                    /* It skips everything until the semicolon or the end, or the comma if there is no assignment */
                     if ( token.type == NOTOKEN ) break;
 
                     if ( token.type == IDENTIFIER ) {
@@ -610,11 +568,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 compile_error( MSG_VARIABLE_REDECLARE );
         }
 
-        /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
         if ( collision )
             for ( i = 0; collision[i];i++ )
                 if ( varspace_search( collision[i], token.code ) ) compile_error( MSG_VARIABLE_REDECLARE );
-        /* (2006/11/19 19:34 GMT-03:00, Splinter - splintergu@gmail.com) */
 
         if ( constants_search( token.code ) ) compile_error( MSG_CONSTANT_REDECLARED_AS_VARIABLE );
 
@@ -627,7 +583,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
 
         token_next();
 
-        /* Compila una estructura no predefinida */
+        /* Compiles a non-predefined structure */
 
         if ( !segm && typedef_is_struct( type ) ) {
             VARSPACE * members;
@@ -647,10 +603,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
             token_back();
 
-            /* Da la vuelta a los indices [10][5] -> [5][10] */
-
+            /* Reverses the indices [10][5] -> [5][10] */
             for ( i = 0 ; i < type.depth ; i++ ) if ( type.chunk[i].type != TYPE_ARRAY ) break;
             i--;
+
+            TYPEDEF typeaux;
             for ( j = 0 ; j <= i ; j++ ) typeaux.chunk[ j ] = type.chunk[ i - j ];
             for ( j = 0 ; j <= i ; j++ ) type.chunk[ j ]    = typeaux.chunk[ j ];
 
@@ -709,10 +666,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 token_next();
             }
 
-            /* Da la vuelta a los indices [10][5] -> [5][10] */
-
+            /* Reverses the indices [10][5] -> [5][10] */
             for ( i = 0 ; i < type.depth ; i++ ) if ( type.chunk[i].type != TYPE_ARRAY ) break;
             i--;
+
+            TYPEDEF typeaux;
             for ( j = 0 ; j <= i ; j++ ) typeaux.chunk[ j ] = type.chunk[ i - j ];
             for ( j = 0 ; j <= i ; j++ ) type.chunk[ j ]    = typeaux.chunk[ j ];
 
@@ -723,8 +681,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 data->current = n->vars[n->count].offset;
                 compile_struct_data( type.varspace, data, typedef_count( type ), 0 );
 
-                if ( !type.chunk[0].count ) type.chunk[0].count = ( data->current - i ) / typedef_size( typeb );
-                else                        data->current = i; /* Solo si ya habia sido alocada */
+                if ( !type.chunk[0].count ) type.chunk[0].count = ( data->current - i ) / typedef_size( type_last );
+                else                        data->current = i; /* Only if it had already been allocated */
 
             } else if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
                 if ( inline_assignation_disabled ) compile_error( MSG_INLINE_ASSIGNATION_ERROR );
@@ -766,7 +724,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 }
                 token_back();
             }
-        } else if ( segm && token.type == IDENTIFIER && token.code == identifier_equal ) { /* Compila una asignaci�n de valores por defecto */
+        } else if ( segm && token.type == IDENTIFIER && token.code == identifier_equal ) { /* Compiles an assignment of default values */
             if ( inline_assignation_disabled ) compile_error( MSG_INLINE_ASSIGNATION_ERROR );
             segment_add_from( data, segm );
             i = data->current;
@@ -795,7 +753,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
                 segment_add_as( data, res.value, basetype );
             }
-        } else if ( !segm ) { /* Asigna valores por defecto (0) */
+        } else if ( !segm ) { /* Assigns default values (0) */
             if ( basetype == TYPE_UNDEFINED ) {
                 basetype = TYPE_INT;
                 set_type( &type, basetype );
@@ -815,7 +773,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         n->size += typedef_size( type );
         n->vars[n->count].type = type;
 
-        /* Variables tipo proceso, asigno varspace al tipo. Splinter */
+        /* Process-type variables, assign varspace to the type */
         if ( proc ) n->vars[n->count].type.varspace = proc->pubvars;
 
         n->count++;

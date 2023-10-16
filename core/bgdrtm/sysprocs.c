@@ -240,7 +240,7 @@ static void get_var_info( DLVARFIXUP * varfixup, DCB_VAR * basevar, int nvars, c
     get_token();
     if ( token.type != IDENTIFIER ) return; /* Not a valid expression */
 
-    /* Busca variable */
+    /* Search for a variable */
     for ( n = 0; n < nvars; n++ ) {
         if ( basevar[n].ID == token.code ) {
             rvar  = basevar[n];
@@ -250,7 +250,7 @@ static void get_var_info( DLVARFIXUP * varfixup, DCB_VAR * basevar, int nvars, c
         }
     }
 
-    if ( n == nvars ) return; /* Error, no es variable */
+    if ( n == nvars ) return; /* Error, it's not a variable */
 
     for (;;) {
         if ( token.name[0] == '.' ) {
@@ -317,7 +317,7 @@ int64_t get_var_size( char * var, DCB_VAR * basevar, int nvars ) {
     get_token();
     if ( token.type != IDENTIFIER ) return -1; /* Not a valid expression */
 
-    /* Busca variable */
+    /* Search for a variable */
     for ( n = 0; n < nvars; n++ ) {
         if ( basevar[n].ID == token.code ) {
             rvar  = basevar[n];
@@ -326,7 +326,7 @@ int64_t get_var_size( char * var, DCB_VAR * basevar, int nvars ) {
         }
     }
 
-    if ( n == nvars ) return -1; /* Error, no es variable */
+    if ( n == nvars ) return -1; /* Error, it's not a variable */
 
     for (;;) {
         if ( token.name[0] == '.' ) {

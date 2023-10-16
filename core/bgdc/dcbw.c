@@ -45,7 +45,7 @@
 
 #define FREEM(m)    free(m); (m)=NULL;
 
-/* dirty declare external vars */
+/* Dirty declare external vars */
 
 extern char * string_mem;
 extern int64_t * string_offset;
@@ -238,7 +238,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
 
     /* We can asume that dcb.varspace is already filled */
 
-    /* Splinter, fix to save neccessary info only */
+    /* Save neccessary info only */
     if ( !( options & DCB_DEBUG ) ) n_files = 0;
 
     /* 1. Fill header */
@@ -375,7 +375,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
 
     dcb.data.OSourceFiles   = offset;                                                       ARRANGE_QWORD( &dcb.data.OSourceFiles );
 
-    /* sources */
+    /* Sources */
     for ( n = 0; n < n_files; n++ )
         offset += sizeof( uint64_t ) + strlen( files[n] ) + 1;
 
@@ -407,27 +407,27 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
         dcb.proc[n].data.OCode       = offset; offset += procs[n]->code.current * 8;                            ARRANGE_QWORD( &dcb.proc[n].data.OCode );
     }
 
-    /* Archivos incluidos */
+    /* Included files */
     OFilesTab = offset;
     dcb.data.OFilesTab   = OFilesTab;                                                       ARRANGE_QWORD( &dcb.data.OFilesTab );
 
     /* FullPathName */
     dcb_fullname = calloc( dcb_filecount, sizeof( char * ) );
 
-    /* Cada uno de los archivos incluidos */
+    /* Each of the included files */
     for ( n = 0; n < dcb_filecount; n++ ) {
-        dcb_fullname[n] = (char *)dcb.file[n].Name;                       /* Guardo el Name, porque lo destruyo en SName (es un union) */
-        dcb.file[n].SName = strlen( (const char *)dcb.file[n].Name ) + 1; /* Todavia no hago el ARRANGE de este dato, lo hago luego cuando lo voy a grabar */
+        dcb_fullname[n] = (char *)dcb.file[n].Name;                       /* I save the Name because I destroy it in SName (it's a union) */
+        dcb.file[n].SName = strlen( (const char *)dcb.file[n].Name ) + 1; /* I haven't done the ARRANGE for this data yet, I do it later when I'm going to save it */
         offset += sizeof( DCB_FILE ) + dcb.file[n].SName;
     }
 
-    /* Data de los archivos incluidos */
+    /* Data from the included files */
     for ( n = 0; n < dcb_filecount; n++ ) {
         dcb.file[n].OFile = offset;                                                         ARRANGE_QWORD( &dcb.file[n].OFile );
         offset += dcb.file[n].SFile;                                                        ARRANGE_QWORD( &dcb.file[n].SFile );
     }
 
-    /* 5. Guardar todo en disco ordenadamente */
+    /* 5. Save everything to disk in an orderly manner */
 
     file_write( fp, &dcb, sizeof( DCB_HEADER_DATA ) );
 
@@ -435,12 +435,12 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
         file_write( fp, &dcb.proc[n], sizeof( DCB_PROC_DATA ) );
 
     file_writeUint64A( fp, (uint64_t *)string_offset, string_count );
-    file_write( fp, dcb.glovar, sizeof( DCB_VAR ) * global.count );         /* Ya procesado el byteorder */
-    file_write( fp, dcb.locvar, sizeof( DCB_VAR ) * local.count );          /* Ya procesado el byteorder */
+    file_write( fp, dcb.glovar, sizeof( DCB_VAR ) * global.count );         /* Byte order processed */
+    file_write( fp, dcb.locvar, sizeof( DCB_VAR ) * local.count );          /* Byte order processed */
     file_writeUint64A( fp, (uint64_t *)local.stringvars, local.stringvar_count );
-    file_write( fp, dcb.id, sizeof( DCB_ID ) * identifier_count );          /* Ya procesado el byteorder */
-    file_write( fp, dcb.varspace, sizeof( DCB_VARSPACE ) * dcb_varspaces ); /* Ya procesado el byteorder */
-    file_write( fp, string_mem, string_used );                              /* No necesita byteorder */
+    file_write( fp, dcb.id, sizeof( DCB_ID ) * identifier_count );          /* Byte order processed */
+    file_write( fp, dcb.varspace, sizeof( DCB_VARSPACE ) * dcb_varspaces ); /* Byte order processed */
+    file_write( fp, string_mem, string_used );                              /* Byte order processing not required */
     file_writeUint64A( fp, (uint64_t *)imports, nimports );
     file_write( fp, globaldata->bytes, globaldata->current );   /* ****** */
     file_write( fp, localdata->bytes, localdata->current );     /* ****** */
@@ -480,15 +480,15 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
     }
 
     for ( n = 0; n < procdef_count; n++ ) {
-        file_write( fp, dcb.proc[n].sentence, sizeof( DCB_SENTENCE ) * procs[n]->sentence_count );  /* Ya procesado el byteorder */
+        file_write( fp, dcb.proc[n].sentence, sizeof( DCB_SENTENCE ) * procs[n]->sentence_count );  /* Byte order processed */
 
-        /* Privadas */
-        file_write( fp, dcb.proc[n].privar, sizeof( DCB_VAR ) * procs[n]->privars->count );         /* Ya procesado el byteorder */
+        /* Privates */
+        file_write( fp, dcb.proc[n].privar, sizeof( DCB_VAR ) * procs[n]->privars->count );         /* Byte order processed */
         file_writeUint64A( fp, (uint64_t *)procs[n]->privars->stringvars, procs[n]->privars->stringvar_count );
         file_write( fp, procs[n]->pridata->bytes, procs[n]->pridata->current );                     /* ****** */
 
-        /* Publicas */
-        file_write( fp, dcb.proc[n].pubvar, sizeof( DCB_VAR ) * procs[n]->pubvars->count );         /* Ya procesado el byteorder */
+        /* Publics */
+        file_write( fp, dcb.proc[n].pubvar, sizeof( DCB_VAR ) * procs[n]->pubvars->count );         /* Byte order processed */
         file_writeUint64A( fp, (uint64_t *)procs[n]->pubvars->stringvars, procs[n]->pubvars->stringvar_count );
         file_write( fp, procs[n]->pubdata->bytes, procs[n]->pubdata->current );                     /* ****** */
 
@@ -496,7 +496,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
         file_writeUint64A( fp, (uint64_t *)procs[n]->code.data, procs[n]->code.current );
     }
 
-    /* Cada uno de los archivos incluidos */
+    /* Each of the included files */
     for ( n = 0; n < dcb_filecount; n++ ) {
         int64_t siz = dcb.file[n].SName;
         ARRANGE_QWORD( &dcb.file[n].SName );
@@ -526,7 +526,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
     if ( stubname != NULL ) {
         dcb_signature dcb_signature;
 
-        /* Voy al final del archivo */
+        /* I go to the end of the file */
 
         strcpy( dcb_signature.magic, DCB_STUB_MAGIC );
         dcb_signature.dcb_offset = ( int64_t )stubsize;
@@ -538,7 +538,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
 
     file_close( fp );
 
-    /* 6. Mostrar estadísticas */
+    /* 6. Show statistics */
 
     printf( "\nFile %s compiled (%ld bytes):\n\n", filename, offset );
     printf( "  Processes              %16" PRId64 "\n", procdef_count );
@@ -865,7 +865,7 @@ int dcb_load_lib( const char * filename ) {
         FREEM( dcb.imports );
     }
 
-    /* Recupero tabla de fixup de sysprocs */
+    /* Retrieve the fixup table for sysprocs */
 
     sysproc_code_ref = calloc( dcb.data.NSysProcsCodes, sizeof( DCB_SYSPROC_CODE2 ) ) ;
     file_seek( fp, dcb.data.OSysProcsCodes, SEEK_SET ) ;
@@ -916,7 +916,7 @@ int dcb_load_lib( const char * filename ) {
     glodata = ( void * ) calloc( dcb.data.SGlobal, 1 ) ;
     locdata = ( void * ) calloc( dcb.data.SLocal, 1 ) ;
 
-    /* Recupera las zonas de datos globales */
+    /* Retrieve the global data areas */
 
     file_seek( fp, dcb.data.OGlobal, SEEK_SET ) ;
     file_read( fp, glodata, dcb.data.SGlobal ) ;        /* **** */
@@ -1105,8 +1105,8 @@ int dcb_load_lib( const char * filename ) {
     FREEM( glovaroffs );
     FREEM( locvaroffs );
 
-    /* Recupera los ficheros incluídos */
-/* N/A
+#if 0
+    /* Retrieve the included files */
     if ( dcb.data.NFiles )
     {
         DCB_FILE dcbfile;
@@ -1126,7 +1126,8 @@ int dcb_load_lib( const char * filename ) {
             file_add_xfile( fp, NULL, dcbfile.OFile, fname, dcbfile.SFile ) ;
         }
     }
-*/
+#endif
+
     file_close( fp );
 
     return 1 ;

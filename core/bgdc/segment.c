@@ -71,7 +71,7 @@ segment * segment_new() {
 	s->current = 0;
 	s->reserved = 256;
 
-	s->bytes = calloc(s->reserved, sizeof(char)); /* Tama�o en bytes */
+	s->bytes = calloc(s->reserved, sizeof(char)); /* Size in bytes */
 	if (!s->bytes) compile_error("segment_new: out of memory\n");
 
 	segment_register (s);
@@ -91,7 +91,7 @@ segment * segment_duplicate(segment * b) {
 	s->current = b->current;
 	s->reserved = b->reserved;
 
-	s->bytes = calloc(s->reserved, sizeof(char)) ; /* Tama�o en bytes */
+	s->bytes = calloc(s->reserved, sizeof(char)) ; /* Size in bytes */
 	if (!s->bytes) {
         free( s );  /* Avoid scan-build warning */
         compile_error("segment_new: out of memory\n");
