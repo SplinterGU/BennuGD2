@@ -35,12 +35,9 @@
 
 #include "files_st.h"
 
-/* Funciones de acceso a ficheros */
-/* ------------------------------ */
-
-/* Ahora mismo son casi wrappers de stdio.h, pero en el futuro
- * el tipo "file" puede ser una estructura y las funciones,
- * ofrecer soporte transparente para ficheros PAK, etc. */
+/* ---------------------------------------------------------------------- */
+/* File Access Functions                                                  */
+/* ---------------------------------------------------------------------- */
 
 extern file * file_open        (const char * filename, char * mode) ;
 

@@ -46,7 +46,6 @@
     "   -l lang         Specify locale settings\n" \
     "   -s stub         Generate a stubbed executable from the given stub\n" \
     "   -g              Stores debugging information at the DCB\n" \
-/*    "   -c              File uses the MS-DOS character set\n" */\
     "   -D macro=text   Set a macro\n" \
     "   -p|--pedantic   Don't use automatic declare\n" \
     "   --libmode       Build a library\n" \

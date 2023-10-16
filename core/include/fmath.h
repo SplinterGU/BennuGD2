@@ -34,7 +34,9 @@
 
 #include "bgdcore.h"
 
-/* Rutinas matemáticas de punto fijo, basadas en Allegro */
+/* ---------------------------------------------------------------------- */
+/* Fixed-point mathematical routines based on Allegro.                    */
+/* ---------------------------------------------------------------------- */
 
 #ifndef M_PI
 #define M_PI        3.14159265358979323846  /* PI */

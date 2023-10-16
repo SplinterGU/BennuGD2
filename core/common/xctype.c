@@ -34,8 +34,6 @@
 #include "xctype.h"
 #include "fmath.h"
 
-// int dos_chars = 0;
-
 /* Character conversion table from cp850 (MS-DOS) to iso8859-1 (isolatin-1/Windows) */
 
 unsigned char cp850_to_iso8859_1[256] = {
@@ -88,8 +86,6 @@ unsigned char c_lower[256];
 int  c_type_initialized = 0;
 
 unsigned char convert( unsigned char c ) {
-//    return utf8_to_iso8859_1(c);
-//    return dos_chars ? cp850_to_iso8859_1[c] : c;
     return cp850_to_iso8859_1[c];
 }
 
@@ -136,9 +132,6 @@ static void set_c_range( int first, int last, int type ) {
 }
 
 static void set_c_from( const unsigned char * chars, int type ) {
-//    if ( dos_chars )  while ( *chars ) c_type[cp850_to_iso8859_1[*chars++]] |= type;
-//    else              
-//    while ( *chars ) c_type[*chars++] |= type;
     unsigned char * cc = malloc( strlen( chars ) ),
                   * ccp = cc;
     utf8_to_iso8859_1( ( unsigned char * ) chars, strlen(chars), cc, strlen(chars) );
@@ -152,9 +145,6 @@ static void set_c_as( int prev_type, int type ) {
 }
 
 static void set_c_upper( const unsigned char * from, const unsigned char * to ) {
-//    if ( dos_chars )  while ( *from ) c_upper[cp850_to_iso8859_1[*from++]] = cp850_to_iso8859_1[*to++];
-//    else              
-//    while ( *from ) c_upper[*from++] = *to++;
     unsigned char * f = malloc( strlen( from ) + 1 ),
                   * t = malloc( strlen( to ) + 1 ),
                   * fp = f, *tp = t;
@@ -168,9 +158,6 @@ static void set_c_upper( const unsigned char * from, const unsigned char * to ) 
 }
 
 static void set_c_lower( const unsigned char * from, const unsigned char * to ) {
-//    if ( dos_chars )  while ( *from ) c_lower[cp850_to_iso8859_1[*from++]] = cp850_to_iso8859_1[*to++];
-//    else              
-//    while ( *from ) c_lower[*from++] = *to++;
     unsigned char * f = malloc( strlen( from ) + 1 ),
                   * t = malloc( strlen( to ) + 1 ),
                   * fp = f, *tp = t;
@@ -189,8 +176,6 @@ void init_c_type()
 
     memset ( c_type, 0, sizeof( c_type ) );
 
-//    if ( dos_chars ) for ( c = 0; c < 256; c++ ) c_lower[c] = c_upper[c] = cp850_to_iso8859_1[c];
-//    else             
     for ( c = 0; c < 256; c++ ) c_lower[c] = c_upper[c] = c;
 
     set_c_upper  ( ( const unsigned char * )"abcdefghijklmnopqrstuvwxyz",

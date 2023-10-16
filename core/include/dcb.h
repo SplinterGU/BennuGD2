@@ -156,9 +156,9 @@ typedef struct {
     uint64_t    OErrorCode;
 } __PACKED DCB_PROC_DATA;
 
-/* Cabecera de cada proceso */
+/* Header of Each Process */
 typedef struct {
-    DCB_PROC_DATA   data; /* Estructura que se carga desde el fichero */
+    DCB_PROC_DATA   data; /* Structure loaded from the file */
 
     DCB_SENTENCE    * sentence;
 
@@ -174,7 +174,7 @@ typedef struct {
 } __PACKED DCB_LABEL;
 */
 
-/* Cabecera general del fichero */
+/* General Header of the File */
 
 typedef struct {
     uint8_t     Header[8]; /* "DCB" */
@@ -195,7 +195,7 @@ typedef struct {
 
     uint64_t    NImports;
     uint64_t    NSourceFiles;
-    uint64_t    NSysProcsCodes; /* Para el fixup de los SYSPROCS */
+    uint64_t    NSysProcsCodes; /* For the fixup of SYSPROCS */
     uint64_t    __reserved1[2];
 
     uint64_t    OProcsTab;
@@ -211,13 +211,13 @@ typedef struct {
     uint64_t    OFilesTab;
     uint64_t    OImports;
     uint64_t    OSourceFiles;
-    uint64_t    OSysProcsCodes; /* Para el fixup de los SYSPROCS */
+    uint64_t    OSysProcsCodes; /* For the fixup of SYSPROCS */
     uint64_t    __reserved2[2];
 } __PACKED DCB_HEADER_DATA;
 
-/* Cabecera general del fichero */
+/* General Header of the File */
 typedef struct {
-    DCB_HEADER_DATA data;   /* Estructura que se carga desde el fichero */
+    DCB_HEADER_DATA data;   /* Structure loaded from the file */
 
     DCB_ID          * id;
     DCB_VAR         * glovar;

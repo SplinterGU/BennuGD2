@@ -26,17 +26,17 @@
  *
  */
 
-/* ------------------------------------------ */
-/* Offsets de los datos globales predefinidos */
-/* ------------------------------------------ */
+/* ---------------------------------------------------------------------- */
+/* Offsets for predefined global data                                     */
+/* ---------------------------------------------------------------------- */
 
 #define ARGC                    0
-#define ARGV_TABLE              ARGC                    + 8     /* 32+1 cadenas */
+#define ARGV_TABLE              ARGC                    + 8     /* 32+1 strings */
 #define OS_ID                   ARGV_TABLE              + 33*8
 
-/* ----------------------------------------- */
-/* Offsets de los datos locales predefinidos */
-/* ----------------------------------------- */
+/* ---------------------------------------------------------------------- */
+/* Offsets for predefined local data                                      */
+/* ---------------------------------------------------------------------- */
 
 #define PROCESS_ID              0
 #define PROCESS_TYPE            PROCESS_ID          + 8

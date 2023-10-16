@@ -31,12 +31,9 @@
 
 #include <stdio.h>
 
-/* Funciones de acceso a ficheros */
-/* ------------------------------ */
-
-/* Ahora mismo son casi wrappers de stdio.h, pero en el futuro
- * el tipo "file" puede ser una estructura y las funciones,
- * ofrecer soporte transparente para ficheros PAK, etc. */
+/* ---------------------------------------------------------------------- */
+/* File Access Functions                                                  */
+/* ---------------------------------------------------------------------- */
 
 #define F_XFILE  1
 #define F_FILE   2
@@ -73,7 +70,6 @@
 #define PATH_CHAR_ISEP '\\'
 #define PATH_SLASH
 #endif
-
 
 typedef struct {
     int     type;

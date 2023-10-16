@@ -232,8 +232,6 @@ int main( int argc, char *argv[] ) {
                     break;
                 }
 
-//                if ( argv[i][j] == 'c' ) dos_chars = 1;
-
                 if ( argv[i][j] == 'a' ) autoinclude = 1;
 
                 if ( argv[i][j] == 'g' ) dcb_options |= DCB_DEBUG;

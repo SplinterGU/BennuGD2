@@ -31,7 +31,6 @@
 
 #include <xctype_st.h>
 
-extern int dos_chars;		   /* 1 = Código fuente en caracteres MS-DOS */
 extern char c_type[256];
 extern unsigned char c_upper[256];
 extern unsigned char c_lower[256];

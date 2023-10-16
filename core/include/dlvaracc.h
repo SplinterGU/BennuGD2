@@ -72,7 +72,8 @@
 #undef GLODOUBLE
 
 /* --------------------------------------------------------------------------- */
-/* Macros para acceder a datos locales de una instancia */
+/* Macros for accessing local data of an instance                              */
+/* --------------------------------------------------------------------------- */
 
 #define LOCEXISTS(m,a)    (m##_locals_fixup[a].size != -1)
 #define GLOEXISTS(m,a)    (m##_globals_fixup[a].data_offset)

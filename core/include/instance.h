@@ -33,8 +33,10 @@
 #include <instance_st.h>
 #include "i_procdef_st.h"
 
-/* Instancias. Una instancia se crea a partir de un proceso, pero en
- * realidad es independiente del proceso original */
+/* ---------------------------------------------------------------------- */
+/* Instances. An instance is created from a process, but in reality,      */
+/* it is independent of the original process.                             */
+/* ---------------------------------------------------------------------- */
 
 #ifdef __BGDRTM__
 extern void * globaldata ;
@@ -67,7 +69,7 @@ extern void instance_dirty( INSTANCE * i ) ;
 
 extern void instance_reset_iterator_by_priority() ;
 
-/* Las siguientes funciones son el punto de entrada del intérprete */
+/* The following functions are the entry points of the interpreter. */
 
 extern int64_t instance_go( INSTANCE * r ) ;
 extern int64_t instance_go_all() ;
