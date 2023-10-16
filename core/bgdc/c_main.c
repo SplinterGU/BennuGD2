@@ -863,6 +863,8 @@ void compile_process() {
 
     token_next();
 
+    if ( !is_declare && token.type == IDENTIFIER && token.code == identifier_semicolon ) token_next();
+
     int wait_for_end = 0;
 
     /* Compile LOCAL/PRIVATE/PUBLIC sections on process/function.
@@ -899,9 +901,9 @@ void compile_process() {
 
         compile_block( proc );
 
-        if ( token.type == IDENTIFIER && token.code == identifier_else ) compile_error( MSG_ELSE_WOUT_IF );
+        if ( token.code == identifier_else ) compile_error( MSG_ELSE_WOUT_IF );
         
-        if ( token.type != IDENTIFIER || token.code != identifier_end ) compile_error( MSG_NO_END );
+        if ( token.code != identifier_end ) compile_error( MSG_NO_END );
         
         codeblock_add( &proc->code, MN_END, 0 );
     } else {

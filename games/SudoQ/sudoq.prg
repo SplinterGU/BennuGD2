@@ -13,8 +13,8 @@ import "libmod_input";
 import "libmod_misc";
 import "libmod_sound";
 
-declare PROCESS cuadrado(double x, y, int graph,numero); end
-declare PROCESS boton(double x,y, int graph); end
+declare PROCESS cuadrado(double x, y, int graph,numero);
+declare PROCESS boton(double x,y, int graph);
 
 GLOBAL
 
@@ -255,8 +255,7 @@ BEGIN
 end
 
 // fondos del programa
-PROCESS skins();
-
+PROCESS skins()
 PRIVATE 
 	int fundido;
 	
@@ -279,8 +278,7 @@ BEGIN
 end
 
 // ALGORITMO SUDOKU
-PROCESS sudoku_aleatorio(tipo);
-
+PROCESS sudoku_aleatorio(tipo)
 PRIVATE
 	int rondas;
 	int contador;
@@ -1118,9 +1116,7 @@ BEGIN
 		
 		// say("borrados: "+borrados);
 	end		
-	
-	
-	
+
 	pinta_tablero();
 
 	write_var(0,70,211,4, hora);
@@ -1137,8 +1133,7 @@ BEGIN
 end
 
 // ESTO GENERA *SOLO EL TABLERO ALEATORIO con todos los numeros y asigna a la tabla que guardara el resultado
-PROCESS coloca();
-
+PROCESS coloca()
 PRIVATE
 	int contador;
 	int contadorx=9; // es el numero que se va a poner en la casilla , siempre los pone de 9 hasta 1
@@ -1279,8 +1274,7 @@ BEGIN
 end
 
 // PINTA RESULTADO
-PROCESS pinta_tablero();
-
+PROCESS pinta_tablero()
 PRIVATE 
 	int printer; 
 	int x1; 
@@ -1338,8 +1332,7 @@ BEGIN
 end
 
 // RECURSOS GRAFICOS , ENTORNO
-PROCESS cuadrado(double x, double y, int graph,numero);
-
+PROCESS cuadrado(double x, double y, int graph,numero)
 PRIVATE 
 	int alterna=1; 
 	int estado; 
@@ -1445,8 +1438,7 @@ BEGIN
 	end 
 end
 
-PROCESS boton(double x,y, int graph);
-
+PROCESS boton(double x,y, int graph)
 BEGIN 
 	file=graficos;  
 	z=graph;
@@ -1563,8 +1555,7 @@ BEGIN
 	end 
 end
 
-PROCESS raton(dato);
-
+PROCESS raton(dato)
 PRIVATE 
 	int tecla;
 	
@@ -1619,7 +1610,7 @@ BEGIN
 	end 
 end
 
-PROCESS pixel();
+PROCESS pixel()
 BEGIN 
 	file=graficos; z=-500; graph=6;
 	priority=-100;
@@ -1638,7 +1629,7 @@ BEGIN
 	end 
 end
 
-PROCESS pon_pantalla(file,graph);
+PROCESS pon_pantalla(file,graph)
 BEGIN
 	x=160; y=120; z=700; flags=128;
 	LOOP 
@@ -1646,9 +1637,8 @@ BEGIN
 	end 
 end
 
-PROCESS semi_cuadro(double x,y, int numero);
-
-PRIVATE 
+PROCESS semi_cuadro(double x,y, int numero)
+PRIVATE
 	int una_vez;
 	
 BEGIN 
@@ -1678,9 +1668,8 @@ BEGIN
 	end 
 end
 
-PROCESS baldosa(x,y,numero,posicion);
-
-PRIVATE 
+PROCESS baldosa(x,y,numero,posicion)
+PRIVATE
 	int alterna;
 	
 BEGIN
@@ -1712,7 +1701,7 @@ BEGIN
 	end 
 end
 
-PROCESS pixel1();
+PROCESS pixel1()
 BEGIN 
 	file=graficos; z=-500; graph=6;
 	priority=-100;
@@ -1730,7 +1719,7 @@ BEGIN
 	end 
 end
 
-PROCESS raton1();
+PROCESS raton1()
 BEGIN 
 	file=graficos; z=-500; graph=5;
 	priority=-100;

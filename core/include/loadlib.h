@@ -109,7 +109,7 @@ static void * dlibopen( const char * fname ) {
         while ( f > fname && f[-1] != '\\' && f[-1] != '/' ) f-- ;
 
         if ( strncmp( f, "lib", 3 ) ) {
-            if ( ( _fname = malloc( strlen( fname ) + 4 ) ) ) {
+            if ( ( _fname = malloc( strlen( fname ) + 5 ) ) ) {
                 sprintf( _fname, "%.*slib%s", ( int ) ( f - fname ), fname, f );
 #ifdef _WIN32
                 hnd = LoadLibrary( _fname );
