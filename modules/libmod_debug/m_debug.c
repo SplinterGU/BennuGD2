@@ -1381,7 +1381,7 @@ static void console_putline( char * text ) {
 
 /* --------------------------------------------------------------------------- */
 
-static void console_printf( const char *fmt, ... ) {
+static int console_printf( const char *fmt, ... ) {
     char text[MAXTEXT], * ptr, * iptr ;
 
     va_list ap;
@@ -1415,6 +1415,8 @@ static void console_printf( const char *fmt, ... ) {
     }
 
     if ( ptr > iptr ) console_putline( iptr ) ;
+
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */

@@ -42,10 +42,11 @@ extern int decode_utf8_strings;
 extern void _string_ptoa( unsigned char *t, void * p );
 extern void _string_ntoa( unsigned char *p, uint64_t n );
 extern void _string_utoa( unsigned char *p, uint64_t n );
+extern int64_t      string_atop( unsigned char *str );
 
 extern void         string_init() ;
 extern const unsigned char * string_get( int64_t code ) ;
-extern void         string_dump( void ( *wlog )( const char *fmt, ... ) );
+extern void         string_dump( int ( *wlog )( const char *fmt, ... ) );
 extern void         string_load( void *, int64_t, int64_t, int64_t, int64_t ) ;
 extern int64_t      string_new( const unsigned char * ptr ) ;
 extern int64_t      string_newa( const unsigned char * ptr, unsigned count ) ;

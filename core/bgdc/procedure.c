@@ -140,7 +140,7 @@ void procdef_destroy (PROCDEF * proc) {
 /* - Converts process identifiers to CALL or TYPE to typeid               */
 /* ---------------------------------------------------------------------- */
 
-void program_postprocess () {
+void program_postprocess() {
     int n;
     for ( n = 0; n <= procdef_maxid; n++ ) codeblock_postprocess( &procs[n]->code );
 }

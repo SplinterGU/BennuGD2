@@ -366,7 +366,7 @@ int64_t modstring_string_delete_array( INSTANCE * my, int64_t * params )
 
 int64_t modstring_string_dump( INSTANCE * my, int64_t * params )
 {
-    string_dump( NULL ) ;
+    string_dump( printf ) ;
     return 1 ;
 }
 

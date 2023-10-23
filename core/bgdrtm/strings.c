@@ -228,14 +228,13 @@ void string_init() {
 /* count (usage count) of each string.                                      */
 /****************************************************************************/
 
-void string_dump( void ( *wlog )( const char *fmt, ... ) ) {
+void string_dump( int ( *wlog )( const char *fmt, ... ) ) {
     int i, used = 0;
 
-    if ( wlog ) wlog( "[STRING] ---- Dumping MaxID=%d strings ----\n", string_allocated );
-    else        printf( "[STRING] ---- Dumping MaxID=%d strings ----\n", string_allocated );
+    wlog(   "[STRING] --ID --Uses Type-- String--------\n" );
 
     for ( i = 0; i < string_allocated; i++ ) {
-        if ( string_ptr[i] ) {
+        if ( bit_tst( string_bmp, i ) && string_ptr[i] ) {
             if ( !string_uct[i] ) {
                 if ( i >= string_reserved ) {
                     free( string_ptr[i] );
@@ -245,14 +244,12 @@ void string_dump( void ( *wlog )( const char *fmt, ... ) ) {
                 continue;
             }
             used++;
-            if ( wlog ) wlog( "[STRING] %4d [%4" PRId64 "]%s: {%s}\n", i, string_uct[i], ( i >= string_reserved ) ? "" : " STATIC", string_ptr[i] );
-            else        printf( "[STRING] %4d [%4" PRId64 "]%s: {%s}\n", i, string_uct[i], ( i >= string_reserved ) ? "" : " STATIC", string_ptr[i] );
-        } else {
-            continue;
+            wlog( "[STRING] %4d %6" PRId64 " %6s {%s}\n", i, string_uct[i], ( i >= string_reserved ) ? "" : "STATIC", string_ptr[i] );
         }
     }
-    if ( wlog ) wlog( "[STRING] ---- Dumping Used=%d End ----\n", used );
-    else        printf( "[STRING] ---- Dumping Used=%d End ----\n", used );
+
+    wlog(   "[STRING] ---- ------ ------ --------------\n"
+            "[STRING] Total Strings Used=%d MaxID=%d\n", used, string_allocated );
 }
 
 /****************************************************************************/
@@ -388,7 +385,7 @@ static int64_t string_getid() {
 
     /* No more space, so I look for a free one between ~+64 from the last fixed and ~-64 from the last assigned */
 
-    ini = ( string_last_id < string_allocated ) ? ( string_last_id >> 6 ) : string_reserved;
+    ini = ( string_last_id < string_allocated ) ? ( string_last_id >> 6 ) : string_reserved >> 6;
     lim = ( string_allocated >> 6 );
 
     while ( 1 ) {
@@ -403,9 +400,9 @@ static int64_t string_getid() {
                 }
             }
         }
-        if ( ini == string_reserved ) break;
+        if ( ini == string_reserved >> 6) break;
         lim = ini;
-        ini = string_reserved;
+        ini = string_reserved >> 6;
     }
 
     string_last_id = string_allocated;

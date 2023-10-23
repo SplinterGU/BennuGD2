@@ -72,7 +72,7 @@ void string_alloc( int64_t bytes ) {
     }
 }
 
-void string_dump( void ( *wlog )( const char *fmt, ... ) ) {
+void string_dump( int ( *wlog )( const char *fmt, ... ) ) {
     int64_t i;
     printf( "\n---- %" PRId64 " strings ----\n\n", string_count );
     for ( i = 0 ; i < string_count ; i++ )
