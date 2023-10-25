@@ -2755,9 +2755,9 @@ main_loop_instance_go:
             {
                 // Size in elements
                 int64_t * dst = ( int64_t * )( ( intptr_t )r->stack_ptr[-3] );
+                int64_t * src = ( int64_t * )( ( intptr_t )r->stack_ptr[-2] );
                 n = ptr[1];
                 while( n-- ) {
-                    int64_t * src = ( int64_t * )( ( intptr_t )r->stack_ptr[-2] );
                     sz = r->stack_ptr[-1];
                     while( sz-- ) {
                         string_discard( *dst );
