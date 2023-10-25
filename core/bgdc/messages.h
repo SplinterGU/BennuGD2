@@ -29,6 +29,8 @@
 #ifndef __MESSAGES_H
 #define __MESSAGES_H
 
+#include "messages_common.h"
+
 #define MSG_LIBRARY_NOT_FOUND                   "Library \"%s\" not found"
 #define MSG_FILE_NOT_FOUND                      "%s: file not found"
 #define MSG_FILE_TOO_BIG                        "%s: file too big"
@@ -36,43 +38,26 @@
 #define MSG_READ_ERROR                          "%s: file reading error"
 #define MSG_DIRECTORY_MISSING                   "You must specify a directory"
 #define MSG_TOO_MANY_FILES                      "Too many files specified"
-#define MSG_USING                               "Use: %s [options] filename\n\n"
+#define MSG_DCBL_DCB_VERSION_ERROR              "%s isn't 7.10 DCB version, you need a 7.10 version or greater for use this feature\n"
+
+#define MSG_USAGE                               "Usage: %s [options] filename\n\n"
+
 #define MSG_OPTION_D                            "   -d              Debugging mode\n"
-#define MSG_OPTIONS                             \
-    "   -o ouputfile    Ouput DCB file\n" \
-    "   -i dir          Adds the directory to the PATH\n" \
-    "   -a              Automaticaly adds all files to the DCB\n" \
-    "   -f file         Adds a single file to the DCB\n" \
-    "   -l lang         Specify locale settings\n" \
-    "   -s stub         Generate a stubbed executable from the given stub\n" \
-    "   -g              Stores debugging information at the DCB\n" \
-    "   -D macro=text   Set a macro\n" \
-    "   -p|--pedantic   Don't use automatic declare\n" \
-    "   --libmode       Build a library\n" \
-    "   -L library      Include a library\n" \
-    "   -C options      Specify compiler options\n" \
-    "                   Where options are:\n" \
-    "                   a    Enable automatic declare functions\n" \
-    "\n"
-#define MSG_LICENSE                             \
-                    "This software is provided 'as-is', without any express or implied\n" \
-                    "warranty. In no event will the authors be held liable for any damages\n" \
-                    "arising from the use of this software.\n" \
-                    "\n" \
-                    "Permission is granted to anyone to use this software for any purpose,\n" \
-                    "including commercial applications, and to alter it and redistribute it\n" \
-                    "freely, subject to the following restrictions:\n" \
-                    "\n" \
-                    "   1. The origin of this software must not be misrepresented; you must not\n" \
-                    "   claim that you wrote the original software. If you use this software\n" \
-                    "   in a product, an acknowledgment in the product documentation would be\n" \
-                    "   appreciated but is not required.\n" \
-                    "\n" \
-                    "   2. Altered source versions must be plainly marked as such, and must not be\n" \
-                    "   misrepresented as being the original software.\n" \
-                    "\n" \
-                    "   3. This notice may not be removed or altered from any source\n" \
-                    "   distribution.\n"
+#define MSG_OPTIONS                             "   -o ouputfile    Ouput DCB file\n" \
+                                                "   -i dir          Adds the directory to the PATH\n" \
+                                                "   -a              Automaticaly adds all files to the DCB\n" \
+                                                "   -f file         Adds a single file to the DCB\n" \
+                                                "   -l lang         Specify locale settings\n" \
+                                                "   -s stub         Generate a stubbed executable from the given stub\n" \
+                                                "   -g              Stores debugging information at the DCB\n" \
+                                                "   -D macro=text   Set a macro\n" \
+                                                "   -p|--pedantic   Don't use automatic declare\n" \
+                                                "   --libmode       Build a library\n" \
+                                                "   -L library      Include a library\n" \
+                                                "   -C options      Specify compiler options\n" \
+                                                "                   Where options are:\n" \
+                                                "                       a    Enable automatic declare functions\n\n"
+
 #define MSG_COMPILE_ERROR                       "%s%s:%" PRId64 ": error: %s"
 #define MSG_COMPILE_WARNING                     "%s%s:%" PRId64 ": warning: %s"
 #define MSG_CONSTANT_NAME_EXP                   "Constant name expected"

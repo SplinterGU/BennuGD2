@@ -131,12 +131,8 @@ int main( int argc, char *argv[] ) {
     }
     
     printf( BGDC_VERSION "\n"
-            "Bennu Game Development Compiler\n"
-            "\n"
-            "Copyright (c) SplinterGU (Fenix/BennuGD) (Since 2006)\n"
-            "Copyright (c) 2002-2006 Fenix Team (Fenix)\n"
-            "Copyright (c) 1999-2002 José Luis Cebrián Pagüe (Fenix)\n"
-            "\n" );
+            "Bennu Game Development Compiler\n\n"
+            MSG_COPYRIGHT "\n" );
 
     /* Default lang to EN */
     strcpy( langinfo, "EN" );
@@ -336,11 +332,11 @@ int main( int argc, char *argv[] ) {
 
                     switch ( r ) {
                         case    0:
-                                printf( "ERROR: %s doesn't exist or isn't version DCB compatible\n", f ) ;
+                                fprintf( stderr, MSG_DCB_ERROR "\n", f, DCB_VERSION >> 8 ) ;
                                 exit( -1 );
 
                         case    -1:
-                                printf( "ERROR: %s isn't 7.10 DCB version, you need a 7.10 version or greater for use this feature\n", f ) ;
+                                fprintf( stderr, MSG_DCBL_DCB_VERSION_ERROR "\n", f ) ;
                                 exit( -1 );
                     }
                     break;
@@ -405,7 +401,7 @@ int main( int argc, char *argv[] ) {
     }
 
     if ( !sourcefile ) {
-        printf( MSG_USING
+        printf( MSG_USAGE
                 MSG_OPTION_D
                 MSG_OPTIONS
                 MSG_LICENSE, argv[0] );

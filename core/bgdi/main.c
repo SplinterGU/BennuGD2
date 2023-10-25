@@ -48,6 +48,7 @@
 #include "bgdrtm.h"
 #include "xstrings.h"
 #include "dirs.h"
+#include "messages.h"
 
 /* ---------------------------------------------------------------------- */
 
@@ -153,7 +154,7 @@ int main( int argc, char *argv[] ) {
                     if ( argv[i][j] == 'i' ) {
                         if ( argv[i][j+1] == 0 ) {
                             if ( i == argc - 1 ) {
-                                fprintf( stderr, "You must provide a directory" ) ;
+                                fprintf( stderr, MSG_DIRECTORY_MISSING "\n" ) ;
                                 exit( 0 );
                             }
                             file_addp( argv[i+1] );
@@ -177,36 +178,12 @@ int main( int argc, char *argv[] ) {
 
         if ( !filename ) {
             printf( BGDI_VERSION "\n"
-                    "Bennu Game Development Interpreter\n"
-                    "\n"
-                    "Copyright (c) SplinterGU (Fenix/BennuGD) (Since 2006)\n"
-                    "Copyright (c) 2002-2006 Fenix Team (Fenix)\n"
-                    "Copyright (c) 1999-2002 José Luis Cebrián Pagüe (Fenix)\n"
-                    "\n"
-                    "Usage: %s [options] <data code block file>[.dcb]\n"
-                    "\n"
-                    "   -d       Activate DEBUG mode (several -d for increment debug level)\n"
-                    "   -i dir   Adds the directory to the PATH\n"
-                    "\n"
-                    "This software is provided 'as-is', without any express or implied\n"
-                    "warranty. In no event will the authors be held liable for any damages\n"
-                    "arising from the use of this software.\n"
-                    "\n"
-                    "Permission is granted to anyone to use this software for any purpose,\n"
-                    "including commercial applications, and to alter it and redistribute it\n"
-                    "freely, subject to the following restrictions:\n"
-                    "\n"
-                    "   1. The origin of this software must not be misrepresented; you must not\n"
-                    "   claim that you wrote the original software. If you use this software\n"
-                    "   in a product, an acknowledgment in the product documentation would be\n"
-                    "   appreciated but is not required.\n"
-                    "\n"
-                    "   2. Altered source versions must be plainly marked as such, and must not be\n"
-                    "   misrepresented as being the original software.\n"
-                    "\n"
-                    "   3. This notice may not be removed or altered from any source\n"
-                    "   distribution.\n"
-                    , appexename ) ;
+                    "Bennu Game Development Interpreter\n\n"
+                    MSG_COPYRIGHT "\n" );
+
+            printf( MSG_USAGE
+                    MSG_OPTIONS
+                    MSG_LICENSE, appexename ) ;
             return -1 ;
         }
     }
@@ -241,15 +218,6 @@ int main( int argc, char *argv[] ) {
         }
     }
 
-#ifdef __DEBUG__
-printf( "appname        %s\n", appname);
-printf( "appexename     %s\n", appexename);
-printf( "appexepath     %s\n", appexepath);
-printf( "appexefullpath %s\n", appexefullpath);
-printf( "dcbname        %s\n", dcbname);
-fflush(stdout);
-#endif
-
     if ( !embedded ) {
         /* First try to load directly (we expect myfile.dcb) */
         if ( !dcb_load( dcbname ) ) {
@@ -264,7 +232,7 @@ fflush(stdout);
             }
 
             if ( !dcbloaded ) {
-                printf( "%s: doesn't exist or isn't version %d DCB compatible\n", filename, DCB_VERSION >> 8 ) ;
+                fprintf( stderr, MSG_DCB_ERROR "\n", filename, DCB_VERSION >> 8 ) ;
                 return -1 ;
             }
         }
