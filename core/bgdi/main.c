@@ -249,7 +249,7 @@ int main( int argc, char *argv[] ) {
     sysproc_init() ;
 
 #ifdef _WIN32
-    HWND hWnd = /*GetForegroundWindow()*/ GetConsoleWindow();
+    HWND hWnd = GetConsoleWindow();
     DWORD dwProcessId;
     GetWindowThreadProcessId( hWnd, &dwProcessId );
     if ( dwProcessId == GetCurrentProcessId() ) ShowWindow( hWnd, SW_HIDE );
