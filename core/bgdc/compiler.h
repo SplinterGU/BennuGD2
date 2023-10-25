@@ -62,8 +62,8 @@ extern void compile_block(PROCDEF *);
 extern void import_mod( char * libname );
 
 /* Compilation of special sections (data definition, etc) */
-extern int  compile_array_data(VARSPACE * n, segment * data, int size, int subsize, BASETYPE *t);
-extern int  compile_varspace(VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** c, int alignment, int duplicateignore, int block_without_begin, int level, int inline_assignation_disabled );
+extern int  compile_array_data(VARSPACE * n, segment * data, int size, int subsize, BASETYPE *t, int is_inline);
+extern int  compile_varspace(VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** c, int alignment, int duplicateignore, int block_without_begin, int level, int is_inline );
 extern void compile_constants();
 
 #define DEFAULT_ALIGNMENT 8
@@ -79,6 +79,9 @@ extern expresion_result compile_comparison();
 extern expresion_result compile_subexpresion();
 extern expresion_result compile_expresion(int need_constant, int need_lvalue, int discart_code, BASETYPE t);
 extern expresion_result convert_result_type(expresion_result res, BASETYPE t);
+
+extern CODEBLOCK * code;
+extern int64_t mntype( TYPEDEF type, int accept_structs );
 
 extern void compile_process();
 
@@ -117,7 +120,7 @@ extern int64_t
     identifier_float,       identifier_include,     identifier_type,
     identifier_import,      identifier_elseif,      identifier_question,
     identifier_function,    identifier_int32,       identifier_short,
-    identifier_char,        identifier_c_char_ptr,
+    identifier_char,        identifier_dollar,
     identifier_unsigned,    identifier_signed,
     identifier_int64,       identifier_qword,       identifier_double
     ;

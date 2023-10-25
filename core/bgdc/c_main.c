@@ -59,7 +59,7 @@ int64_t imports[512] = { 0 } ;      /* Modules */
 
 int64_t identifier_qword,       identifier_int64,       identifier_double,
         identifier_dword,       identifier_word,        identifier_byte,
-        identifier_int32,       identifier_short,       identifier_char,        identifier_c_char_ptr,
+        identifier_int32,       identifier_short,       identifier_char,        identifier_dollar,
         identifier_unsigned,    identifier_signed,      identifier_string,
         identifier_float,       identifier_struct,      identifier_type,
 
@@ -121,7 +121,7 @@ void compile_init() {
     identifier_int32        = identifier_add( "INT32" );
     identifier_short        = identifier_add( "SHORT" );
     identifier_char         = identifier_add( "CHAR" );
-    identifier_c_char_ptr   = identifier_add( "$");
+    identifier_dollar   = identifier_add( "$");
     identifier_unsigned     = identifier_add( "UNSIGNED" );
     identifier_signed       = identifier_add( "SIGNED" );
     identifier_float        = identifier_add( "FLOAT" );

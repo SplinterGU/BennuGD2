@@ -212,7 +212,11 @@
 
 #define MN_NCALL                (0x66 | MN_1_PARAMS)
 
-/*** Free67, 68, 69 ****/
+/* Copy */
+
+#define MN_COPY_ARRAY           (0x67 | MN_0_PARAMS) /* copy array */
+#define MN_COPY_ARRAY_REPEAT    (0x68 | MN_1_PARAMS) /* copy array repeat */
+#define MN_COPY_STRUCT          (0x69 | MN_0_PARAMS) /* copy struct */
 
 /* Handlers */
 
@@ -221,7 +225,9 @@
 #define MN_RESUME               (0x6C | MN_1_PARAMS)
 #define MN_RESUMEGOTO           (0x6D | MN_1_PARAMS)
 
-/*** Free 6E, 6F ****/
+/*** Free 6E ****/
+
+#define MN_STR2POINTER          (0x6F | MN_1_PARAMS)
 
 /* Non-exists Mnemonics - for compiler internal use */
 

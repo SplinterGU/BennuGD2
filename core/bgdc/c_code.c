@@ -426,11 +426,11 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
     }
 
     if ( var->offset - base_offset != 0 ||
-            here == &global ||
-            here == &local  ||
-            ( privars && ( here == privars ) ) ||
-            ( pubvars && ( here == pubvars ) ) ||
-            ( remote  && ( here == remote ) )
+         here == &global ||
+         here == &local  ||
+         ( privars && ( here == privars ) ) ||
+         ( pubvars && ( here == pubvars ) ) ||
+         ( remote  && ( here == remote ) )
        )
     {
         codeblock_add( code, (
@@ -1504,7 +1504,7 @@ expresion_result compile_value() {
     /* ( ... ) */
 
     if ( token.type == IDENTIFIER ) {
-        if ( token.code == identifier_c_char_ptr ) {
+        if ( token.code == identifier_dollar ) {
             /* Compile cast null terminated string */
             return compile_cast_cstr();
         }
@@ -2619,10 +2619,23 @@ expresion_result compile_subexpresion() {
     expresion_result base = compile_ternarycond(), right, res;
 
     token_next();
+
     if ( token.type == IDENTIFIER ) {
+
+        int cstring_target = 0;
+        if ( token.code == identifier_dollar ) {
+            cstring_target = 1;
+            token_next();
+        }
+
         /* Assignments */
         if ( token.code == identifier_equal ) { /* "=" */
             if ( typedef_is_array( base.type ) && base.lvalue && base.type.chunk[1].type == TYPE_CHAR ) { /* Assignments to fixed-width strings */
+                if ( cstring_target ) {
+                    token_back();
+                    compile_error( MSG_POINTER_VARIABLE_REQUIRED );
+                }
+
                 right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
                 if ( typedef_is_integer( right.type ) ) {
                     compile_warning( 1, "implicit conversion (INT64 to CHAR[])" );
@@ -2654,21 +2667,23 @@ expresion_result compile_subexpresion() {
                 }
 
                 if ( typedef_is_double( right.type ) ) {
-//                    compile_warning( 1, "implicit conversion (DOUBLE to POINTER)" );
+                    // implicit conversion (DOUBLE to POINTER)
                     codeblock_add( code, MN_DOUBLE2INT, 0 );
-//                    right.type = base.type;
                 }
 
                 if ( typedef_is_float( right.type ) ) {
-//                    compile_warning( 1, "implicit conversion (FLOAT to POINTER)" );
+                    // implicit conversion (FLOAT to POINTER)
                     codeblock_add( code, MN_FLOAT2INT, 0 );
-//                    right.type = base.type;
                 }
 
                 if ( typedef_is_string( right.type ) && base.type.chunk[1].type == TYPE_CHAR ) {
-//                    compile_warning( 1, "implicit conversion (STRING to C CHAR*)" );
-                    codeblock_add( code, MN_STR2CHARNUL, 0 );
-//                    right.type = base.type;
+                    if ( cstring_target ) {
+                        // implicit conversion (STRING to C CHAR*)
+                        codeblock_add( code, MN_STR2CHARNUL, 0 );
+                    } else {
+                        // implicit conversion (STRING to POINTER)
+                        codeblock_add( code, MN_STR2POINTER, 0 );
+                    }
                 }
 
                 /* A "void" pointer can be assigned to any other */
@@ -2686,6 +2701,11 @@ expresion_result compile_subexpresion() {
                 res.type       = base.type;
 
                 return res;
+            }
+
+            if ( cstring_target ) {
+                token_back();
+                compile_error( MSG_POINTER_VARIABLE_REQUIRED );
             }
 
             if ( typedef_base( base.type ) == TYPE_CHAR ) { /* Assignments to chars */
@@ -2860,10 +2880,6 @@ expresion_result compile_subexpresion() {
             ||  token.code == identifier_rorequal       /* ">>=" */
             ||  token.code == identifier_equal )        /* "=" */
         {
-            SYSPROC * proc_copy = sysproc_get( identifier_search_or_add( "#COPY#" ) );
-            SYSPROC * proc_memcopy = sysproc_get( identifier_search_or_add( "#MEMCOPY#" ) );
-            SYSPROC * proc_copy_string_array = sysproc_get( identifier_search_or_add( "#COPYSTRA#" ) );
-
             op = token.code;
 
             /* Assignation to struct: struct copy */
@@ -2874,50 +2890,41 @@ expresion_result compile_subexpresion() {
                 while ( typedef_is_array( right.type ) ) right.type = typedef_reduce( right.type );
 
                 if ( typedef_base( right.type ) != TYPE_POINTER ) compile_error( MSG_STRUCT_REQUIRED );
+                if ( !typedef_is_struct( typedef_reduce( right.type ) ) ) compile_error( MSG_STRUCT_REQUIRED );
+                if ( right.type.varspace != base.type.varspace ) compile_error( MSG_TYPES_NOT_THE_SAME );
 
-                if ( !typedef_is_struct( typedef_reduce( right.type ) ) ) {
-                    compile_error( MSG_STRUCT_REQUIRED );
-                } else if ( right.type.varspace != base.type.varspace ) {
-                    compile_error( MSG_TYPES_NOT_THE_SAME );
-                } else {
-                    /* Struct copy operator */
-                    while ( typedef_is_pointer( base.type ) ) {
-                        codeblock_add( code, MN_PTR, 0 );
-                        res.type = typedef_reduce( base.type );
-                    }
-
-                    if ( typedef_base( base.type ) != TYPE_STRUCT ) {
-                        compile_error( MSG_STRUCT_REQUIRED );
-                    } else {
-                        int size = right.type.varspace->count * sizeof( DCB_TYPEDEF );
-
-                        if ( right.type.varspace->stringvar_count > 0 ) {
-                            /* True struct copy version */
-
-                            int nvar;
-
-                            segment_alloc( globaldata, size );
-                            codeblock_add( code, MN_GLOBAL, globaldata->current );
-                            for ( nvar = 0 ; nvar < right.type.varspace->count ; nvar++ ) {
-                                DCB_TYPEDEF dcbtype;
-                                dcb_settype( &dcbtype, &right.type.varspace->vars[nvar].type );
-                                memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &dcbtype, sizeof( DCB_TYPEDEF ) );
-                                globaldata->current += sizeof( DCB_TYPEDEF );
-                            }
-                            codeblock_add( code, MN_PUSH, right.type.varspace->count );
-                            codeblock_add( code, MN_PUSH, right.count ? right.count : 1 );
-                            codeblock_add( code, MN_SYSCALL, proc_copy->code );
-                        } else {
-                            /* Optimized fast memcopy version */
-                            codeblock_add( code, MN_PUSH, right.type.varspace->size*( right.count ? right.count : 1 ) );
-                            codeblock_add( code, MN_SYSCALL, proc_memcopy->code );
-                        }
-                    }
-                    base.type = right.type;
-                    base.constant = 0;
-                    base.lvalue = 0;
-                    base.call = 1;
+                /* Struct copy operator */
+                while ( typedef_is_pointer( base.type ) ) {
+                    codeblock_add( code, MN_PTR, 0 );
+                    res.type = typedef_reduce( base.type );
                 }
+
+                if ( typedef_base( base.type ) != TYPE_STRUCT ) compile_error( MSG_STRUCT_REQUIRED );
+
+                if ( right.type.varspace->stringvar_count > 0 ) {
+                    /* True struct copy version */
+                    int size = right.type.varspace->count * sizeof( DCB_TYPEDEF );
+                    segment_alloc( globaldata, size );
+                    codeblock_add( code, MN_GLOBAL, globaldata->current );
+                    for ( int nvar = 0 ; nvar < right.type.varspace->count ; nvar++ ) {
+                        DCB_TYPEDEF dcbtype;
+                        dcb_settype( &dcbtype, &right.type.varspace->vars[nvar].type );
+                        memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &dcbtype, sizeof( DCB_TYPEDEF ) );
+                        globaldata->current += sizeof( DCB_TYPEDEF );
+                    }
+                    codeblock_add( code, MN_PUSH, right.type.varspace->count );
+                    codeblock_add( code, MN_PUSH, right.count ? right.count : 1 );
+                    codeblock_add( code, MN_COPY_STRUCT, 0 );
+                } else {
+                    /* Optimized fast memcopy version */
+                    codeblock_add( code, MN_PUSH, right.type.varspace->size*( right.count ? right.count : 1 ) );
+                    codeblock_add( code, MN_COPY_ARRAY | MN_BYTE, 0 );
+                }
+
+                base.type = right.type;
+                base.constant = 0;
+                base.lvalue = 0;
+                base.call = 1;
                 return base;
             }
 
@@ -2928,11 +2935,9 @@ expresion_result compile_subexpresion() {
 
             /* Array copy */
             if ( op == identifier_equal && typedef_is_array( base.type ) && typedef_is_array( right.type ) ) {
-                int size;
-
                 if ( !typedef_is_equal( base.type, right.type ) ) compile_error( MSG_TYPES_NOT_THE_SAME );
 
-                size = typedef_size( base.type );
+                int count = typedef_tcount( base.type );
 
                 while ( typedef_is_array( base.type ) ) {
                     base.type = typedef_reduce( base.type );
@@ -2940,13 +2945,8 @@ expresion_result compile_subexpresion() {
                 }
 
                 /* Optimized fast memcopy version */
-                if ( typedef_is_string( base.type ) ) {
-                    codeblock_add( code, MN_PUSH, size / sizeof( int64_t ) );
-                    codeblock_add( code, MN_SYSCALL, proc_copy_string_array->code );
-                } else {
-                    codeblock_add( code, MN_PUSH, size );
-                    codeblock_add( code, MN_SYSCALL, proc_memcopy->code );
-                }
+                codeblock_add( code, MN_PUSH, count );
+                codeblock_add( code, MN_COPY_ARRAY | mntype( base.type, 0 ), 0 );
 
                 base.type = right.type;
                 base.constant = 0;
@@ -3295,7 +3295,7 @@ void compile_block( PROCDEF * p ) {
         tok_pos tokp = token_pos();
 
         /* Compile inline variable definitions */
-        if ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || token.code == identifier_private || typedef_by_name( token.code ) || ( ps = procdef_search( token.code ) ) ) {
+        if ( identifier_is_basic_type( token.code ) || token.code == identifier_struct /*|| token.code == identifier_private*/ || typedef_by_name( token.code ) || ( ps = procdef_search( token.code ) ) ) {
             is_process = 0;
             if ( ps ) {
                 token_next();
@@ -3314,7 +3314,7 @@ void compile_block( PROCDEF * p ) {
             /* Local declarations are local only to the process but visible from every process */
             /* It is allowed to declare a variable as local/public that has been declared global; it's a local variable, not the global one */
             VARSPACE * v[] = {&local, p->privars, NULL};
-            compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0, 1 );
+            compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0, 0 );
         }
 
         if ( token.type == IDENTIFIER ) {
@@ -3461,16 +3461,22 @@ void compile_block( PROCDEF * p ) {
                 if ( token.type != IDENTIFIER || token.code != identifier_leftp ) /* "(" */
                     compile_error( MSG_EXPECTED, "(" );
 
-                /* Inicializadores */
+                /* Initializers */
                 token_next();
                 if ( token.type != IDENTIFIER || token.code != identifier_semicolon ) { /* ";" */
+                    int cond = identifier_is_basic_type(token.code);
                     token_back();
-                    do {
-                        compile_expresion( 0, 0, 0, TYPE_QWORD );
-                        codeblock_add( code, MN_POP, 0 );
-                        token_next();
+                    if ( cond ) {
+                        VARSPACE * v[] = {&local, p->pubvars, NULL};
+                        compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 1, 0, 1 );
+                    } else {
+                        do {
+                            compile_expresion( 0, 0, 0, TYPE_UNDEFINED /*TYPE_QWORD*/ );
+                            codeblock_add( code, MN_POP, 0 );
+                            token_next();
+                        }
+                        while ( token.type == IDENTIFIER && token.code == identifier_comma ) ; /* "," */
                     }
-                    while ( token.type == IDENTIFIER && token.code == identifier_comma ) ; /* "," */
                 }
 
                 if ( token.type != IDENTIFIER || token.code != identifier_semicolon ) /* ";" */
@@ -3478,13 +3484,13 @@ void compile_block( PROCDEF * p ) {
 
                 codeblock_label_set( code, et1, code->current );
 
-                /* Condiciones */
+                /* Conditions */
                 token_next();
                 if ( token.type != IDENTIFIER || token.code != identifier_semicolon ) { /* ";" */
                     if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
                     token_back();
                     do {
-                        compile_expresion( 0, 0, 0, TYPE_QWORD );
+                        compile_expresion( 0, 0, 0, TYPE_UNDEFINED /*TYPE_QWORD*/ );
                         codeblock_add( code, MN_BRFALSE, loop );
                         token_next();
                     } while ( token.type == IDENTIFIER && token.code == identifier_comma ); /* "," */
@@ -3495,7 +3501,7 @@ void compile_block( PROCDEF * p ) {
 
                 codeblock_add( code, MN_JUMP, et2 );
 
-                /* Incrementos */
+                /* Increments */
                 codeblock_loop_start( code, loop, code->current );
 
                 token_next();
@@ -3503,7 +3509,7 @@ void compile_block( PROCDEF * p ) {
                     if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
                     token_back();
                     do {
-                        compile_expresion( 0, 0, 0, TYPE_QWORD );
+                        compile_expresion( 0, 0, 0, TYPE_UNDEFINED /*TYPE_QWORD*/ );
                         codeblock_add( code, MN_POP, 0 );
                         token_next();
                     } while ( token.type == IDENTIFIER && token.code == identifier_comma ) ;  /* "," */
@@ -3514,7 +3520,7 @@ void compile_block( PROCDEF * p ) {
 
                 codeblock_add( code, MN_JUMP, et1 );
 
-                /* Bloque */
+                /* Block */
                 codeblock_label_set( code, et2, code->current );
 
                 last_loop = code->loop_active;

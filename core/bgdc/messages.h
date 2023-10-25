@@ -102,6 +102,7 @@
 #define MSG_NOT_AN_LVALUE                       "Can't get the address of an inmediate value"
 #define MSG_NOT_A_POINTER                       "Pointer required"
 #define MSG_VARIABLE_REQUIRED                   "Variable required"
+#define MSG_POINTER_VARIABLE_REQUIRED           "Pointer variable required"
 #define MSG_STRUCT_REQUIRED                     "Struct required"
 #define MSG_DIVIDE_BY_ZERO                      "Division by zero"
 #define MSG_TYPES_NOT_THE_SAME                  "Values are of incompatible type"

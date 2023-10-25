@@ -139,6 +139,31 @@ void _string_ptoa( unsigned char *t, void * ptr )  {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t string_atop( unsigned char *str )  {
+    unsigned char c;
+    if ( !str ) return 0;
+
+    int64_t result = 0, value;
+
+    while ( ( c = *str ) ) {
+        if (c >= '0' && c <= '9') {
+            value = c - '0';
+        } else if (c >= 'a' && c <= 'f') {
+            value = c - 'a' + 10;
+        } else if (c >= 'A' && c <= 'F') {
+            value = c - 'A' + 10;
+        } else {
+            return result;
+        }
+        result = (result << 4) | value;
+        str++;
+    }
+
+    return result;
+}
+
+/* --------------------------------------------------------------------------- */
+
 void _string_ntoa( unsigned char *p, uint64_t n ) {
     unsigned char * i = p;
 
@@ -229,11 +254,9 @@ void string_init() {
 /****************************************************************************/
 
 void string_dump( int ( *wlog )( const char *fmt, ... ) ) {
-    int i, used = 0;
-
+    int used = 0;
     wlog(   "[STRING] --ID --Uses Type-- String--------\n" );
-
-    for ( i = 0; i < string_allocated; i++ ) {
+    for ( int i = 0; i < string_allocated; i++ ) {
         if ( bit_tst( string_bmp, i ) && string_ptr[i] ) {
             if ( !string_uct[i] ) {
                 if ( i >= string_reserved ) {

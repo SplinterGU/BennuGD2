@@ -169,7 +169,7 @@ int64_t instance_go( INSTANCE * r ) {
     register int64_t * ptr = r->codeptr;
 
     uint64_t return_value = LOCQWORD( r, PROCESS_ID );
-    int64_t n;
+    int64_t n, sz;
     SYSPROC * p = NULL;
     INSTANCE * i = NULL;
     char * str = NULL;
@@ -1726,6 +1726,13 @@ main_loop_instance_go:
                 ptr += 2;
                 break;
 
+            case MN_STR2POINTER:
+                n = r->stack_ptr[-ptr[1] - 1];
+                r->stack_ptr[-ptr[1] - 1] = string_atop( ( char * )string_get( n ) );
+                string_discard( n );
+                ptr += 2;
+                break;
+
             case MN_POINTER2STR:
                 r->stack_ptr[-ptr[1] - 1] = string_ptoa( ( void * )( intptr_t )( r->stack_ptr[-ptr[1] - 1] ) );
                 string_use( r->stack_ptr[-ptr[1] - 1] );
@@ -1786,6 +1793,7 @@ main_loop_instance_go:
 
             case MN_STR2CHARNUL:
                 strcpy( *( char ** )( intptr_t )( r->stack_ptr[-2] ), string_get( r->stack_ptr[-1] ) );
+                string_discard( r->stack_ptr[-1] );
                 r->stack_ptr[-2] = r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr += 2;
@@ -2626,6 +2634,147 @@ main_loop_instance_go:
                     debugger_step = 0;
                     debugger_show_console = 1;
                 }
+                break;
+
+
+            case MN_COPY_ARRAY | MN_QWORD:
+            case MN_COPY_ARRAY | MN_QWORD | MN_UNSIGNED:
+            case MN_COPY_ARRAY | MN_DOUBLE:
+                memmove( ( int8_t * )( ( intptr_t )r->stack_ptr[-3] ), ( int8_t * )( ( intptr_t )r->stack_ptr[-2] ), r->stack_ptr[-1] * sizeof( int64_t ));
+                r->stack_ptr -= 3;
+                ptr++;
+                break;
+
+            case MN_COPY_ARRAY | MN_DWORD:
+            case MN_COPY_ARRAY | MN_DWORD | MN_UNSIGNED:
+            case MN_COPY_ARRAY | MN_FLOAT:
+                memmove( ( int8_t * )( ( intptr_t )r->stack_ptr[-3] ), ( int8_t * )( ( intptr_t )r->stack_ptr[-2] ), r->stack_ptr[-1] * sizeof( int32_t ) );
+                r->stack_ptr -= 3;
+                ptr++;
+                break;
+
+            case MN_COPY_ARRAY | MN_WORD:
+            case MN_COPY_ARRAY | MN_WORD | MN_UNSIGNED:
+                memmove( ( int8_t * )( ( intptr_t )r->stack_ptr[-3] ), ( int8_t * )( ( intptr_t )r->stack_ptr[-2] ), r->stack_ptr[-1] * sizeof( int16_t ) );
+                r->stack_ptr -= 3;
+                ptr++;
+                break;
+
+            case MN_COPY_ARRAY | MN_BYTE:
+            case MN_COPY_ARRAY | MN_BYTE | MN_UNSIGNED:
+                memmove( ( int8_t * )( ( intptr_t )r->stack_ptr[-3] ), ( int8_t * )( ( intptr_t )r->stack_ptr[-2] ), r->stack_ptr[-1] );
+                r->stack_ptr -= 3;
+                ptr++;
+                break;
+
+            case MN_COPY_ARRAY | MN_STRING:
+            {
+                // Size in elements
+                int64_t * dst = ( int64_t * )( ( intptr_t )r->stack_ptr[-3] );
+                int64_t * src = ( int64_t * )( ( intptr_t )r->stack_ptr[-2] );
+                sz = r->stack_ptr[-1];
+                while( sz-- ) {
+                    string_discard( *dst );
+                    *dst = *src;
+                    string_use( *dst );
+                    dst++; src++;
+                }
+                r->stack_ptr -= 3;
+                ptr++;
+                break;
+            }
+
+
+            case MN_COPY_ARRAY_REPEAT | MN_QWORD:
+            case MN_COPY_ARRAY_REPEAT | MN_QWORD | MN_UNSIGNED:
+            case MN_COPY_ARRAY_REPEAT | MN_DOUBLE:
+            {
+                int8_t * dst = ( int8_t * )( ( intptr_t )r->stack_ptr[-3] );
+                int8_t * src = ( int8_t * )( ( intptr_t )r->stack_ptr[-2] );
+                sz = r->stack_ptr[-1] * sizeof( int64_t );
+                n = ptr[1];
+                while( n-- ) {
+                    memmove( dst, src, sz );
+                    dst += sz;
+                }
+                r->stack_ptr -= 3;
+                ptr += 2;
+                break;
+            }
+
+            case MN_COPY_ARRAY_REPEAT | MN_DWORD:
+            case MN_COPY_ARRAY_REPEAT | MN_DWORD | MN_UNSIGNED:
+            case MN_COPY_ARRAY_REPEAT | MN_FLOAT:
+            {
+                int8_t * dst = ( int8_t * )( ( intptr_t )r->stack_ptr[-3] );
+                int8_t * src = ( int8_t * )( ( intptr_t )r->stack_ptr[-2] );
+                sz = r->stack_ptr[-1] * sizeof( int32_t );
+                n = ptr[1];
+                while( n-- ) {
+                    memmove( dst, src, sz );
+                    dst += sz;
+                }
+                r->stack_ptr -= 3;
+                ptr += 2;
+                break;
+            }
+
+            case MN_COPY_ARRAY_REPEAT | MN_WORD:
+            case MN_COPY_ARRAY_REPEAT | MN_WORD | MN_UNSIGNED:
+            {
+                int8_t * dst = ( int8_t * )( ( intptr_t )r->stack_ptr[-3] );
+                int8_t * src = ( int8_t * )( ( intptr_t )r->stack_ptr[-2] );
+                sz = r->stack_ptr[-1] * sizeof( int16_t );
+                n = ptr[1];
+                while( n-- ) {
+                    memmove( dst, src, sz );
+                    dst += sz;
+                }
+                r->stack_ptr -= 3;
+                ptr += 2;
+                break;
+            }
+
+            case MN_COPY_ARRAY_REPEAT | MN_BYTE:
+            case MN_COPY_ARRAY_REPEAT | MN_BYTE | MN_UNSIGNED:
+            {
+                int8_t * dst = ( int8_t * )( ( intptr_t )r->stack_ptr[-3] );
+                int8_t * src = ( int8_t * )( ( intptr_t )r->stack_ptr[-2] );
+                sz = r->stack_ptr[-1];
+                n = ptr[1];
+                while( n-- ) {
+                    memmove( dst, src, sz );
+                    dst += sz;
+                }
+                r->stack_ptr -= 3;
+                ptr += 2;
+                break;
+            }
+
+            case MN_COPY_ARRAY_REPEAT | MN_STRING:
+            {
+                // Size in elements
+                int64_t * dst = ( int64_t * )( ( intptr_t )r->stack_ptr[-3] );
+                n = ptr[1];
+                while( n-- ) {
+                    int64_t * src = ( int64_t * )( ( intptr_t )r->stack_ptr[-2] );
+                    sz = r->stack_ptr[-1];
+                    while( sz-- ) {
+                        string_discard( *dst );
+                        *dst = *src;
+                        string_use( *dst );
+                        dst++; src++;
+                    }
+                }
+                r->stack_ptr -= 3;
+                ptr += 2;
+                break;
+            }
+
+            case MN_COPY_STRUCT:
+                copytypes(( void * )( intptr_t )r->stack_ptr[-5], ( void * )( intptr_t )r->stack_ptr[-4], ( DCB_TYPEDEF * )( intptr_t )r->stack_ptr[-3], r->stack_ptr[-2], r->stack_ptr[-1] );
+                r->stack_ptr -= 5;
+                ptr++;
                 break;
 
             default:

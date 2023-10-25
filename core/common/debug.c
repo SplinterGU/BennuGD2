@@ -162,12 +162,12 @@ struct {
     { "INT2WORD"                    , MN_INT2WORD               , 1 },
     { "INT2BYTE"                    , MN_INT2BYTE               , 1 },
 
-    { "MN_NCALL"                    , MN_NCALL                  , 1 },
+    { "NCALL"                       , MN_NCALL                  , 1 },
 
-    { "MN_EXITHNDLR"                , MN_EXITHNDLR              , 1 },
-    { "MN_ERRHNDLR"                 , MN_ERRHNDLR               , 1 },
-    { "MN_RESUME"                   , MN_RESUME                 , 1 },
-    { "MN_RESUMEGOTO"               , MN_RESUMEGOTO             , 1 },
+    { "EXITHNDLR"                   , MN_EXITHNDLR              , 1 },
+    { "ERRHNDLR"                    , MN_ERRHNDLR               , 1 },
+    { "RESUME"                      , MN_RESUME                 , 1 },
+    { "RESUMEGOTO"                  , MN_RESUMEGOTO             , 1 },
 
     { "REPEAT"                      , MN_REPEAT                 , 1 },
     { "BREAK"                       , MN_BREAK                  , 1 },
@@ -175,6 +175,7 @@ struct {
     { "RETRUE"                      , MN_RETRUE                 , 1 },
     { "REFALSE"                     , MN_REFALSE                , 1 },
 
+    { "STR2POINTER"                 , MN_STR2POINTER            , 1 },
     { "POINTER2STR"                 , MN_POINTER2STR            , 1 },
     { "STR2INT"                     , MN_STR2INT                , 1 },
     { "STR2DOUBLE"                  , MN_STR2DOUBLE             , 1 },
@@ -188,6 +189,10 @@ struct {
     { "GET_REMOTE_PUBLIC"           , MN_GET_REMOTE_PUBLIC      , 1 },
 
     { "NOP"                         , MN_NOP                    , 0 },
+
+    { "COPY_ARRAY"                  , MN_COPY_ARRAY             , 0 },
+    { "COPY_ARRAY_REPEAT"           , MN_COPY_ARRAY_REPEAT      , 1 },
+    { "COPY_STRUCT"                 , MN_COPY_STRUCT            , 0 },
 
     { ""                            , MN_SENTENCE               , 1 },
 

@@ -333,6 +333,14 @@ void codeblock_add(CODEBLOCK * c, int64_t code, int64_t param) {
 				case MN_SYSCALL:
 					c->data[c->previous] = MN_SYSPROC;
 					return;
+                case MN_PTR:
+                    if ( ( c->data[c->previous - 1] & MN_MASK ) == MN_LET ) {
+                        c->data[c->previous - 1] = MN_LETNP |(c->data[c->previous - 1] & ~MN_MASK);
+                        c->current = c->previous;
+                        c->previous = c->previous2;
+                        c->previous2 = c->previous2 - 1;
+                        return;
+                    }
 			}
 		} else if ((code & MN_MASK) == MN_PTR) {
 			switch(c->data[c->previous] & MN_MASK) {

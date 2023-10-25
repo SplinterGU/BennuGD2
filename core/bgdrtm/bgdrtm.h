@@ -89,6 +89,8 @@ extern char * getid_name( int64_t code );
 
 extern void mnemonic_dump( int64_t i, int64_t param );
 
+extern int64_t copytypes( void * dst, void * src, DCB_TYPEDEF * var, int64_t nvars, int64_t reps );
+
 /* --------------------------------------------------------------------------- */
 
 extern void bgdrtm_entry( int argc, char * argv[] );
