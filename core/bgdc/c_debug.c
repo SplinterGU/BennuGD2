@@ -37,8 +37,8 @@
 #include "bgdc.h"
 
 /* ---------------------------------------------------------------------- */
-/* Este modulo contiene funciones que muestran el equivalente en texto de */
-/* una instruccion o mnemonico, o de un bloque de codigo completo         */
+/* This module contains functions that display the text equivalent of an  */
+/* instruction or mnemonic, or an entire code block.                      */
 /* ---------------------------------------------------------------------- */
 
 void codeblock_dump (CODEBLOCK * c) {

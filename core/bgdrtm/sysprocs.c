@@ -41,7 +41,6 @@
 
 /* ---------------------------------------------------------------------- */
 
-/* Debe existir un header bgdrtm.h */
 extern int64_t bgd_copy_struct( INSTANCE * my, int64_t * params );
 extern int64_t bgd_internal_memcopy( INSTANCE * my, int64_t * params );
 extern int64_t bgd_internal_copy_string_array( INSTANCE * my, int64_t * params );

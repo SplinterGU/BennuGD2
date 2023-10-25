@@ -54,9 +54,10 @@
 #define __PACKED
 #endif
 
-/* Estructura del fichero .dcb */
+/* File structure of the .dcb file */
 
 /* Please update the version's high-number between versions */
+
 #define DCB_VERSION 0x0800
 
 #define DCL_MAGIC       "dcl\x0d\x0a\x1f\x00\x00"

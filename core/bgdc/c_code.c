@@ -1286,11 +1286,13 @@ expresion_result compile_cast() {
             res.type = typedef_new(TYPE_INT); */
             codeblock_add( code, MN_STR2CHR, 0 );
             res.type = typedef_new( TYPE_CHAR );
-        } else if ( typedef_is_array( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) { // <<<< crash!!!
+        } else if ( typedef_is_array( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) {
             /* ( char ) <char[]> */
             codeblock_add( code, MN_A2STR, 0 );
             codeblock_add( code, MN_STR2CHR, 0 );
             res.type = typedef_new( TYPE_CHAR );
+            res.count = 0;
+            res.lvalue = 0;
         }
 
         if ( res.constant ) {
@@ -1325,13 +1327,15 @@ expresion_result compile_cast() {
             }
             codeblock_add( code, MN_STR2INT, 0 );
             res.type = typedef_new( TYPE_INT );
-        } else if ( typedef_is_array( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) { // <<<< crash!!!
+        } else if ( typedef_is_array( res.type ) && res.type.chunk[1].type == TYPE_CHAR ) {
             /* ( any integer ) <char[]> */
             codeblock_add( code, MN_A2STR, 0 );
             codeblock_add( code, MN_STR2INT, 0 );
             res.type = typedef_new( TYPE_INT );
+            res.count = 0;
+            res.lvalue = 0;
         } else if ( typedef_is_integer( res.type ) || typedef_is_pointer( res.type ) || typedef_base( res.type ) == TYPE_CHAR ) {
-            /* ( any integer ) <any integer|pointer|char> */ // <<<< bad convertion from char
+            /* ( any integer ) <any integer|pointer|char> */
             if ( res.lvalue ) {
                 codeblock_add( code,  mntype( res.type, 0 ) | MN_PTR, 0 );
                 res.lvalue = 0;
@@ -1372,7 +1376,6 @@ expresion_result compile_cast() {
                         break;
                 }
             }
-
         } else {
             compile_error( MSG_CONVERSION );
         }

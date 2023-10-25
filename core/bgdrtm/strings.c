@@ -740,7 +740,8 @@ uint64_t string_char( int64_t n, int nchar ) {
 /* - negative: count this character from the right (-1 = rightmost)         */
 /*                                                                          */
 /* negative value on len remove characters ( if len < 0 then use len + 1 )  */
-/* NO MORE: If first > last, the two values are swapped before returning the result  */
+/* NO MORE: If first > last, the two values are swapped before returning    */
+/*          the result                                                      */
 /****************************************************************************/
 
 int64_t string_substr( int64_t code, int first, int len ) {
