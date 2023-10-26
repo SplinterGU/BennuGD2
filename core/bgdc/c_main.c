@@ -697,7 +697,13 @@ void compile_process() {
 
     if ( proc->defined ) {
         if ( !is_declare ) compile_error( MSG_PROC_ALREADY_DEFINED );
-        if ( proc->type != return_type ) compile_error( MSG_PROTO_ERROR );   
+        if ( proc->type != return_type ) compile_error( MSG_PROTO_ERROR );
+    }
+
+    /* is a function? */
+    if (is_function) {
+        if ( is_declare && proc->declared && !( proc->flags & PROC_FUNCTION ) ) compile_error( MSG_PROTO_ERROR );
+        proc->flags |= PROC_FUNCTION;
     }
 
     proc->type = return_type;
