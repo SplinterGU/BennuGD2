@@ -716,7 +716,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
 
         if ( collision )
             for ( i = 0; collision[i];i++ )
-                if ( varspace_search( collision[i], token.code ) ) compile_error( MSG_VARIABLE_REDECLARE );
+                if ( varspace_search( collision[i], token.code ) ) compile_error( MSG_VARIABLE_REDECLARE_IN_DIFF_CONTEXT );
 
         if ( constants_search( token.code ) ) compile_error( MSG_CONSTANT_REDECLARED_AS_VARIABLE );
 

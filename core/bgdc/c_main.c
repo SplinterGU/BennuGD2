@@ -377,7 +377,7 @@ void compile_type() {
     typedef_name( t, code );
     segment_name( s, code );
 
-    compile_varspace( v, s, 0, 1, 0, NULL, 0, 0, 0, 1, 0 );
+    compile_varspace( v, s, 0, 1, 0, NULL, 0, 1, 0, 1, 0 );
 
     if ( token.code != identifier_end ) compile_error( MSG_NO_END );
 }
@@ -987,17 +987,18 @@ void compile_program() {
         else if ( token.type == IDENTIFIER && token.code == identifier_const ) compile_constants();
         else if ( token.type == IDENTIFIER && token.code == identifier_local ) {
             VARSPACE * v[] = { &global, NULL };
-            compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
+            compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && (
                         token.code == identifier_global ||
                         ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) )
                      ) ) {
             VARSPACE * v[] = { &local, NULL };
             if ( block_var ) token_back();
-            compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, block_var != 0, 0, 0 );
+            compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, block_var != 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_private ) {
-            VARSPACE * v[] = { &local, &global, NULL };
-            compile_varspace( mainproc->privars, mainproc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
+            /* It is allowed to declare a variable as private that has been declared as global; it's a private variable, not the global one */
+            VARSPACE * v[] = { &local, /*&global,*/ NULL };
+            compile_varspace( mainproc->privars, mainproc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_begin ) {
             if ( mainproc->defined ) {
                 /* Hack to redefine the main process */
