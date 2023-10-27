@@ -715,7 +715,7 @@ void compile_process() {
 
     token_next();
 
-    int params = 0;
+    int params = 0, minparams = -1;
     type = TYPE_INT;
     type_last = TYPE_INT;
     type_implicit = 1;
@@ -870,23 +870,28 @@ void compile_process() {
             expresion_result res = compile_expresion( 1, 0, 1, type );
 
             if ( type == TYPE_DOUBLE ) {
-                proc->paramfvalue[params] = *( int64_t * ) &res.fvalue;
+                double d = res.fvalue;
+                if ( proc->minparams != -1 && proc->minparams <= params && proc->paramfvalue[params] != d ) compile_error( MSG_PROTO_ERROR );
+                proc->paramfvalue[params] = d;
             }
             else
             if ( type == TYPE_FLOAT ) {
                 float f = ( float ) res.fvalue;
-                proc->paramfvalue[params] = *( int32_t * ) &f;
+                if ( proc->minparams != -1 && proc->minparams <= params && proc->paramfvalue[params] != f ) compile_error( MSG_PROTO_ERROR );
+                proc->paramfvalue[params] = f;
             }
             else
             {
+                if ( proc->minparams != -1 && proc->minparams <= params && proc->paramivalue[params] != res.value ) compile_error( MSG_PROTO_ERROR );
                 proc->paramivalue[params] = res.value;
             }
 
-            if ( proc->minparams == -1 ) proc->minparams = params;
+            if ( minparams == -1 ) minparams = params;
+
             token_next();
         }
         else
-        if ( proc->minparams != -1 && proc->minparams < params ) {
+        if ( ( proc->minparams == -1 || proc->minparams > params ) && minparams != -1 && minparams < params ) {
             compile_error( MSG_DEFAULT_REQUIRED );
         }
 
@@ -901,6 +906,7 @@ void compile_process() {
 
     } /* END while (token.type != IDENTIFIER || token.code != identifier_rightp) */
 
+    if ( proc->minparams == -1 || proc->minparams > minparams ) proc->minparams = minparams;
     if ( proc->params == -1 ) proc->params = params;
     else if ( proc->params != params ) compile_error( MSG_INCORRECT_PARAMC, identifier_name( proc->identifier ), proc->params );
 

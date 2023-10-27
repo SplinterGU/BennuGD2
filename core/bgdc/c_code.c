@@ -1734,6 +1734,10 @@ expresion_result compile_value() {
                 if ( cproc->paramtype[i] == TYPE_STRING ) {
                     codeblock_add( code, MN_PUSH | MN_STRING, cproc->paramivalue[i] );
                 }
+                if ( cproc->paramtype[i] == TYPE_FLOAT ) {
+                    float f = (float) cproc->paramfvalue[i];
+                    codeblock_add( code, MN_PUSH, *(int32_t *)&f );
+                }
                 else
                 {
                     codeblock_add( code, MN_PUSH, cproc->paramivalue[i] );
