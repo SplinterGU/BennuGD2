@@ -891,9 +891,7 @@ void compile_process() {
             token_next();
         }
         else
-        if ( ( proc->minparams == -1 || proc->minparams > params ) && minparams != -1 && minparams < params ) {
-            compile_error( MSG_DEFAULT_REQUIRED );
-        }
+        if ( ( proc->minparams == -1 || proc->minparams > params ) && minparams != -1 && minparams < params ) compile_error( MSG_DEFAULT_REQUIRED );
 
         params++;
 
@@ -914,7 +912,8 @@ void compile_process() {
 
     if ( !is_declare && token.type == IDENTIFIER && token.code == identifier_semicolon ) token_next();
 
-    int wait_for_end = 0;
+    int wait_for_end = !is_declare;
+    int wait_semicolon = is_declare;
 
     /* Compile LOCAL/PRIVATE/PUBLIC sections on process/function.
        NOTE: LOCAL section here considere as PUBLIC section */
@@ -924,7 +923,8 @@ void compile_process() {
             token.code == identifier_public ||
             token.code == identifier_private ) )
     {
-        wait_for_end = 1;
+        wait_semicolon = 0;
+        wait_for_end = 0;
         if ( ( token.code == identifier_local || token.code == identifier_public ) ) {
             /* Local declarations are only local to the process but visible from every process */
             /* It is allowed to declare a variable as local/public that has been declared as global; it's a local variable, not the global one */
@@ -954,11 +954,9 @@ void compile_process() {
         
         codeblock_add( &proc->code, MN_END, 0 );
     } else {
-        if ( wait_for_end ) {
-            if ( token.code != identifier_end ) compile_error( MSG_NO_END );
-        }
-        else 
-        if ( token.code != identifier_end && token.code != identifier_semicolon ) compile_error( MSG_EXPECTED, "; or END" );
+        if ( !wait_semicolon && !wait_for_end && token.code != identifier_semicolon && token.code != identifier_end ) token_back();
+        if ( wait_for_end && token.code != identifier_end ) compile_error( MSG_NO_END );
+        if ( wait_semicolon && token.code != identifier_semicolon && token.code != identifier_end ) compile_error( MSG_EXPECTED, "; or END" );
     }
 
     if ( !is_declare ) proc->defined = 1;
