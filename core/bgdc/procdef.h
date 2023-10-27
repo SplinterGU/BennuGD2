@@ -60,6 +60,7 @@ typedef struct _procdef {
     int64_t     typeid;
     int64_t     identifier;
     int64_t     params;
+    int64_t     minparams;
     int64_t     defined;
     int64_t     declared;
     int64_t     flags;
@@ -68,6 +69,11 @@ typedef struct _procdef {
 
     int64_t     paramname[MAX_PARAMS];
     BASETYPE    paramtype[MAX_PARAMS];
+    union {
+        int64_t paramivalue[MAX_PARAMS];
+        double paramfvalue[MAX_PARAMS];
+    };
+
     BASETYPE    type;
 
     CODEBLOCK   code;

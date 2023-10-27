@@ -765,7 +765,7 @@ static void strdelchars( char * str, char * chars ) {
 
 SYSPROC * compile_bestproc( SYSPROC ** procs ) {
     const char * proc_name = procs[0]->name;
-    int n, proc_count = 0, count = 0, min_params = 0, params = 0;
+    int n, proc_count = 0, count = 0, min_params = 0;
     char validtypes[32], type = -1;
     CODEBLOCK_POS code_pos_code;
     expresion_result res;
@@ -788,7 +788,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
     code_pos_code = codeblock_pos( code );
     token_save = token_pos();
 
-    params = 0;
+    int params = 0;
 
     for (;;) {
         token_next();
@@ -1727,7 +1727,18 @@ expresion_result compile_value() {
         if ( cproc->params == -1 ) {
             cproc->params = param_count;
         } else if ( cproc->params != param_count ) {
-            compile_error( MSG_INCORRECT_PARAMC, identifier_name( cproc->identifier ), cproc->params );
+            if ( cproc->minparams == -1 || cproc->minparams > param_count ) {
+                compile_error( MSG_INCORRECT_PARAMC, identifier_name( cproc->identifier ), cproc->minparams == -1 ? cproc->params : cproc->minparams );
+            }
+            for ( int i = param_count; i < cproc->params; i++ ) {
+                if ( cproc->paramtype[i] == TYPE_STRING ) {
+                    codeblock_add( code, MN_PUSH | MN_STRING, cproc->paramivalue[i] );
+                }
+                else
+                {
+                    codeblock_add( code, MN_PUSH, cproc->paramivalue[i] );
+                }
+            }
         }
 
         codeblock_add( code, MN_CALL, id );

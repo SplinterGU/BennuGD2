@@ -71,6 +71,7 @@ PROCDEF * procdef_new( int64_t typeid, int64_t id ) {
     proc->pubvars = varspace_new();
 
     proc->params            = -1;
+    proc->minparams         = -1;
     proc->defined           = 0;
     proc->declared          = 0;
     proc->type              = TYPE_QWORD;

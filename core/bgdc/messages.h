@@ -76,6 +76,7 @@
 #define MSG_UNEXPECTED_TOKEN                    "Unexpected token (too many ENDs?)"
 #define MSG_UNEXPECTED_TOKEN_GENERIC            "Unexpected token"
 #define MSG_NO_MAIN                             "Main procedure was not defined"
+#define MSG_DEFAULT_REQUIRED                    "Default value required" 
 #define MSG_INTEGER_REQUIRED                    "Integer type required"
 #define MSG_NUMBER_REQUIRED                     "Numeric type required"
 #define MSG_INCOMP_TYPES                        "Data types not compatible with operation"

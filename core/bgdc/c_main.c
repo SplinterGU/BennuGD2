@@ -630,7 +630,7 @@ void compile_constants() {
 void compile_process() {
     PROCDEF * proc, * external_proc = NULL, *e;
     VARIABLE  * var;
-    int is_declare = 0, is_function = 0, type_implicit = 1, params = 0;
+    int is_declare = 0, is_function = 0, type_implicit = 1;
 
     BASETYPE type, type_last;
     TYPEDEF ctype, ctype_last;
@@ -715,7 +715,7 @@ void compile_process() {
 
     token_next();
 
-    params = 0;
+    int params = 0;
     type = TYPE_INT;
     type_last = TYPE_INT;
     type_implicit = 1;
@@ -864,11 +864,36 @@ void compile_process() {
 
         proc->paramname[params] = token.code;
 
+        token_next();
+
+        if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
+            expresion_result res = compile_expresion( 1, 0, 1, type );
+
+            if ( type == TYPE_DOUBLE ) {
+                proc->paramfvalue[params] = *( int64_t * ) &res.fvalue;
+            }
+            else
+            if ( type == TYPE_FLOAT ) {
+                float f = ( float ) res.fvalue;
+                proc->paramfvalue[params] = *( int32_t * ) &f;
+            }
+            else
+            {
+                proc->paramivalue[params] = res.value;
+            }
+
+            if ( proc->minparams == -1 ) proc->minparams = params;
+            token_next();
+        }
+        else
+        if ( proc->minparams != -1 && proc->minparams < params ) {
+            compile_error( MSG_DEFAULT_REQUIRED );
+        }
+
         params++;
 
         if ( params == MAX_PARAMS ) compile_error( MSG_TOO_MANY_PARAMS );
 
-        token_next();
         if ( token.type == IDENTIFIER ) {
             if ( token.code != identifier_rightp && token.code != identifier_comma ) compile_error( MSG_EXPECTED, "," );
             if ( token.code == identifier_comma ) token_next();
