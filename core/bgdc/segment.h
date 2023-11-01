@@ -36,10 +36,10 @@
 /* A segment is a linear area of data that can grow dynamically */
 
 typedef struct _segment {
-	void * bytes;
-	int64_t	current;
-	int64_t	reserved;
-	int64_t	id;
+    void * bytes;     // Pointer to the memory buffer.
+    int64_t current;  // Current offset within the segment.
+    int64_t reserved; // Total size reserved for the segment's data.
+    int64_t id;       // Unique identifier for the segment.
 } segment;
 
 extern segment * segment_new();

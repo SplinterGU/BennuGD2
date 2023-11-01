@@ -377,7 +377,7 @@ void compile_type() {
     typedef_name( t, code );
     segment_name( s, code );
 
-    compile_varspace( v, s, 0, 1, 0, NULL, 0, 1, 0, 1, 0 );
+    compile_varspace( v, s, 0, 1, NULL, 0, 1, 0, 1, 0 );
 
     if ( token.code != identifier_end ) compile_error( MSG_NO_END );
 }
@@ -504,14 +504,14 @@ static void import_module( const char * filename ) {
     if ( globals_def && *globals_def ) {
         VARSPACE * v[] = {&local, NULL};
         token_init( *globals_def, -1 );
-        compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
+        compile_varspace( &global, globaldata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
     }
 
     locals_def  = ( char ** ) _dlibaddr( library, "locals_def" );
     if ( locals_def && *locals_def ) {
         VARSPACE * v[] = {&global, NULL};
         token_init( *locals_def, -1 );
-        compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
+        compile_varspace( &local, localdata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
     }
 
     functions_exports = ( DLSYSFUNCS * ) _dlibaddr( library, "functions_exports" );
@@ -929,13 +929,13 @@ void compile_process() {
             /* Local declarations are only local to the process but visible from every process */
             /* It is allowed to declare a variable as local/public that has been declared as global; it's a local variable, not the global one */
             VARSPACE * v[] = {&local, proc->privars, NULL};
-            compile_varspace( proc->pubvars, proc->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
+            compile_varspace( proc->pubvars, proc->pubdata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         }
         else
         if ( token.code == identifier_private ) {
             /* It is allowed to declare a variable as private that has been declared as global; it's a private variable, not the global one */
             VARSPACE * v[] = {&local, proc->pubvars, NULL};
-            compile_varspace( proc->privars, proc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
+            compile_varspace( proc->privars, proc->pridata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         }
 
         token_next();
@@ -987,18 +987,18 @@ void compile_program() {
         else if ( token.type == IDENTIFIER && token.code == identifier_const ) compile_constants();
         else if ( token.type == IDENTIFIER && token.code == identifier_local ) {
             VARSPACE * v[] = { &global, NULL };
-            compile_varspace( &local, localdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
+            compile_varspace( &local, localdata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && (
                         token.code == identifier_global ||
                         ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) )
                      ) ) {
             VARSPACE * v[] = { &local, NULL };
             if ( block_var ) token_back();
-            compile_varspace( &global, globaldata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, block_var != 0, 0, 0 );
+            compile_varspace( &global, globaldata, 1, 1, v, DEFAULT_ALIGNMENT, 1, block_var != 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_private ) {
             /* It is allowed to declare a variable as private that has been declared as global; it's a private variable, not the global one */
             VARSPACE * v[] = { &local, /*&global,*/ NULL };
-            compile_varspace( mainproc->privars, mainproc->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
+            compile_varspace( mainproc->privars, mainproc->pridata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_begin ) {
             if ( mainproc->defined ) {
                 /* Hack to redefine the main process */

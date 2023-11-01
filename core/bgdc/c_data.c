@@ -212,7 +212,7 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
                 if ( *t == TYPE_STRING ) varspace_varstring( n, data->current );
                 segment_add_as( data, base, *t );
                 count++;
-                if ( size ) remaining --;
+                if ( size ) remaining--;
             }
         }
         token_next();
@@ -285,6 +285,7 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub, int is
 
         /* Allow parenthized struct initialization */
         if ( token.type == IDENTIFIER && token.code == identifier_leftp ) {
+
             if (( elements % n->count ) != 0 ) compile_error( MSG_NOT_ENOUGH_INIT );
 
             /* Note - don't ignore a trailing comma! */
@@ -473,6 +474,24 @@ static void set_type( TYPEDEF * t, BASETYPE type ) {
     t->chunk[t->depth-1].type = type;
 }
 
+/* Reverses the indices [10][5] -> [5][10] */
+TYPEDEF reverse_indices(TYPEDEF type) {
+    int i;
+
+    for ( i = 0 ; i < type.depth ; i++ ) if ( type.chunk[i].type != TYPE_ARRAY ) break;
+    i--;
+
+    TYPECHUNK chunk;
+    for ( int j = 0 ; j < ( i + 1 ) / 2 ; j++ ) {
+        chunk               = type.chunk[ j ];
+        type.chunk[ j ]     = type.chunk[ i - j ];
+        type.chunk[ i - j ] = chunk;
+    }
+
+    return type;
+}
+
+
 /*
  *  FUNCTION : compile_varspace
  *
@@ -496,11 +515,11 @@ static void set_type( TYPEDEF * t, BASETYPE type ) {
  *
  */
 
-int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin, int level, int is_inline ) {
+int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin, int level, int is_inline ) {
     int i, j,
         total_count, last_count = 0,
         base_offset = data->current,
-        total_length, count,
+        total_length,
         sign_prefix = 0;
     expresion_result res;
     BASETYPE basetype = TYPE_UNDEFINED;
@@ -681,53 +700,51 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
         }
 
-        VARIABLE * var;
-        if ( ( var = varspace_search( n, token.code ) ) ) {
-            if ( duplicateignore ) {
-                if ( !typedef_is_equal( type, var->type )) compile_error( MSG_VARIABLE_REDECLARE_DIFF );
-
-                int skip_all_until_semicolon = 0,
-                    skip_equal = 0;
-
-                if ( debug ) compile_warning( 0, MSG_VARIABLE_REDECLARE );
-
-                for (;;) {
-                    token_next();
-
-                    /* It skips everything until the semicolon or the end, or the comma if there is no assignment */
-                    if ( token.type == NOTOKEN ) break;
-
-                    if ( token.type == IDENTIFIER ) {
-                        if ( !skip_equal && token.code == identifier_equal ) {
-                            skip_all_until_semicolon = 1;
-                            continue;
-                        }
-
-                        if ( !skip_all_until_semicolon && token.code == identifier_comma ) break;
-                        if ( token.code == identifier_semicolon ) break;
-                        if ( token.code == identifier_end ) break;
-                    }
-                }
-                token_back();
-                continue;
-            } else
-                compile_error( MSG_VARIABLE_REDECLARE );
-        }
+        if ( constants_search( token.code ) ) compile_error( MSG_CONSTANT_REDECLARED_AS_VARIABLE );
 
         if ( collision )
-            for ( i = 0; collision[i];i++ )
+            for ( i = 0; collision[i]; i++ )
                 if ( varspace_search( collision[i], token.code ) ) compile_error( MSG_VARIABLE_REDECLARE_IN_DIFF_CONTEXT );
 
-        if ( constants_search( token.code ) ) compile_error( MSG_CONSTANT_REDECLARED_AS_VARIABLE );
+        VARIABLE * var;
+        if ( ( var = varspace_search( n, token.code ) ) ) {
+            if ( !duplicateignore ) compile_error( MSG_VARIABLE_REDECLARE );
+
+            if ( !typedef_is_equal( type, var->type )) compile_error( MSG_VARIABLE_REDECLARE_DIFF );
+
+            int skip_all_until_semicolon = 0;
+
+            if ( debug ) compile_warning( 0, MSG_VARIABLE_REDECLARE );
+
+            for (;;) {
+                token_next();
+
+                /* It skips everything until the semicolon or the end, or the comma if there is no assignment */
+                if ( token.type == NOTOKEN ) break;
+
+                if ( token.type == IDENTIFIER ) {
+                    if ( token.code == identifier_equal ) {
+                        skip_all_until_semicolon = 1;
+                        continue;
+                    }
+
+                    if ( !skip_all_until_semicolon && token.code == identifier_comma ) break;
+                    if ( token.code == identifier_semicolon ) break;
+                    if ( token.code == identifier_end ) break;
+                }
+            }
+            token_back();
+            continue;                
+        }
 
         var = &n->vars[n->count];
 
-        n->vars[n->count].code = token.code;
-        n->vars[n->count].offset = data->current;
+        var->code = token.code;
+        var->offset = data->current;
 
         /* Non-additive STRUCT; use zero-based member offsets */
 
-        if ( !additive ) n->vars[n->count].offset -= base_offset;
+        if ( !additive ) var->offset -= base_offset;
 
         token_next();
 
@@ -736,7 +753,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             VARSPACE * members;
 
             type.chunk[0].count = 1;
-            count = 1;
+            int count = 1;
             while ( token.type == IDENTIFIER && token.code == identifier_leftb ) {
                 res = compile_expresion( 1, 0, 1, TYPE_INT ); // add ignore code (JJP)
                 if ( !typedef_is_integer( res.type ) ) compile_error( MSG_INTEGER_REQUIRED );
@@ -751,30 +768,22 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             token_back();
 
             /* Reverses the indices [10][5] -> [5][10] */
-            for ( i = 0 ; i < type.depth ; i++ ) if ( type.chunk[i].type != TYPE_ARRAY ) break;
-            i--;
-
-            TYPECHUNK chunk;
-            for ( j = 0 ; j < ( i + 1 ) / 2 ; j++ ) {
-                chunk               = type.chunk[ j ];
-                type.chunk[ j ]     = type.chunk[ i - j ];
-                type.chunk[ i - j ] = chunk;
-            }
+            type = reverse_indices( type );
 
             members = ( VARSPACE * )calloc( 1, sizeof( VARSPACE ) );
             if ( !members ) compile_error( MSG_OUT_OF_MEMORY );
             varspace_init( members );
 
-            ( void ) compile_varspace( members, data, 0, count, 0, NULL, 0, duplicateignore, 0, level + 1, is_inline );
+            ( void ) compile_varspace( members, data, 0, count, NULL, 0, duplicateignore, 0, level + 1, is_inline );
 
             type.varspace = members;
 
             token_next();
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
-                i = data->current;
-                data->current = n->vars[n->count].offset;
+                int64_t current_offset = data->current;
+                data->current = var->offset;
                 compile_struct_data( members, data, count, 0, is_inline );
-                data->current = i;
+                data->current = current_offset;
             } else {
                 token_back();
             }
@@ -783,7 +792,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 varspace_varstring( n, members->stringvars[i] );
 
             n->size += typedef_size( type );
-            n->vars[n->count].type = type;
+            var->type = type;
+
             n->count++;
 
             continue ;  /* No ; */
@@ -821,39 +831,29 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
 
             /* Reverses the indices [10][5] -> [5][10] */
-            for ( i = 0 ; i < type.depth ; i++ ) if ( type.chunk[i].type != TYPE_ARRAY ) break;
-            i--;
-
-            TYPECHUNK chunk;
-            for ( j = 0 ; j < ( i + 1 ) / 2 ; j++ ) {
-                chunk               = type.chunk[ j ];
-                type.chunk[ j ]     = type.chunk[ i - j ];
-                type.chunk[ i - j ] = chunk;
-            }
+            type = reverse_indices( type );
 
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
                 if ( segm ) {
                     for ( i = 0 ; i < total_count ; i++ ) segment_add_from( data, segm );
-                    i = data->current;
-                    data->current = n->vars[n->count].offset;
+                    int64_t current_offset = data->current;
+                    data->current = var->offset;
                     compile_struct_data( type.varspace, data, typedef_count( type ), 0, is_inline );
 
-                    if ( !type.chunk[0].count ) type.chunk[0].count = ( data->current - i ) / typedef_size( type_last );
-                    else                        data->current = i; /* Only if it had already been allocated */
+                    if ( !type.chunk[0].count ) type.chunk[0].count = ( data->current - current_offset ) / typedef_size( type_last );
+                    else                        data->current = current_offset; /* Only if it had already been allocated */
 
                 }
                 else
                 {
                     /* if (basetype == TYPE_UNDEFINED) basetype = TYPE_INT; */
-                    i = compile_array_data( n, data, total_count, last_count, &basetype, is_inline );
+                    int count = compile_array_data( n, data, total_count, last_count, &basetype, is_inline );
                     assert( basetype != TYPE_UNDEFINED );
                     set_type( &type, basetype );
 
-                    if ( total_count == 0 ) {
-                        type.chunk[0].count = i;
-                    }
+                    if ( total_count == 0 ) type.chunk[0].count = count;
                     else
-                    for ( ; i < total_count; i++ ) {
+                    for ( ; count < total_count; count++ ) {
                         if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
                         segment_add_as( data, 0, basetype );
                     }
@@ -864,6 +864,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                 if ( segm ) {
                     int string_offset = 0;
 
+                    // Error if the variable is an array and does not have a specified dimension or initialization values
                     if ( total_count == 0 ) compile_error( MSG_EXPECTED, "=" );
 
                     for ( i = 0; i < total_count; i++ ) {
@@ -879,6 +880,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
                         set_type( &type, basetype );
                     }
 
+                    // Error if the variable is an array and does not have a specified dimension or initialization values
                     if ( type.chunk[0].count == 0 ) compile_error( MSG_EXPECTED, "=" );
 
                     for ( i = 0; i < total_count; i++ ) {
@@ -890,15 +892,15 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
             }
         }
         else
-        /* Compiles an assignment of default values */
+        /* Compiles an assignment of default values (variable initialization in declaration) */
         if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
             if ( segm ) {
                 segment_add_from( data, segm );
-                i = data->current;
-                data->current = n->vars[n->count].offset;
+                int64_t current_offset = data->current;
+                data->current = var->offset;
                 if ( !additive ) data->current += base_offset;
                 compile_struct_data( type.varspace, data, 1, 0, is_inline );
-                data->current = i;
+                data->current = current_offset;
 
             }
             else
@@ -934,6 +936,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         }
         else
         {
+            /* Compiles an nil value assignment  (variable initialization, without value) */
             if ( !segm ) { /* Assigns default values (0) */
                 if ( basetype == TYPE_UNDEFINED ) {
                     basetype = TYPE_INT;
@@ -955,10 +958,10 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         }
 
         n->size += typedef_size( type );
-        n->vars[n->count].type = type;
+        var->type = type;
 
         /* Process-type variables, assign varspace to the type */
-        if ( proc ) n->vars[n->count].type.varspace = proc->pubvars;
+        if ( proc ) var->type.varspace = proc->pubvars;
 
         n->count++;
 
@@ -977,15 +980,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, in
         compile_error( MSG_EXPECTED, ";" );
         token_back();
         break;
-    }
-
-    if ( padding && ( data->current % padding ) > 0 ) {
-        padding -= data->current % padding;
-        data->current += padding;
-        n->size += padding;
-
-        if ( data->reserved <= data->current )
-            segment_alloc( data, data->reserved - data->current + 32 );
     }
 
     n->last_offset = data->current;

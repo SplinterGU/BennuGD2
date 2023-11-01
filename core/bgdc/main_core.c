@@ -163,8 +163,8 @@ void core_init() {
     }
 
     token_init( globals_def, -1 );
-    compile_varspace( &global, globaldata, 1, 1, 0, NULL, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
+    compile_varspace( &global, globaldata, 1, 1, NULL, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
 
     token_init( locals_def, -1 );
-    compile_varspace( &local, localdata, 1, 1, 0, NULL, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
+    compile_varspace( &local, localdata, 1, 1, NULL, DEFAULT_ALIGNMENT, 0, 0, 0, 0 );
 }

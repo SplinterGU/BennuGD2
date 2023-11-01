@@ -63,7 +63,7 @@ extern void import_mod( char * libname );
 
 /* Compilation of special sections (data definition, etc) */
 extern int  compile_array_data(VARSPACE * n, segment * data, int size, int subsize, BASETYPE *t, int is_inline);
-extern int  compile_varspace(VARSPACE * n, segment * data, int additive, int copies, int padding, VARSPACE ** c, int alignment, int duplicateignore, int block_without_begin, int level, int is_inline );
+extern int  compile_varspace(VARSPACE * n, segment * data, int additive, int copies, VARSPACE ** c, int alignment, int duplicateignore, int block_without_begin, int level, int is_inline );
 extern void compile_constants();
 
 #define DEFAULT_ALIGNMENT 8

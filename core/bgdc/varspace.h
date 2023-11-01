@@ -36,20 +36,20 @@
 /* A VARSPACE is a variable definition zone */
 
 typedef struct _varspace {
-	struct _variable * vars;
-	int64_t	size;
-	int64_t	count;
-	int64_t	reserved;
-	int64_t	last_offset;
-	int64_t * stringvars;
-	int64_t	stringvar_reserved;
-	int64_t	stringvar_count;
+    struct _variable * vars; 	// variables
+    int64_t size; 				// size in bytes of the data in the varspace (variable data)
+    int64_t count; 				// number of variables
+    int64_t reserved; 			// number of allocated variables (may be less than or equal to count)
+    int64_t last_offset; 		// last offset of variable data
+    int64_t * stringvars; 		// offsets of string-type variables
+    int64_t stringvar_reserved; // number of allocated string offsets
+    int64_t stringvar_count; 	// number of string offsets
 } VARSPACE;
 
 typedef struct _variable {
-	TYPEDEF type;
-	int64_t	code;
-	int64_t	offset;
+    TYPEDEF type; 				// variable type
+    int64_t code; 				// variable identifier
+    int64_t offset; 			// variable offset within the data segment
 } VARIABLE;
 
 extern VARSPACE * varspace_new();

@@ -52,17 +52,17 @@ typedef enum {
 } BASETYPE ;
 
 typedef struct _typechunk {
-    BASETYPE   type ;
-    int        count ;	/* for type == TYPE_ARRAY */
-} TYPECHUNK ;
+    BASETYPE   type;    // The base type.
+    int        count;   // For type == TYPE_ARRAY.
+} TYPECHUNK;
 
 #define MAX_TYPECHUNKS 8
 
 typedef struct _typedef {
-    TYPECHUNK          chunk[MAX_TYPECHUNKS] ;
-    int                depth ;
-    struct _varspace * varspace ;
-} TYPEDEF ;
+    TYPECHUNK          chunk[MAX_TYPECHUNKS];   // Array of TYPECHUNK structures.
+    int                depth;                   // Depth of the typedef.
+    struct _varspace * varspace;                // Pointer to the variable space.
+} TYPEDEF;
 
 #define typedef_is_undefined(t) ((t).chunk[0].type == TYPE_UNDEFINED)
 #define typedef_is_numeric(t)   ((t).chunk[0].type < TYPE_STRING)

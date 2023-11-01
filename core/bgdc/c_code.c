@@ -3325,14 +3325,14 @@ void compile_block( PROCDEF * p ) {
                 token_back();
                 /* It is allowed to declare a variable as private that has been declared as global; it's a local variable, not the global one */
                 VARSPACE * v[] = {&local, p->pubvars, NULL};
-                compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 1, 0, 1 );
+                compile_varspace( p->privars, p->pridata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 1, 0, 1 );
                 continue;
             }
         } else if (( !proc->declared ) && ( token.code == identifier_local || token.code == identifier_public ) ) {
             /* Local declarations are local only to the process but visible from every process */
             /* It is allowed to declare a variable as local/public that has been declared global; it's a local variable, not the global one */
             VARSPACE * v[] = {&local, p->privars, NULL};
-            compile_varspace( p->pubvars, p->pubdata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 1, 0, 0 );
+            compile_varspace( p->pubvars, p->pubdata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 1, 0, 0 );
         }
 
         if ( token.type == IDENTIFIER ) {
@@ -3486,7 +3486,7 @@ void compile_block( PROCDEF * p ) {
                     token_back();
                     if ( cond ) {
                         VARSPACE * v[] = {&local, p->pubvars, NULL};
-                        compile_varspace( p->privars, p->pridata, 1, 1, 0, v, DEFAULT_ALIGNMENT, 1, 1, 0, 1 );
+                        compile_varspace( p->privars, p->pridata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 1, 0, 1 );
                     } else {
                         do {
                             compile_expresion( 0, 0, 0, TYPE_UNDEFINED /*TYPE_QWORD*/ );
