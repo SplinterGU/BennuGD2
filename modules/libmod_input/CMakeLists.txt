@@ -13,4 +13,4 @@ file(GLOB SOURCES_LIBMOD_INPUT
      )
 
 add_library(mod_input SHARED ${SOURCES_LIBMOD_INPUT})
-target_link_libraries(mod_input ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin -lbgdrtm -lbggfx -lbginput)
+target_link_libraries(mod_input ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin bgdrtm bggfx bginput)

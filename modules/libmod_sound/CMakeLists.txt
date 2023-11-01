@@ -14,4 +14,4 @@ file(GLOB SOURCES_LIBMOD_SOUND
      )
 
 add_library(mod_sound SHARED ${SOURCES_LIBMOD_SOUND})
-target_link_libraries(mod_sound ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} -L../../bin -lbgdrtm -lbgload)
+target_link_libraries(mod_sound ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} -L../../bin bgdrtm bgload)

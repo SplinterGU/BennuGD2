@@ -13,4 +13,4 @@ file(GLOB SOURCES_LIBMOD_MISC
      )
 
 add_library(mod_misc SHARED ${SOURCES_LIBMOD_MISC})
-target_link_libraries(mod_misc ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin -lbgdrtm)
+target_link_libraries(mod_misc ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin bgdrtm)

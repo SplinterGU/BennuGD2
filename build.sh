@@ -94,21 +94,17 @@ export EXTRA_CFLAGS
 export SDL2GPUDIR
 export COMPILER
 
-mkdir -p build/build-$TARGET 2>/dev/null
+if [ "$CLEAN" == "1" ]
+then
+    echo "### Cleaning previous build ($TARGET) ###"
+    rm -rf build/build-$TARGET
+fi
 
 echo "### Building BennuGD ($TARGET) ###"
-
+mkdir -p build/build-$TARGET 2>/dev/null
 cd build/build-$TARGET
-if [ "$CLEAN" == "1" ]
-then
-    rm CMakeCache.txt
-fi
 cmake ../.. $DEBUG -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DTARGET=$TARGET
-if [ "$CLEAN" == "1" ]
-then
-    make clean
-fi
-make
+make -j
 cd -
 
 echo "### Build done! ###"

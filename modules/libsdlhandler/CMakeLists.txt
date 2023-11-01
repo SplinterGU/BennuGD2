@@ -13,4 +13,4 @@ file(GLOB SOURCES_LIBSDLHANDLER
      )
 
 add_library(sdlhandler SHARED ${SOURCES_LIBSDLHANDLER})
-target_link_libraries(sdlhandler ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin -lbgdrtm)
+target_link_libraries(sdlhandler ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin bgdrtm)

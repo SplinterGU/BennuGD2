@@ -14,4 +14,4 @@ file(GLOB SOURCES
 link_directories(../build/bin)
 
 add_executable(bgdi ${SOURCES})
-target_link_libraries(bgdi -L../../bin -lbgdrtm -lm)
+target_link_libraries(bgdi -L../../bin bgdrtm -lm)
