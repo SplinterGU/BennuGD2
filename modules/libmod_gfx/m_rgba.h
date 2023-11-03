@@ -31,7 +31,6 @@
 #ifndef __M_RGBA_H
 #define __M_RGBA_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_get_rgb( INSTANCE * my, int64_t * params );

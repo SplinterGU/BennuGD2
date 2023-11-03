@@ -35,6 +35,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bgdrtm.h"
+#include "bgddl.h"
+#include "dlvaracc.h"
+
 #include "libbggfx.h"
 
 /* --------------------------------------------------------------------------- */

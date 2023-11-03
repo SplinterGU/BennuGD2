@@ -137,8 +137,6 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { NULL                  , 0                 , 0                                     }
 } ;
 
-#endif
-
 /* --------------------------------------------------------------------------- */
 
 char * __bgdexport( libmod_gfx, locals_def ) =
@@ -168,7 +166,7 @@ char * __bgdexport( libmod_gfx, locals_def ) =
 
 #ifdef LIBVLC_ENABLED
 
-char * __bgdexport( libmod_gfx, types_def ) =
+char * __bgdexport_ifdef( LIBVLC_ENABLED, libmod_gfx, types_def ) =
     /* m_media */
 
     "TYPE MEDIA_TRACK_T\n"
@@ -184,6 +182,8 @@ char * __bgdexport( libmod_gfx, types_def ) =
     "   STRING name;\n"
     "END\n"
     ;
+
+#endif
 
 #endif
 

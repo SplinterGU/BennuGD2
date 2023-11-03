@@ -24,6 +24,8 @@
  *
  */
 
+#define __BGDC__
+
 #include <loadlib.h> /* Must be fist include */
 
 #include <stdio.h>

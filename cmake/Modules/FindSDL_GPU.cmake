@@ -8,7 +8,7 @@ find_path(SDL_GPU_INCLUDE_DIR
 	NO_CMAKE_FIND_ROOT_PATH)
 
 find_library(SDL_GPU_LIBRARY
-    NAMES SDL2_gpu libSDL2_gpu.dll.a
+    NAMES SDL2_gpu libSDL2_gpu.dll.a libSDL2_gpu_s.a
     HINTS $ENV{SDL2GPUDIR}
     PATHS ../../vendor/sdl-gpu/build/build-$ENV{TARGET}/ ../../vendor/sdl-gpu/build/build-$ENV{TARGET}/SDL_gpu$ENV{COMPILER}/ /usr/local/lib/ /usr/$ENV{TARGET}/ 
     PATH_SUFFIXES lib/ lib64/ bin/

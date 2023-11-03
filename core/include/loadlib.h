@@ -45,6 +45,7 @@
 #endif
 
 #include <stdio.h>
+#include <libgen.h>
 
 /*******************************************************************************
  * COMMON                                                                      *
@@ -239,7 +240,7 @@ static void * _dlibaddr( void * _handle, const char * symbol ) {
 #else
 
 /*******************************************************************************
- * MONOLITH                                                                    *
+ * STATIC VERSION                                                              *
  *******************************************************************************/
 
 #include <fake_dl.h>
@@ -267,13 +268,13 @@ static void * dlibopen( const char * fname ) {
         fake_dl_inited = 1;
     }
 
-    strcpy( dlname, basename( fname ) );
+    strcpy( dlname, basename( ( char * ) fname ) );
 
     p = strrchr( dlname, '.' );
     if ( p ) *p = '\0' ;
 
     while( fdl->dlname ) {
-        if ( !strcmp( dlname, fdl->dlname ) ) return ( void * ) fdl;
+        if ( !strcmp( dlname, fdl->dlname ) || ( strlen(fdl->dlname) > 3 && !strncmp(fdl->dlname, "lib", 3) && !strcmp( dlname, fdl->dlname + 3) ) ) return ( void * ) fdl;
         fdl++;
     }
 

@@ -31,7 +31,6 @@
 #ifndef __M_FNT_H
 #define __M_FNT_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_load_fnt( INSTANCE * my, int64_t * params );

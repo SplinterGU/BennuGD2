@@ -32,9 +32,7 @@
 
 #include "bgddl.h"
 
-#include <SDL.h>
-
-#include "SDL_mixer.h"
+#include "libmod_sound.h"
 
 #include "files.h"
 #include "xstrings.h"

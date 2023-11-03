@@ -99,8 +99,6 @@ DLCONSTANT  __bgdexport( libmod_misc, constants_def)[] =
     { NULL                      , 0             , 0                     }
 } ;
 
-#endif
-
 /* ----------------------------------------------------------------- */
 /* Definicion de variables globales (usada en tiempo de compilacion) */
 
@@ -133,6 +131,8 @@ char * __bgdexport( libmod_misc, locals_def ) =
     "   QWORD signal_action;\n"
     "END\n"
     ;
+
+#endif
 
 /* ----------------------------------------------------------------- */
 /* Functions declaration                                             */

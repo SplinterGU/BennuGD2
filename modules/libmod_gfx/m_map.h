@@ -34,7 +34,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_map_get_pixel( INSTANCE * my, int64_t * params );

@@ -31,7 +31,6 @@
 #ifndef __M_MATHGFX_H
 #define __M_MATHGFX_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_advance( INSTANCE * my, int64_t * params );

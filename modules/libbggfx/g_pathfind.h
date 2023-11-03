@@ -31,8 +31,7 @@
 #ifndef __G_PATHFIND_H
 #define __G_PATHFIND_H
 
-#include "bgdrtm.h"
-#include "bgddl.h"
+#include <bgddl.h>
 
 /* --------------------------------------------------------------------------- */
 

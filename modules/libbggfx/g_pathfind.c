@@ -31,9 +31,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "bgdrtm.h"
-#include "bgddl.h"
-
 #include "libbggfx.h"
 
 /* --------------------------------------------------------------------------- */

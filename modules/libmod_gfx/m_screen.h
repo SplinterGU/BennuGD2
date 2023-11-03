@@ -31,7 +31,6 @@
 #ifndef __M_SCREEN_H
 #define __M_SCREEN_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_define_region( INSTANCE * my, int64_t * params );

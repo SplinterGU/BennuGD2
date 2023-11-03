@@ -36,7 +36,10 @@
 #include "i_joy.h"
 
 /* ---------------------------------------------------------------------- */
+
 #ifdef __LIBBGINPUT
+
+#if !defined(__BGDC__)
 
 enum {
     SHIFTSTATUS = 0,
@@ -83,6 +86,8 @@ enum {
     MOUSE_EQUATION_ALPHA,
     MOUSE_SHADER_ID
 };
+
+#endif
 
 /* --------------------------------------------------------------------------- */
 

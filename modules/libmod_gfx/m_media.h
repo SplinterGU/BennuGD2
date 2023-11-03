@@ -33,7 +33,6 @@
 
 #ifdef LIBVLC_ENABLED
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_media_load( INSTANCE * my, int64_t * params );

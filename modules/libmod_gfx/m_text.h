@@ -31,7 +31,6 @@
 #ifndef __M_TEXT_H
 #define __M_TEXT_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_text_write( INSTANCE * my, int64_t * params );

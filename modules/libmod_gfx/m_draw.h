@@ -31,7 +31,6 @@
 #ifndef __M_DRAW_H
 #define __M_DRAW_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 /* --------------------------------------------------------------------------- */

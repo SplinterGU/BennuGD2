@@ -29,7 +29,6 @@
 #ifndef __M_SHADERS_H
 #define __M_SHADERS_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_shader_create( INSTANCE * my, int64_t * params );

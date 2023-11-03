@@ -1,4 +1,5 @@
 project(bgdrtm)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "../../bin/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "../../bin/")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../bin/")
 
@@ -17,6 +18,7 @@ else ()
 endif ()
 
 add_definitions(-D__BGDRTM__ -DVERSION="2.0.0" ${extra_cflags})
+add_definitions(${EXTRA_CFLAGS})
 
 include_directories(../../core/include ../../core/bgdrtm)
 
@@ -25,5 +27,6 @@ file(GLOB SOURCES_BGDRTM
     "../../core/common/*.c"
     )
 
-add_library(bgdrtm SHARED ${SOURCES_BGDRTM})
-target_link_libraries(bgdrtm -lz ${extra_libs})
+add_library(bgdrtm ${LIBRARY_BUILD_TYPE} ${SOURCES_BGDRTM})
+
+target_link_libraries(bgdrtm -lz ${extra_libs} -lm)

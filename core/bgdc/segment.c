@@ -32,8 +32,10 @@
 
 #include "bgdc.h"
 
+#define MAX_SEGMENTS 1024
+
 static int64_t max_id = 0;
-static int64_t free_id[1024];
+static int64_t free_id[MAX_SEGMENTS];
 static int64_t free_count = 0;
 
 static segment ** segments = 0;
@@ -43,6 +45,7 @@ segment * globaldata, * localdata;
 
 /**
  * Registers a segment in the global array for later use.
+ *
  * @param s The segment to register.
  */
 
@@ -63,6 +66,7 @@ static void segment_register(segment * s) {
 
 /**
  * Creates a new segment.
+ *
  * @return A pointer to the newly created segment.
  */
 
@@ -90,7 +94,9 @@ segment * segment_new() {
 
 /**
  * Creates a duplicate segment based on an existing segment.
+ *
  * @param b The segment to duplicate.
+ *
  * @return A pointer to the newly created duplicate segment.
  */
 
@@ -121,12 +127,13 @@ segment * segment_duplicate(segment * b) {
 
 /**
  * Destroys a segment and releases its resources.
+ *
  * @param s The segment to destroy.
  */
 
 void segment_destroy(segment * s) {
 	segments[s->id] = 0;
-	if (free_count < 1024) free_id[free_count++] = s->id;
+	if (free_count < MAX_SEGMENTS) free_id[free_count++] = s->id;
 
 	free (s->bytes);
 	free (s);
@@ -134,6 +141,7 @@ void segment_destroy(segment * s) {
 
 /**
  * Allocates memory for a segment to increase its capacity.
+ *
  * @param n The segment to allocate memory for.
  * @param count The additional capacity to allocate in bytes.
  */
@@ -145,10 +153,30 @@ void segment_alloc(segment * n, int64_t count) {
 }
 
 /**
+ * Ensures a segment has sufficient capacity to accommodate additional data.
+ *
+ * This function checks if the current capacity of the segment is sufficient
+ * to hold an additional specified number of bytes. If the capacity is
+ * insufficient, it allocates more memory to meet the required capacity.
+ *
+ * @param n The segment for which to ensure capacity.
+ * @param count The additional capacity required in bytes.
+ *
+ * @note If the current capacity is already sufficient or if the reallocation
+ *       fails due to a lack of memory, an error message is displayed.
+ */
+
+void segment_ensure_capacity(segment * n, int64_t count) {
+	if ( n->current + count > n->reserved ) segment_alloc( n, ( 255 + count - ( n->reserved - n->current ) ) & ~255LL );
+}
+
+/**
  * Adds a value to a segment with the specified base type.
+ *
  * @param n The segment to add the value to.
  * @param value The value to add.
  * @param t The base type of the value.
+ *
  * @return The updated displacement within the segment.
  */
 
@@ -183,13 +211,15 @@ int64_t segment_add_as(segment * n, int64_t value, BASETYPE t) {
 
 /**
  * Adds data from one segment to another.
+ *
  * @param n The target segment to add data to.
  * @param s The source segment to copy data from.
+ *
  * @return The updated displacement within the target segment.
  */
 
 int64_t segment_add_from(segment * n, segment * s) {
-	if (n->current+s->current >= n->reserved) segment_alloc(n, s->current);
+	segment_ensure_capacity(n, s->current);
 	memcpy((uint8_t *)n->bytes + n->current, s->bytes, s->current);
 	return n->current += s->current;
 }
@@ -202,20 +232,22 @@ int64_t segment_add_from(segment * n, segment * s) {
  */
 
 int64_t segment_add_byte(segment * n, int8_t value) {
-	if (n->current+1 >= n->reserved) segment_alloc(n, 256);
+	segment_ensure_capacity(n, 1);
 	*((int8_t *)n->bytes + n->current) = value;
 	return n->current++;
 }
 
 /**
  * Adds a word (2 bytes) to a segment.
+ *
  * @param n The segment to add the word to.
  * @param value The word value to add.
+ *
  * @return The updated offset from the start of the added item within the segment.
  */
 
 int64_t segment_add_word(segment * n, int16_t value) {
-	if (n->current+2 >= n->reserved) segment_alloc(n, 256);
+	segment_ensure_capacity(n, 2);
 	*(int16_t *)((uint8_t *)n->bytes + n->current) = value;
 	n->current += 2;
 	return n->current - 2;
@@ -223,13 +255,15 @@ int64_t segment_add_word(segment * n, int16_t value) {
 
 /**
  * Adds a double word (4 bytes) to a segment.
+ *
  * @param n The segment to add the double word to.
  * @param value The double word value to add.
+ *
  * @return The updated offset from the start of the added item within the segment.
  */
 
 int64_t segment_add_dword(segment * n, int32_t value) {
-	if (n->current+4 >= n->reserved) segment_alloc(n, 256);
+	segment_ensure_capacity(n, 4);
 	*(int32_t *)((uint8_t *)n->bytes + n->current) = value;
 	n->current += 4;
 	return n->current - 4;
@@ -237,13 +271,15 @@ int64_t segment_add_dword(segment * n, int32_t value) {
 
 /**
  * Adds a quad word (8 bytes) to a segment.
+ *
  * @param n The segment to add the quad word to.
  * @param value The quad word value to add.
+ *
  * @return The updated offset from the start of the added item within the segment.
  */
 
 int64_t segment_add_qword(segment * n, int64_t value) {
-	if (n->current+8 >= n->reserved) segment_alloc(n, 256);
+	segment_ensure_capacity(n, 8);
 	*(int64_t *)((uint8_t *)n->bytes + n->current) = value;
 	n->current += 8;
 	return n->current - 8;
@@ -251,7 +287,9 @@ int64_t segment_add_qword(segment * n, int64_t value) {
 
 /**
  * Gets a segment by its identifier.
+ *
  * @param id The identifier of the segment to retrieve.
+ *
  * @return A pointer to the segment with the specified identifier, or NULL if not found.
  */
 
@@ -261,6 +299,7 @@ segment * segment_get(int64_t id) {
 
 /**
  * Dumps the content of a segment in hexadecimal format.
+ *
  * @param s The segment to dump.
  */
 
@@ -272,19 +311,21 @@ void segment_dump(segment * s) {
 
 /**
  * Copies data from one part of a segment to another.
+ *
  * @param s The target segment.
  * @param base_offset The starting offset of the source data within the segment.
  * @param total_length The total length of data to be copied.
  */
 
 void segment_copy(segment *s, int64_t base_offset, int64_t total_length) {
-	if (s->reserved < s->current + total_length) segment_alloc (s, total_length);
+	segment_ensure_capacity(s, total_length);
 	memcpy((uint8_t *)s->bytes + s->current, (uint8_t *)s->bytes + base_offset, total_length);
 	s->current += total_length;
 }
 
 /**
  * Creates a new VARIABLE structure and initializes it.
+ *
  * @return A pointer to the newly created VARIABLE structure.
  */
 
@@ -303,7 +344,9 @@ static int64_t      named_reserved = 0;
 
 /**
  * Retrieves a segment based on its associated code.
+ *
  * @param code The code associated with the segment.
+ *
  * @return A pointer to the segment with the specified code, or NULL if not found.
  */
 
@@ -315,6 +358,7 @@ segment * segment_by_name(int64_t code) {
 
 /**
  * Associates a segment with a code for easy retrieval.
+ *
  * @param s The segment to be associated with a code.
  * @param code The code to associate with the segment.
  */

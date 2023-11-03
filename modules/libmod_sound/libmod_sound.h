@@ -28,15 +28,15 @@
 
 /* --------------------------------------------------------------------------- */
 
-#ifndef __M_FPG_H
-#define __M_FPG_H
+#ifndef __LIBMOD_SOUND_H
+#define __LIBMOD_SOUND_H
 
-#include "bgddl.h"
+/* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_gfx_load_fpg( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_unload_fpg( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_fpg_exists( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_fpg_add( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_fpg_new( INSTANCE * my, int64_t * params );
+#include <SDL.h>
+
+#include "SDL_mixer.h"
+
+/* --------------------------------------------------------------------------- */
 
 #endif

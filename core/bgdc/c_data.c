@@ -541,12 +541,12 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
 
         if ( alignment && ( n->size % alignment ) > 0 ) {
             int extra = alignment - ( n->size % alignment );
+/*
             if ( n->reserved <= n->count + extra ) {
                 varspace_alloc( n, extra + 16 );
             }
-            if ( data->reserved <= data->current + extra ) {
-                segment_alloc( data, extra + 16 );
-            }
+*/
+            segment_ensure_capacity(data, extra);
             n->size += extra;
             data->current += extra;
         }

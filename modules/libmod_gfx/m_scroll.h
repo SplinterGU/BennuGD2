@@ -31,7 +31,6 @@
 #ifndef __M_SCROLL_H
 #define __M_SCROLL_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_scroll_start( INSTANCE * my, int64_t * params );

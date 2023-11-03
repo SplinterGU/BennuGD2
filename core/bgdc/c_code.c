@@ -878,8 +878,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                 */
                 if ( typedef_is_struct( res.type ) ) {
                     int size = res.type.varspace->count * sizeof( DCB_TYPEDEF ), nvar;
-
-                    segment_alloc( globaldata, size );
+                    segment_ensure_capacity(globaldata, size);
                     codeblock_add( code, MN_GLOBAL, globaldata->current );
                     for ( nvar = 0; nvar < res.type.varspace->count; nvar++ ) {
                         DCB_TYPEDEF dcbtype;
@@ -892,7 +891,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                 } else {
                     DCB_TYPEDEF dcbtype;
                     dcb_settype( &dcbtype, &res.type );
-                    segment_alloc( globaldata, sizeof( DCB_TYPEDEF ) );
+                    segment_ensure_capacity(globaldata, sizeof( DCB_TYPEDEF ));
                     codeblock_add( code, MN_GLOBAL, globaldata->current );
                     memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &dcbtype, sizeof( DCB_TYPEDEF ) );
                     globaldata->current += sizeof( DCB_TYPEDEF );
@@ -2922,7 +2921,7 @@ expresion_result compile_subexpresion() {
                 if ( right.type.varspace->stringvar_count > 0 ) {
                     /* True struct copy version */
                     int size = right.type.varspace->count * sizeof( DCB_TYPEDEF );
-                    segment_alloc( globaldata, size );
+                    segment_ensure_capacity(globaldata, size);
                     codeblock_add( code, MN_GLOBAL, globaldata->current );
                     for ( int nvar = 0 ; nvar < right.type.varspace->count ; nvar++ ) {
                         DCB_TYPEDEF dcbtype;

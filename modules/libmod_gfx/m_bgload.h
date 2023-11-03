@@ -31,7 +31,6 @@
 #ifndef __M_BGLOAD_H
 #define __M_BGLOAD_H
 
-#include "bgdrtm.h"
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_bgload_fpg( INSTANCE * my, int64_t * params );
