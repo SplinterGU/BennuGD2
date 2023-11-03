@@ -518,7 +518,7 @@ TYPEDEF reverse_indices(TYPEDEF type) {
 int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin, int level, int is_inline ) {
     int i, j,
         total_count, last_count = 0,
-        base_offset = data->current,
+        base_offset = data->current, // base_offset is the current data pos of the varspace
         total_length,
         sign_prefix = 0;
     expresion_result res;
@@ -562,9 +562,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
         if ( token.code == identifier_comma ) {
             basetype = basetype_last;
             type = type_last;
-
             segm = segm_last;
-
             continue;
         }
         else
@@ -576,10 +574,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
 
             basetype_last = basetype;
             type_last = type;
-
             segm = NULL;
             proc = NULL;
-
             continue;
         }
         else
@@ -587,11 +583,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             break;
         }
         else
-        if ( !( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) &&
-                    ( token.code < reserved_words || sysproc_by_name( token.code ) != NULL )
-                  && token.code != identifier_pointer // check this JJP
-                  && token.code != identifier_multiply // check this JJP
-                  ) {
+        if ( !( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) )
+             && ( token.code < reserved_words || sysproc_by_name( token.code ) != NULL )
+             && token.code != identifier_pointer // check this JJP
+             && token.code != identifier_multiply // check this JJP
+           ) {
             token_back();
             break;
         }
@@ -645,11 +641,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
         }
 
-        if ( block_without_begin ) {
-            if ( basetype == TYPE_UNDEFINED && varspace_search( n, token.code ) ) { // end
-                token_set_pos( tokp );
-                break;
-            }
+        if ( block_without_begin && basetype == TYPE_UNDEFINED && varspace_search( n, token.code ) ) { // end
+            token_set_pos( tokp );
+            break;
         }
 
         tok_pos tokp1 = token_pos();
@@ -669,7 +663,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             type.chunk[0].count = 1;
             type.depth = 1;
             token_next();
-            segm = 0;
+            segm = NULL;
         }
 
         basetype_last = basetype;
@@ -689,9 +683,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
         if ( token.type != IDENTIFIER ) compile_error( MSG_IDENTIFIER_EXP );
 
         if ( !level ) {
-            if ( procdef_search( token.code ) ) {
-                compile_error(MSG_VARIABLE_ERROR);
-            }
+            if ( procdef_search( token.code ) ) compile_error(MSG_VARIABLE_ERROR);
 
             if ( token.code < reserved_words ) {
                 if ( proc ) compile_error( MSG_VARIABLE_ERROR );
@@ -728,9 +720,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                         continue;
                     }
 
-                    if ( !skip_all_until_semicolon && token.code == identifier_comma ) break;
-                    if ( token.code == identifier_semicolon ) break;
-                    if ( token.code == identifier_end ) break;
+                    if ( ( !skip_all_until_semicolon && token.code == identifier_comma )
+                           || token.code == identifier_semicolon
+                           || token.code == identifier_end ) break;
                 }
             }
             token_back();
@@ -804,26 +796,28 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             total_count = 1;
 
             while ( token.type == IDENTIFIER && token.code == identifier_leftb ) {
-                if ( type.depth == MAX_TYPECHUNKS ) compile_error( MSG_TOO_MANY_AL );
+                if ( type.depth == MAX_TYPECHUNKS ) compile_error( MSG_TOO_MANY_ARRAY_LEVELS );
 
                 type = typedef_enlarge( type );
                 type.chunk[0].type = TYPE_ARRAY;
 
                 token_next();
                 if ( token.type == IDENTIFIER && token.code == identifier_rightb ) {
+                    // Undefined size dimension only is allowed in arrays of 1 dimension
                     type.chunk[0].count = 0;
-                    if ( total_count != 1 ) compile_error( MSG_VTA );
+                    if ( total_count != 1 ) compile_error( MSG_UNDEFINED_MULTIPLE_ARRAY );
                     total_count = 0;
                     last_count = 0;
                 }
                 else
                 {
+                    // Undefined size dimension only is allowed in arrays of 1 dimension
+                    if ( !total_count ) compile_error( MSG_UNDEFINED_MULTIPLE_ARRAY);
                     token_back();
                     res = compile_expresion( 1, 0, 1, TYPE_QWORD ); // add ignore code (JJP)
-                    if ( !total_count ) compile_error( MSG_VTA );
-                    total_count *= res.value + 1;
-                    last_count = res.value + 1;
-                    type.chunk[0].count = res.value + 1;
+                    total_count *= res.value + 1;           // + 1 last index of this dimension
+                    last_count = res.value + 1;             // + 1 last index of this dimension
+                    type.chunk[0].count = res.value + 1;    // + 1 last index of this dimension
                     token_next();
                     if ( token.type != IDENTIFIER || token.code != identifier_rightb ) compile_error( MSG_EXPECTED, "]" );
                 }
@@ -834,7 +828,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             type = reverse_indices( type );
 
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
-                if ( segm ) {
+                if ( segm ) { // Structs arrays
                     for ( i = 0 ; i < total_count ; i++ ) segment_add_from( data, segm );
                     int64_t current_offset = data->current;
                     data->current = var->offset;
@@ -846,6 +840,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                 }
                 else
                 {
+                    // Basic arrays
                     /* if (basetype == TYPE_UNDEFINED) basetype = TYPE_INT; */
                     int count = compile_array_data( n, data, total_count, last_count, &basetype, is_inline );
                     assert( basetype != TYPE_UNDEFINED );
@@ -861,11 +856,13 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
             else
             {
-                if ( segm ) {
-                    int string_offset = 0;
+                // Arrays without value
 
+                if ( segm ) { // Struct Array
                     // Error if the variable is an array and does not have a specified dimension or initialization values
                     if ( total_count == 0 ) compile_error( MSG_EXPECTED, "=" );
+
+                    int string_offset = 0;
 
                     for ( i = 0; i < total_count; i++ ) {
                         segment_add_from( data, segm );
@@ -874,14 +871,14 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                         string_offset += type.varspace->size;
                     }
                     token_back();
-                } else {
+                } else { // Simple Array
+                    // Error if the variable is an array and does not have a specified dimension or initialization values
+                    if ( type.chunk[0].count == 0 ) compile_error( MSG_EXPECTED, "=" );
+
                     if ( basetype == TYPE_UNDEFINED ) {
                         basetype = TYPE_INT;
                         set_type( &type, basetype );
                     }
-
-                    // Error if the variable is an array and does not have a specified dimension or initialization values
-                    if ( type.chunk[0].count == 0 ) compile_error( MSG_EXPECTED, "=" );
 
                     for ( i = 0; i < total_count; i++ ) {
                         if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
@@ -901,7 +898,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                 if ( !additive ) data->current += base_offset;
                 compile_struct_data( type.varspace, data, 1, 0, is_inline );
                 data->current = current_offset;
-
             }
             else
             {

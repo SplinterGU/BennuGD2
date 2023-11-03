@@ -674,6 +674,10 @@ void compile_process() {
     if ( token.type == IDENTIFIER && segment_by_name( token.code ) ) {
         return_type = TYPE_POINTER;
         token_next();
+        if ( token.code == identifier_leftp ) {
+            token_back();
+            compile_error( MSG_NAME_ALREADY_USED_AS_TYPE );
+        }
     }
     else
     if ( procdef_search( token.code ) ) { /* Process-type variables */
@@ -690,10 +694,12 @@ void compile_process() {
     /* Check if the process name is valid */
     if ( token.type != IDENTIFIER || token.code < reserved_words ) compile_error( MSG_PROCESS_NAME_EXP );
 
+    if ( segment_by_name( token.code ) ) compile_error( MSG_NAME_ALREADY_USED_AS_TYPE );
+
     /* Create the process if it is not defined already */
     if ( !( proc = procdef_search( token.code ) ) ) proc = procdef_new( procdef_getid(), token.code );
 
-    if ( !proc ) compile_error( "Can't create process/function" );
+    if ( !proc ) compile_error( MSG_CANT_CREATE_PROCESS_FUNCTION );
 
     if ( proc->defined ) {
         if ( !is_declare ) compile_error( MSG_PROC_ALREADY_DEFINED );
@@ -990,7 +996,7 @@ void compile_program() {
             compile_varspace( &local, localdata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && (
                         token.code == identifier_global ||
-                        ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) ) )
+                        ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) || segment_by_name( token.code ) ) )
                      ) ) {
             VARSPACE * v[] = { &local, NULL };
             if ( block_var ) token_back();

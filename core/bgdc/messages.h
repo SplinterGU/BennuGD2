@@ -97,8 +97,8 @@
 #define MSG_NO_LOOP                             "Out of loop"
 #define MSG_INVALID_STEP                        "Invalid STEP"
 #define MSG_INVALID_SENTENCE                    "Invalid sentence"
-#define MSG_VTA                                 "Can't create an array of undefined multiple sizes"
-#define MSG_TOO_MANY_AL                         "Too many array levels"
+#define MSG_UNDEFINED_MULTIPLE_ARRAY            "Can't create an array of undefined multiple sizes"
+#define MSG_TOO_MANY_ARRAY_LEVELS               "Too many array levels"
 #define MSG_CONSTANT_REDECLARED_AS_VARIABLE     "Constant redeclared as variable"
 #define MSG_VARIABLE_REDECLARED_AS_CONSTANT     "Variable redeclared as constant"
 #define MSG_VARIABLE_REDECLARE                  "Variable redeclared"
@@ -123,8 +123,9 @@
 #define MSG_CONVERSION                          "Unsupported data type cast"
 #define MSG_PROC_ALREADY_DEFINED                "Process/function already defined"
 #define MSG_PROC_ALREADY_DECLARED               "Process/function already declared"
+#define MSG_NAME_ALREADY_USED_AS_TYPE           "Name already used for a type"
 #define MSG_FRAME_REQUIRES_INT                  "FRAME requires an INT return value type"
-#define MSG_VARIABLE_ERROR                      "Variable is process/process type identifier"
+#define MSG_VARIABLE_ERROR                      "Variable is process/function type identifier"
 #define MSG_PROTO_ERROR                         "Conflict with previous declaration"
 #define MSG_MACRO_ERROR                         "Macro %s already declared"
 #define MSG_OR                                  " or "
@@ -139,5 +140,6 @@
 #define MSG_INLINE_ASSIGNATION_ERROR            "Inline declaration variables don't allow value assignation"
 #define MSG_CAST_POINTER_INCOMPATIBLE           "Assignment to pointer without a compatible cast"
 #define MSG_OUT_OF_MEMORY                       "Out of memory"
+#define MSG_CANT_CREATE_PROCESS_FUNCTION        "Can't create process/function"
 
 #endif
