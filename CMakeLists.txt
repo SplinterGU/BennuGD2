@@ -9,15 +9,14 @@ add_subdirectory(core/bgdrtm)
 add_subdirectory(core/bgdi)
 
 # modules
-add_subdirectory(modules/libbgload)
-add_subdirectory(modules/libsdlhandler)
-add_subdirectory(modules/libbggfx)
-add_subdirectory(modules/libbginput)
-add_subdirectory(modules/libmod_gfx)
-add_subdirectory(modules/libmod_misc)
-add_subdirectory(modules/libmod_input)
-add_subdirectory(modules/libmod_sound)
-add_subdirectory(modules/libmod_debug)
+set(MODULES_DIR modules)
+file(GLOB MODULES_LIST "${MODULES_DIR}/lib*")
 
-#tools
+foreach(MODULE ${MODULES_LIST})
+    if(IS_DIRECTORY "${MODULE}")
+        add_subdirectory(${MODULE})
+    endif()
+endforeach()
+
+# tools
 add_subdirectory(tools/moddesc)
