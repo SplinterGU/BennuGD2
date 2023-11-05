@@ -492,6 +492,32 @@ TYPEDEF reverse_indices(TYPEDEF type) {
 }
 
 
+VARIABLE * validate_variable( VARSPACE *n, TYPEDEF type, int duplicateignore ) {
+    VARIABLE * var = varspace_search( n, token.code );
+    if ( var ) {
+        if ( !duplicateignore ) compile_error( MSG_VARIABLE_REDECLARE );
+
+        if ( !typedef_is_equal( type, var->type )) compile_error( MSG_VARIABLE_REDECLARE_DIFF );
+
+        if ( debug ) compile_warning( 0, MSG_VARIABLE_REDECLARE );
+    }
+    return var;
+}
+
+void skip_values() {
+    if (debug) compile_warning( 0, "Skipping values because the variable is already declared." );
+    for (;;) {
+        token_next();
+        /* It skips everything until the semicolon or the end, or the comma if there is no assignment */
+        if ( token.type == NOTOKEN ) break;
+        if ( token.type == IDENTIFIER ) {
+            if ( token.code == identifier_semicolon || token.code == identifier_end ) break;
+        }
+    }
+    token_back();
+}
+
+
 /*
  *  FUNCTION : compile_varspace
  *
@@ -698,38 +724,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             for ( i = 0; collision[i]; i++ )
                 if ( varspace_search( collision[i], token.code ) ) compile_error( MSG_VARIABLE_REDECLARE_IN_DIFF_CONTEXT );
 
-        VARIABLE * var;
-        if ( ( var = varspace_search( n, token.code ) ) ) {
-            if ( !duplicateignore ) compile_error( MSG_VARIABLE_REDECLARE );
+        tok_pos var_pos = token_pos();
 
-            if ( !typedef_is_equal( type, var->type )) compile_error( MSG_VARIABLE_REDECLARE_DIFF );
-
-            int skip_all_until_semicolon = 0;
-
-            if ( debug ) compile_warning( 0, MSG_VARIABLE_REDECLARE );
-
-            for (;;) {
-                token_next();
-
-                /* It skips everything until the semicolon or the end, or the comma if there is no assignment */
-                if ( token.type == NOTOKEN ) break;
-
-                if ( token.type == IDENTIFIER ) {
-                    if ( token.code == identifier_equal ) {
-                        skip_all_until_semicolon = 1;
-                        continue;
-                    }
-
-                    if ( ( !skip_all_until_semicolon && token.code == identifier_comma )
-                           || token.code == identifier_semicolon
-                           || token.code == identifier_end ) break;
-                }
-            }
-            token_back();
-            continue;                
-        }
-
-        var = &n->vars[n->count];
+        VARIABLE *var = &n->vars[n->count];
 
         var->code = token.code;
         var->offset = data->current;
@@ -770,8 +767,23 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
 
             type.varspace = members;
 
+            // check if variable exists and compare types
+            tok_pos actual_pos = token_pos();
+            token_set_pos( var_pos );
+            VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
+            token_set_pos( actual_pos );
+
             token_next();
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
+
+                // If the variable already exists and values are being assigned, then ignore and destroy unnecessary data
+                if ( var_aux ) {
+                    skip_values();
+                    varspace_destroy( members );
+                    continue;
+                }
+
+
                 int64_t current_offset = data->current;
                 data->current = var->offset;
                 compile_struct_data( members, data, count, 0, is_inline );
@@ -827,7 +839,21 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             /* Reverses the indices [10][5] -> [5][10] */
             type = reverse_indices( type );
 
+
+            // check if variable exists and compare types
+            tok_pos actual_pos = token_pos();
+            token_set_pos( var_pos );
+            VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
+            token_set_pos( actual_pos );
+
+
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
+                // If the variable already exists and values are being assigned, then ignore
+                if ( var_aux ) {
+                    skip_values();
+                    continue;
+                }
+
                 if ( segm ) { // Structs arrays
                     for ( i = 0 ; i < total_count ; i++ ) segment_add_from( data, segm );
                     int64_t current_offset = data->current;
@@ -856,6 +882,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
             else
             {
+                // If the variable already exists then ignore
+                if ( var_aux ) continue;
+
                 // Arrays without value
 
                 if ( segm ) { // Struct Array
@@ -889,67 +918,85 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
         }
         else
-        /* Compiles an assignment of default values (variable initialization in declaration) */
-        if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
-            if ( segm ) {
-                segment_add_from( data, segm );
-                int64_t current_offset = data->current;
-                data->current = var->offset;
-                if ( !additive ) data->current += base_offset;
-                compile_struct_data( type.varspace, data, 1, 0, is_inline );
-                data->current = current_offset;
-            }
-            else
-            {
-                if ( is_inline ) {
-                    codeblock_add( code, MN_PRIVATE | mntype( type, 0 ), var->offset );
-                }
-                if ( is_inline )
-                    res = compile_expresion( 0, 0, 0, basetype );
-                else
-                    res = compile_expresion( 1, 0, 1, basetype ); // add ignore code (JJP)
-
-                if ( basetype == TYPE_UNDEFINED ) {
-                    basetype = typedef_base( res.type );
-                    if ( basetype == TYPE_UNDEFINED ) compile_error( MSG_INCOMP_TYPE );
-                    set_type( &type, basetype );
-                }
-
-                if ( basetype == TYPE_DOUBLE ) {
-                    segment_add_as( data, *( int64_t * ) &res.fvalue, basetype );
-                } else if ( basetype == TYPE_FLOAT ) {
-                    float f = ( float ) res.fvalue;
-                    segment_add_as( data, *( int32_t * ) &f, basetype );
-                } else {
-                    if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
-                    segment_add_as( data, res.value, basetype );
-                }
-
-                if ( is_inline ) {
-                    codeblock_add( code, MN_LETNP | mntype( res.type, 0 ), 0 );
-                }
-            }
-        }
-        else
         {
-            /* Compiles an nil value assignment  (variable initialization, without value) */
-            if ( !segm ) { /* Assigns default values (0) */
-                if ( basetype == TYPE_UNDEFINED ) {
-                    basetype = TYPE_INT;
-                    set_type( &type, basetype );
+            // check if variable exists and compare types
+            tok_pos actual_pos = token_pos();
+            token_set_pos( var_pos );
+            VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
+            token_set_pos( actual_pos );
+
+            /* Compiles an assignment of default values (variable initialization in declaration) */
+            if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
+                // If the variable already exists and values are being assigned, then ignore and destroy unnecessary data
+                if ( var_aux ) {
+                    skip_values();
+                    continue;
                 }
 
-                if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
-                segment_add_as( data, 0, basetype );
-                token_back();
+
+                if ( segm ) {
+                    segment_add_from( data, segm );
+                    int64_t current_offset = data->current;
+                    data->current = var->offset;
+                    if ( !additive ) data->current += base_offset;
+                    compile_struct_data( type.varspace, data, 1, 0, is_inline );
+                    data->current = current_offset;
+                }
+                else
+                {
+                    if ( is_inline ) {
+                        codeblock_add( code, MN_PRIVATE | mntype( type, 0 ), var->offset );
+                    }
+                    if ( is_inline )
+                        res = compile_expresion( 0, 0, 0, basetype );
+                    else
+                        res = compile_expresion( 1, 0, 1, basetype ); // add ignore code (JJP)
+
+                    if ( basetype == TYPE_UNDEFINED ) {
+                        basetype = typedef_base( res.type );
+                        if ( basetype == TYPE_UNDEFINED ) compile_error( MSG_INCOMP_TYPE );
+                        set_type( &type, basetype );
+                    }
+
+                    if ( basetype == TYPE_DOUBLE ) {
+                        segment_add_as( data, *( int64_t * ) &res.fvalue, basetype );
+                    } else if ( basetype == TYPE_FLOAT ) {
+                        float f = ( float ) res.fvalue;
+                        segment_add_as( data, *( int32_t * ) &f, basetype );
+                    } else {
+                        if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
+                        segment_add_as( data, res.value, basetype );
+                    }
+
+                    if ( is_inline ) {
+                        codeblock_add( code, MN_LETNP | mntype( res.type, 0 ), 0 );
+                    }
+                }
             }
             else
             {
-                if ( typedef_is_struct( type ) )
-                    for ( i = 0 ; i < type.varspace->stringvar_count ; i++ )
-                        varspace_varstring( n, type.varspace->stringvars[i] + n->size );
-                segment_add_from( data, segm );
-                token_back();
+                // If the variable already exists then ignore
+                if ( var_aux ) continue;
+
+                /* Compiles an nil value assignment  (variable initialization, without value) */
+                if ( !segm ) { /* Assigns default values (0) */
+                    if ( basetype == TYPE_UNDEFINED ) {
+                        basetype = TYPE_INT;
+                        set_type( &type, basetype );
+                    }
+
+                    if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
+                    segment_add_as( data, 0, basetype );
+                    token_back();
+                }
+                else
+                {
+                    if ( typedef_is_struct( type ) )
+                        for ( i = 0 ; i < type.varspace->stringvar_count ; i++ )
+                            varspace_varstring( n, type.varspace->stringvars[i] + n->size );
+                    segment_add_from( data, segm );
+                    token_back();
+                }
             }
         }
 

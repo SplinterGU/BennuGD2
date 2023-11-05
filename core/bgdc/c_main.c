@@ -363,7 +363,7 @@ static int import_exists( char * libname ) {
 /* ---------------------------------------------------------------------- */
 
 void compile_type() {
-    TYPEDEF    t = typedef_new( TYPE_STRUCT );
+    TYPEDEF    t = typedef_new( TYPE_STRUCT ), *tvalidate;
     VARSPACE * v = varspace_new();
     segment  * s = segment_new();
     int64_t code;
@@ -373,13 +373,27 @@ void compile_type() {
     token_next();
     if (( code = token.code ) < reserved_words || token.type != IDENTIFIER ) compile_error( MSG_INVALID_TYPE );
 
+    tok_pos tokp = token_pos();
+
     t.varspace = v;
-    typedef_name( t, code );
-    segment_name( s, code );
 
     compile_varspace( v, s, 0, 1, NULL, 0, 1, 0, 1, 0 );
 
     if ( token.code != identifier_end ) compile_error( MSG_NO_END );
+
+    if ( ( tvalidate = typedef_by_name( code ) ) ) {
+        tok_pos curr_pos = token_pos();
+        token_set_pos( tokp );
+        if ( !typedef_is_equal( t, *tvalidate ) ) {
+            compile_error( MSG_PROTO_ERROR );
+        } else {
+            compile_warning( 0, MSG_TYPE_REDECLARE );            
+        }
+        token_set_pos( curr_pos );
+    }
+
+    typedef_name( t, code );
+    segment_name( s, code );
 }
 
 /* ---------------------------------------------------------------------- */

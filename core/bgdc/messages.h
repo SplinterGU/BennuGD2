@@ -141,5 +141,6 @@
 #define MSG_CAST_POINTER_INCOMPATIBLE           "Assignment to pointer without a compatible cast"
 #define MSG_OUT_OF_MEMORY                       "Out of memory"
 #define MSG_CANT_CREATE_PROCESS_FUNCTION        "Can't create process/function"
+#define MSG_TYPE_REDECLARE                      "Type redeclared"
 
 #endif
