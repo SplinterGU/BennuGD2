@@ -754,6 +754,7 @@ void compile_process() {
         }
         else if ( token.type == IDENTIFIER && segment_by_name( token.code ) ) {
             type = TYPE_STRUCT;
+            ctype = *typedef_by_name( token.code ) ;
             token_next();
         }
         else if ( ( e = procdef_search( token.code ) ) ) { /* Process-type variables */
