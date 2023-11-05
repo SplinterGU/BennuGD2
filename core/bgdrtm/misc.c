@@ -106,52 +106,43 @@ int64_t system_paused = 0;
 #endif
 
 #ifdef TARGET_GP2X
-#ifdef _OS_ID
 #undef _OS_ID
-#endif
 #define _OS_ID          OS_GP2X
 #endif
 
 #ifdef TARGET_GP2X_WIZ
-#ifdef _OS_ID
 #undef _OS_ID
-#endif
 #define _OS_ID          OS_GP2X_WIZ
 #endif
 
 #ifdef TARGET_CAANOO
-#ifdef _OS_ID
 #undef _OS_ID
-#endif
 #define _OS_ID          OS_CAANOO
 #endif
 
 #ifdef TARGET_DINGUX_A320
-#ifdef _OS_ID
 #undef _OS_ID
-#endif
 #define _OS_ID          OS_DINGUX_A320
 #endif
 
 #ifdef TARGET_WII
-#ifdef _OS_ID
 #undef _OS_ID
-#endif
 #define _OS_ID          OS_WII
 #endif
 
 #ifdef TARGET_ANDROID
-#ifdef _OS_ID
 #undef _OS_ID
-#endif
 #define _OS_ID          OS_ANDROID
 #endif
 
 #ifdef TARGET_IOS
-#ifdef _OS_ID
 #undef _OS_ID
-#endif
 #define _OS_ID          OS_IOS
+#endif
+
+#ifdef __SWITCH__
+#undef _OS_ID
+#define _OS_ID          OS_SWITCH
 #endif
 
 /* --------------------------------------------------------------------------- */

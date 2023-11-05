@@ -70,6 +70,7 @@ static struct {
     { "OS_WII"                  , TYPE_QWORD,   OS_WII              },
     { "OS_ANDROID"              , TYPE_QWORD,   OS_ANDROID          },
     { "OS_IOS"                  , TYPE_QWORD,   OS_IOS              },
+    { "OS_SWITCH"               , TYPE_QWORD,   OS_SWITCH           },
 
     { "MIN_INT"                 , TYPE_INT,     INT64_MIN           },
     { "MAX_INT"                 , TYPE_INT,     INT64_MAX           },

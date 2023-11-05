@@ -57,6 +57,7 @@
 #define OS_WII                  1000
 #define OS_IOS                  1002
 #define OS_ANDROID              1003
+#define OS_SWITCH               1004
 
 #endif
 
