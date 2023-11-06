@@ -71,7 +71,7 @@ static int embedded    = 0;  /* 1 only if this is a stub with an embedded DCB */
  *      No value
  *
  */
-
+int dummy();
 int main( int argc, char *argv[] ) {
     char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0 = NULL;
     int i, j, ret = -1;

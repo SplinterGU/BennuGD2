@@ -261,7 +261,9 @@ __DIR_ST * dir_open( const char * path )
     /* Convert '*.*' to '*' */
     if ( fptr > hDir->pattern + 2 && fptr[ -1 ] == '*' && fptr[ -2 ] == '.' && fptr[ -3 ] == '*' ) fptr[ -2 ] = 0;
 
-#if defined(TARGET_MAC) || defined(TARGET_BEOS) || defined(__SWITCH__)
+#ifdef __SWITCH__
+    r = 1;
+#elif defined(TARGET_MAC) || defined(TARGET_BEOS)
     r = glob( hDir->pattern, GLOB_ERR | GLOB_NOSORT, NULL, &hDir->globd );
 #else
     r = glob( hDir->pattern, GLOB_ERR | GLOB_PERIOD | GLOB_NOSORT, NULL, &hDir->globd );
@@ -290,7 +292,9 @@ void dir_close ( __DIR_ST * hDir )
 #ifdef _WIN32
     FindClose( hDir->handle );
 #else
+#ifndef __SWITCH__
     globfree( &hDir->globd );
+#endif
     free( hDir->pattern );
 #endif
 
