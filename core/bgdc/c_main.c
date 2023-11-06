@@ -390,10 +390,15 @@ void compile_type() {
             compile_warning( 0, MSG_TYPE_REDECLARE );            
         }
         token_set_pos( curr_pos );
-    }
 
-    typedef_name( t, code );
-    segment_name( s, code );
+        varspace_destroy( v );
+        segment_destroy( s );
+    }
+    else
+    {
+        typedef_name( t, code );
+        segment_name( s, code );
+    }
 }
 
 /* ---------------------------------------------------------------------- */
