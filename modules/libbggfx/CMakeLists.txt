@@ -12,7 +12,7 @@ endif()
 
 add_definitions(-D__LIBBGFGX ${EXTRA_CFLAGS})
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbggfx ${SDL_GPU_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbggfx ${SDL_GPU_INCLUDE_DIR} ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES_LIBBGGFX
      "../../modules/libbggfx/*.c"

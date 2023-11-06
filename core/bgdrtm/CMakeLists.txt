@@ -12,15 +12,14 @@ if (USE_CRYPT)
     set(extra_libs -lcrypto)
 endif ()
 
-if(MINGW)
-else ()
+if(LINUX)
     set(extra_libs ${extra_libs} -ldl)
 endif ()
 
 add_definitions(-D__BGDRTM__ -DVERSION="2.0.0" ${extra_cflags})
 add_definitions(${EXTRA_CFLAGS})
 
-include_directories(../../core/include ../../core/bgdrtm)
+include_directories(../../core/include ../../core/bgdrtm ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES_BGDRTM
     "../../core/bgdrtm/*.c"

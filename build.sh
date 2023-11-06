@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [packages] [use_sdl2|use_sdl2_gpu] [verbose] [static]"
+    echo "    $0 [windows|windows32|linux|linux32|switch] [debug] [clean] [packages] [use_sdl2|use_sdl2_gpu] [verbose] [static] [one-job]"
     exit 1
 }
 
@@ -13,6 +13,7 @@ USE_SDL2=0
 USE_SDL2_GPU=1
 EXTRA_CFLAGS=
 MISC_FLAGS=
+ONE_JOB=0
 
 for i in "$@"
 do
@@ -35,6 +36,19 @@ do
                 # linux
                 CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2"
             fi
+            ;;
+
+        switch)
+            TARGET=aarch64-none-elf
+            COMPILER=""
+            SDL2GPUDIR="../../vendor/sdl-gpu/build/build-$ENV{TARGET}"
+            STATIC_ENABLED=1 # force STATIC
+            if [ "$MSYSTEM" != "MINGW64" ] && [ "$MSYSTEM" != "MINGW32" ]; then
+                # linux
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake" #-DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2
+            fi
+            INCLUDE_DIRECTORIES="$DEVKITPRO/portlibs/switch/include;$DEVKITPRO/libnx/include;$DEVKITPRO/devkitA64/include"
+            export INCLUDE_DIRECTORIES
             ;;
 
         linux)
@@ -85,6 +99,10 @@ do
             exit 0
             ;;
 
+        one-job)
+            ONE_JOB=1
+            ;;
+
         *)
             # unknown option
             show_help
@@ -133,11 +151,15 @@ fi
 echo "### Building BennuGD ($TARGET) ###"
 mkdir -p build/build-$TARGET 2>/dev/null
 cd build/build-$TARGET
-cmake ../.. $DEBUG -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DEXTRA_CFLAGS="$EXTRA_CFLAGS" $MISC_FLAGS -DLIBRARY_BUILD_TYPE=$LIBRARY_BUILD_TYPE
+cmake ../.. $DEBUG ${CMAKE_CXX_COMPILER} -DINCLUDE_DIRECTORIES="${INCLUDE_DIRECTORIES}" -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DEXTRA_CFLAGS="$EXTRA_CFLAGS" $MISC_FLAGS -DLIBRARY_BUILD_TYPE=$LIBRARY_BUILD_TYPE
 if grep -q "CMAKE_GENERATOR:INTERNAL=Ninja" CMakeCache.txt; then
     ninja
 elif grep -q "CMAKE_GENERATOR:INTERNAL=Unix Makefiles" CMakeCache.txt; then
-    make -j
+    if [ $ONE_JOB -eq 0 ]; then
+        make -j
+    else
+        make
+    fi
 fi
 cd -
 

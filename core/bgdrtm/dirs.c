@@ -261,7 +261,7 @@ __DIR_ST * dir_open( const char * path )
     /* Convert '*.*' to '*' */
     if ( fptr > hDir->pattern + 2 && fptr[ -1 ] == '*' && fptr[ -2 ] == '.' && fptr[ -3 ] == '*' ) fptr[ -2 ] = 0;
 
-#if defined(TARGET_MAC) || defined(TARGET_BEOS)
+#if defined(TARGET_MAC) || defined(TARGET_BEOS) || defined(__SWITCH__)
     r = glob( hDir->pattern, GLOB_ERR | GLOB_NOSORT, NULL, &hDir->globd );
 #else
     r = glob( hDir->pattern, GLOB_ERR | GLOB_PERIOD | GLOB_NOSORT, NULL, &hDir->globd );

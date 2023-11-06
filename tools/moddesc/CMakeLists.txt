@@ -1,8 +1,7 @@
 project(moddesc)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../bin/")
 
-if(MINGW)
-else ()
+if(LINUX)
     set(extra_libs ${extra_libs} -ldl)
 endif ()
 
@@ -28,23 +27,14 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
 
         list(APPEND EXTRA_LIBS "${lib_name}")
     endforeach()
-
-    if(MINGW)
-        set(OGL_LIB -lopengl32)
-    else()
-        set(OGL_LIB -lGL)
-    endif()
-
-    if(LIBVLC_ENABLED)
-        set(VLC_LIB -lvlc)
-    endif()
 endif()
 
-include_directories(../../core/include ../../tools/moddesc)
+include_directories(../../core/include ../../tools/moddesc ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES
      "../../tools/moddesc/*.c"
      )
 
 add_executable(moddesc ${SOURCES})
-target_link_libraries(moddesc -L../../bin bgdrtm ${EXTRA_LIBS} ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} ${OGL_LIB} ${VLC_LIB} -lm ${extra_libs})
+
+target_link_libraries(moddesc -L../../bin bgdrtm ${EXTRA_LIBS} -lm ${extra_libs})

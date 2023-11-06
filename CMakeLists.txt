@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Mod
 # core
 add_subdirectory(core/bgdc)
 add_subdirectory(core/bgdrtm)
+# tools
+add_subdirectory(tools/moddesc)
 add_subdirectory(core/bgdi)
 
 # modules
@@ -18,5 +20,3 @@ foreach(MODULE ${MODULES_LIST})
     endif()
 endforeach()
 
-# tools
-add_subdirectory(tools/moddesc)

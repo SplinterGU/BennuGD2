@@ -12,7 +12,7 @@ endif()
 
 add_definitions(${EXTRA_CFLAGS})
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbggfx ../../modules/libmod_debug ../../modules/libbginput ${SDL_GPU_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbggfx ../../modules/libmod_debug ../../modules/libbginput ${SDL_GPU_INCLUDE_DIR} ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES_LIBMOD_DEBUG
      "../../modules/libmod_debug/*.c"

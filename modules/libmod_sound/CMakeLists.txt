@@ -10,7 +10,7 @@ find_package(SDL2_mixer REQUIRED)
 
 add_definitions(${EXTRA_CFLAGS})
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDLMIXER_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libmod_sound ../../modules/libbgload)
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDLMIXER_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libmod_sound ../../modules/libbgload ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES_LIBMOD_SOUND
      "../../modules/libmod_sound/*.c"

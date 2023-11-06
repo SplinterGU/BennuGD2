@@ -33,11 +33,15 @@
 #include <windows.h>
 #include <winbase.h>
 #else
+#ifndef __SWITCH__
 #define _GNU_SOURCE
+#endif
+#include <string.h>
+#ifndef __STATIC__
 #include <dlfcn.h>
+#endif
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define __stdcall
 #define __dllexport
@@ -268,7 +272,12 @@ static void * dlibopen( const char * fname ) {
         fake_dl_inited = 1;
     }
 
+#ifdef __SWITCH__
+    char *pp = strrchr( fname, '.' );
+    strcpy( dlname, pp ? pp : fname );
+#else
     strcpy( dlname, basename( ( char * ) fname ) );
+#endif
 
     p = strrchr( dlname, '.' );
     if ( p ) *p = '\0' ;

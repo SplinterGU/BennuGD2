@@ -25,8 +25,16 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
 
     if(MINGW)
         set(OGL_LIB -lopengl32)
-    else()
+    endif()
+
+    if(LINUX)
         set(OGL_LIB -lGL)
+    endif()
+
+
+    if(NINTENDO_SWITCH)
+        set(OGL_LIB -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lm)
+        set(OTHER_LIBS -lpng -ljpeg -lwebp -lmpg123 -lmodplug -lopus -lopusfile -logg -lvorbis)
     endif()
 
     if(LIBVLC_ENABLED)
@@ -36,8 +44,9 @@ endif()
 
 add_definitions(-D__BGDI__ -DVERSION="2.0.0")
 add_definitions($ENV{EXTRA_CFLAGS})
+add_definitions(${SDL2_CFLAGS})
 
-include_directories(../../core/include ../../core/bgdi ../../core/bgdrtm)
+include_directories(../../core/include ../../core/bgdi ../../core/bgdrtm ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES
      "../../core/bgdi/*.c"
@@ -45,4 +54,4 @@ file(GLOB SOURCES
 
 add_executable(bgdi ${SOURCES})
 
-target_link_libraries(bgdi -L../../bin bgdrtm ${EXTRA_LIBS} ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} ${OGL_LIB} ${VLC_LIB} -lm)
+target_link_libraries(bgdi -L../../bin bgdrtm ${EXTRA_LIBS} ${SDL2_LIBS} ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} ${OGL_LIB} ${VLC_LIB} ${OTHER_LIBS} -lm)

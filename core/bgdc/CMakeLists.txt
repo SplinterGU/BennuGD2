@@ -10,11 +10,6 @@ if (USE_CRYPT)
     set(extra_libs -lcrypto)
 endif ()
 
-if(MINGW)
-else ()
-    set(extra_libs ${extra_libs} -ldl)
-endif ()
-
 if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
     file(GLOB MODULE_HEADERS "../../modules/*")
 
@@ -31,7 +26,7 @@ endif()
 add_definitions(-D__BGDC__ -DVERSION="2.0.0" ${extra_cflags})
 add_definitions(${EXTRA_CFLAGS})
 
-include_directories(../../core/include ../../core/bgdc)
+include_directories(../../core/include ../../core/bgdc ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES
      "../../core/bgdc/*.c"

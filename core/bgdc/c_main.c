@@ -1023,7 +1023,7 @@ void compile_program() {
             compile_varspace( &global, globaldata, 1, 1, v, DEFAULT_ALIGNMENT, 1, block_var != 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_private ) {
             /* It is allowed to declare a variable as private that has been declared as global; it's a private variable, not the global one */
-            VARSPACE * v[] = { &local, /*&global,*/ NULL };
+            VARSPACE * v[] = { &local, NULL };
             compile_varspace( mainproc->privars, mainproc->pridata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
         } else if ( token.type == IDENTIFIER && token.code == identifier_begin ) {
             if ( mainproc->defined ) {

@@ -9,7 +9,7 @@ find_package(SDL2 REQUIRED)
 
 add_definitions(${EXTRA_CFLAGS})
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libmod_misc)
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libmod_misc  ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES_LIBMOD_MISC
      "../../modules/libmod_misc/*.c"

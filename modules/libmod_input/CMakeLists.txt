@@ -9,7 +9,7 @@ find_package(SDL2 REQUIRED)
 
 add_definitions(${EXTRA_CFLAGS})
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbggfx  ../../modules/libbginput ../../modules/libmod_input)
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ../../core/include ../../core/bgdrtm ../../modules/libbggfx  ../../modules/libbginput ../../modules/libmod_input ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES_LIBMOD_INPUT
      "../../modules/libmod_input/*.c"
