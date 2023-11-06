@@ -43,6 +43,8 @@ do
             COMPILER=""
             SDL2GPUDIR="../../vendor/sdl-gpu/build/build-$ENV{TARGET}"
             STATIC_ENABLED=1 # force STATIC
+            USE_SDL2=1
+            USE_SDL2_GPU=0
             if [ "$MSYSTEM" != "MINGW64" ] && [ "$MSYSTEM" != "MINGW32" ]; then
                 # linux
                 CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake" #-DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2
