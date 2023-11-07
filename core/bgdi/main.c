@@ -35,6 +35,10 @@
 #include <windows.h>
 #endif
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,8 +75,21 @@ static int embedded    = 0;  /* 1 only if this is a stub with an embedded DCB */
  *      No value
  *
  */
-int dummy();
+
 int main( int argc, char *argv[] ) {
+
+#ifdef __SWITCH__
+    consoleInit(NULL);
+    romfsInit();
+    chdir("romfs:/");
+#endif
+
+#ifdef __SWITCH__
+    argc = 2;
+    argv[0] = "bgdi";
+    argv[1] = "game.dcb";
+#endif
+
     char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0 = NULL;
     int i, j, ret = -1;
     file * fp = NULL;
@@ -80,8 +97,6 @@ int main( int argc, char *argv[] ) {
 
     /* disable stdout buffering */
     setvbuf( stdout, NULL, _IONBF, BUFSIZ );
-
-    /* get my executable name */
 
 #ifdef _WIN32
     if ( strlen( argv[0] ) < 4 || strncmpi( &argv[0][strlen( argv[0] ) - 4], ".exe", 4 ) ) {
@@ -101,7 +116,12 @@ int main( int argc, char *argv[] ) {
 
     /* get executable full pathname  */
     fp = NULL;
+#ifdef __SWITCH__
+    appexefullpath = strdup( argv[0] );
+#else
     appexefullpath = getfullpath( arg0 );
+#endif
+
     if ( ( !strchr( arg0, '\\' ) && !strchr( arg0, '/' ) ) ) {
         struct stat st;
         if ( stat( appexefullpath, &st ) || !S_ISREG( st.st_mode ) ) {
@@ -255,6 +275,10 @@ int main( int argc, char *argv[] ) {
     if ( dwProcessId == GetCurrentProcessId() ) ShowWindow( hWnd, SW_HIDE );
 #endif
 
+#ifdef __SWITCH__
+    consoleExit(NULL);
+#endif
+
     argv[0] = filename;
     bgdrtm_entry( argc, argv );
 
@@ -271,6 +295,10 @@ int main( int argc, char *argv[] ) {
     free( appexepath        );
     free( appexefullpath    );
     free( appname           );
+
+#ifdef __SWITCH__
+    romfsExit();
+#endif
 
     return ret;
 }

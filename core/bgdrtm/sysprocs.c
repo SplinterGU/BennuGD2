@@ -472,8 +472,10 @@ void sysproc_init() {
 #define DLLEXT      ".dll"
 #elif defined(TARGET_MAC)
 #define DLLEXT      ".dylib"
-#else
+#elif defined( LINUX )
 #define DLLEXT      ".so"
+#else
+#define DLLEXT
 #endif
 
     for ( n = 0; n < dcb.data.NImports; n++ ) {
@@ -501,7 +503,7 @@ void sysproc_init() {
         if ( !library ) library  = dlibopen( filename );
 
         if ( !library ) {
-            printf( "%s\n", dliberror() );
+            printf( "%s %s\n", filename, dliberror() );
             exit( 0 );
         }
 
