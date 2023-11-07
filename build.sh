@@ -47,7 +47,7 @@ do
             USE_SDL2_GPU=0
             if [ "$MSYSTEM" != "MINGW64" ] && [ "$MSYSTEM" != "MINGW32" ]; then
                 # linux
-                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake" #-DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DBUILD_TARGET=interpreter" #-DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2
             fi
             INCLUDE_DIRECTORIES="$DEVKITPRO/portlibs/switch/include;$DEVKITPRO/libnx/include;$DEVKITPRO/devkitA64/include"
             export INCLUDE_DIRECTORIES
