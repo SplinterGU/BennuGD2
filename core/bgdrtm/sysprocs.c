@@ -472,7 +472,7 @@ void sysproc_init() {
 #define DLLEXT      ".dll"
 #elif defined(TARGET_MAC)
 #define DLLEXT      ".dylib"
-#elif defined( LINUX )
+#elif defined(__linux__)
 #define DLLEXT      ".so"
 #else
 #define DLLEXT

@@ -79,7 +79,7 @@ static int embedded    = 0;  /* 1 only if this is a stub with an embedded DCB */
 int main( int argc, char *argv[] ) {
 
 #ifdef __SWITCH__
-    consoleInit(NULL);
+//    consoleInit(NULL);
     romfsInit();
     chdir("romfs:/");
 #endif
@@ -275,9 +275,9 @@ int main( int argc, char *argv[] ) {
     if ( dwProcessId == GetCurrentProcessId() ) ShowWindow( hWnd, SW_HIDE );
 #endif
 
-#ifdef __SWITCH__
-    consoleExit(NULL);
-#endif
+//#ifdef __SWITCH__
+//    consoleExit(NULL);
+//#endif
 
     argv[0] = filename;
     bgdrtm_entry( argc, argv );
