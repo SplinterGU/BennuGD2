@@ -103,7 +103,9 @@ DLSYSFUNCS  __bgdexport( libmod_input, functions_exports )[] = {
     FUNC( "JOY_POWERLEVEL"      , ""        , TYPE_INT    , libmod_input_joy_powerlevel               ),
     FUNC( "JOY_POWERLEVEL"      , "I"       , TYPE_INT    , libmod_input_joy_powerlevel_specific      ),
 
-
+    FUNC( "JOY_IS_ATTACHED"     , ""        , TYPE_INT    , libmod_input_joy_is_attached              ),
+    FUNC( "JOY_IS_ATTACHED"     , "I"       , TYPE_INT    , libmod_input_joy_is_attached_specific     ),
+    
     /* Compatibility */
 
     FUNC( "NUMBER_JOY"          , ""        , TYPE_INT    , libmod_input_joy_num                      ),

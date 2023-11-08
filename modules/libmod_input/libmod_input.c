@@ -222,6 +222,30 @@ static int64_t libmod_input_joy_get_accel( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * JOY_POWERLEVEL ()
+ *
+ * Returns the battery level on the current selected joystick
+ *
+ **/
+
+static int64_t libmod_input_joy_powerlevel( INSTANCE * my, int64_t * params ) {
+    return joy_powerlevel();
+}
+
+/* --------------------------------------------------------------------------- */
+/**
+ * JOY_IS_ATTACHED ()
+ *
+ * Returns if the current selected joystick is attached
+ *
+ **/
+
+static int64_t libmod_input_joy_is_attached( INSTANCE * my, int64_t * params ) {
+    return joy_is_attached();
+}
+
+/* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 
@@ -334,25 +358,31 @@ static int64_t libmod_input_joy_get_accel_specific( INSTANCE * my, int64_t * par
     return ( joy_get_accel_specific( params[0], ( int64_t * ) ( intptr_t ) params[1], ( int64_t * ) ( intptr_t ) params[2], ( int64_t * ) ( intptr_t ) params[3] ) );
 }
 
-
 /* --------------------------------------------------------------------------- */
 /**
- * JOY_POWERLEVEL (int JOY )
+ * JOY_POWERLEVEL (int JOY)
  *
  * Returns the battery level on the specified joystick
  *
  **/
 
-static int64_t libmod_input_joy_powerlevel( INSTANCE * my, int64_t * params ) {
-    return ( joy_powerlevel());
-}
-
 /* --------------------------------------------------------------------------- */
 
 static int64_t libmod_input_joy_powerlevel_specific( INSTANCE * my, int64_t * params ) {
-    return ( joy_powerlevel_specific( params[0] ) );
+    return joy_powerlevel_specific( params[0] );
 }
 
+/* --------------------------------------------------------------------------- */
+/**
+ * JOY_IS_ATTACHED (int JOY)
+ *
+ * Returns if the specified joystick is attached
+ *
+ **/
+
+static int64_t libmod_input_joy_is_attached_specific( INSTANCE * my, int64_t * params ) {
+    return joy_is_attached_specific( params[0] );
+}
 
 /* --------------------------------------------------------------------------- */
 /* exports                                                                     */

@@ -40,6 +40,9 @@
     extern int64_t joy_balls( void );
     extern int64_t joy_get_hat( int64_t hat );
     extern int64_t joy_get_ball( int64_t ball, int64_t * dx, int64_t * dy );
+    extern int64_t joy_powerlevel();
+    extern int64_t joy_is_attached();
+
     extern int64_t joy_name_specific( int64_t joy );
     extern int64_t joy_buttons_specific( int64_t joy );
     extern int64_t joy_axes_specific( int64_t joy );
@@ -51,9 +54,8 @@
     extern int64_t joy_get_ball_specific( int64_t joy, int64_t ball, int64_t * dx, int64_t * dy );
     extern int64_t joy_get_accel( int64_t * x, int64_t * y, int64_t * z );
     extern int64_t joy_get_accel_specific( int64_t joy, int64_t * x, int64_t * y, int64_t * z );
-
     extern int64_t joy_powerlevel_specific( int64_t joy );
-    extern int64_t joy_powerlevel();
+    extern int64_t joy_is_attached_specific( int64_t joy );
 
     extern void joy_init();
     extern void joy_exit();

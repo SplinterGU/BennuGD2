@@ -261,6 +261,16 @@ int64_t joy_powerlevel_specific( int64_t joy ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/* joy_is_attached_specific (int64_t JOY)                                      */
+/* Returns if joystick is attached                                             */
+/* --------------------------------------------------------------------------- */
+
+int64_t joy_is_attached_specific( int64_t joy ) {
+    if ( joy < 0 || joy >= MAX_JOYS || !_joystickList[ joy ].joystick ) return 0;
+    return ( SDL_JoystickGetAttached( _joystickList[ joy ].joystick ) );
+}
+
+/* --------------------------------------------------------------------------- */
 /* joy_num ()                                                               */
 /* Returns the number of joysticks present in the system                       */
 /* --------------------------------------------------------------------------- */
@@ -373,6 +383,15 @@ int64_t joy_get_accel( int64_t * x, int64_t * y, int64_t * z ) {
 
 int64_t joy_powerlevel() {
     return joy_powerlevel_specific( _selected_joystick );
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_is_attached ()                                                          */
+/* Returns if selected joystick is attached                                    */
+/* --------------------------------------------------------------------------- */
+
+int64_t joy_is_attached() {
+    return joy_is_attached_specific( _selected_joystick);
 }
 
 /* --------------------------------------------------------------------------- */
