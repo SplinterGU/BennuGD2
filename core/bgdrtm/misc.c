@@ -51,6 +51,10 @@
     #include <sys/mman.h>
 #endif
 
+#ifdef __WIN32__
+    #include <windows.h>
+#endif
+
 /* --------------------------------------------------------------------------- */
 
 char * appname          = NULL;
@@ -229,6 +233,10 @@ void bgdrtm_entry( int argc, char * argv[] ) {
     int i;
     int64_t * args = (int64_t *)&GLOQWORD( ARGV_TABLE );
     char * os_id;
+
+#ifdef __WIN32__
+    SetConsoleOutputCP(65001);
+#endif
 
     GLOQWORD( ARGC ) = argc;
 
