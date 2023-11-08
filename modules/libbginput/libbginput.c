@@ -99,7 +99,8 @@ DLVARFIXUP  __bgdexport( libbginput, globals_fixup )[] = {
 HOOK __bgdexport( libbginput, handler_hooks )[] =
 {
     { 4900, process_key_events  },
-    { 4800, do_mouse_events     },
+    { 4850, do_mouse_events     },
+    { 4800, joy_handler         },
     {    0, NULL                }
 } ;
 

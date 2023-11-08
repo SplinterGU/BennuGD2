@@ -78,15 +78,28 @@ static int64_t libmod_input_joy_num( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 /**
+ * JOY_NAME ()
+ *
+ * Returns the name for the selected joystick
+ *
+ **/
+
+static int64_t libmod_input_joy_name( INSTANCE * my, int64_t * params ) {
+    return ( joy_name() );
+}
+
+/* --------------------------------------------------------------------------- */
+/**
  * JOY_NAME (int JOY)
  *
  * Returns the name for a given joystick present in the system
  *
  **/
 
-static int64_t libmod_input_joy_name( INSTANCE * my, int64_t * params ) {
-    return ( joy_name( params[0] ) );
+static int64_t libmod_input_joy_name_specific( INSTANCE * my, int64_t * params ) {
+    return ( joy_name_specific( params[0] ) );
 }
+
 
 /* --------------------------------------------------------------------------- */
 /**
@@ -320,6 +333,26 @@ static int64_t libmod_input_joy_get_ball_specific( INSTANCE * my, int64_t * para
 static int64_t libmod_input_joy_get_accel_specific( INSTANCE * my, int64_t * params ) {
     return ( joy_get_accel_specific( params[0], ( int64_t * ) ( intptr_t ) params[1], ( int64_t * ) ( intptr_t ) params[2], ( int64_t * ) ( intptr_t ) params[3] ) );
 }
+
+
+/* --------------------------------------------------------------------------- */
+/**
+ * JOY_POWERLEVEL (int JOY )
+ *
+ * Returns the battery level on the specified joystick
+ *
+ **/
+
+static int64_t libmod_input_joy_powerlevel( INSTANCE * my, int64_t * params ) {
+    return ( joy_powerlevel());
+}
+
+/* --------------------------------------------------------------------------- */
+
+static int64_t libmod_input_joy_powerlevel_specific( INSTANCE * my, int64_t * params ) {
+    return ( joy_powerlevel_specific( params[0] ) );
+}
+
 
 /* --------------------------------------------------------------------------- */
 /* exports                                                                     */
