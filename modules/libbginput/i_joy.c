@@ -62,13 +62,10 @@
 typedef struct {
     int instanceID;
     SDL_Joystick* joystick;
-    int64_t serial;
 } JoystickInfo;
 
 static int64_t _selected_joystick = -1;
-static int64_t _joy_serial = 1;
 static JoystickInfo _joystickList[MAX_JOYS];
-static char _joystickIDList[MAX_JOYS];
 
 /* --------------------------------------------------------------------------- */
 /* joy_name_specific (int64_t JOY)                                             */
@@ -414,22 +411,18 @@ void joy_init() {
         max_joys = MAX_JOYS;
     }
 
-    memset( _joystickIDList, -1, sizeof( _joystickIDList ) );
-
     for ( i = 0; i < max_joys; i++ ) {
         _joystickList[i].joystick = SDL_JoystickOpen( i );
         if ( !_joystickList[ i ].joystick ) {
             printf( "[JOY] Failed to open joystick '%i'", ( int ) i );
         } else {
             _joystickList[i].instanceID = SDL_JoystickInstanceID( _joystickList[i].joystick );
-            _joystickList[i].serial = 0;
         }
     }
 
     for ( ; i < MAX_JOYS; i++ ) {
         _joystickList[i].joystick = NULL;
         _joystickList[i].instanceID = -1;
-        _joystickList[i].serial = 0;
     }
 
     SDL_JoystickUpdate();
@@ -464,57 +457,45 @@ void joy_exit() {
 
 /* ----------------------------------------------------------------- */
 
-void joy_handler() {
-    int max_joys = SDL_NumJoysticks();
-    int update = 0;
+void process_joy_events() {
+    int events_processed = 0;
 
-    for (int i = 0; i < max_joys; i++) {
-        // Verifica si el joystick ya existe en la lista
-        int instanceID = SDL_JoystickGetDeviceInstanceID(i);
-        int found = 0;
+    SDL_Event e;
 
-        for (int j = 0; j < MAX_JOYS; j++) {
-            if (_joystickList[j].instanceID == instanceID) {
-                found = j + 1;
-                break;
-            }
-        }
+#if 0
+    /* Joystick events */
+    SDL_JOYAXISMOTION  = 0x600, /**< Joystick axis motion */
+    SDL_JOYBALLMOTION,          /**< Joystick trackball motion */
+    SDL_JOYHATMOTION,           /**< Joystick hat position change */
+    SDL_JOYBUTTONDOWN,          /**< Joystick button pressed */
+    SDL_JOYBUTTONUP,            /**< Joystick button released */
+    SDL_JOYDEVICEADDED,         /**< A new joystick has been inserted into the system */
+    SDL_JOYDEVICEREMOVED,       /**< An opened joystick has been removed */
+    SDL_JOYBATTERYUPDATED,      /**< Joystick battery level change */
+#endif
 
-        if (found) 
-        {
-            _joystickList[found - 1].serial = _joy_serial;
-        }
-        else
-        {
-            // Agrega el joystick a la lista
+    while (SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_JOYDEVICEADDED, SDL_JOYDEVICEREMOVED) > 0) {
+        if (e.type == SDL_JOYDEVICEADDED) {
+            int64_t device_index = e.jdevice.which;
             for (int j = 0; j < MAX_JOYS; j++) {
-                if ( _joystickList[j].instanceID == -1 ) {
-                    _joystickList[j].joystick = SDL_JoystickOpen(i);
-                    if ( _joystickList[j].joystick ) {
-                        _joystickList[j].instanceID = SDL_JoystickInstanceID(_joystickList[j].joystick);
-                        _joystickList[j].serial = _joy_serial;
-                        update = 1;
-                    }
+                // Add joy to list
+                if (_joystickList[j].instanceID == -1) {
+                    _joystickList[j].joystick = SDL_JoystickOpen(device_index);
+                    if (_joystickList[j].joystick) _joystickList[j].instanceID = SDL_JoystickInstanceID(_joystickList[j].joystick); // instanceID;
+                    break;
+                }
+            }
+        } else if (e.type == SDL_JOYDEVICEREMOVED) {
+            int64_t instanceID = e.jdevice.which;
+            for (int j = 0; j < MAX_JOYS; j++) {
+                // Remove joy from list
+                if (_joystickList[j].instanceID == instanceID) {
+                    SDL_JoystickClose(_joystickList[j].joystick);
+                    _joystickList[j].instanceID = -1;
+                    _joystickList[j].joystick = NULL;
                     break;
                 }
             }
         }
     }
-
-    for (int i = 0; i < MAX_JOYS; i++) {
-        if (_joystickList[i].joystick) {
-            if ( !SDL_JoystickGetAttached(_joystickList[i].joystick) || _joystickList[i].serial != _joy_serial )
-            {
-                SDL_JoystickClose(_joystickList[i].joystick);
-                _joystickList[i].instanceID = -1;
-                _joystickList[i].joystick = NULL;
-                update = 1;
-            }
-        }
-    }
-
-//    if ( update ) SDL_JoystickUpdate();
-
-    _joy_serial++;
-
 }

@@ -56,7 +56,7 @@ static GRAPH * mouse_map = NULL;
  *      None
  */
 
-void do_mouse_events() {
+void process_mouse_events() {
     SDL_Event e;
 
     /* El cambio de mouse.x/y afecta directamente al rat�n */

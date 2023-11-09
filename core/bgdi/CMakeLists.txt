@@ -31,7 +31,6 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
         set(OGL_LIB -lGL)
     endif()
 
-
     if(NINTENDO_SWITCH)
         set(OGL_LIB -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lm)
         set(OTHER_LIBS -lpng -ljpeg -lwebp -lmpg123 -lmodplug -lopusfile -lopus -lvorbisfile -lvorbis -logg)
@@ -48,12 +47,16 @@ add_definitions(${SDL2_CFLAGS})
 
 include_directories(../../core/include ../../core/bgdi ../../core/bgdrtm ${INCLUDE_DIRECTORIES})
 
-file(GLOB SOURCES
 if(NINTENDO_SWITCH)
+file(GLOB SOURCES
      "../../core/bgdi/*.cpp"
-endif()
      "../../core/bgdi/*.c"
      )
+else()
+file(GLOB SOURCES
+     "../../core/bgdi/*.c"
+     )
+endif()
 
 add_executable(bgdi ${SOURCES})
 

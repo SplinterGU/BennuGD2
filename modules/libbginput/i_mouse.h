@@ -31,7 +31,7 @@
 
     /* --------------------------------------------------------------------------- */
 
-    extern void do_mouse_events();
+    extern void process_mouse_events();
     extern void mouse_init();
     //extern void mouse_exit();
 

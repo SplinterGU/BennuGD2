@@ -57,9 +57,9 @@
     extern int64_t joy_powerlevel_specific( int64_t joy );
     extern int64_t joy_is_attached_specific( int64_t joy );
 
+    extern void process_joy_events();
+
     extern void joy_init();
     extern void joy_exit();
-
-    extern void joy_handler();
 
 #endif
