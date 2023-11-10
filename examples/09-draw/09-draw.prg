@@ -36,8 +36,8 @@ private
     int g;
 begin
     while( !key(_ESC) )
-        if ( key( _F12 ) ) g = screen_get(); map_save( 0, g, "screenshot_" + time() + ".png"); while( key( _F12 ) ) frame; end; map_del( 0, g ); end
-        if ( key( _SPACE ) ) animate ^= 1; while( key( _SPACE ) ) frame; end; end
+        if ( key_down( _F12 ) ) g = screen_get(); map_save( 0, g, "screenshot_" + time() + ".png"); map_del( 0, g ); end
+        if ( key_down( _SPACE ) ) animate ^= 1; end
         frame;
     end
 end
@@ -360,33 +360,44 @@ begin
 
 
     write_var( 0, cResX - 40, 10, 0, frame_info.fps );
-    write( 0, 10, cResY - 40, 0,
-            "1:Points "
-            "2:Lines "
-            "3:Rectangles "
-            "4:F.Rectangles "
-            "5:Circles "
-            "6:F.Circles "
-            "7:Rectangles Round "
-            "8:F.Rectangles Round "
-         );
-    write( 0, 10, cResY - 30, 0,
-            "q:Arc "
-            "w:F.Arc "
-            "e:Ellipse "
-            "r:F.Ellipse "
-            "t:Sector "
-            "y:F.Sector "
-            "u:Triangles "
-            "i:F.Triangles "
-            "o:Polygons "
-            "p:F.Polygons "
-        );
-    write( 0, 10, cResY - 20, 0,
-            "a:Polylines "
-            "z:thickness(-) "
-            "x:thickness(+) "
-        );
+    if ( os_id != OS_SWITCH )
+        write( 0, 10, cResY - 40, 0,
+                "1:Points "
+                "2:Lines "
+                "3:Rectangles "
+                "4:F.Rectangles "
+                "5:Circles "
+                "6:F.Circles "
+                "7:Rectangles Round "
+                "8:F.Rectangles Round "
+             );
+        write( 0, 10, cResY - 30, 0,
+                "q:Arc "
+                "w:F.Arc "
+                "e:Ellipse "
+                "r:F.Ellipse "
+                "t:Sector "
+                "y:F.Sector "
+                "u:Triangles "
+                "i:F.Triangles "
+                "o:Polygons "
+                "p:F.Polygons "
+            );
+        write( 0, 10, cResY - 20, 0,
+                "a:Polylines "
+                "z:thickness(-) "
+                "x:thickness(+) "
+            );
+    else
+        write( 0, 10, cResY - 40, 0,
+                "1:Points "
+                "2:Lines "
+                "3:Rectangles "
+                "4:F.Rectangles "
+                "5:Circles "
+                "6:F.Circles "
+             );
+    end
 
     write( 0, 10, cResY - 10, 0,
             "v:Enable vsync "
@@ -402,48 +413,50 @@ begin
     TestPoints();
 
     while( !key( _ESC ) )
-        if ( key( _1 ) ) draw_delete(0); TestPoints(); while( key( _1 ) ) frame; end; end
-        if ( key( _2 ) ) draw_delete(0); TestLines(); while( key( _2 ) ) frame; end; end
-        if ( key( _3 ) ) draw_delete(0); TestRectangles(); while( key( _3 ) ) frame; end; end
-        if ( key( _4 ) ) draw_delete(0); TestFRectangles(); while( key( _4 ) ) frame; end; end
-        if ( key( _5 ) ) draw_delete(0); TestCircles(); while( key( _5 ) ) frame; end; end
-        if ( key( _6 ) ) draw_delete(0); TestFCircles(); while( key( _6 ) ) frame; end; end
-        if ( key( _7 ) ) draw_delete(0); TestRectanglesRound(); while( key( _7 ) ) frame; end; end
-        if ( key( _8 ) ) draw_delete(0); TestFRectanglesRound(); while( key( _8 ) ) frame; end; end
-        if ( key( _9 ) ) draw_delete(0); TestCurves(); while( key( _9 ) ) frame; end; end
+        if ( key_down( _1 ) ) draw_delete(0); TestPoints(); end
+        if ( key_down( _2 ) ) draw_delete(0); TestLines(); end
+        if ( key_down( _3 ) ) draw_delete(0); TestRectangles(); end
+        if ( key_down( _4 ) ) draw_delete(0); TestFRectangles(); end
+        if ( key_down( _5 ) ) draw_delete(0); TestCircles(); end
+        if ( key_down( _6 ) ) draw_delete(0); TestFCircles(); end
 
-        if ( key( _q ) ) draw_delete(0); TestArcs(); while( key( _q ) ) frame; end; end
-        if ( key( _w ) ) draw_delete(0); TestFArcs(); while( key( _w ) ) frame; end; end
-        if ( key( _e ) ) draw_delete(0); TestEllipses(); while( key( _e ) ) frame; end; end
-        if ( key( _r ) ) draw_delete(0); TestFEllipses(); while( key( _r ) ) frame; end; end
-        if ( key( _t ) ) draw_delete(0); TestSectors(); while( key( _t ) ) frame; end; end
-        if ( key( _y ) ) draw_delete(0); TestFSectors(); while( key( _y ) ) frame; end; end
-        if ( key( _u ) ) draw_delete(0); TestTriangles(); while( key( _u ) ) frame; end; end
-        if ( key( _i ) ) draw_delete(0); TestFTriangles(); while( key( _i ) ) frame; end; end
-        if ( key( _o ) ) draw_delete(0); TestPolygons(); while( key( _o ) ) frame; end; end
-        if ( key( _p ) ) draw_delete(0); TestFPolygons(); while( key( _p ) ) frame; end; end
+        if ( key_down( _v ) ) if ( keyboard.shift_status & STAT_SHIFT) set_mode(cResX,cResY); else set_mode(cResX,cResY,waitvsync); end end
 
-        if ( key( _a ) ) draw_delete(0); TestPolylines(); while( key( _a ) ) frame; end; end
+        if ( os_id != OS_SWITCH )
+            if ( key_down( _7 ) ) draw_delete(0); TestRectanglesRound(); end
+            if ( key_down( _8 ) ) draw_delete(0); TestFRectanglesRound(); end
+            if ( key_down( _9 ) ) draw_delete(0); TestCurves(); end
 
-        if ( key( _v ) ) if ( keyboard.shift_status & STAT_SHIFT) set_mode(cResX,cResY); else set_mode(cResX,cResY,waitvsync); end while( key( _v ) ) frame; end; end
+            if ( key_down( _q ) ) draw_delete(0); TestArcs(); end
+            if ( key_down( _w ) ) draw_delete(0); TestFArcs(); end
+            if ( key_down( _e ) ) draw_delete(0); TestEllipses(); end
+            if ( key_down( _r ) ) draw_delete(0); TestFEllipses(); end
+            if ( key_down( _t ) ) draw_delete(0); TestSectors(); end
+            if ( key_down( _y ) ) draw_delete(0); TestFSectors(); end
+            if ( key_down( _u ) ) draw_delete(0); TestTriangles(); end
+            if ( key_down( _i ) ) draw_delete(0); TestFTriangles(); end
+            if ( key_down( _o ) ) draw_delete(0); TestPolygons(); end
+            if ( key_down( _p ) ) draw_delete(0); TestFPolygons(); end
 
-        if ( key( _z ) )
-            thickness = clamp(thickness-0.5,1,10);
-            draw_set_thickness( thickness );
-            for ( i = 0; i < gNumActors; i++ )
-                draw_set_thickness( idActors[ i ], thickness );
+            if ( key_down( _a ) ) draw_delete(0); TestPolylines(); end
+
+            if ( key_down( _z ) )
+                thickness = clamp(thickness-0.5,1,10);
+                draw_set_thickness( thickness );
+                for ( i = 0; i < gNumActors; i++ )
+                    draw_set_thickness( idActors[ i ], thickness );
+                end
+                timer[0] = 0; while( key( _z ) && timer[0] < 20 ) frame; end;
             end
-            timer[0] = 0; while( key( _z ) && timer[0] < 20 ) frame; end;
-        end
-        if ( key( _x ) )
-            thickness = clamp(thickness+0.5,1,10);
-            draw_set_thickness( thickness );
-            for ( i = 0; i < gNumActors; i++ )
-                draw_set_thickness( idActors[ i ], thickness );
+            if ( key_down( _x ) )
+                thickness = clamp(thickness+0.5,1,10);
+                draw_set_thickness( thickness );
+                for ( i = 0; i < gNumActors; i++ )
+                    draw_set_thickness( idActors[ i ], thickness );
+                end
+                timer[0] = 0; while( key( _x ) && timer[0] < 20 ) frame; end;
             end
-            timer[0] = 0; while( key( _x ) && timer[0] < 20 ) frame; end;
         end
-
         frame;
     end
 

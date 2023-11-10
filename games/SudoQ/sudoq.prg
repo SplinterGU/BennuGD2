@@ -135,6 +135,10 @@ BEGIN
 	
 		if (disable!=1 && espera_cancion==0)
 			if (get_joy_button(0,16)==1 || get_joy_button(0,17)==1 || NOT music_is_playing())
+if (1 || os_id == os_switch)
+				cancion=music_load("music/Happy Ending.wav");
+				music_play(cancion,0); espera_cancion=30;
+else
 				nombre_fichero=glob("music/*.ogg");
 				if (nombre_fichero=="") nombre_fichero=glob(""); nombre_fichero=glob("music/*.ogg"); end
 				if (nombre_fichero!="")
@@ -143,6 +147,7 @@ BEGIN
 				else
 					disable=1;
 				end
+end
 			end
 		end
 

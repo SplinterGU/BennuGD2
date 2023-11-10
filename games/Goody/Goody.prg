@@ -156,13 +156,19 @@ Global
     int G_fondo;      int Cortin=false;
     int Abejillas;    int Helices;
     int mapa_dureza;  
+
 //    int Color_dureza1=90;
-    int Color_dureza1=0xfce888ff;
-//    int Paredes=30;   int Techos=20;
-    int Paredes=0x4040fcff;   int Techos=0xe8e8fcff;
+//    int Paredes=30;
+//    int Techos=20;
 //    int paredescala=110;
+//    int color_lingote=87;
+
+    int Color_dureza1=0xfce888ff;
+    int Paredes=0x4040fcff;
+    int Techos=0xe8e8fcff;
     int paredescala=0x006c00ff;
     int color_lingote=0xfcfc28ff;
+    
     int p_completa;
     int sombras;
     int li;
@@ -170,7 +176,7 @@ Global
     String Cheat="";
     int Joys_x=0;     int Joys_y=0;
     int Boton1=0;     int Boton2=0;
-    int Boton3=0,     int Boton4=0;
+    int Boton3=0;     int Boton4=0;
 
     //-- Graficos --//
     int Ggoody;       int Genemigos;
@@ -211,6 +217,8 @@ Global
 
     int desktop_width, desktop_height;
 
+    int logos = -1;
+
 //Private
 //    import "mpeg.dll";
 
@@ -248,21 +256,39 @@ Const
     int KSPACE=4;
     int KENTER=5;
 
+
+
+function int skip_action()
+begin
+  return key(_enter) OR key(_esc) OR key(_space) OR get_joy_button(boton1)>0 OR get_joy_button(boton4)>0;
+end
+
+function int confirm()
+begin
+  return key(_enter) OR key(_space) OR get_joy_button(boton1)>0 OR get_joy_button(boton4)>0;
+end
+
+
 process main()
 begin
     window_set_title("GOODY the remake 1.5");
 
     desktop_get_size(&desktop_width,&desktop_height);
 
-    screen.fullscreen=false;
-    set_mode(320,240);
-    window_move((desktop_width-320)/2,(desktop_height-240)/2);
+    if ( os_id == os_switch )
+      p_completa = 1;
+    else
+      screen.fullscreen=false;
+      set_mode(320,240);
+      window_move((desktop_width-320)/2,(desktop_height-240)/2);
 
-    Gwindow=fpg_load("data1/gwindow.gdg");
-    set_fps(40,0);
-    Idioma=1;
-    s_window(160,120,gwindow,1); while (exists(type s_window)) frame; end
-    mouse.graph=0;
+      Gwindow=fpg_load("data1/gwindow.gdg");
+      set_fps(40,0);
+      Idioma=1;
+      s_window(160,120,gwindow,1); while (exists(type s_window)) frame; end
+      mouse.graph=0;
+      fpg_unload(gwindow);
+    end
 
     //--Inicializa el Modo de Pantalla--//
     If(p_completa)
@@ -276,9 +302,15 @@ begin
 
     frame;
 
+    //--Inicializa Los botones del JOYSTICK--//
+    Boton1=0; //Saltar,Aceptar//
+    Boton2=1; //Poner-Recoger Escalera, Seleccionar Herramientas, Cancelar//
+    Boton3=2; //Seleccionar Herramientas, Cancelar//
+    Boton4=3; //Disparar Ladrillos,Aceptar//
+    select_joy(0);
+
     Logotipos(); While (exists(Type logotipos)) Frame; End
 
-    fpg_unload(gwindow);
     set_fps(26,0);
 
     //--Inicializa las variables del Menu de configuracion--//
@@ -494,8 +526,8 @@ begin
          if(key(_alt) and key(_s)) exit("",0); end
 
           Frame;
-      Until((key(_space)OR key(_enter))or (get_joy_button(boton1)>0) or (get_joy_button(boton4)>0))
-      //While((key(_space)OR key(_enter)))//or get_joy_button(boton1)<>0 or get_joy_button(boton4)<>0) Frame; End
+      Until(confirm())
+
        Switch(opcioness)
           Case 1:
               If(ASCOP==2) vidas+=5; End
@@ -527,7 +559,10 @@ begin
              Menu_opciones(432,272,5,-7,1);
           End
           Case 3:
-             banner(320,240,90);
+//             banner(320,240,90);
+            music_fade_off(1200);
+            fade_off(1250); While(fade_info.fading) Frame; End
+            exit("",0);
           End
        End
 End
@@ -660,8 +695,8 @@ begin
        If (key(_down)or Joys_y==2); While(key(_down)or joys_y==2) Frame; End
           opcion2++; manosel.y+=29; If (opcion2>4) opcion2=1; manosel.y=241; End
        End
-       If (key(_enter) OR key(_space) or get_joy_button(boton1)>0 or get_joy_button(boton4)>0)
-          While(key(_enter) or key(_space) or get_joy_button(boton1)>0 or get_joy_button(boton4)>0) Frame; End
+       If ( confirm() )
+          While( confirm() ) Frame; End
 
           Switch(opcion2)
              Case 1: Redefine(430,272,file,14,z-1); End
@@ -739,8 +774,8 @@ begin
     end
     Loop
      file=gmenu;
-     if(key(_enter) or key(_space)or get_joy_button(boton1)>0 or get_joy_button(boton4)>0)
-        while (key(_enter) or key(_space)or get_joy_button(boton1)>0 or get_joy_button(boton4)>0) frame; end
+     if( confirm() )
+        while ( confirm() ) frame; end
        Switch(opt)
           Case 1:
              If (opcion3==opt)
@@ -920,6 +955,37 @@ begin
 End
 
 
+function set_mapa_dureza(int n)
+begin
+  switch ( map_info(gnivel, n, g_depth ) )
+    case 8:
+      Color_dureza1=90;
+      Paredes=30;
+      Techos=20;
+      paredescala=110;
+      color_lingote=87;
+    end
+
+    case 16:
+      Color_dureza1=0xfce888;
+      Paredes=0x4040fc;
+      Techos=0xe8e8fc;
+      paredescala=0x006c00;
+      color_lingote=0xfcfc28;
+    end
+
+    case 32:
+      Color_dureza1=0xfce888ff;
+      Paredes=0x4040fcff;
+      Techos=0xe8e8fcff;
+      paredescala=0x006c00ff;
+      color_lingote=0xfcfc28ff;
+    end
+  end
+  mapa_dureza = n;
+end
+
+
 //#Section: Niveles de juego
 Process Nivel(stage)
 Private
@@ -949,7 +1015,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,20,0,1,0);
-         mapa_dureza=21;
+         set_mapa_dureza(21);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -979,7 +1045,7 @@ frame;
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,1,g_fondo,1,4);
          scroll[0].ratio=350;
-         mapa_dureza=2;
+         set_mapa_dureza(2);
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
 //         opciones_menu1(320,240,gscore,21,-50,1); While(get_id(Type opciones_menu1)<>0) Frame; End
@@ -1017,7 +1083,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,3,g_fondo,1,4);
-         mapa_dureza=4;
+         set_mapa_dureza(4);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1055,7 +1121,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,5,0,1,0);
-         mapa_dureza=6;
+         set_mapa_dureza(6);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1082,7 +1148,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,7,0,1,0);
-         mapa_dureza=8;
+         set_mapa_dureza(8);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1103,7 +1169,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,9,g_fondo,1,4);
-         mapa_dureza=10;
+         set_mapa_dureza(10);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1126,7 +1192,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,11,0,1,0);
-         mapa_dureza=12;
+         set_mapa_dureza(12);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1157,7 +1223,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,13,0,1,0);
-         mapa_dureza=14;
+         set_mapa_dureza(14);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1192,7 +1258,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,15,g_fondo,1,4);
-         mapa_dureza=16;
+         set_mapa_dureza(16);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1245,7 +1311,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,1,0,1,0);
-         mapa_dureza=2;
+         set_mapa_dureza(2);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1274,7 +1340,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,3,0,1,0);
-         mapa_dureza=4;
+         set_mapa_dureza(4);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1305,7 +1371,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,5,0,1,0);
-         mapa_dureza=6;
+         set_mapa_dureza(6);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1337,7 +1403,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,7,0,1,4);
-         mapa_dureza=8;
+         set_mapa_dureza(8);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1362,7 +1428,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,9,0,1,4);
-         mapa_dureza=10;
+         set_mapa_dureza(10);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,10,0);
@@ -1387,7 +1453,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,11,g_fondo,1,4);
-         mapa_dureza=12;
+         set_mapa_dureza(12);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1427,7 +1493,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,13,g_fondo,1,4);
-         mapa_dureza=14;
+         set_mapa_dureza(14);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1452,7 +1518,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,15,g_fondo,1,4);
-         mapa_dureza=16;
+         set_mapa_dureza(16);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1483,7 +1549,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,1,0,1,4);
-         mapa_dureza=2;
+         set_mapa_dureza(2);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1508,7 +1574,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,3,0,1,4);
-         mapa_dureza=4;
+         set_mapa_dureza(4);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,10,0);
@@ -1533,7 +1599,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,5,g_fondo,1,4);
-         mapa_dureza=6;
+         set_mapa_dureza(6);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1560,7 +1626,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,7,g_fondo,1,4);
-         mapa_dureza=8;
+         set_mapa_dureza(8);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1588,7 +1654,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,9,g_fondo,1,4);
-         mapa_dureza=10;
+         set_mapa_dureza(10);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1633,7 +1699,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,11,g_fondo,1,4);
-         mapa_dureza=12;
+         set_mapa_dureza(12);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1666,7 +1732,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,1,0,1,4);
-         mapa_dureza=2;
+         set_mapa_dureza(2);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1691,7 +1757,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,3,0,1,4);
-         mapa_dureza=4;
+         set_mapa_dureza(4);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,10,0);
@@ -1716,7 +1782,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,5,g_fondo,1,4);
-         mapa_dureza=6;
+         set_mapa_dureza(6);
 
          //--Luces--//
          Escenario(88,105,gscena2,1,-15,90);
@@ -1738,7 +1804,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,7,g_fondo,1,4);
-         mapa_dureza=8;
+         set_mapa_dureza(8);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1772,7 +1838,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,9,g_fondo,1,4);
-         mapa_dureza=10;
+         set_mapa_dureza(10);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1806,7 +1872,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,11,g_fondo,1,4);
-         mapa_dureza=12;
+         set_mapa_dureza(12);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1841,7 +1907,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,13,g_fondo,1,4);
-         mapa_dureza=14;
+         set_mapa_dureza(14);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1870,7 +1936,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,15,g_fondo,1,4);
-         mapa_dureza=16;
+         set_mapa_dureza(16);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -1906,7 +1972,7 @@ frame;
          //-- Scroll de Nivel --//
          region_define(1,0,35,640,320);
          scroll_start (0,gnivel,17,0,1,4);
-         mapa_dureza=18;
+         set_mapa_dureza(18);
 
          //--Personaje--//
          Goody(Goody_x,Goody_y,ggoody,1,Goody_flag,-10,0);
@@ -3139,7 +3205,7 @@ begin
                 x=320; y=170;
                 Repeat
                     mueve++; Frame;
-                Until(mueve>300 OR key(_esc) OR key(_space) OR key(_enter))
+                Until(mueve>300 OR skip_action())
                 Game_over2(320,180,0);
                 signal(id,s_kill);
             End
@@ -3165,7 +3231,7 @@ begin
       If (size==100) size=101;
            Repeat
               mueve++; Frame;
-           Until(mueve>100 OR key_down(_esc) OR key_down(_space) OR key_down(_enter))
+           Until(mueve>100 OR key_down(_esc) OR key_down(_space) OR key_down(_enter) OR get_joy_button(boton1)>0 OR get_joy_button(boton4)>0)
            fade_off(1250); While(fade_info.fading) Frame; End
            scroll_stop(0);
            menu_inicio();
@@ -3182,11 +3248,11 @@ begin
     file=gmenu; z=-500;
     let_me_alone();
     fade_on(1250); While(fade_info.fading) Frame; End
-    While(key(_enter) OR key(_space) OR key(_esc)) Frame; End
+    While( skip_action() ) Frame; End
     loop
         if(altura==0)
             accion++;
-            if(key(_esc) or key(_space) or key(_enter) or accion>500)
+            if(skip_action() or accion>500)
                 altura=1;
             end
         else
@@ -3316,14 +3382,14 @@ begin
        If(key(teclado[KRIGHT]) or Joys_x==2)
           Aban=0; graph=21;
        End
-       If (key(_enter) OR key(_esc)OR key(_space) or get_joy_button(boton1)>0 or get_joy_button(boton4)>0)
+       If ( skip_action())
           if(key(_esc)) Aban=0; end
-          While(key(_enter) OR key(_esc)OR key(_space) or get_joy_button(boton1)>0 or get_joy_button(boton4)>0) Frame; End
+          While(confirm()) Frame; End
           If(Aban)
-	       from accion=22 to 480 step 44;
+	        from accion=22 to 480 step 44;
 	          from mueve=23 to 650 step 46;
 	              cortina(mueve,accion,gscore,98,-300,1,+4,2);
-	           end
+	          end
 	       end
              cor=get_id(type cortina);
              write_delete(all_text);
@@ -7414,6 +7480,7 @@ begin
 End
 
 //-----------------------------------------------------------------------------
+
 Process en_pantalla()
 Private
     int Suelos;
@@ -7426,7 +7493,6 @@ begin
     End
 
 End
-
 
 //----- Posicionamiento de graficos con el mouse ---//
 Process opciones_menu1(double x,y,int file,graph,z,control)
@@ -7454,23 +7520,35 @@ End
 //#Section: Logotipos
 //------ LOGOTIPOS ----------------------//
 
+function check_if_cancel_intro()
+begin
+    if ( skip_action() )
+      fade_off(875);
+      while(skip_action()) frame; end
+      While(fade_info.fading) Frame; End
+      fpg_unload(logos);
+      signal(Type logotipos,s_kill_tree);
+    end
+end
+
+
 Process logotipos()
-Private
-    int logos;
 begin
     set_fps(26,0);
     fade_on(FADE_TIME);
     logos=fpg_load("data1/logos.gdg");
-    Frame(1000);
+    timer[0]=0; while(timer[0]<40) check_if_cancel_intro(); frame; end
+//    Frame(1000);
     Musica1=music_load("data2/intro1.gdt");
     if ( exists( banda ) ) signal(banda,s_kill); frame; end
     banda=banda_sonora();
-    Frame(1600);
+    timer[0]=0; while(timer[0]<60) check_if_cancel_intro(); frame; end
+//    Frame(1600);
     OPERA(320,240,logos,1);
     set_fps(27,0);
     Loop
-        If (key(_enter) OR key(_esc) OR key(_space))
-            While (key(_enter) OR key(_esc) OR key(_space)) Frame; End
+        If ( skip_action() )
+            While ( skip_action() ) Frame; End
             fade_off(2500); While(fade_info.fading) Frame; End
             fpg_unload(logos);
             signal(Type logotipos,s_kill_tree);
@@ -7489,22 +7567,29 @@ End
 Process OPERA(double x,y,int file,graph)
 begin
    Repeat
+      check_if_cancel_intro();
       graph++;
       Frame(170);
    Until (graph>=20)
-   graph=20; Frame(4700);
+   graph=20;
+   timer[0]=0; while(timer[0]<170) check_if_cancel_intro(); frame; end
+   // Frame(4700);
    fade_off(250); While(fade_info.fading) Frame; End
    fade_on(FADE_TIME);
    graph=23; y-=50;
    Repeat
+      check_if_cancel_intro();
       graph++;
       Frame(180);
    Until (graph>=42)
-   graph=42; Frame(4900);
+   graph=42;
+   timer[0]=0; while(timer[0]<200) check_if_cancel_intro(); frame; end
+   // Frame(4900);
    fade_off(250); While(fade_info.fading) Frame; End
    y+=50;
    graph=22; fade_on(500); While(fade_info.fading) Frame; End
-   Frame(8600);
+   timer[0]=0; while(timer[0]<350) check_if_cancel_intro(); frame; end
+   // Frame(8600);
    fade_off(875); While(fade_info.fading) Frame; End
 End
 
@@ -7692,8 +7777,8 @@ begin
     music_play(musica1,-1);
 
     loop
-        If (key(_esc) or key(_space) or key(_enter) or get_joy_button(boton2)>0 or get_joy_button(boton3)>0)
-            While(key(_esc) or key(_space) or key(_enter) or get_joy_button(boton2)>0 or get_joy_button(boton3)>0) Frame; End
+        If ( skip_action())
+            While(skip_action()) Frame; End
             //--Cortina de Bloques (cierra)--//
             set_fps(26,0);
             from accion=22 to 480 step 44;
