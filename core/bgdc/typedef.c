@@ -241,6 +241,7 @@ BASETYPE typedef_basic_type_basetype_by_name( int identifier, int sign ) {
                 { .identifier = identifier_dword,   .basetype = TYPE_DWORD        , .basetype_signed = TYPE_INT32        , .basetype_unsigned = TYPE_DWORD        },
                 { .identifier = identifier_word,    .basetype = TYPE_WORD         , .basetype_signed = TYPE_SHORT        , .basetype_unsigned = TYPE_WORD         },
                 { .identifier = identifier_byte,    .basetype = TYPE_BYTE         , .basetype_signed = TYPE_SBYTE        , .basetype_unsigned = TYPE_BYTE         },
+                { .identifier = identifier_int8,    .basetype = TYPE_SBYTE        , .basetype_signed = TYPE_SBYTE        , .basetype_unsigned = TYPE_BYTE         },
                 { .identifier = identifier_int64,   .basetype = TYPE_INT          , .basetype_signed = TYPE_INT          , .basetype_unsigned = TYPE_QWORD        },
                 { .identifier = identifier_int32,   .basetype = TYPE_INT32        , .basetype_signed = TYPE_INT32        , .basetype_unsigned = TYPE_DWORD        },
                 { .identifier = identifier_short,   .basetype = TYPE_SHORT        , .basetype_signed = TYPE_SHORT        , .basetype_unsigned = TYPE_WORD         },

@@ -3685,8 +3685,8 @@ void compile_block( PROCDEF * p ) {
                 if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
 
                 var_pos = codeblock_pos( code );
-
                 res = compile_value();
+
                 res_type = typedef_base( res.type );
 
                 if ( typedef_is_unsigned( res.type ) ) is_unsigned = MN_UNSIGNED;
@@ -3694,6 +3694,7 @@ void compile_block( PROCDEF * p ) {
                 if ( typedef_is_float( res.type ) ) is_float = MN_FLOAT;
 
                 var_end = codeblock_pos( code );
+
                 if ( !res.lvalue ) compile_error( MSG_VARIABLE_REQUIRED );
                 if ( !typedef_is_numeric( res.type ) ) compile_error( MSG_NUMBER_REQUIRED );
 
@@ -3718,12 +3719,16 @@ void compile_block( PROCDEF * p ) {
                 if ( token.type != IDENTIFIER || token.code != identifier_to )  /* "TO" */
                     compile_error( MSG_EXPECTED, "TO" );
 
+                tok_pos to_pos = token_pos();
+
                 to = compile_expresion( 0, 0, 0, res_type );
 
                 token_next();
+
                 if ( token.type == IDENTIFIER && token.code == identifier_step ) { /* "STEP" */
                     CODEBLOCK_POS pos = codeblock_pos( code );
                     expresion_result r = compile_expresion( 1, 0, 0, res_type );
+
                     if ( !r.constant ) compile_error( MSG_CONSTANT_EXP );
                     if ( !typedef_is_numeric( r.type ) ) compile_error( MSG_NUMBER_REQUIRED );
 
@@ -3736,10 +3741,14 @@ void compile_block( PROCDEF * p ) {
                     }
 
                     codeblock_setpos( code, pos );
-                    if ( ( ( res_type == TYPE_FLOAT || res_type == TYPE_DOUBLE ) && r.fvalue > 0 ) || ( ( res_type != TYPE_FLOAT && res_type != TYPE_DOUBLE ) && r.value > 0 ) )
+
+                    if ( ( ( res_type == TYPE_FLOAT || res_type == TYPE_DOUBLE ) && r.fvalue > 0 ) || ( ( res_type != TYPE_FLOAT && res_type != TYPE_DOUBLE ) && r.value > 0 ) ) {
                         codeblock_add( code, MN_LTE | is_float | is_unsigned, 0 );
+                    }
                     else
+                    {
                         codeblock_add( code, MN_GTE | is_float | is_unsigned, 0 );
+                    }
                 } else {
                     if ( from.constant && to.constant ) {
                         int64_t dec = 0;
@@ -3752,18 +3761,19 @@ void compile_block( PROCDEF * p ) {
                             dec = 1;
                         }
                         codeblock_add( code, ( dec ? MN_GTE : MN_LTE ) | is_float | is_unsigned, 0 );
-                    } else
+                    } else {
                         codeblock_add( code, MN_LTE | is_float | is_unsigned, 0 );
+                    }
                     token_back();
                 }
+
+                codeblock_add( code, MN_BRFALSE, loop );
 
                 token_next();
                 if ( token.type != IDENTIFIER || token.code != identifier_semicolon ) /* ";" */
                     compile_error( MSG_EXPECTED, ";" );
 
                 if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
-
-                codeblock_add( code, MN_BRFALSE, loop );
 
                 /* Compile the loop block contents */
 
@@ -3772,17 +3782,34 @@ void compile_block( PROCDEF * p ) {
                 compile_block( p );
                 code->loop_active = last_loop;
 
+                tok_pos continue_pos = token_pos();
+
                 /* Compile the increment and looping code */
 
                 codeblock_loop_start( code, loop, code->current );
 
                 codeblock_add_block( code, var_pos, var_end );
-                if ( inc == 1 ) codeblock_add( code, MN_INC | mntype( res.type, 0 ), 1 );
+                codeblock_add( code, MN_PTR | mntype( res.type, 0 ), 0 );
+
+                // Cond 2
+
+                token_set_pos( to_pos );
+                to = compile_expresion( 0, 0, 0, res_type );
+                token_set_pos( continue_pos );
+
+                codeblock_add( code, ( inc < 0 ? MN_GT : MN_LT ) | is_float | is_unsigned, 0 );
+
+                codeblock_add( code, MN_BRFALSE, loop );
+
+                codeblock_add_block( code, var_pos, var_end );
+
+                     if ( inc ==  1 ) codeblock_add( code, MN_INC | mntype( res.type, 0 ), 1 );
                 else if ( inc == -1 ) codeblock_add( code, MN_DEC | mntype( res.type, 0 ), 1 );
                 else {
                     codeblock_add( code, MN_PUSH, inc );
                     codeblock_add( code, MN_VARADD | mntype( res.type, 0 ), 0 );
                 }
+
                 codeblock_add( code, MN_POP, 0 );
                 codeblock_add( code, MN_JUMP, et1 );
 

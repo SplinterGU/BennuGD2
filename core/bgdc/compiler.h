@@ -119,7 +119,7 @@ extern int64_t
     identifier_word,        identifier_byte,        identifier_string,
     identifier_float,       identifier_include,     identifier_type,
     identifier_import,      identifier_elseif,      identifier_question,
-    identifier_function,    identifier_int32,       identifier_short,
+    identifier_function,    identifier_int32,       identifier_short,       identifier_int8,
     identifier_char,        identifier_dollar,
     identifier_unsigned,    identifier_signed,
     identifier_int64,       identifier_qword,       identifier_double
