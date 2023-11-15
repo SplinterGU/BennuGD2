@@ -68,7 +68,11 @@ NAME=$(basename $1 .prg)
 
 $DEVKITPRO/tools/bin/build_romfs ${dir_output}/romfs ${dir_output}/romfs.bin
 $DEVKITPRO/tools/bin/nacptool --create $NAME SplinterGU 1.0 ${dir_output}/$NAME.nacp
-$DEVKITPRO/tools/bin/elf2nro $BGD2DEV/build/aarch64-none-elf/bin/bgdi.elf ${dir_output}/$NAME.nro --romfs=${dir_output}/romfs.bin --nacp=${dir_output}/$NAME.nacp --icon=icon.png
+if [[ -e icon.png ]]; then
+    $DEVKITPRO/tools/bin/elf2nro $BGD2DEV/build/aarch64-none-elf/bin/bgdi.elf ${dir_output}/$NAME.nro --romfs=${dir_output}/romfs.bin --nacp=${dir_output}/$NAME.nacp --icon=icon.png
+else
+    $DEVKITPRO/tools/bin/elf2nro $BGD2DEV/build/aarch64-none-elf/bin/bgdi.elf ${dir_output}/$NAME.nro --romfs=${dir_output}/romfs.bin --nacp=${dir_output}/$NAME.nacp
+fi
 cp ${dir_output}/$NAME.nro /home/hdd/Switch-Games
 
 rm -Rf ${dir_output}

@@ -29,6 +29,37 @@
 #ifndef __I_JOY_H
     #define __I_JOY_H
 
+    #define JOY_BUTTON_A                ( 0x100 + SDL_CONTROLLER_BUTTON_A )
+    #define JOY_BUTTON_B                ( 0x100 + SDL_CONTROLLER_BUTTON_B )
+    #define JOY_BUTTON_X                ( 0x100 + SDL_CONTROLLER_BUTTON_X )
+    #define JOY_BUTTON_Y                ( 0x100 + SDL_CONTROLLER_BUTTON_Y )
+    #define JOY_BUTTON_BACK             ( 0x100 + SDL_CONTROLLER_BUTTON_BACK )
+    #define JOY_BUTTON_GUIDE            ( 0x100 + SDL_CONTROLLER_BUTTON_GUIDE )
+    #define JOY_BUTTON_START            ( 0x100 + SDL_CONTROLLER_BUTTON_START )
+    #define JOY_BUTTON_LEFTSTICK        ( 0x100 + SDL_CONTROLLER_BUTTON_LEFTSTICK )
+    #define JOY_BUTTON_RIGHTSTICK       ( 0x100 + SDL_CONTROLLER_BUTTON_RIGHTSTICK )
+    #define JOY_BUTTON_LEFTSHOULDER     ( 0x100 + SDL_CONTROLLER_BUTTON_LEFTSHOULDER )
+    #define JOY_BUTTON_RIGHTSHOULDER    ( 0x100 + SDL_CONTROLLER_BUTTON_RIGHTSHOULDER )
+    #define JOY_BUTTON_DPAD_UP          ( 0x100 + SDL_CONTROLLER_BUTTON_DPAD_UP )
+    #define JOY_BUTTON_DPAD_DOWN        ( 0x100 + SDL_CONTROLLER_BUTTON_DPAD_DOWN )
+    #define JOY_BUTTON_DPAD_LEFT        ( 0x100 + SDL_CONTROLLER_BUTTON_DPAD_LEFT )
+    #define JOY_BUTTON_DPAD_RIGHT       ( 0x100 + SDL_CONTROLLER_BUTTON_DPAD_RIGHT )
+    #define JOY_BUTTON_MISC1            ( 0x100 + SDL_CONTROLLER_BUTTON_MISC1 )    /* Xbox Series X share button PS5 microphone button Nintendo Switch Pro capture button Amazon Luna microphone button */
+    #define JOY_BUTTON_PADDLE1          ( 0x100 + SDL_CONTROLLER_BUTTON_PADDLE1 )  /* Xbox Elite paddle P1 (upper left facing the back) */
+    #define JOY_BUTTON_PADDLE2          ( 0x100 + SDL_CONTROLLER_BUTTON_PADDLE2 )  /* Xbox Elite paddle P3 (upper right facing the back) */
+    #define JOY_BUTTON_PADDLE3          ( 0x100 + SDL_CONTROLLER_BUTTON_PADDLE3 )  /* Xbox Elite paddle P2 (lower left facing the back) */
+    #define JOY_BUTTON_PADDLE4          ( 0x100 + SDL_CONTROLLER_BUTTON_PADDLE4 )  /* Xbox Elite paddle P4 (lower right facing the back) */
+    #define JOY_BUTTON_TOUCHPAD         ( 0x100 + SDL_CONTROLLER_BUTTON_TOUCHPAD ) /* PS4/PS5 touchpad button */
+    #define JOY_BUTTON_MAX              ( 0x100 + SDL_CONTROLLER_BUTTON_MAX )
+
+    #define JOY_AXIS_LEFTX              ( 0x100 + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_LEFTX )
+    #define JOY_AXIS_LEFTY              ( 0x100 + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_LEFTY )
+    #define JOY_AXIS_RIGHTX             ( 0x100 + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_RIGHTX )
+    #define JOY_AXIS_RIGHTY             ( 0x100 + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_RIGHTY )
+    #define JOY_AXIS_TRIGGERLEFT        ( 0x100 + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_TRIGGERLEFT )
+    #define JOY_AXIS_TRIGGERRIGHT       ( 0x100 + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_TRIGGERRIGHT )
+    #define JOY_AXIS_MAX                ( 0x100 + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_MAX )
+
     extern int64_t joy_num( void );
     extern int64_t joy_name();
     extern int64_t joy_select( int64_t joy );

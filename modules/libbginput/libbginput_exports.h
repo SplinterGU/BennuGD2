@@ -193,6 +193,35 @@ DLCONSTANT  __bgdexport( libbginput, constants_def )[] = {
     { "JOY_POWER_WIRED"         , TYPE_QWORD    , SDL_JOYSTICK_POWER_WIRED          },
     { "JOY_POWER_MAX"           , TYPE_QWORD    , SDL_JOYSTICK_POWER_MAX            },
 
+
+    { "JOY_BUTTON_A"                , TYPE_QWORD    , JOY_BUTTON_A                  },
+    { "JOY_BUTTON_B"                , TYPE_QWORD    , JOY_BUTTON_B                  },
+    { "JOY_BUTTON_X"                , TYPE_QWORD    , JOY_BUTTON_X                  },
+    { "JOY_BUTTON_Y"                , TYPE_QWORD    , JOY_BUTTON_Y                  },
+    { "JOY_BUTTON_BACK"             , TYPE_QWORD    , JOY_BUTTON_BACK               },
+    { "JOY_BUTTON_GUIDE"            , TYPE_QWORD    , JOY_BUTTON_GUIDE              },
+    { "JOY_BUTTON_START"            , TYPE_QWORD    , JOY_BUTTON_START              },
+    { "JOY_BUTTON_LEFTSTICK"        , TYPE_QWORD    , JOY_BUTTON_LEFTSTICK          },
+    { "JOY_BUTTON_RIGHTSTICK"       , TYPE_QWORD    , JOY_BUTTON_RIGHTSTICK         },
+    { "JOY_BUTTON_LEFTSHOULDER"     , TYPE_QWORD    , JOY_BUTTON_LEFTSHOULDER       },
+    { "JOY_BUTTON_RIGHTSHOULDER"    , TYPE_QWORD    , JOY_BUTTON_RIGHTSHOULDER      },
+    { "JOY_BUTTON_DPAD_UP"          , TYPE_QWORD    , JOY_BUTTON_DPAD_UP            },
+    { "JOY_BUTTON_DPAD_DOWN"        , TYPE_QWORD    , JOY_BUTTON_DPAD_DOWN          },
+    { "JOY_BUTTON_DPAD_LEFT"        , TYPE_QWORD    , JOY_BUTTON_DPAD_LEFT          },
+    { "JOY_BUTTON_DPAD_RIGHT"       , TYPE_QWORD    , JOY_BUTTON_DPAD_RIGHT         },
+    { "JOY_BUTTON_MISC1"            , TYPE_QWORD    , JOY_BUTTON_MISC1              },
+    { "JOY_BUTTON_PADDLE1"          , TYPE_QWORD    , JOY_BUTTON_PADDLE1            },
+    { "JOY_BUTTON_PADDLE2"          , TYPE_QWORD    , JOY_BUTTON_PADDLE2            },
+    { "JOY_BUTTON_PADDLE3"          , TYPE_QWORD    , JOY_BUTTON_PADDLE3            },
+    { "JOY_BUTTON_PADDLE4"          , TYPE_QWORD    , JOY_BUTTON_PADDLE4            },
+    { "JOY_BUTTON_TOUCHPAD"         , TYPE_QWORD    , JOY_BUTTON_TOUCHPAD           },
+    { "JOY_AXIS_LEFTX"              , TYPE_QWORD    , JOY_AXIS_LEFTX                },
+    { "JOY_AXIS_LEFTY"              , TYPE_QWORD    , JOY_AXIS_LEFTY                },
+    { "JOY_AXIS_RIGHTX"             , TYPE_QWORD    , JOY_AXIS_RIGHTX               },
+    { "JOY_AXIS_RIGHTY"             , TYPE_QWORD    , JOY_AXIS_RIGHTY               },
+    { "JOY_AXIS_TRIGGERLEFT"        , TYPE_QWORD    , JOY_AXIS_TRIGGERLEFT          },
+    { "JOY_AXIS_TRIGGERRIGHT"       , TYPE_QWORD    , JOY_AXIS_TRIGGERRIGHT         },
+
     { NULL                      , 0             , 0                                 }
 } ;
 
