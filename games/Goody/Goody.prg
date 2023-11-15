@@ -175,8 +175,6 @@ Global
     int Ferret;
     String Cheat="";
     int Joys_x=0;     int Joys_y=0;
-    int Boton1=0;     int Boton2=0;
-    int Boton3=0;     int Boton4=0;
 
     //-- Graficos --//
     int Ggoody;       int Genemigos;
@@ -260,12 +258,12 @@ Const
 
 function int skip_action()
 begin
-  return key(_enter) OR key(_esc) OR key(_space) OR get_joy_button(boton1)>0 OR get_joy_button(boton4)>0;
+  return key(_enter) OR key(_esc) OR key(_space) OR get_joy_button(JOY_BUTTON_BACK) OR get_joy_button(JOY_BUTTON_Y) OR get_joy_button(JOY_BUTTON_X) OR get_joy_button(JOY_BUTTON_A) OR get_joy_button(JOY_BUTTON_B);
 end
 
 function int confirm()
 begin
-  return key(_enter) OR key(_space) OR get_joy_button(boton1)>0 OR get_joy_button(boton4)>0;
+  return key(_enter) OR key(_space) OR get_joy_button(JOY_BUTTON_Y) OR get_joy_button(JOY_BUTTON_X) OR get_joy_button(JOY_BUTTON_A) OR get_joy_button(JOY_BUTTON_B);
 end
 
 
@@ -302,11 +300,6 @@ begin
 
     frame;
 
-    //--Inicializa Los botones del JOYSTICK--//
-    Boton1=0; //Saltar,Aceptar//
-    Boton2=1; //Poner-Recoger Escalera, Seleccionar Herramientas, Cancelar//
-    Boton3=2; //Seleccionar Herramientas, Cancelar//
-    Boton4=3; //Disparar Ladrillos,Aceptar//
     select_joy(0);
 
     Logotipos(); While (exists(Type logotipos)) Frame; End
@@ -400,12 +393,6 @@ begin
     teclado[KLEFT]=_LEFT;
     teclado[KSPACE]=_SPACE;
     teclado[KENTER]=_ENTER;
-
-    //--Inicializa Los botones del JOYSTICK--//
-    Boton1=0; //Saltar,Aceptar//
-    Boton2=1; //Poner-Recoger Escalera, Seleccionar Herramientas, Cancelar//
-    Boton3=2; //Seleccionar Herramientas, Cancelar//
-    Boton4=3; //Disparar Ladrillos,Aceptar//
 
     //--Inicializa la Musica--//
     music_unload(musica1);
@@ -597,8 +584,9 @@ begin
              end
         end
 
-       If (key(_esc) and (not exists(type menu_opc) and not exists(type Menu_opciones)))
-           While(key(_esc)) Frame; End opcion=3;
+       If ((key_down(_esc) or get_joy_button(JOY_BUTTON_BACK)) and (not exists(type menu_opc) and not exists(type Menu_opciones)))
+          while(get_joy_button(JOY_BUTTON_BACK)) frame; end
+          opcion=3;
        End
        opcioness=opcion;
        Frame(200);
@@ -665,8 +653,8 @@ begin
     Repeat
        file=gmenu;
        Frame;
-    Until((key(_esc)or get_joy_button(boton2)>0 or get_joy_button(boton3)>0) and not exists(type menu_opc))
-    While(key(_esc)or get_joy_button(boton1)>0 or get_joy_button(boton4)>0) Frame; End
+    Until((key_down(_esc) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) and not exists(type menu_opc))
+    while(get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
     signal(Type menu_opc,s_kill);
     signal(Type options,s_kill);
     Repeat  size-=10; Frame; Until(size<10);
@@ -707,8 +695,9 @@ begin
           End
 
        End
-       If (key(_esc) or get_joy_button(boton2)>0 or get_joy_button(boton3)>0) signal(id,s_kill);
-           While(key(_esc) or get_joy_button(boton2)>0 or get_joy_button(boton3)>0) Frame; End
+       If (key_down(_esc) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
+          signal(id,s_kill);
+          while(get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
        End
        Frame;
     End
@@ -743,13 +732,13 @@ begin
           opcion3++; y+=29; If (opcion3>4) opcion3=1; y=238; End
        End
 
-       If (key(_esc)or get_joy_button(boton2)>0 or get_joy_button(boton3)>0)
-          While(key(_esc)or get_joy_button(boton2)>0 or get_joy_button(boton3)>0) Frame; End
-            signal(father,s_wakeup);
-            signal(Type options,s_wakeup);
-            signal(Type manoselec,s_wakeup);
-            signal(Type options2,s_kill);
-            signal(id,s_kill);
+       If (key_down(_esc) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
+          while(get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
+          signal(father,s_wakeup);
+          signal(Type options,s_wakeup);
+          signal(Type manoselec,s_wakeup);
+          signal(Type options2,s_kill);
+          signal(id,s_kill);
        End
 
        Frame;
@@ -938,8 +927,9 @@ begin
            graph--;
         End
         Frame;
-     Until(key(_esc)or key(_enter) or get_joy_button(boton2)>0 or get_joy_button(boton3)>0);
-     While(key(_esc) OR key(_enter) or get_joy_button(boton2)>0 or get_joy_button(boton3)>0) Frame; End
+     Until(key_down(_esc) or key_down(_enter) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y));
+     while(get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
+
      Repeat size-=10; Frame; Until(size<0);
      pausado=false;
      signal(father,s_wakeup);
@@ -3127,16 +3117,17 @@ begin
             //--Fin control de NIVELES--//
         End
          //-- Sale del Juego --//
-         If (key_down(_esc) AND NOT pausado AND not exists(Type game_over2)
+         If (( key_down(_esc) or get_joy_button(JOY_BUTTON_BACK)) AND NOT pausado AND not exists(Type game_over2)
                and not exists(type metro) and not exists (type metro2)
                and exists(type goody))
             if( goodi.accion<>muerto)
+               while(get_joy_button(JOY_BUTTON_BACK)) frame; end
                Abandona(320,200,-100);
             End
          end
 
          //-- Pausa durante el Juego --//
-         If (key_down(_control) AND pausado==false and exists(type goody))
+         If ( ( key_down(_control) or get_joy_button(JOY_BUTTON_START) ) AND pausado==false and exists(type goody) and !exists(type pausar))
             if( goodi.accion<>muerto)
                 pausado=true; pausar();
             end
@@ -3231,7 +3222,8 @@ begin
       If (size==100) size=101;
            Repeat
               mueve++; Frame;
-           Until(mueve>100 OR key_down(_esc) OR key_down(_space) OR key_down(_enter) OR get_joy_button(boton1)>0 OR get_joy_button(boton4)>0)
+           Until(mueve>100 OR key_down(_esc) OR key_down(_space) OR key_down(_enter) OR get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
+
            fade_off(1250); While(fade_info.fading) Frame; End
            scroll_stop(0);
            menu_inicio();
@@ -3289,9 +3281,10 @@ begin
         If(key(teclado[KRIGHT]) or Joys_x==2)
             Aban=0; graph=42;
         End
-        If (key_down(_enter) OR key_down(_esc)OR key_down(_space) or get_joy_button(boton1)>0 or get_joy_button(boton4)>0)
-            if(key(_esc)) Aban=0; end
-            While(get_joy_button(boton1)>0 or get_joy_button(boton4)>0) Frame; End
+        If (key_down(_enter) or key_down(_esc) or key_down(_space) or get_joy_button(JOY_BUTTON_BACK) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
+            if(key(_esc) or get_joy_button(JOY_BUTTON_BACK)) Aban=0; end
+            while(get_joy_button(JOY_BUTTON_BACK) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
+
             If(Aban)
                 vidas+=5;
                 if(stage==0)
@@ -3325,6 +3318,7 @@ Process pausar()
 Private
     int efecto;
     int direccion;
+    int entry = 1;
 begin
     frame;
     x=320; y=200;
@@ -3338,10 +3332,12 @@ begin
     efecto=256;
     Direccion=1;
     Loop
-        If (key_down(_control) OR key_down(_enter) OR key_down(_space))
+        If (key_down(_control) OR key_down(_enter) OR key_down(_space) or ( !entry && get_joy_button( JOY_BUTTON_START ) ) )
             frame;
             pausado=false; Break;
         End
+        if ( !get_joy_button(JOY_BUTTON_START)) entry = 0; end
+
         If (direccion==1)
             efecto-=10;
             If (efecto<=150) direccion=2; End
@@ -3353,7 +3349,7 @@ begin
 
         Frame;
     End
-
+    while(get_joy_button(JOY_BUTTON_START)) frame; end
     fpg_unload(gmenu);
 End
 
@@ -3383,7 +3379,7 @@ begin
           Aban=0; graph=21;
        End
        If ( skip_action())
-          if(key(_esc)) Aban=0; end
+          if(key(_esc) or get_joy_button(JOY_BUTTON_BACK)) Aban=0; end
           While(confirm()) Frame; End
           If(Aban)
 	        from accion=22 to 480 step 44;
@@ -3531,22 +3527,22 @@ begin
           objeto[busca]=objetos[busca];
       End
       If (cabina_in)
-         If((key(teclado[KLEFT])and key(_enter))or get_joy_button(boton3)>0)
-            While((key(teclado[KLEFT])and key(_enter)) or get_joy_button(boton3)>0) Frame; End
+         If((key(teclado[KLEFT])and key(_enter))or get_joy_button(JOY_BUTTON_A)>0)
+            While((key(teclado[KLEFT])and key(_enter)) or get_joy_button(JOY_BUTTON_A)>0) Frame; End
             objetos[0]=objeto[1];
             objetos[1]=objeto[2];
             objetos[2]=objeto[3];
             objetos[3]=objeto[0];
          End
-         If((key(teclado[KRIGHT])and key(_enter)) or get_joy_button(boton2)>0)
-            While((key(teclado[KRIGHT])and key(_enter)) or get_joy_button(boton2)>0) Frame; End
+         If((key(teclado[KRIGHT])and key(_enter)) or get_joy_button(JOY_BUTTON_B)>0)
+            While((key(teclado[KRIGHT])and key(_enter)) or get_joy_button(JOY_BUTTON_B)>0) Frame; End
             objetos[0]=objeto[3];
             objetos[1]=objeto[0];
             objetos[2]=objeto[1];
             objetos[3]=objeto[2];
          End
       End
-      If ((key(teclado[KSPACE])or get_joy_button(boton4)>0 or get_joy_button(boton1)>0) AND Cabina==true AND pieza==3)
+      If ((key(teclado[KSPACE])or get_joy_button(JOY_BUTTON_X)>0 or get_joy_button(JOY_BUTTON_Y)>0) AND Cabina==true AND pieza==3)
           graph=0; cabina=false;
       End
       Frame;
@@ -3583,17 +3579,17 @@ begin
        If ((key(teclado[KDOWN])or Joys_y==2)AND y<240) y+=5; End
        If ((key(teclado[KLEFT])or Joys_x==1) AND x>80) x-=5; End
        If ((key(teclado[KRIGHT])or Joys_x==2)AND x<550) x+=5; End
-       If((key(_enter)) or (get_joy_button(boton3)>0) OR money<=0 OR (objeto[0]<>0 AND objeto[1]<>0
+       If((key(_enter)) or (get_joy_button(JOY_BUTTON_A)>0) OR money<=0 OR (objeto[0]<>0 AND objeto[1]<>0
             AND objeto[2]<>0 AND objeto[3]<>0))
-           While(key(_enter) or get_joy_button(boton4)>0) Frame; End
+           While(key(_enter) or get_joy_button(JOY_BUTTON_X)>0) Frame; End
            From busca=0 To 3;
               objeto[busca]=objetos[busca];
            End
            signal(Type goody,s_wakeup);
            signal(id,s_kill);
        End
-          If (herram AND (get_joy_button(boton4)>0 or get_joy_button(boton1)>0 or key(teclado[KSPACE])) AND money>0)
-            While(get_joy_button(boton4)>0 or get_joy_button(boton1)>0 or key(teclado[KSPACE])) Frame; End
+          If (herram AND (get_joy_button(JOY_BUTTON_X)>0 or get_joy_button(JOY_BUTTON_Y)>0 or key(teclado[KSPACE])) AND money>0)
+            While(get_joy_button(JOY_BUTTON_X)>0 or get_joy_button(JOY_BUTTON_Y)>0 or key(teclado[KSPACE])) Frame; End
              herramientas2[herram.herrami]=1;
              From busca=0 To 3;
                 If (objetos[busca]==0)
@@ -3631,8 +3627,8 @@ begin
               x-=33;
          End
      End
-       If((key(_enter)or get_joy_button(boton1)>0)and not exists(type abandona))
-         While (key(_enter)or get_joy_button(boton1)>0) Frame; End
+       If((key(_enter)or get_joy_button(JOY_BUTTON_Y)>0)and not exists(type abandona))
+         While (key(_enter)or get_joy_button(JOY_BUTTON_Y)>0) Frame; End
          From mueve=0 To 11;
              combina1+=itoa(combo[mueve]);
          End
@@ -3725,13 +3721,13 @@ begin
    loop
     // ejeX
      IF (get_joy_position(0)<7000 AND get_joy_position(0)>-7000) joys_X=0; END // neutral
-     IF (get_joy_position(0)<-10000) joys_X=1; END // izquierda
-     IF (get_joy_position(0)>10000) joys_X=2; END // derecha
+     IF (get_joy_button(JOY_BUTTON_DPAD_LEFT) or get_joy_position(0)<-16384-8192) joys_X=1; END // izquierda
+     IF (get_joy_button(JOY_BUTTON_DPAD_RIGHT) or get_joy_position(0)>16384+8192) joys_X=2; END // derecha
 
     // ejeY
      IF (get_joy_position(1)<7000 AND get_joy_position(1)>-7000 ) joys_Y=0; END
-     IF (get_joy_position(1)<-7500) joys_Y=1; END // arriba
-     IF (get_joy_position(1)>7500) joys_Y=2; END // abajo
+     IF (get_joy_button(JOY_BUTTON_DPAD_UP) or get_joy_position(1)<-16384-8192) joys_Y=1; END // arriba
+     IF (get_joy_button(JOY_BUTTON_DPAD_DOWN) or get_joy_position(1)>16384+8192) joys_Y=2; END // abajo
 
       frame;
    end
@@ -3801,8 +3797,8 @@ begin
 
         //--Controla el tiempo de espera--//
         /*
-        if((scan_code==0 and Joys_x==0 and Joys_y==0 and not get_joy_button(boton1)
-        and not get_joy_button(boton2) and not get_joy_button(boton3)and not get_joy_button(boton4))
+        if((scan_code==0 and Joys_x==0 and Joys_y==0 and not get_joy_button(JOY_BUTTON_Y)
+        and not get_joy_button(JOY_BUTTON_B) and not get_joy_button(JOY_BUTTON_A)and not get_joy_button(JOY_BUTTON_X))
         and accion<>Espera and (en_pantalla() or ascensor))
         sentado++; if(sentado>150) accion=espera; muevete=0; graph=15; end
         else
@@ -3810,8 +3806,8 @@ begin
         end
         */
         if((Joys_x==0 and Joys_y==0 and keyboard.scan_code==0 and accion<>Espera)
-            and (get_joy_button(boton1)<=0 and get_joy_button(boton2)<=0
-            and  get_joy_button(boton3)<=0 and get_joy_button(boton4)<=0)
+            and !get_joy_button(JOY_BUTTON_Y) and !get_joy_button(JOY_BUTTON_B)
+            and !get_joy_button(JOY_BUTTON_A) and !get_joy_button(JOY_BUTTON_X)
             and (en_pantalla() or ascensor==0))
             sentado++; if(sentado>150) accion=espera; muevete=0; graph=15; end
         else
@@ -3880,7 +3876,7 @@ begin
 
         //--Deteccion de Ascensores--//
         If (ascensor==0) ascens=collision(Type ascensores); End
-        If (ascens AND velocidad_gravedad>1 AND ascensor==0)
+        If (ascens AND velocidad_gravedad>=0 AND ascensor==0)
             ascemovil=ascens;
             If(ascemovil.graph==2)
                 If (y+22>ascemovil.y-20 AND y+22<ascemovil.y+22
@@ -4067,7 +4063,7 @@ begin
                         If ((key(teclado[KUP]) OR
                             (key(teclado[KUP]) AND key(teclado[KLEFT]) AND NOT escaleras) OR
                             (key(teclado[KUP]) AND key(teclado[KRIGHT])) OR
-                            (get_joy_button(Boton1)>0) or Joys_Y==1) AND
+                            (get_joy_button(JOY_BUTTON_Y)>0) or Joys_Y==1) AND
                             NOT escaleras)
 
                             accion=saltar; graph=6;
@@ -4103,12 +4099,12 @@ begin
                         //--Rutina de potencia de disparo y lanzamiento--//
                         If(potencia>0) potencia--; End
                         If (lanzar==0 AND stage<>0)
-                            If ((key(teclado[KSPACE]) or (get_joy_button(Boton4)>0))AND potencia<=14)
+                            If ((key(teclado[KSPACE]) or (get_joy_button(JOY_BUTTON_X)>0))AND potencia<=14)
                                 disparo=true;
                                 Potencia+=2;
                                 Potencia2-=2;
                             Else
-                                If(NOT (key(teclado[KSPACE]) or get_joy_button(Boton4)>0) AND disparo)
+                                If(NOT (key(teclado[KSPACE]) or get_joy_button(JOY_BUTTON_X)>0) AND disparo)
                                     Muevete=0;
                                     accion=disparar; graph=8;
                                     velocidad=0;
@@ -4119,9 +4115,9 @@ begin
                     End
 
                     //--Ponemos la escalera--//
-                    If ((key(teclado[KENTER]) or get_joy_button(boton2)>0) AND ascensor==0 AND barca==0)// AND escalera==0)
+                    If ((key(teclado[KENTER]) or get_joy_button(JOY_BUTTON_B)>0) AND ascensor==0 AND barca==0)// AND escalera==0)
                         graph=1;
-                        While(key(teclado[KENTER])or get_joy_button(boton2)>0) Frame; End
+                        While(key(teclado[KENTER])or get_joy_button(JOY_BUTTON_B)>0) Frame; End
                         If (stage==2 AND x<700)
                             stage=2;
                         Else
@@ -4185,8 +4181,8 @@ begin
                         or key(teclado[KLEFT]) or key(teclado[KSPACE])) and get_id(type game_over)==0)
                         accion=parado; sentado=0;
                     end
-                    if ((Joys_x<>0 or Joys_y<>0 or get_joy_button(boton1)>0 or get_joy_button(boton2)>0
-                        or get_joy_button(boton3)>0 or get_joy_button(boton4)>0) and get_id(type game_over)==0)
+                    if ((Joys_x<>0 or Joys_y<>0 or get_joy_button(JOY_BUTTON_Y)>0 or get_joy_button(JOY_BUTTON_B)>0
+                        or get_joy_button(JOY_BUTTON_A)>0 or get_joy_button(JOY_BUTTON_X)>0) and get_id(type game_over)==0)
                         accion=parado; sentado=0;
                     end
                 end
@@ -4237,12 +4233,12 @@ begin
             Switch(accion)
                 Case Saltar:
                     If(potencia>0) potencia--; End
-                    If ((key(teclado[KSPACE]) or get_joy_button(Boton4)>0)AND potencia<=14 AND stage<>0)
+                    If ((key(teclado[KSPACE]) or get_joy_button(JOY_BUTTON_X)>0)AND potencia<=14 AND stage<>0)
                         disparo=true;
                         Potencia+=2;
                         Potencia2-=2;
                     Else
-                        If(NOT (key(teclado[KSPACE]) or get_joy_button(Boton4)>0) AND disparo)
+                        If(NOT (key(teclado[KSPACE]) or get_joy_button(JOY_BUTTON_X)>0) AND disparo)
                             Muevete=0;
                             accion=disparar; graph=8;
                             velocidad=0;disparo=false;
@@ -4567,8 +4563,8 @@ begin
 Loop
       Ascen2=collision(Type ascensores);
       coger=collision(Type goody);
-      If ((coger AND (key(teclado[KENTER]) or get_joy_button(boton2)>0)) OR Ascen2)
-         If (get_joy_button(boton2)>0); While(get_joy_button(boton2)>0) Frame; End End
+      If ((coger AND (key(teclado[KENTER]) or get_joy_button(JOY_BUTTON_B)>0)) OR Ascen2)
+         If (get_joy_button(JOY_BUTTON_B)>0); While(get_joy_button(JOY_BUTTON_B)>0) Frame; End End
          If (key(teclado[KENTER])); While(key(teclado[KENTER])) Frame; End End
          escalera=0; goodi.escaleras=0;
          goodi.accion=parado; goodi.size=100;
@@ -4693,9 +4689,9 @@ begin
    ctype=c_scroll;
    Loop
       goody2=collision(Type goody);
-      If (goody2 AND (key(teclado[KSPACE]) or get_joy_button(boton1)>0 or get_joy_button(boton4)>0) AND get_id(type Paredes_Proc)>0
+      If (goody2 AND (key(teclado[KSPACE]) or get_joy_button(JOY_BUTTON_Y)>0 or get_joy_button(JOY_BUTTON_X)>0) AND get_id(type Paredes_Proc)>0
            AND Objetos[3]<>0)
-         While(key(teclado[KSPACE])or get_joy_button(boton1)>0 or get_joy_button(boton4)>0) Frame; End
+         While(key(teclado[KSPACE])or get_joy_button(JOY_BUTTON_Y)>0 or get_joy_button(JOY_BUTTON_X)>0) Frame; End
          If (objetos[3]==abrir)
             cabina=true; Herracabina(x,y-2,file,objetos[3],-8);
             cabin[herra]=1;
@@ -7872,7 +7868,7 @@ begin
           if(y>270) y--; else y=270; mueve++; end
       end
       if(mueve>0 and accion==0)
-         mueve++; if(mueve>200 or key(_esc)) accion=1; end
+         mueve++; if(mueve>200 or key(_esc) or get_joy_button(JOY_BUTTON_BACK)) accion=1; end
       end
       if (accion)
          music_fade_off(1200);
