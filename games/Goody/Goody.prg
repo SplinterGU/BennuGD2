@@ -653,8 +653,8 @@ begin
     Repeat
        file=gmenu;
        Frame;
-    Until((key_down(_esc) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) and not exists(type menu_opc))
-    while(get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
+    Until((key_down(_esc) OR get_joy_button(JOY_BUTTON_BACK) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) and not exists(type menu_opc))
+    while( get_joy_button(JOY_BUTTON_BACK) OR get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
     signal(Type menu_opc,s_kill);
     signal(Type options,s_kill);
     Repeat  size-=10; Frame; Until(size<10);
@@ -695,9 +695,9 @@ begin
           End
 
        End
-       If (key_down(_esc) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
+       If (key_down(_esc) OR get_joy_button(JOY_BUTTON_BACK) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
           signal(id,s_kill);
-          while(get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
+          while( get_joy_button(JOY_BUTTON_BACK) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
        End
        Frame;
     End
@@ -732,8 +732,8 @@ begin
           opcion3++; y+=29; If (opcion3>4) opcion3=1; y=238; End
        End
 
-       If (key_down(_esc) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
-          while(get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
+       If (key_down(_esc) OR get_joy_button(JOY_BUTTON_BACK) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
+          while( get_joy_button(JOY_BUTTON_BACK) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
           signal(father,s_wakeup);
           signal(Type options,s_wakeup);
           signal(Type manoselec,s_wakeup);
@@ -927,8 +927,8 @@ begin
            graph--;
         End
         Frame;
-     Until(key_down(_esc) or key_down(_enter) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y));
-     while(get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
+     Until(key_down(_esc) OR get_joy_button(JOY_BUTTON_BACK) or key_down(_enter) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y));
+     while(get_joy_button(JOY_BUTTON_BACK) or get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y)) frame; end
 
      Repeat size-=10; Frame; Until(size<0);
      pausado=false;
@@ -3222,7 +3222,7 @@ begin
       If (size==100) size=101;
            Repeat
               mueve++; Frame;
-           Until(mueve>100 OR key_down(_esc) OR key_down(_space) OR key_down(_enter) OR get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
+           Until(mueve>100 OR key_down(_esc) OR key_down(_space) OR key_down(_enter) OR get_joy_button(JOY_BUTTON_BACK) OR get_joy_button(JOY_BUTTON_B) or get_joy_button(JOY_BUTTON_A) or get_joy_button(JOY_BUTTON_X) or get_joy_button(JOY_BUTTON_Y))
 
            fade_off(1250); While(fade_info.fading) Frame; End
            scroll_stop(0);
@@ -7629,7 +7629,11 @@ begin
                    End
                 End
                 Frame;
-           Until (redef[teclas]<>0);
+           Until (redef[teclas]<>0 OR key(_esc) OR get_joy_button(JOY_BUTTON_BACK));
+           if ( key(_esc) OR get_joy_button(JOY_BUTTON_BACK) )
+              While(key(_esc) OR get_joy_button(JOY_BUTTON_BACK)) Frame; End
+            break;
+           end
            //28=Enter;
            If (redef[teclas]==15 OR
                redef[teclas]==29 OR redef[teclas]==56 OR
@@ -7654,15 +7658,16 @@ begin
            End
              keyboard.scan_code=0;
              Frame;
-        Until (teclas>5 OR key(_esc));
+        Until (teclas>5 OR key(_esc) OR get_joy_button(JOY_BUTTON_BACK));
+       While(key(_esc) OR get_joy_button(JOY_BUTTON_BACK)) Frame; End
     graph=20;
-    Repeat Frame; Until(key(_s) or key(_y) OR key(_n) OR key(_esc))
+    Repeat Frame; Until(key(_s) or key(_y) OR key(_n) OR key(_esc) OR get_joy_button(JOY_BUTTON_BACK))
     If (key(_s) or key(_y))
        From asigna=0 To 5;
           teclado[asigna]=redef[asigna];
        End
     End
-    While(key(_esc)) Frame; End
+    While(key(_esc) OR get_joy_button(JOY_BUTTON_BACK)) Frame; End
     signal(father,s_wakeup);
     signal(Type options,s_wakeup);
     signal(Type manoselec,s_wakeup);
