@@ -90,6 +90,7 @@ if [ $? -eq 0 ]; then
 
         i386-linux-gnu)
             cp SDL_gpu/lib/*.so ../../../../dependencies/$TARGET
+            cp SDL_gpu/lib/*.so SDL_gpu/lib/*.a /usr/lib/${TARGET}
             ;;
 
     esac
