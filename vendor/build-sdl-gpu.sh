@@ -57,11 +57,11 @@ fi
 export PKG_CONFIG_PATH
 export TARGET
 
-mkdir -p sdl-gpu/build/build-$TARGET 2>/dev/null
+mkdir -p sdl-gpu/build/$TARGET 2>/dev/null
 
 echo "### Building SDL_gpu ($TARGET) ###"
 
-cd sdl-gpu/build/build-$TARGET
+cd sdl-gpu/build/$TARGET
 if [ "$CLEAN" == "1" ]
 then
     rm CMakeCache.txt
@@ -74,6 +74,27 @@ then
     make clean
 fi
 make -j
+if [ $? -eq 0 ]; then
+    case $TARGET in
+        x86_64-w64-mingw32)
+            cp SDL_gpu-MINGW/bin/*.dll ../../../../dependencies/$TARGET
+            ;;
+
+        linux-gnu)
+            cp SDL_gpu/lib/*.so ../../../../dependencies/$TARGET
+            ;;
+
+        i686-w64-mingw32)
+            cp SDL_gpu-MINGW/bin/*.dll ../../../../dependencies/$TARGET
+            ;;
+
+        i386-linux-gnu)
+            cp SDL_gpu/lib/*.so ../../../../dependencies/$TARGET
+            ;;
+
+    esac
+    
+fi
 cd -
 
 echo "### Build done! ###"

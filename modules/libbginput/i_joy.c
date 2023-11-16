@@ -776,7 +776,7 @@ SDL_bool joy_has_led_specific(int64_t joy) {
     if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
         return SDL_JoystickHasLED(_joystickList[joy].joystick);
     }
-    return SDL_FALSE;
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -795,9 +795,13 @@ SDL_bool joy_has_led(void) {
 
 SDL_bool joy_has_rumble_specific(int64_t joy) {
     if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
+#ifdef __SWITCH__
+    return 1;
+#else
         return SDL_JoystickHasRumble(_joystickList[joy].joystick);
+#endif
     }
-    return SDL_FALSE;
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -816,9 +820,13 @@ SDL_bool joy_has_rumble(void) {
 
 SDL_bool joy_has_rumble_triggers_specific(int64_t joy) {
     if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
+#ifdef __SWITCH__
+        return 1;
+#else
         return SDL_JoystickHasRumbleTriggers(_joystickList[joy].joystick);
+#endif
     }
-    return SDL_FALSE;
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -846,6 +854,7 @@ int64_t joy_set_specific(int64_t joy, int64_t element, int64_t arg1, int64_t arg
 
             case JOY_SET_LED:
                 return SDL_JoystickSetLED(_joystickList[joy].joystick, (Uint8)arg1 /*red*/, (Uint8)arg2 /*green*/, (Uint8)arg3 /*blue*/);
+
 #ifdef JOY_SEND_EFFECT_ENABLED
             case JOY_SET_SEND_EFFECT:
                 return SDL_JoystickSendEffect(_joystickList[joy].joystick, (const void *)arg1 /*data*/, (int)arg2 /*size*/);
@@ -872,10 +881,10 @@ int64_t joy_query_specific( int64_t joy, int64_t element ) {
                 
             case JOY_QUERY_HAS_RUMBLE:
                 return joy_has_rumble_specific( joy );
-                
+
             case JOY_QUERY_HAS_RUMBLE_TRIGGERS:
                 return joy_has_rumble_triggers_specific( joy );
-                
+
             case JOY_QUERY_NAME:
                 return ( int64_t ) joy_name_specific( joy );
                 
