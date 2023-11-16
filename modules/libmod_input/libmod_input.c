@@ -33,7 +33,8 @@
 #include <time.h>
 
 #include "bgddl.h"
-
+#include "bgdrtm.h"
+#include "xstrings.h"
 #include "xctype.h"
 
 #include "libbginput.h"
@@ -85,7 +86,12 @@ static int64_t libmod_input_joy_num( INSTANCE * my, int64_t * params ) {
  **/
 
 static int64_t libmod_input_joy_name( INSTANCE * my, int64_t * params ) {
-    return ( joy_name() );
+    char * name = joy_name();
+    int64_t result;
+    if ( !name ) result = string_new("");
+    else         result = string_new(name);
+    string_use(result);
+    return ( result );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -97,9 +103,13 @@ static int64_t libmod_input_joy_name( INSTANCE * my, int64_t * params ) {
  **/
 
 static int64_t libmod_input_joy_name_specific( INSTANCE * my, int64_t * params ) {
-    return ( joy_name_specific( params[0] ) );
+    char * name = joy_name_specific( params[0] );
+    int64_t result;
+    if ( !name ) result = string_new("");
+    else         result = string_new(name);
+    string_use(result);
+    return ( result );
 }
-
 
 /* --------------------------------------------------------------------------- */
 /**
@@ -219,18 +229,6 @@ static int64_t libmod_input_joy_get_ball( INSTANCE * my, int64_t * params ) {
 
 static int64_t libmod_input_joy_get_accel( INSTANCE * my, int64_t * params ) {
     return ( joy_get_accel( ( int64_t * ) ( intptr_t ) params[0], ( int64_t * ) ( intptr_t ) params[1], ( int64_t * ) ( intptr_t ) params[2] ) );
-}
-
-/* --------------------------------------------------------------------------- */
-/**
- * JOY_POWERLEVEL ()
- *
- * Returns the battery level on the current selected joystick
- *
- **/
-
-static int64_t libmod_input_joy_powerlevel( INSTANCE * my, int64_t * params ) {
-    return joy_powerlevel();
 }
 
 /* --------------------------------------------------------------------------- */
@@ -360,20 +358,6 @@ static int64_t libmod_input_joy_get_accel_specific( INSTANCE * my, int64_t * par
 
 /* --------------------------------------------------------------------------- */
 /**
- * JOY_POWERLEVEL (int JOY)
- *
- * Returns the battery level on the specified joystick
- *
- **/
-
-/* --------------------------------------------------------------------------- */
-
-static int64_t libmod_input_joy_powerlevel_specific( INSTANCE * my, int64_t * params ) {
-    return joy_powerlevel_specific( params[0] );
-}
-
-/* --------------------------------------------------------------------------- */
-/**
  * JOY_IS_ATTACHED (int JOY)
  *
  * Returns if the specified joystick is attached
@@ -382,6 +366,60 @@ static int64_t libmod_input_joy_powerlevel_specific( INSTANCE * my, int64_t * pa
 
 static int64_t libmod_input_joy_is_attached_specific( INSTANCE * my, int64_t * params ) {
     return joy_is_attached_specific( params[0] );
+}
+
+
+
+
+
+static int64_t libmod_input_joy_query_specific( INSTANCE * my, int64_t * params ) {
+    return joy_query_specific( params[0], params[1] );
+}
+
+/* --------------------------------------------------------------------------- */
+/**
+ * JOY_SET(int joy, int element, int arg1, int arg2)
+ * 
+ * Sets specific information for the specified joystick, with options for 2 arguments.
+ *
+ **/
+
+static int64_t libmod_input_joy_set_specific2( INSTANCE * my, int64_t * params ) {
+    int64_t arg2;
+#ifdef JOY_SEND_EFFECT_ENABLED
+    if ( params[1] == JOY_SET_SEND_EFFECT ) {
+        arg2 = (int64_t) string_get( params[2] );
+    } else {
+#endif
+        arg2 = params[2];
+#ifdef JOY_SEND_EFFECT_ENABLED
+    }
+#endif
+
+    return joy_set_specific( params[0], params[1], arg2, params[3], 0 );
+}
+
+/* --------------------------------------------------------------------------- */
+/**
+ * JOY_SET(int joy, int element, int arg1, int arg2, int arg3)
+ * 
+ * Sets specific information for the specified joystick, with options for 3 arguments.
+ *
+ **/
+
+static int64_t libmod_input_joy_set_specific3( INSTANCE * my, int64_t * params ) {
+    int64_t arg2;
+#ifdef JOY_SEND_EFFECT_ENABLED
+    if ( params[1] == JOY_SET_SEND_EFFECT ) {
+        arg2 = (int64_t) string_get( params[2] );
+    } else {
+#endif
+        arg2 = params[2];
+#ifdef JOY_SEND_EFFECT_ENABLED
+    }
+#endif
+
+    return joy_set_specific( params[0], params[1], arg2, params[3], params[4] );
 }
 
 /* --------------------------------------------------------------------------- */

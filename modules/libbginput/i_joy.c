@@ -41,7 +41,6 @@
 
 #include "bgddl.h"
 #include "bgdrtm.h"
-#include "xstrings.h"
 
 #include "libbginput.h"
 
@@ -66,21 +65,21 @@ typedef struct bindElement
     SDL_GameControllerBindType inType;
     union
     {
-        int button;
+        int64_t button;
 
         struct
         {
-            int axis;
-            int axis_min;
-            int axis_max;
-            int axis_total;     // max - min
-            int threshold;
+            int64_t axis;
+            int64_t axis_min;
+            int64_t axis_max;
+            int64_t axis_total;     // max - min
+            int64_t threshold;
         } axis;
 
         struct
         {
-            int hat;
-            int hat_mask;
+            int64_t hat;
+            int64_t hat_mask;
         } hat;
 
     } in;
@@ -90,9 +89,9 @@ typedef struct bindElement
     {
         struct
         {
-            int axis_min;
-            int axis_max;
-            int axis_total;       // max - min
+            int64_t axis_min;
+            int64_t axis_max;
+            int64_t axis_total;       // max - min
         } axis;
 
     } out;
@@ -102,7 +101,7 @@ typedef struct bindElement
 } bindElement;
 
 typedef struct {
-    int instanceID;
+    int64_t instanceID;
     SDL_Joystick* joystick;
     bindElement * mapping[ SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_MAX ];
 } JoystickInfo;
@@ -118,7 +117,7 @@ static JoystickInfo _joystickList[MAX_JOYS];
  * Given a controller button name and a joystick name, update our mapping structure with it
  */
 
-void parseElement(int joyIdx, const char *szGameButton, const char *szJoystickButton)
+static void parseElement(int64_t joy, const char *szGameButton, const char *szJoystickButton)
 {
     SDL_GameControllerButton button;
     SDL_GameControllerAxis axis;
@@ -133,14 +132,14 @@ void parseElement(int joyIdx, const char *szGameButton, const char *szJoystickBu
     axis = SDL_GameControllerGetAxisFromString(szGameButton);
     button = SDL_GameControllerGetButtonFromString(szGameButton);
 
-    int element = button;
+    int64_t element = button;
 
     bindElement * bind = malloc( sizeof( bindElement ) );
     if ( !bind ) return;
 
     if (axis != SDL_CONTROLLER_AXIS_INVALID) element += SDL_CONTROLLER_BUTTON_MAX + 1 + axis;
 
-    bind->next = _joystickList[ joyIdx ].mapping[ element ];
+    bind->next = _joystickList[ joy ].mapping[ element ];
 
     if (axis != SDL_CONTROLLER_AXIS_INVALID) {
         bind->outType = SDL_CONTROLLER_BINDTYPE_AXIS;
@@ -236,8 +235,8 @@ void parseElement(int joyIdx, const char *szGameButton, const char *szJoystickBu
     else
     if (szJoystickButton[0] == 'h' && isdigit((unsigned char)szJoystickButton[1]) &&
         szJoystickButton[2] == '.' && isdigit((unsigned char)szJoystickButton[3])) {
-        int hat = atoi(&szJoystickButton[1]);
-        int mask = atoi(&szJoystickButton[3]);
+        int64_t hat = atoi(&szJoystickButton[1]);
+        int64_t mask = atoi(&szJoystickButton[3]);
         bind->inType = SDL_CONTROLLER_BINDTYPE_HAT;
         bind->in.hat.hat = hat;
         bind->in.hat.hat_mask = mask;
@@ -249,14 +248,14 @@ void parseElement(int joyIdx, const char *szGameButton, const char *szJoystickBu
         return;
     }
 
-    _joystickList[ joyIdx ].mapping[ element ] = bind;
+    _joystickList[ joy ].mapping[ element ] = bind;
 }
 
 /*
  * Given a controller mapping string, update our mapping object
  */
 
-void ParseMapping(int joyIdx, const char *pchString)
+static void ParseMapping(int64_t joy, const char *pchString)
 {
     char szGameButton[20];
     char szJoystickButton[20];
@@ -264,7 +263,7 @@ void ParseMapping(int joyIdx, const char *pchString)
 
     const char *pchPos = pchString;
 
-    int i;
+    int64_t i;
 
     // Skip GUID
     pchPos = strchr(pchPos, ',' );
@@ -274,7 +273,7 @@ void ParseMapping(int joyIdx, const char *pchString)
     pchPos = strchr(pchPos + 1, ',' );
     if ( !pchPos ) return;
 
-    memset( _joystickList[ joyIdx ].mapping, '\0', sizeof( _joystickList[ joyIdx ].mapping ) );
+    memset( _joystickList[ joy ].mapping, '\0', sizeof( _joystickList[ joy ].mapping ) );
 
     i = 0;
 
@@ -294,7 +293,7 @@ void ParseMapping(int joyIdx, const char *pchString)
             case    ',':
                     i = 0;
                     parseButton = 1;
-                    parseElement( joyIdx, szGameButton, szJoystickButton );
+                    parseElement( joy, szGameButton, szJoystickButton );
                     szGameButton[0] = '\0';
                     szJoystickButton[0] = '\0';
                     break;
@@ -321,7 +320,7 @@ void ParseMapping(int joyIdx, const char *pchString)
 
     /* No more values if the string was terminated by a comma. Don't report an error. */
     if (szGameButton[0] || szJoystickButton[0] ) {
-        parseElement( joyIdx, szGameButton, szJoystickButton );
+        parseElement( joy, szGameButton, szJoystickButton );
     }
 }
 
@@ -329,11 +328,11 @@ void ParseMapping(int joyIdx, const char *pchString)
  * Queries the button input of the joystick
  */
 
-int _joy_query_button( int joyIdx, int button ) {
-    int value = 0;
+static int64_t _joy_query_button( int64_t joy, int64_t button ) {
+    int64_t value = 0;
 
-    bindElement * bind = _joystickList[ joyIdx ].mapping[ button ];
-    SDL_Joystick * joystick = _joystickList[ joyIdx ].joystick;
+    bindElement * bind = _joystickList[ joy ].mapping[ button - JOY_MAPPING_BASE ];
+    SDL_Joystick * joystick = _joystickList[ joy ].joystick;
 
     while( bind ) {
         switch ( bind->inType ) {
@@ -370,11 +369,11 @@ int _joy_query_button( int joyIdx, int button ) {
  * Queries the axis input of the joystick
  */
 
-int _joy_query_axis( int joyIdx, int axis ) {
-   int value = 0;
+static int64_t _joy_query_axis( int64_t joy, int64_t axis ) {
+   int64_t value = 0;
 
-    bindElement * bind = _joystickList[ joyIdx ].mapping[ axis ];
-    SDL_Joystick * joystick = _joystickList[ joyIdx ].joystick;
+    bindElement * bind = _joystickList[ joy ].mapping[ axis - JOY_MAPPING_BASE ];
+    SDL_Joystick * joystick = _joystickList[ joy ].joystick;
 
     while( bind ) {
         switch ( bind->inType ) {
@@ -390,7 +389,7 @@ int _joy_query_axis( int joyIdx, int axis ) {
                      (value >= bind->in.axis.axis_max && value <= bind->in.axis.axis_min) ) {
                     if (bind->in.axis.axis_min != bind->out.axis.axis_min || bind->in.axis.axis_max != bind->out.axis.axis_max) {
                         float normalized_value = (float)(value - bind->in.axis.axis_min) / bind->in.axis.axis_total;
-                        value = bind->out.axis.axis_min + (int)(normalized_value * bind->out.axis.axis_total);
+                        value = bind->out.axis.axis_min + (int64_t)(normalized_value * bind->out.axis.axis_total);
                     }
                 } else {
                     value = 0;
@@ -420,30 +419,20 @@ int _joy_query_axis( int joyIdx, int axis ) {
 
 
 
-
-
-
-
-
-
 /* --------------------------------------------------------------------------- */
 /* joy_name_specific (int64_t JOY)                                             */
 /* Returns the name for a given joystick present in the system                 */
 /* --------------------------------------------------------------------------- */
 
-int64_t joy_name_specific( int64_t joy ) {
-    int64_t result;
+char * joy_name_specific( int64_t joy ) {
     if ( joy >= 0 && joy < MAX_JOYS && _joystickList[ joy ].joystick ) {
-        result = string_new( SDL_JoystickName( _joystickList[ joy ].joystick ) );
-    } else {
-        result = string_new( "" );
+        return ( char * ) SDL_JoystickName( _joystickList[ joy ].joystick );
     }
-    string_use( result );
-    return result;
+    return NULL;
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_buttons_specific (int64_t JOY)                                           */
+/* joy_buttons_specific (int64_t JOY)                                          */
 /* Returns the selected joystick total buttons                                 */
 /* --------------------------------------------------------------------------- */
 
@@ -458,7 +447,7 @@ int64_t joy_buttons_specific( int64_t joy ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_axes_specific (int64_t JOY)                                              */
+/* joy_axes_specific (int64_t JOY)                                             */
 /* Returns the selected joystick total axes                                    */
 /* --------------------------------------------------------------------------- */
 
@@ -470,14 +459,14 @@ int64_t joy_axes_specific( int64_t joy ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_get_button_specific (int64_t JOY, int64_t button)                            */
+/* joy_get_button_specific (int64_t JOY, int64_t button)                       */
 /* Returns the selected joystick state for the given button                    */
 /* --------------------------------------------------------------------------- */
 
 int64_t joy_get_button_specific( int64_t joy, int64_t button ) {
     if ( joy >= 0 && joy < MAX_JOYS && _joystickList[ joy ].joystick ) {
         if ( button >= JOY_BUTTON_A && button < JOY_BUTTON_MAX ) {
-            return _joy_query_button( joy, button - 0x100 );
+            return _joy_query_button( joy, button );
         }
         else
 #ifdef TARGET_CAANOO
@@ -524,14 +513,14 @@ int64_t joy_get_button_specific( int64_t joy, int64_t button ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_get_position_specific (int64_t JOY, int64_t axis)                            */
+/* joy_get_position_specific (int64_t JOY, int64_t axis)                       */
 /* Returns the selected joystick state for the given axis                      */
 /* --------------------------------------------------------------------------- */
 
 int64_t joy_get_position_specific( int64_t joy, int64_t axis ) {
     if ( joy >= 0 && joy < MAX_JOYS && _joystickList[ joy ].joystick ) {
         if ( axis >= JOY_AXIS_LEFTX && axis < JOY_AXIS_MAX ) {
-            return _joy_query_axis( joy, axis - JOY_BUTTON_A );
+            return _joy_query_axis( joy, axis );
         } else
         if ( axis >= 0 && axis <= SDL_JoystickNumAxes( _joystickList[ joy ].joystick ) ) {
             return SDL_JoystickGetAxis( _joystickList[ joy ].joystick, axis );
@@ -544,7 +533,7 @@ int64_t joy_get_position_specific( int64_t joy, int64_t axis ) {
 /* Added by Sandman */
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
-/* joy_hats_specific (int64_t JOY)                                              */
+/* joy_hats_specific (int64_t JOY)                                             */
 /* Returns the total number of POV hats of the specified joystick              */
 /* --------------------------------------------------------------------------- */
 
@@ -556,7 +545,7 @@ int64_t joy_hats_specific( int64_t joy ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_balls_specific (int64_t JOY)                                             */
+/* joy_balls_specific (int64_t JOY)                                            */
 /* Returns the total number of balls of the specified joystick                 */
 /* --------------------------------------------------------------------------- */
 
@@ -568,7 +557,7 @@ int64_t joy_balls_specific( int64_t joy ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_get_hat_specific (int64_t JOY, int64_t HAT)                                  */
+/* joy_get_hat_specific (int64_t JOY, int64_t HAT)                             */
 /* Returns the state of the specfied hat on the specified joystick             */
 /* --------------------------------------------------------------------------- */
 
@@ -582,7 +571,7 @@ int64_t joy_get_hat_specific( int64_t joy, int64_t hat ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_get_ball_specific (int64_t JOY, int64_t BALL, int64_t* dx, int64_t* dy)              */
+/* joy_get_ball_specific (int64_t JOY, int64_t BALL, int64_t* dx, int64_t* dy) */
 /* Returns the state of the specfied ball on the specified joystick            */
 /* --------------------------------------------------------------------------- */
 
@@ -634,7 +623,7 @@ int64_t joy_is_attached_specific( int64_t joy ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_num ()                                                               */
+/* joy_num ()                                                                  */
 /* Returns the number of joysticks present in the system                       */
 /* --------------------------------------------------------------------------- */
 
@@ -643,7 +632,7 @@ int64_t joy_num( void ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_select (int64_t JOY)                                                     */
+/* joy_select (int64_t JOY)                                                    */
 /* Returns the selected joystick number                                        */
 /* --------------------------------------------------------------------------- */
 
@@ -657,12 +646,12 @@ int64_t joy_select( int64_t joy ) {
 /* Returns the name for the selected joystick                                  */
 /* --------------------------------------------------------------------------- */
 
-int64_t joy_name( void ) {
+char * joy_name( void ) {
     return joy_name_specific( _selected_joystick );
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_buttons ()                                                           */
+/* joy_buttons ()                                                              */
 /* Returns the selected joystick total buttons                                 */
 /* --------------------------------------------------------------------------- */
 
@@ -671,7 +660,7 @@ int64_t joy_buttons( void ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_axes ()                                                              */
+/* joy_axes ()                                                                 */
 /* Returns the selected joystick total axes                                    */
 /* --------------------------------------------------------------------------- */
 
@@ -680,7 +669,7 @@ int64_t joy_axes( void ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_get_button ( int64_t button )                                            */
+/* joy_get_button ( int64_t button )                                           */
 /* Returns the selected joystick state for the given button                    */
 /* --------------------------------------------------------------------------- */
 
@@ -689,7 +678,7 @@ int64_t joy_get_button( int64_t button ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_get_position ( int64_t axis )                                            */
+/* joy_get_position ( int64_t axis )                                           */
 /* Returns the selected joystick state for the given axis                      */
 /* --------------------------------------------------------------------------- */
 
@@ -698,7 +687,7 @@ int64_t joy_get_position( int64_t axis ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_hats ()                                                              */
+/* joy_hats ()                                                                 */
 /* Returns the total number of POV hats of the current selected joystick       */
 /* --------------------------------------------------------------------------- */
 
@@ -707,7 +696,7 @@ int64_t joy_hats( void ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_balls ()                                                             */
+/* joy_balls ()                                                                */
 /* Returns the total number of balls of the current selected joystick          */
 /* --------------------------------------------------------------------------- */
 
@@ -716,7 +705,7 @@ int64_t joy_balls( void ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_get_hat (int64_t HAT)                                                    */
+/* joy_get_hat (int64_t HAT)                                                   */
 /* Returns the state of the specfied hat on the current selected joystick      */
 /* --------------------------------------------------------------------------- */
 
@@ -725,7 +714,7 @@ int64_t joy_get_hat( int64_t hat ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* joy_get_ball (int64_t BALL, int64_t* dx, int64_t* dy)                                */
+/* joy_get_ball (int64_t BALL, int64_t* dx, int64_t* dy)                       */
 /* Returns the state of the specfied ball on the current selected joystick     */
 /* --------------------------------------------------------------------------- */
 
@@ -758,7 +747,210 @@ int64_t joy_is_attached() {
 }
 
 /* --------------------------------------------------------------------------- */
-/* Funciones de inicializacion del modulo/plugin                               */
+/* joy_type_specific(int64_t joy)                                              */
+/* Returns the type of the specified joystick                                  */
+/* --------------------------------------------------------------------------- */
+
+SDL_JoystickType joy_type_specific(int64_t joy) {
+    if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
+        return SDL_JoystickGetType(_joystickList[joy].joystick);
+    }
+    return SDL_JOYSTICK_TYPE_UNKNOWN;
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_type()                                                                  */
+/* Returns the type of the current selected joystick                           */
+/* --------------------------------------------------------------------------- */
+
+SDL_JoystickType joy_type(void) {
+    return joy_type_specific(_selected_joystick);
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_has_led_specific(int64_t joy)                                           */
+/* Checks if the specified joystick has an LED                                 */
+/* --------------------------------------------------------------------------- */
+
+SDL_bool joy_has_led_specific(int64_t joy) {
+    if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
+        return SDL_JoystickHasLED(_joystickList[joy].joystick);
+    }
+    return SDL_FALSE;
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_has_led()                                                               */
+/* Checks if the current selected joystick has an LED                          */
+/* --------------------------------------------------------------------------- */
+
+SDL_bool joy_has_led(void) {
+    return joy_has_led_specific(_selected_joystick);
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_has_rumble_specific(int64_t joy)                                        */
+/* Checks if the specified joystick has rumble capability                      */
+/* --------------------------------------------------------------------------- */
+
+SDL_bool joy_has_rumble_specific(int64_t joy) {
+    if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
+        return SDL_JoystickHasRumble(_joystickList[joy].joystick);
+    }
+    return SDL_FALSE;
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_has_rumble()                                                            */
+/* Checks if the current selected joystick has rumble capability               */
+/* --------------------------------------------------------------------------- */
+
+SDL_bool joy_has_rumble(void) {
+    return joy_has_rumble_specific(_selected_joystick);
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_has_rumble_triggers_specific(int64_t joy)                               */
+/* Checks if the specified joystick has rumble with triggers capability        */
+/* --------------------------------------------------------------------------- */
+
+SDL_bool joy_has_rumble_triggers_specific(int64_t joy) {
+    if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
+        return SDL_JoystickHasRumbleTriggers(_joystickList[joy].joystick);
+    }
+    return SDL_FALSE;
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_has_rumble_triggers()                                                   */
+/* Checks if the current selected joystick has rumble with triggers capability */
+/* --------------------------------------------------------------------------- */
+
+SDL_bool joy_has_rumble_triggers(void) {
+    return joy_has_rumble_triggers_specific(_selected_joystick);
+}
+
+/* -------------------------------------------------------------------------------------------- */
+/* joy_set_specific(int64_t joy, int64_t element, int64_t arg1, int64_t arg2, int64_t arg3 )    */
+/* Sets specific data for the specified joystick and element.                                   */
+/* -------------------------------------------------------------------------------------------- */
+
+int64_t joy_set_specific(int64_t joy, int64_t element, int64_t arg1, int64_t arg2, int64_t arg3) {
+    if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
+        switch (element) {
+            case JOY_SET_RUMBLE:
+                return SDL_JoystickRumble(_joystickList[joy].joystick, (Uint16)arg1 /*low_frequency_rumble*/, (Uint16)arg2 /*high_frequency_rumble*/, (Uint32)arg3 /*duration_ms*/);
+
+            case JOY_SET_RUMBLE_TRIGGERS:
+                return SDL_JoystickRumbleTriggers(_joystickList[joy].joystick, (Uint16)arg1 /*left_rumble*/, (Uint16)arg2 /*right_rumble*/, (Uint32)arg3 /*duration_ms*/);
+
+            case JOY_SET_LED:
+                return SDL_JoystickSetLED(_joystickList[joy].joystick, (Uint8)arg1 /*red*/, (Uint8)arg2 /*green*/, (Uint8)arg3 /*blue*/);
+#ifdef JOY_SEND_EFFECT_ENABLED
+            case JOY_SET_SEND_EFFECT:
+                return SDL_JoystickSendEffect(_joystickList[joy].joystick, (const void *)arg1 /*data*/, (int)arg2 /*size*/);
+#endif
+        }
+    }
+
+    return -1;
+}
+
+/* --------------------------------------------------------------------------- */
+/* joy_query_specific(int64_t joy, int64_t element)                            */
+/* Provides specific information about the specified joystick and element.     */
+/* --------------------------------------------------------------------------- */
+
+int64_t joy_query_specific( int64_t joy, int64_t element ) {
+    if ( joy >= 0 && joy < MAX_JOYS && _joystickList[ joy ].joystick ) {
+        switch( element ) {
+            case JOY_QUERY_ATTACHED:
+                return joy_is_attached_specific( joy );
+                
+            case JOY_QUERY_HAS_LED:
+                return joy_has_led_specific( joy );
+                
+            case JOY_QUERY_HAS_RUMBLE:
+                return joy_has_rumble_specific( joy );
+                
+            case JOY_QUERY_HAS_RUMBLE_TRIGGERS:
+                return joy_has_rumble_triggers_specific( joy );
+                
+            case JOY_QUERY_NAME:
+                return ( int64_t ) joy_name_specific( joy );
+                
+            case JOY_QUERY_TYPE:
+                return joy_type_specific( joy );
+                
+            case JOY_QUERY_POWERLEVEL:
+                return joy_powerlevel_specific( joy );
+
+            case JOY_BUTTON_A:
+            case JOY_BUTTON_B:
+            case JOY_BUTTON_X:
+            case JOY_BUTTON_Y:
+            case JOY_BUTTON_BACK:
+            case JOY_BUTTON_GUIDE:
+            case JOY_BUTTON_START:
+            case JOY_BUTTON_LEFTSTICK:
+            case JOY_BUTTON_RIGHTSTICK:
+            case JOY_BUTTON_LEFTSHOULDER:
+            case JOY_BUTTON_RIGHTSHOULDER:
+            case JOY_BUTTON_DPAD_UP:
+            case JOY_BUTTON_DPAD_DOWN:
+            case JOY_BUTTON_DPAD_LEFT:
+            case JOY_BUTTON_DPAD_RIGHT:
+            case JOY_BUTTON_MISC1:
+            case JOY_BUTTON_PADDLE1:
+            case JOY_BUTTON_PADDLE2:
+            case JOY_BUTTON_PADDLE3:
+            case JOY_BUTTON_PADDLE4:
+            case JOY_BUTTON_TOUCHPAD:
+                return _joy_query_button( joy, element );
+    
+            case JOY_AXIS_LEFTX:
+            case JOY_AXIS_LEFTY:
+            case JOY_AXIS_RIGHTX:
+            case JOY_AXIS_RIGHTY:
+            case JOY_AXIS_TRIGGERLEFT:
+            case JOY_AXIS_TRIGGERRIGHT:
+                return _joy_query_axis( joy, element );
+
+            case JOY_HAS_BUTTON_A:
+            case JOY_HAS_BUTTON_B:
+            case JOY_HAS_BUTTON_X:
+            case JOY_HAS_BUTTON_Y:
+            case JOY_HAS_BUTTON_BACK:
+            case JOY_HAS_BUTTON_GUIDE:
+            case JOY_HAS_BUTTON_START:
+            case JOY_HAS_BUTTON_LEFTSTICK:
+            case JOY_HAS_BUTTON_RIGHTSTICK:
+            case JOY_HAS_BUTTON_LEFTSHOULDER:
+            case JOY_HAS_BUTTON_RIGHTSHOULDER:
+            case JOY_HAS_BUTTON_DPAD_UP:
+            case JOY_HAS_BUTTON_DPAD_DOWN:
+            case JOY_HAS_BUTTON_DPAD_LEFT:
+            case JOY_HAS_BUTTON_DPAD_RIGHT:
+            case JOY_HAS_BUTTON_MISC1:
+            case JOY_HAS_BUTTON_PADDLE1:
+            case JOY_HAS_BUTTON_PADDLE2:
+            case JOY_HAS_BUTTON_PADDLE3:
+            case JOY_HAS_BUTTON_PADDLE4:
+            case JOY_HAS_BUTTON_TOUCHPAD:
+            case JOY_HAS_AXIS_LEFTX:
+            case JOY_HAS_AXIS_LEFTY:
+            case JOY_HAS_AXIS_RIGHTX:
+            case JOY_HAS_AXIS_RIGHTY:
+            case JOY_HAS_AXIS_TRIGGERLEFT:
+            case JOY_HAS_AXIS_TRIGGERRIGHT:
+                return _joystickList[ joy ].mapping[ element - JOY_MAPPING_BASE - JOY_HAS_MAPPING_BASE ] != NULL;
+        }
+    }
+    return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Initialization functions of the module/plugin                               */
 /* --------------------------------------------------------------------------- */
 
 void joy_init() {
