@@ -20,12 +20,12 @@ int axis_proc[15][1];
 
 byte rgb_table[15][2] = 
     255, 255, 255,
-    255, 255, 0,
-    0, 255, 0,
-    0, 255, 255,
-    0, 0, 255,
-    255, 0, 255,
-    255, 0, 0,
+    255, 255,   0,
+      0, 255,   0,
+      0, 255, 255,
+      0,   0, 255,
+    255,   0, 255,
+    255,   0,   0,
     128, 128, 128,
     192, 192, 192,
     255, 255, 128,
@@ -34,7 +34,7 @@ byte rgb_table[15][2] =
     128, 128, 255,
     255, 128, 255,
     255, 128, 128,
-    64, 64, 64,
+     64,  64,  64,
 ;
 
 int coords[JOY_BUTTON_TOUCHPAD - JOY_BUTTON_A][1] =
@@ -56,21 +56,21 @@ int coords[JOY_BUTTON_TOUCHPAD - JOY_BUTTON_A][1] =
 ;
 
 string graphs[JOY_BUTTON_DPAD_RIGHT - JOY_BUTTON_A] =
-    "res/circle-button.png",
-    "res/circle-button.png",
-    "res/circle-button.png",
-    "res/circle-button.png",
-    "res/back-button.png",
-    "res/guide-button.png",
-    "res/start-button.png",
-    "res/circle-button-small.png",
-    "res/circle-button-small.png",
-    "res/left_shoulder.png",
-    "res/right_shoulder.png",
-    "res/dpad-up-button.png",
-    "res/dpad-down-button.png",
-    "res/dpad-left-button.png",
-    "res/dpad-right-button.png",
+    "res/circle-button.png",         // JOY_BUTTON_A
+    "res/circle-button.png",         // JOY_BUTTON_B
+    "res/circle-button.png",         // JOY_BUTTON_X
+    "res/circle-button.png",         // JOY_BUTTON_Y
+    "res/back-button.png",           // JOY_BUTTON_BACK
+    "res/guide-button.png",          // JOY_BUTTON_GUIDE
+    "res/start-button.png",          // JOY_BUTTON_START
+    "res/circle-button-medium.png",  // JOY_BUTTON_LEFTSTICK
+    "res/circle-button-medium.png",  // JOY_BUTTON_RIGHTSTICK
+    "res/left_shoulder.png",         // JOY_BUTTON_LEFTSHOULDER
+    "res/right_shoulder.png",        // JOY_BUTTON_RIGHTSHOULDER
+    "res/dpad-up-button.png",        // JOY_BUTTON_DPAD_UP
+    "res/dpad-down-button.png",      // JOY_BUTTON_DPAD_DOWN
+    "res/dpad-left-button.png",      // JOY_BUTTON_DPAD_LEFT
+    "res/dpad-right-button.png",     // JOY_BUTTON_DPAD_RIGHT
     ;
 
 process joy_connected(int joy, double x, y )
@@ -138,8 +138,7 @@ begin
         num_joys = joy_numjoysticks();
 
         write( 0, 10, 15, ALIGN_CENTER_LEFT, "CONNECTED " + num_joys);
-
-        int line = 20;
+        write( 0, 10, 35, ALIGN_CENTER_LEFT, "FIRST CONNECTED " + joy_query( JOY_QUERY_FIRST_ATTACHED ) );
 
         for ( i = 0; i < 16; i++ )
             if ( joy_is_attached(i) )
@@ -193,7 +192,6 @@ begin
                         end
                     end
                 end
-                line += 20;
                 axis_proc[i][0].graph = axis_proc[i][0].graph2;
                 axis_proc[i][1].graph = axis_proc[i][1].graph2;
             else

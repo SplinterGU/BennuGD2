@@ -368,12 +368,40 @@ static int64_t libmod_input_joy_is_attached_specific( INSTANCE * my, int64_t * p
     return joy_is_attached_specific( params[0] );
 }
 
+/* --------------------------------------------------------------------------- */
+/**
+ * JOY_QUERY(int element)
+ * 
+ * Retrieve general information about joysticks.
+ *
+ **/
 
+static int64_t libmod_input_joy_query( INSTANCE * my, int64_t * params ) {
+    return joy_query_specific( -1, params[0], 0 );
+}
 
-
+/* --------------------------------------------------------------------------- */
+/**
+ * JOY_QUERY(int joy, int element)
+ * 
+ * Obtain specific information about the designated joystick.
+ *
+ **/
 
 static int64_t libmod_input_joy_query_specific( INSTANCE * my, int64_t * params ) {
-    return joy_query_specific( params[0], params[1] );
+    return joy_query_specific( params[0], params[1], 0 );
+}
+
+/* --------------------------------------------------------------------------- */
+/**
+ * JOY_QUERY(int joy, int element, int arg1)
+ * 
+ * Obtain specific information about the designated joystick.
+ *
+ **/
+
+static int64_t libmod_input_joy_query_specificA( INSTANCE * my, int64_t * params ) {
+    return joy_query_specific( params[0], params[1], params[2] );
 }
 
 /* --------------------------------------------------------------------------- */

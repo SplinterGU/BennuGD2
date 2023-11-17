@@ -618,8 +618,13 @@ int64_t joy_powerlevel_specific( int64_t joy ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t joy_is_attached_specific( int64_t joy ) {
+#if 0
     if ( joy < 0 || joy >= MAX_JOYS || !_joystickList[ joy ].joystick ) return 0;
     return ( SDL_JoystickGetAttached( _joystickList[ joy ].joystick ) );
+#else
+    if ( joy < 0 || joy >= MAX_JOYS ) return 0;
+    return _joystickList[ joy ].joystick != 0;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -870,7 +875,7 @@ int64_t joy_set_specific(int64_t joy, int64_t element, int64_t arg1, int64_t arg
 /* Provides specific information about the specified joystick and element.     */
 /* --------------------------------------------------------------------------- */
 
-int64_t joy_query_specific( int64_t joy, int64_t element ) {
+int64_t joy_query_specific( int64_t joy, int64_t element, int64_t arg1 ) {
     if ( joy >= 0 && joy < MAX_JOYS && _joystickList[ joy ].joystick ) {
         switch( element ) {
             case JOY_QUERY_ATTACHED:
@@ -893,6 +898,18 @@ int64_t joy_query_specific( int64_t joy, int64_t element ) {
                 
             case JOY_QUERY_POWERLEVEL:
                 return joy_powerlevel_specific( joy );
+
+            case JOY_QUERY_HAS:
+                if ( arg1 < JOY_MAPPING_BASE || arg1 >= JOY_AXIS_MAX ) return 0;
+                return _joystickList[ joy ].mapping[ arg1 - JOY_MAPPING_BASE ] != NULL;
+
+            case JOY_QUERY_HAS_BUTTON:
+                if ( arg1 < JOY_MAPPING_BASE || arg1 >= JOY_BUTTON_MAX ) return 0;
+                return _joystickList[ joy ].mapping[ arg1 - JOY_MAPPING_BASE ] != NULL;
+
+            case JOY_QUERY_HAS_AXIS:
+                if ( arg1 < JOY_BUTTON_MAX || arg1 >= JOY_AXIS_MAX ) return 0;
+                return _joystickList[ joy ].mapping[ arg1 - JOY_MAPPING_BASE ] != NULL;
 
             case JOY_BUTTON_A:
             case JOY_BUTTON_B:
@@ -924,37 +941,15 @@ int64_t joy_query_specific( int64_t joy, int64_t element ) {
             case JOY_AXIS_TRIGGERLEFT:
             case JOY_AXIS_TRIGGERRIGHT:
                 return _joy_query_axis( joy, element );
-
-            case JOY_HAS_BUTTON_A:
-            case JOY_HAS_BUTTON_B:
-            case JOY_HAS_BUTTON_X:
-            case JOY_HAS_BUTTON_Y:
-            case JOY_HAS_BUTTON_BACK:
-            case JOY_HAS_BUTTON_GUIDE:
-            case JOY_HAS_BUTTON_START:
-            case JOY_HAS_BUTTON_LEFTSTICK:
-            case JOY_HAS_BUTTON_RIGHTSTICK:
-            case JOY_HAS_BUTTON_LEFTSHOULDER:
-            case JOY_HAS_BUTTON_RIGHTSHOULDER:
-            case JOY_HAS_BUTTON_DPAD_UP:
-            case JOY_HAS_BUTTON_DPAD_DOWN:
-            case JOY_HAS_BUTTON_DPAD_LEFT:
-            case JOY_HAS_BUTTON_DPAD_RIGHT:
-            case JOY_HAS_BUTTON_MISC1:
-            case JOY_HAS_BUTTON_PADDLE1:
-            case JOY_HAS_BUTTON_PADDLE2:
-            case JOY_HAS_BUTTON_PADDLE3:
-            case JOY_HAS_BUTTON_PADDLE4:
-            case JOY_HAS_BUTTON_TOUCHPAD:
-            case JOY_HAS_AXIS_LEFTX:
-            case JOY_HAS_AXIS_LEFTY:
-            case JOY_HAS_AXIS_RIGHTX:
-            case JOY_HAS_AXIS_RIGHTY:
-            case JOY_HAS_AXIS_TRIGGERLEFT:
-            case JOY_HAS_AXIS_TRIGGERRIGHT:
-                return _joystickList[ joy ].mapping[ element - JOY_MAPPING_BASE - JOY_HAS_MAPPING_BASE ] != NULL;
         }
     }
+
+    switch( element ) {
+        case JOY_QUERY_FIRST_ATTACHED:
+            for ( int i = 0; i < MAX_JOYS; i++ ) if ( _joystickList[ i ].joystick ) return i;
+            return -1;
+    }
+
     return 0;
 }
 

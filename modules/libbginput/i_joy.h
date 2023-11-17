@@ -30,13 +30,17 @@
     #define __I_JOY_H
 
     enum {
-        JOY_QUERY_ATTACHED = 1,
+        JOY_QUERY_FIRST_ATTACHED = 1,
+        JOY_QUERY_ATTACHED,
         JOY_QUERY_HAS_LED,
         JOY_QUERY_HAS_RUMBLE,
         JOY_QUERY_HAS_RUMBLE_TRIGGERS,
         JOY_QUERY_NAME,
         JOY_QUERY_TYPE,
         JOY_QUERY_POWERLEVEL,
+        JOY_QUERY_HAS,
+        JOY_QUERY_HAS_BUTTON,
+        JOY_QUERY_HAS_AXIS,
         JOY_SET_RUMBLE,
         JOY_SET_RUMBLE_TRIGGERS,
         JOY_SET_LED,
@@ -77,35 +81,6 @@
     #define JOY_AXIS_TRIGGERRIGHT           ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_TRIGGERRIGHT )
     #define JOY_AXIS_MAX                    ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_MAX )
 
-    #define JOY_HAS_MAPPING_BASE            0x200
-    #define JOY_HAS_BUTTON_A                ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_A             )
-    #define JOY_HAS_BUTTON_B                ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_B             )
-    #define JOY_HAS_BUTTON_X                ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_X             )
-    #define JOY_HAS_BUTTON_Y                ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_Y             )
-    #define JOY_HAS_BUTTON_BACK             ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_BACK          )
-    #define JOY_HAS_BUTTON_GUIDE            ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_GUIDE         )
-    #define JOY_HAS_BUTTON_START            ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_START         )
-    #define JOY_HAS_BUTTON_LEFTSTICK        ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_LEFTSTICK     )
-    #define JOY_HAS_BUTTON_RIGHTSTICK       ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_RIGHTSTICK    )
-    #define JOY_HAS_BUTTON_LEFTSHOULDER     ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_LEFTSHOULDER  )
-    #define JOY_HAS_BUTTON_RIGHTSHOULDER    ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_RIGHTSHOULDER )
-    #define JOY_HAS_BUTTON_DPAD_UP          ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_DPAD_UP       )
-    #define JOY_HAS_BUTTON_DPAD_DOWN        ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_DPAD_DOWN     )
-    #define JOY_HAS_BUTTON_DPAD_LEFT        ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_DPAD_LEFT     )
-    #define JOY_HAS_BUTTON_DPAD_RIGHT       ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_DPAD_RIGHT    )
-    #define JOY_HAS_BUTTON_MISC1            ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_MISC1         )
-    #define JOY_HAS_BUTTON_PADDLE1          ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_PADDLE1       )
-    #define JOY_HAS_BUTTON_PADDLE2          ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_PADDLE2       )
-    #define JOY_HAS_BUTTON_PADDLE3          ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_PADDLE3       )
-    #define JOY_HAS_BUTTON_PADDLE4          ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_PADDLE4       )
-    #define JOY_HAS_BUTTON_TOUCHPAD         ( JOY_HAS_MAPPING_BASE + JOY_BUTTON_TOUCHPAD      )
-    #define JOY_HAS_AXIS_LEFTX              ( JOY_HAS_MAPPING_BASE + JOY_AXIS_LEFTX           )
-    #define JOY_HAS_AXIS_LEFTY              ( JOY_HAS_MAPPING_BASE + JOY_AXIS_LEFTY           )
-    #define JOY_HAS_AXIS_RIGHTX             ( JOY_HAS_MAPPING_BASE + JOY_AXIS_RIGHTX          )
-    #define JOY_HAS_AXIS_RIGHTY             ( JOY_HAS_MAPPING_BASE + JOY_AXIS_RIGHTY          )
-    #define JOY_HAS_AXIS_TRIGGERLEFT        ( JOY_HAS_MAPPING_BASE + JOY_AXIS_TRIGGERLEFT     )
-    #define JOY_HAS_AXIS_TRIGGERRIGHT       ( JOY_HAS_MAPPING_BASE + JOY_AXIS_TRIGGERRIGHT    )
-
     extern char * joy_name_specific( int64_t joy );
     extern int64_t joy_buttons_specific( int64_t joy );
     extern int64_t joy_axes_specific( int64_t joy );
@@ -118,8 +93,6 @@
     extern int64_t joy_get_accel_specific( int64_t joy, int64_t * x, int64_t * y, int64_t * z );
     extern int64_t joy_powerlevel_specific( int64_t joy );
     extern int64_t joy_is_attached_specific( int64_t joy );
-    extern int64_t joy_query_specific( int64_t joy, int64_t element );
-    extern int64_t joy_set_specific( int64_t joy, int64_t element, int64_t arg1, int64_t arg2, int64_t arg3 );
     extern int64_t joy_num( void );
     extern int64_t joy_select( int64_t joy );
     extern char * joy_name( void );
@@ -133,6 +106,9 @@
     extern int64_t joy_get_ball( int64_t ball, int64_t * dx, int64_t * dy );
     extern int64_t joy_get_accel( int64_t * x, int64_t * y, int64_t * z );
     extern int64_t joy_is_attached();
+
+    extern int64_t joy_query_specific( int64_t joy, int64_t element, int64_t arg1 );
+    extern int64_t joy_set_specific( int64_t joy, int64_t element, int64_t arg1, int64_t arg2, int64_t arg3 );
 
     extern void process_joy_events();
 

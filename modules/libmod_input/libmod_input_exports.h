@@ -103,7 +103,9 @@ DLSYSFUNCS  __bgdexport( libmod_input, functions_exports )[] = {
     FUNC( "JOY_IS_ATTACHED"     , ""        , TYPE_INT    , libmod_input_joy_is_attached              ),
     FUNC( "JOY_IS_ATTACHED"     , "I"       , TYPE_INT    , libmod_input_joy_is_attached_specific     ),
     
+    FUNC( "JOY_QUERY"           , "I"       , TYPE_INT    , libmod_input_joy_query                    ),
     FUNC( "JOY_QUERY"           , "II"      , TYPE_INT    , libmod_input_joy_query_specific           ),
+    FUNC( "JOY_QUERY"           , "III"     , TYPE_INT    , libmod_input_joy_query_specificA          ),
     FUNC( "JOY_SET"             , "IIII"    , TYPE_INT    , libmod_input_joy_set_specific2            ),
     FUNC( "JOY_SET"             , "IIIII"   , TYPE_INT    , libmod_input_joy_set_specific3            ),
 
