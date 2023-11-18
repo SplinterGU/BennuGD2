@@ -18,6 +18,19 @@ mkdir -p "$dir_output/romfs"
 # Copy the content of the original file to the new file
 cp "$prg_file" "$new_prg_file"
 
+# Check if resources.txt exists
+if [[ -f "resources.txt" ]]; then
+    # Read each line in resources.txt
+    while IFS= read -r line; do
+        # Check if the file exists before copying
+        if [[ -e "$line" ]]; then
+            # Copy the file to the output folder while preserving the relative structure
+            mkdir -p "$dir_output/romfs/$(dirname "$line")"
+            cp "$line" "$dir_output/romfs/$line"
+        fi
+    done < "resources.txt"
+fi
+
 # Get the quoted strings and copy the files if they exist
 while IFS= read -r string; do
     # Remove double quotes
