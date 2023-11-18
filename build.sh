@@ -45,7 +45,7 @@ do
             STATIC_ENABLED=1 # force STATIC
             if [ "$MSYSTEM" != "MINGW64" ] && [ "$MSYSTEM" != "MINGW32" ]; then
                 # linux
-                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DBUILD_TARGET=interpreter" #-DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DBUILD_TARGET=interpreter"
             fi
             INCLUDE_DIRECTORIES="$DEVKITPRO/portlibs/switch/include;$DEVKITPRO/libnx/include;$DEVKITPRO/devkitA64/include"
             export INCLUDE_DIRECTORIES

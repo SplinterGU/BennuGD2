@@ -54,6 +54,10 @@
 #endif
 #endif
 
+#ifdef USE_OPENDIR
+#include <dirent.h>
+#endif
+
 #include <errno.h>
 #include <time.h>
 
@@ -87,6 +91,10 @@ typedef struct __DIR_ST {
     WIN32_FIND_DATA data;
     HANDLE handle;
     int eod;
+#elif defined USE_OPENDIR
+    DIR *hdir;
+    char *dirname;
+    char *pattern;
 #else
     glob_t globd;
     int currFile;

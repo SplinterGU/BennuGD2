@@ -5,6 +5,10 @@ option(BUILD_TARGET "Select the build target: compiler, interpreter, tools, or a
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
+if(NINTENDO_SWITCH)
+    add_definitions(-DUSE_OPENDIR)
+endif()
+
 # core
 add_subdirectory(core/bgdrtm)
 

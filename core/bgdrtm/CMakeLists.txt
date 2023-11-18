@@ -10,11 +10,11 @@ if (USE_CRYPT)
     find_package(OpenSSL REQUIRED)
     set(extra_cflags -DUSE_CRYPT=1)
     set(extra_libs -lcrypto)
-endif ()
+endif()
 
 if(LINUX)
     set(extra_libs ${extra_libs} -ldl)
-endif ()
+endif()
 
 add_definitions(-D__BGDRTM__ -DVERSION="2.0.0" ${extra_cflags})
 add_definitions(${EXTRA_CFLAGS})

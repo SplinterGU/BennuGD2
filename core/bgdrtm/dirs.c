@@ -42,6 +42,47 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include <ctype.h>
+
+/* ------------------------------------------------------------------------------------ */
+/*
+ *  FUNCTION : match
+ *
+ *  Matches a pattern against a string.
+ *
+ *  PARAMS:
+ *      const char *pattern     The pattern to match.
+ *      const char *string      The string to match against.
+ *      int ignore_case         Ignore case
+ *
+ *  RETURN VALUE:
+ *      int:                    1 if the pattern matches, 0 otherwise.
+ */
+
+static int match(const char *pattern, const char *string, int ignore_case) {
+    while (*pattern && *string) {
+        if (*pattern == '*') {
+            pattern++;
+            while (*string) {
+                if (match(pattern, string, ignore_case)) return 1;
+                string++;
+            }
+            return *pattern == '\0';
+        } else if ( (
+                      ( ignore_case && tolower(*pattern) != tolower(*string) ) ||
+                      (!ignore_case &&         *pattern != *string           )
+                    ) && *pattern != '?') {
+            return 0;
+        }
+        pattern++;
+        string++;
+    }
+    while (*pattern == '*') pattern++;
+
+    return  ( ignore_case && tolower(*pattern) == tolower(*string) ) ||
+            (!ignore_case &&         *pattern  == *string          );
+}
+
 /* ------------------------------------------------------------------------------------ */
 /*
  *  FUNCTION : dir_path_convert
@@ -216,6 +257,44 @@ __DIR_ST * dir_open( const char * path )
         free( hDir );
         return NULL;
     }
+
+#elif defined(USE_OPENDIR)
+    hDir->dirname = strdup( path );
+    if ( !hDir->dirname ) {
+        free( hDir->path );
+        free( hDir );
+        return NULL;
+    }
+
+    char * fptr = hDir->dirname;
+    while ( fptr = strchr( fptr, '\\') ) *fptr++ == '/';
+
+    fptr = strrchr( hDir->dirname, '/' );
+    if ( fptr ) {
+        *fptr++ = '\0';
+        hDir->pattern = fptr;
+    }
+    else {
+        hDir->pattern = hDir->dirname;
+        if ( !*hDir->pattern ) {
+            free( hDir->pattern );
+            hDir->pattern = strdup( "*" );
+        }
+        hDir->dirname = NULL;
+    }
+
+    /* Convert '*.*' to '*' */
+    if ( strlen( hDir->pattern ) > 2 && !strcmp( hDir->pattern, "*.*" ) ) hDir->pattern[1] = '\0';
+
+    hDir->hdir = opendir( hDir->dirname ? hDir->dirname : "" );
+    if ( !hDir->hdir )
+    {
+        if ( hDir->dirname ) free( hDir->dirname );
+        else free( hDir->pattern );
+        free( hDir->path );
+        free( hDir );
+        return NULL;
+    }
 #else
     const char * ptr = hDir->path;
     char * fptr;
@@ -261,9 +340,7 @@ __DIR_ST * dir_open( const char * path )
     /* Convert '*.*' to '*' */
     if ( fptr > hDir->pattern + 2 && fptr[ -1 ] == '*' && fptr[ -2 ] == '.' && fptr[ -3 ] == '*' ) fptr[ -2 ] = 0;
 
-#ifdef __SWITCH__
-    r = 1;
-#elif defined(TARGET_MAC) || defined(TARGET_BEOS)
+#if defined(TARGET_MAC) || defined(TARGET_BEOS)
     r = glob( hDir->pattern, GLOB_ERR | GLOB_NOSORT, NULL, &hDir->globd );
 #else
     r = glob( hDir->pattern, GLOB_ERR | GLOB_PERIOD | GLOB_NOSORT, NULL, &hDir->globd );
@@ -291,10 +368,13 @@ void dir_close ( __DIR_ST * hDir )
 
 #ifdef _WIN32
     FindClose( hDir->handle );
+#elif defined USE_OPENDIR
+    closedir(hDir->hdir);
+    if ( hDir->dirname ) free( hDir->dirname );
+    else free( hDir->pattern );
+    free( hDir->path );
 #else
-#ifndef __SWITCH__
     globfree( &hDir->globd );
-#endif
     free( hDir->pattern );
 #endif
 
@@ -381,6 +461,37 @@ __DIR_FILEINFO_ST * dir_read( __DIR_ST * hDir )
 
     /* Continue last search */
     if (!FindNextFile( hDir->handle, &hDir->data )) hDir->eod = 1;
+
+#elif defined USE_OPENDIR
+    struct stat s;
+    struct dirent *entry;
+    
+    while( ( entry = readdir( hDir->hdir ) ) && !match( hDir->pattern, entry->d_name, 1 ) );
+
+    if ( !entry ) return NULL;
+
+    memset( &hDir->info, '\0', sizeof( hDir->info ) );
+
+    strcpy ( hDir->info.filename, entry->d_name );
+
+    if ( hDir->dirname ) {
+        strcpy( hDir->info.fullpath, hDir->dirname );
+        strcat( hDir->info.fullpath, "/" );
+        strcat( hDir->info.fullpath, entry->d_name );
+    }
+
+    stat( hDir->info.fullpath, &s );
+
+    hDir->info.attributes    = (( S_ISDIR( s.st_mode )          ) ? DIR_FI_ATTR_DIRECTORY : 0 ) |
+                               (( hDir->info.filename[0] == '.' ) ? DIR_FI_ATTR_HIDDEN    : 0 ) |
+                               (( !( s.st_mode & 0444 )         ) ? DIR_FI_ATTR_READONLY  : 0 );
+
+    hDir->info.size          = s.st_size;
+
+    hDir->info.mtime    = *localtime( &s.st_mtime ) ;
+    hDir->info.atime    = *localtime( &s.st_atime ) ;
+    hDir->info.ctime    = *localtime( &s.st_ctime ) ;
+
 #else
     struct stat s;
 
