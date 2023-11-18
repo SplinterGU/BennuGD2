@@ -32,7 +32,7 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
     endif()
 
     if(NINTENDO_SWITCH)
-        set(OGL_LIB -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lm)
+        set(OGL_LIB -lglad -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lm)
         set(OTHER_LIBS -lpng -ljpeg -lwebp -lmpg123 -lmodplug -lopusfile -lopus -lvorbisfile -lvorbis -logg)
     endif()
 

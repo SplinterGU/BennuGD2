@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32] [debug] [clean] [verbose]"
+    echo "    $0 [windows|windows32|linux|linux32|switch] [debug] [clean] [verbose]"
     exit 1
 }
 
@@ -28,6 +28,16 @@ do
         linux32)
             TARGET=i386-linux-gnu
             CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=../../cmake/Toolchains/linux_i686.toolchain.cmake -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=/usr/lib/${TARGET}/libSDL2-2.0.so.0 -DSDL2_IMAGE_LIBRARY=/usr/lib/${TARGET}/libSDL2_image-2.0.so.0 -DSDLMIXER_LIBRARY=/usr/lib/${TARGET}/libSDL2_mixer-2.0.so.0 -DOPENGL_gl_LIBRARY=/usr/lib/${TARGET}/libGL.so.1 -DOPENGL_glu_LIBRARY=/usr/lib/${TARGET}/libGLU.so.1"
+            ;;
+
+        switch)
+            TARGET=aarch64-none-elf
+            if [ "$MSYSTEM" != "MINGW64" ] && [ "$MSYSTEM" != "MINGW32" ]; then
+                # linux
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DSWITCH=1 -DSDL2_INCLUDE_DIR=$DEVKITPRO/portlibs/switch/include/SDL2 -DSDL2_LIBRARY=$DEVKITPRO/portlibs/switch/lib/libSDL2.a"
+            fi
+            INCLUDE_DIRECTORIES="$DEVKITPRO/portlibs/switch/include;$DEVKITPRO/libnx/include;$DEVKITPRO/devkitA64/include"
+            export INCLUDE_DIRECTORIES
             ;;
 
         debug)
@@ -68,7 +78,7 @@ then
 fi
 #cmake ../.. $DEBUG -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DSDL_gpu_BUILD_TESTS=YES -DSDL_gpu_BUILD_VIDEO_TEST=YES -DSDL_gpu_BUILD_TOOLS=YES
 #cmake ../.. $DEBUG -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DSDL_gpu_BUILD_TESTS=YES -DBUILD_TESTS=YES -DBUILD_VIDEO_TEST=YES -DBUILD_TOOLS=YES
-cmake ../.. $DEBUG -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DSDL_gpu_BUILD_TESTS=NO -DBUILD_TESTS=NO -DBUILD_VIDEO_TEST=NO -DBUILD_TOOLS=NO -DBUILD_DEMOS=NO -DBUILD_STATIC=YES
+cmake ../.. $DEBUG -DINCLUDE_DIRECTORIES="${INCLUDE_DIRECTORIES}" -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DSDL_gpu_BUILD_TESTS=NO -DBUILD_TESTS=NO -DBUILD_VIDEO_TEST=NO -DBUILD_TOOLS=NO -DBUILD_DEMOS=NO -DBUILD_STATIC=YES
 if [ "$CLEAN" == "1" ]
 then
     make clean
