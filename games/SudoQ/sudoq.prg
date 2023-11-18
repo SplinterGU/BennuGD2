@@ -242,7 +242,7 @@ BEGIN
 		
 
 		// Salir del programa
-		if (key(_esc) || get_joy_button(0,JOY_BUTTON_BACK) || wm_info.exit_status==1)
+		if (key(_esc) || wm_info.exit_status==1)
 
 			if (tablero_completado==0) // si el tablero estaba a medias lo guardamos
 
