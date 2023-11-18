@@ -118,10 +118,10 @@ BEGIN
 	LOOP
 
 		// MUESTRA O QUITA EL MENU DE BOTONES
-		if (get_joy_button(0,15)==0) otro_mas=0; end
+		if (get_joy_button(0,JOY_BUTTON_A)==0) otro_mas=0; end
 
 		if (otro_mas==0)
-			if (get_joy_button(0,15)==1) 
+			if (get_joy_button(0,JOY_BUTTON_A)==1) 
 				if (esconder_cuadro==0) 
 					esconder_cuadro=1; otro_mas=1; 
 				else 
@@ -134,30 +134,45 @@ BEGIN
 		if (espera_cancion>0) espera_cancion--; end
 	
 		if (disable!=1 && espera_cancion==0)
-			if (get_joy_button(0,16)==1 || get_joy_button(0,17)==1 || NOT music_is_playing())
-if (1 || os_id == os_switch)
-				cancion=music_load("music/Happy Ending.wav");
-				music_play(cancion,0); espera_cancion=30;
-else
-				nombre_fichero=glob("music/*.ogg");
-				if (nombre_fichero=="") nombre_fichero=glob(""); nombre_fichero=glob("music/*.ogg"); end
+			if (get_joy_button(0,JOY_BUTTON_RIGHTSTICK) || NOT music_is_playing())
+				nombre_fichero=glob("music/*.wav");
+				if ( nombre_fichero=="" )
+					glob(""); // Reset glob
+					nombre_fichero=glob("music/*.wav");
+				end
 				if (nombre_fichero!="")
 					cancion=music_load("music/"+nombre_fichero);
 					music_play(cancion,0); espera_cancion=30;
 				else
 					disable=1;
 				end
-end
 			end
 		end
 
 		if (procesando==0)
 			// cambia skins
-			if ((get_joy_button(0,10)==1 || key(_a)) && cambia_skin==0) skin--; if (skin<20) skin=23; end skins(); cambia_skin=1; end
-			if ((get_joy_button(0,11)==1 || key(_d)) && cambia_skin==0) skin++; if (skin>23) skin=20; end skins(); cambia_skin=1; end
+			if ((get_joy_button(0,JOY_BUTTON_LEFTSTICK) || key(_a)) && cambia_skin==0) skin--; if (skin<20) skin=23; end skins(); cambia_skin=1; end
+			if ( key(_d) && cambia_skin==0) skin++; if (skin>23) skin=20; end skins(); cambia_skin=1; end
 		
 			// cambia modo ventana o pantalla completa
 			if (key(_enter) && key(_alt)) if (screen.fullscreen==true) screen.fullscreen=false; else screen.fullscreen=true; end set_mode (320,240); end
+
+			if ( get_joy_button(0,JOY_BUTTON_RIGHTSHOULDER) )
+				switch ( dificultad )
+					case 1:
+						dificultad = 2;
+					end
+
+					case 2:
+						dificultad = 3;
+					end
+
+					case 3:
+						dificultad = 1;
+					end
+				end
+				while ( get_joy_button(0,JOY_BUTTON_RIGHTSHOULDER) ) frame; end
+			end
 		end
 
 		// comprobamos si el tablero ya esta completo
@@ -227,7 +242,7 @@ end
 		
 
 		// Salir del programa
-		if (key(_esc) || get_joy_button(0,8)==1 || wm_info.exit_status==1)
+		if (key(_esc) || get_joy_button(0,JOY_BUTTON_BACK) || wm_info.exit_status==1)
 
 			if (tablero_completado==0) // si el tablero estaba a medias lo guardamos
 
@@ -1393,7 +1408,7 @@ BEGIN
 					if (key(_8)) tablero[numero]=8; completo=0; completo1=0; contador1=0; end
 					if (key(_9)) tablero[numero]=9; completo=0; completo1=0; contador1=0; end
 
-					if (get_joy_button(0,12)==1) 
+					if (get_joy_button(0,JOY_BUTTON_X)) 
 						if (tablero[numero]>1) 
 							tablero[numero]--; completo=0; completo1=0; contador1=0; 
 						else 
@@ -1401,7 +1416,7 @@ BEGIN
 						end 
 					end
 						
-					if (get_joy_button(0,13)==1) 
+					if (get_joy_button(0,JOY_BUTTON_B)) 
 						if (tablero[numero]<9) 
 							tablero[numero]++; completo=0; completo1=0; contador1=0; 
 						else 
@@ -1409,14 +1424,14 @@ BEGIN
 						end 
 					end
 						
-					if ((get_joy_button(0,14)==1 || key(_del)) && pinta==1) 
+					if ((get_joy_button(0,JOY_BUTTON_Y) || key(_del)) && pinta==1) 
 						write_delete(idtxt); tablero[numero]=0; completo=0; completo1=0; contador1=0; pinta=0; 
 					end
 				end
 					
 				if (key(_1) || key(_2) || key(_3) || key(_4) || 
-				key(_5) || key(_6) || key(_7) || key(_8) || key(_9) 
-				OR key(_del) || get_joy_button(0,12)==1 || get_joy_button(0,13)==1 || get_joy_button(0,14)==1) 
+				    key(_5) || key(_6) || key(_7) || key(_8) || key(_9) 
+				    OR key(_del) || get_joy_button(0,JOY_BUTTON_X) || get_joy_button(0,JOY_BUTTON_B) || get_joy_button(0,JOY_BUTTON_Y)) 
 					tecla_pulsada=1; 
 				else 
 					tecla_pulsada=0; 
@@ -1466,9 +1481,9 @@ BEGIN
 			else
 				y=30;
 				if (procesando==0) alpha=255; end
-				if ((collision(type pixel) || get_joy_button(0,9)==1) && procesando==0) 
+				if ((collision(type pixel) || get_joy_button(0,JOY_BUTTON_START)) && procesando==0) 
 					graph=108;
-					if (mouse.left || get_joy_button(0,9)==1) 
+					if (mouse.left || get_joy_button(0,JOY_BUTTON_START)) 
 						procesando=1; tablero_completado=1; sudoku_aleatoriox=1; sudoku_aleatorio(1); alpha=128; 
 						frame; 
 					end
@@ -1484,9 +1499,9 @@ BEGIN
 			else
 				y=90;
 				if (procesando==0) alpha=255; end
-				if (collision(type pixel) && procesando==0 && sudoku_aleatoriox==1 && tablero_completado==0) 
+				if ((collision(type pixel) || get_joy_button(0,JOY_BUTTON_LEFTSHOULDER)) && procesando==0 && sudoku_aleatoriox==1 && tablero_completado==0) 
 					graph=109;
-					if (mouse.left) 
+					if (mouse.left || get_joy_button(0,JOY_BUTTON_LEFTSHOULDER)) 
 						procesando=1; tablero_completado=1; sudoku_aleatoriox=0; sudoku_aleatorio(0); alpha=128; 
 						frame; 
 					end
@@ -1506,8 +1521,8 @@ BEGIN
 				else 
 					alpha=255; 
 				end
-				
-				if (collision(type pixel) && procesando==0) 
+
+				if (collision(type pixel) && procesando==0 )
 					graph=110;
 					if (mouse.left) dificultad=1; end
 				else
@@ -1515,7 +1530,6 @@ BEGIN
 				end
 			end
 		end
-
 		if (graph==11 || graph==111)
 			if (y>162) 
 				y-=5;
@@ -1527,7 +1541,7 @@ BEGIN
 					alpha=255; 
 				end
 				
-				if (collision(type pixel) && procesando==0) 
+				if (collision(type pixel) && procesando==0 )
 					graph=111;
 					if (mouse.left) dificultad=2; end
 				else
@@ -1547,7 +1561,7 @@ BEGIN
 					alpha=255; 
 				end
 				
-				if (collision(type pixel) && procesando==0) 
+				if (collision(type pixel) && procesando==0 )
 					graph=112;
 					if (mouse.left) dificultad=3; end
 				else
@@ -1585,10 +1599,10 @@ BEGIN
 		y=mouse.y;
 
 		if (tecla==0)
-			if ((get_joy_button(0,0)==1 || key(_up)) && posicion_cuadro>9) posicion_cuadro-=9; cambio_cuadro=1; end // arriba
-			if ((get_joy_button(0,4)==1 || key(_down)) && posicion_cuadro<73) posicion_cuadro+=9; cambio_cuadro=1; end // abajo
-			if ((get_joy_button(0,2)==1 || key(_left)) && posicion_cuadro>1) posicion_cuadro--; cambio_cuadro=1; end // izq
-			if ((get_joy_button(0,6)==1 || key(_right)) && posicion_cuadro<81) posicion_cuadro++; cambio_cuadro=1; end // der
+			if ((get_joy_button(0,JOY_BUTTON_DPAD_UP)==1 || key(_up)) && posicion_cuadro>9) posicion_cuadro-=9; cambio_cuadro=1; end // arriba
+			if ((get_joy_button(0,JOY_BUTTON_DPAD_DOWN)==1 || key(_down)) && posicion_cuadro<73) posicion_cuadro+=9; cambio_cuadro=1; end // abajo
+			if ((get_joy_button(0,JOY_BUTTON_DPAD_LEFT)==1 || key(_left)) && posicion_cuadro>1) posicion_cuadro--; cambio_cuadro=1; end // izq
+			if ((get_joy_button(0,JOY_BUTTON_DPAD_RIGHT)==1 || key(_right)) && posicion_cuadro<81) posicion_cuadro++; cambio_cuadro=1; end // der
 
 			if (cambio_cuadro==1)
 				if (posicion_cuadro>0 && posicion_cuadro<10) mouse.x=20*posicion_cuadro; mouse.y=20; end
@@ -1604,7 +1618,7 @@ BEGIN
 			end
 		end
 
-		if (get_joy_button(0,0)==1 || get_joy_button(0,4)==1 || get_joy_button(0,2)==1 || get_joy_button(0,6)==1 
+		if (get_joy_button(0,JOY_BUTTON_DPAD_UP) || get_joy_button(0,JOY_BUTTON_DPAD_DOWN) || get_joy_button(0,JOY_BUTTON_DPAD_LEFT) || get_joy_button(0,JOY_BUTTON_DPAD_RIGHT) 
 		OR key(_up) || key(_down) || key(_left) || key(_right)) 
 			tecla=1; 
 		else 
