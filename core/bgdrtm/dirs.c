@@ -279,6 +279,11 @@ __DIR_ST * dir_open( const char * path )
         if ( !*hDir->pattern ) {
             free( hDir->pattern );
             hDir->pattern = strdup( "*" );
+            if ( !hDir->pattern ) {
+                free( hDir->path );
+                free( hDir );
+                return NULL;
+            }
         }
         hDir->dirname = NULL;
     }
@@ -369,10 +374,9 @@ void dir_close ( __DIR_ST * hDir )
 #ifdef _WIN32
     FindClose( hDir->handle );
 #elif defined USE_OPENDIR
-    closedir(hDir->hdir);
+    if ( hDir->hdir ) closedir(hDir->hdir);
     if ( hDir->dirname ) free( hDir->dirname );
     else free( hDir->pattern );
-    free( hDir->path );
 #else
     globfree( &hDir->globd );
     free( hDir->pattern );
