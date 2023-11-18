@@ -27,6 +27,7 @@ global
     int pn[gNumActors];
     float* pv[gNumActors];
     float thickness = 1.0;
+    int joy;
 end;
 
 /* ----------------------------- */
@@ -37,7 +38,7 @@ private
 begin
     while( !key(_ESC) )
         if ( key_down( _F12 ) ) g = screen_get(); map_save( 0, g, "screenshot_" + time() + ".png"); map_del( 0, g ); end
-        if ( key_down( _SPACE ) ) animate ^= 1; end
+        if ( key_down( _SPACE ) || joy_query( joy, JOY_BUTTON_START ) ) animate ^= 1; while( joy_query( joy, JOY_BUTTON_START ) ) frame; end; end
         frame;
     end
 end
@@ -310,6 +311,7 @@ end
 process main()
 private
     int i, itemid = -1;
+    int test_inc = 0, test = 0;
 begin
     set_mode(cResX,cResY);
     set_fps(0,0);
@@ -358,7 +360,8 @@ begin
     end
 
     write_var( 0, cResX - 40, 10, 0, frame_info.fps );
-    write( 0, 10, cResY - 40, 0,
+    write( 0, cResX / 2, cResY - 50, ALIGN_CENTER, "Use the joystick or press one of the keys shown below to switch tests." );
+    write( 0, cResX / 2, cResY - 40, ALIGN_CENTER,
             "1:Points "
             "2:Lines "
             "3:Rectangles "
@@ -368,7 +371,7 @@ begin
             "7:Rectangles Round "
             "8:F.Rectangles Round "
          );
-    write( 0, 10, cResY - 30, 0,
+    write( 0, cResX / 2, cResY - 30, ALIGN_CENTER,
             "q:Arc "
             "w:F.Arc "
             "e:Ellipse "
@@ -380,13 +383,13 @@ begin
             "o:Polygons "
             "p:F.Polygons "
         );
-    write( 0, 10, cResY - 20, 0,
+    write( 0, cResX / 2, cResY - 20, ALIGN_CENTER,
             "a:Polylines "
             "z:thickness(-) "
             "x:thickness(+) "
         );
 
-    write( 0, 10, cResY - 10, 0,
+    write( 0, cResX / 2, cResY - 10, ALIGN_CENTER,
             "v:Enable vsync "
             "shift+v:Disable vsync "
             "F12: screenshot "
@@ -400,47 +403,55 @@ begin
     TestPoints();
 
     while( !key( _ESC ) )
-        if ( key_down( _1 ) ) draw_delete(0); TestPoints(); end
-        if ( key_down( _2 ) ) draw_delete(0); TestLines(); end
-        if ( key_down( _3 ) ) draw_delete(0); TestRectangles(); end
-        if ( key_down( _4 ) ) draw_delete(0); TestFRectangles(); end
-        if ( key_down( _5 ) ) draw_delete(0); TestCircles(); end
-        if ( key_down( _6 ) ) draw_delete(0); TestFCircles(); end
+
+        joy = joy_query( JOY_QUERY_FIRST_ATTACHED );
+        test_inc = joy_query( joy, JOY_BUTTON_DPAD_LEFT ) ? -1 : 0;
+        test_inc += joy_query( joy, JOY_BUTTON_DPAD_RIGHT) ? 1 : 0;
+
+        test += test_inc;
+        if ( test > 19 ) test = 0; end
+        if ( test < 0  ) test = 19; end
+
+        if ( key_down( _1 ) || (test_inc && test == 0 )) draw_delete(0); TestPoints(); end
+        if ( key_down( _2 ) || (test_inc && test == 1 )) draw_delete(0); TestLines(); end
+        if ( key_down( _3 ) || (test_inc && test == 2 )) draw_delete(0); TestRectangles(); end
+        if ( key_down( _4 ) || (test_inc && test == 3 )) draw_delete(0); TestFRectangles(); end
+        if ( key_down( _5 ) || (test_inc && test == 4 )) draw_delete(0); TestCircles(); end
+        if ( key_down( _6 ) || (test_inc && test == 5 )) draw_delete(0); TestFCircles(); end
+        if ( key_down( _7 ) || (test_inc && test == 6 )) draw_delete(0); TestRectanglesRound(); end
+        if ( key_down( _8 ) || (test_inc && test == 7 )) draw_delete(0); TestFRectanglesRound(); end
+        if ( key_down( _9 ) || (test_inc && test == 8 )) draw_delete(0); TestCurves(); end
+        if ( key_down( _q ) || (test_inc && test == 9 )) draw_delete(0); TestArcs(); end
+        if ( key_down( _w ) || (test_inc && test == 10 )) draw_delete(0); TestFArcs(); end
+        if ( key_down( _e ) || (test_inc && test == 11 )) draw_delete(0); TestEllipses(); end
+        if ( key_down( _r ) || (test_inc && test == 12 )) draw_delete(0); TestFEllipses(); end
+        if ( key_down( _t ) || (test_inc && test == 13 )) draw_delete(0); TestSectors(); end
+        if ( key_down( _y ) || (test_inc && test == 14 )) draw_delete(0); TestFSectors(); end
+        if ( key_down( _u ) || (test_inc && test == 15 )) draw_delete(0); TestTriangles(); end
+        if ( key_down( _i ) || (test_inc && test == 16 )) draw_delete(0); TestFTriangles(); end
+        if ( key_down( _o ) || (test_inc && test == 17 )) draw_delete(0); TestPolygons(); end
+        if ( key_down( _p ) || (test_inc && test == 18 )) draw_delete(0); TestFPolygons(); end
+        if ( key_down( _a ) || (test_inc && test == 19 )) draw_delete(0); TestPolylines(); end
 
         if ( key_down( _v ) ) if ( keyboard.shift_status & STAT_SHIFT) set_mode(cResX,cResY); else set_mode(cResX,cResY,waitvsync); end end
 
-        if ( key_down( _7 ) ) draw_delete(0); TestRectanglesRound(); end
-        if ( key_down( _8 ) ) draw_delete(0); TestFRectanglesRound(); end
-        if ( key_down( _9 ) ) draw_delete(0); TestCurves(); end
+        while( joy_query( joy, JOY_BUTTON_DPAD_LEFT ) || joy_query( joy, JOY_BUTTON_DPAD_RIGHT) ) frame; end
 
-        if ( key_down( _q ) ) draw_delete(0); TestArcs(); end
-        if ( key_down( _w ) ) draw_delete(0); TestFArcs(); end
-        if ( key_down( _e ) ) draw_delete(0); TestEllipses(); end
-        if ( key_down( _r ) ) draw_delete(0); TestFEllipses(); end
-        if ( key_down( _t ) ) draw_delete(0); TestSectors(); end
-        if ( key_down( _y ) ) draw_delete(0); TestFSectors(); end
-        if ( key_down( _u ) ) draw_delete(0); TestTriangles(); end
-        if ( key_down( _i ) ) draw_delete(0); TestFTriangles(); end
-        if ( key_down( _o ) ) draw_delete(0); TestPolygons(); end
-        if ( key_down( _p ) ) draw_delete(0); TestFPolygons(); end
-
-        if ( key_down( _a ) ) draw_delete(0); TestPolylines(); end
-
-        if ( key_down( _z ) )
+        if ( key( _z ) || joy_query( joy, JOY_BUTTON_DPAD_DOWN ))
             thickness = clamp(thickness-0.5,1,10);
             draw_set_thickness( thickness );
             for ( i = 0; i < gNumActors; i++ )
                 draw_set_thickness( idActors[ i ], thickness );
             end
-            timer[0] = 0; while( key( _z ) && timer[0] < 20 ) frame; end;
+            timer[0] = 0; while( ( key( _x ) || joy_query( joy, JOY_BUTTON_DPAD_DOWN ) ) && timer[0] < 20 ) frame; end;
         end
-        if ( key_down( _x ) )
+        if ( key( _x ) || joy_query( joy, JOY_BUTTON_DPAD_UP ))
             thickness = clamp(thickness+0.5,1,10);
             draw_set_thickness( thickness );
             for ( i = 0; i < gNumActors; i++ )
                 draw_set_thickness( idActors[ i ], thickness );
             end
-            timer[0] = 0; while( key( _x ) && timer[0] < 20 ) frame; end;
+            timer[0] = 0; while( ( key( _x ) || joy_query( joy, JOY_BUTTON_DPAD_UP ) ) && timer[0] < 20 ) frame; end;
         end
         frame;
     end
