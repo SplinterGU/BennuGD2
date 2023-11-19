@@ -142,12 +142,12 @@ int64_t __moddir_read(__DIR_ST * dh ) {
     strftime( buffer, 20, "%d/%m/%Y %H:%M:S", &dif->atime );
     GLOQWORD( libmod_misc, FILE_ACCESSED    ) = string_new( buffer ); string_use( GLOQWORD( libmod_misc, FILE_ACCESSED ) );
 
-#ifndef _WIN32
+//#ifndef _WIN32
     strftime( buffer, 20, "%d/%m/%Y %H:%M:S", &dif->ctime );
     GLOQWORD( libmod_misc, FILE_STATECHG    ) = string_new( buffer ); string_use( GLOQWORD( libmod_misc, FILE_STATECHG ) );
-#else
-    GLOQWORD( libmod_misc, FILE_STATECHG    ) = string_new( "" ); string_use( GLOQWORD( libmod_misc, FILE_STATECHG ) );
-#endif
+//#else
+//    GLOQWORD( libmod_misc, FILE_STATECHG    ) = string_new( "" ); string_use( GLOQWORD( libmod_misc, FILE_STATECHG ) );
+//#endif
 
     /* Return */
     result = GLOQWORD( libmod_misc, FILE_NAME );
