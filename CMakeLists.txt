@@ -9,6 +9,13 @@ if(NINTENDO_SWITCH)
     add_definitions(-DUSE_OPENDIR)
 endif()
 
+# strip
+if(NOT CMAKE_BUILD_TYPE MATCHES "^(RelWithDebInfo|Debug)$")
+    if (CMAKE_COMPILER_IS_GNUCC)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
+    endif()
+endif()
+
 # core
 add_subdirectory(core/bgdrtm)
 
