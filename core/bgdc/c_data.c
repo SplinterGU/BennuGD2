@@ -492,6 +492,7 @@ TYPEDEF reverse_indices(TYPEDEF type) {
     return type;
 }
 
+/* --------------------------- */
 
 static char strid[16384];
 
@@ -505,8 +506,9 @@ const char * identifier_string_for_limited_scope_variable( int64_t code, int l )
     return NULL;
 }
 
-int64_t create_id_variable_code_for_current_scope( int64_t code ) {
-    const char * name = identifier_string_for_limited_scope_variable( code, getStackLevel(&lvlstk) );
+int64_t create_id_variable_code_for_current_scope( int64_t code, int variable_level /* for structs */ ) {
+    const char * name = NULL;
+    if ( !variable_level ) name = identifier_string_for_limited_scope_variable( code, getStackLevel(&lvlstk) );
     if ( !name ) name = identifier_name( code );
     return identifier_search_or_add( name );
 }
@@ -810,7 +812,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
-            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code );
+            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code, level );
             token_set_pos( actual_pos );
 
             token_next();
@@ -887,7 +889,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
-            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code );
+            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code, level );
             token_set_pos( actual_pos );
 
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
@@ -966,7 +968,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
-            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code );
+            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code, level );
             token_set_pos( actual_pos );
 
             /* Compiles an assignment of default values (variable initialization in declaration) */
