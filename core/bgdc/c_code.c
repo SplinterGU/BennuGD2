@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "bgdc.h"
+#include "levelstack.h"
 
 extern int autodeclare;
 
@@ -392,7 +393,8 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
         /* Locals */
         if ( proc ) {
             here = privars;
-            var = varspace_search( here, token.code );
+//            var = varspace_search( here, token.code );
+            var = varspace_search_in_all_scopes( here, token.code );
             if ( !var ) {
                 here = pubvars;
                 var = varspace_search( here, token.code );
@@ -411,11 +413,15 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
     } else {
         if ( remote ) {
             here = remote;
+            if ( here == privars ) var = varspace_search_in_all_scopes( here, token.code );
+            else
             var = varspace_search( here, token.code );
         }
 
         if ( !var ) {
             here = from;
+            if ( here == privars ) var = varspace_search_in_all_scopes( here, token.code );
+            else
             var = varspace_search( here, token.code );
         }
     }
@@ -3306,6 +3312,9 @@ void compile_block( PROCDEF * p ) {
     proc = p;
     code = &p->code;
 
+    incrementCounter(&lvlstk);
+    incrementLevel(&lvlstk);
+
     for (;;) {
         token_next();
         if ( token.type == NOTOKEN ) break;
@@ -3469,6 +3478,8 @@ void compile_block( PROCDEF * p ) {
             }
 
             if ( token.code == identifier_for ) { /* "FOR" */
+                int need_decrement_level = 0;
+
                 if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
 
                 loop = codeblock_loop_add( code );
@@ -3485,6 +3496,9 @@ void compile_block( PROCDEF * p ) {
                     int cond = identifier_is_basic_type(token.code);
                     token_back();
                     if ( cond ) {
+                        need_decrement_level = 1;
+                        incrementCounter(&lvlstk);
+                        incrementLevel(&lvlstk);
                         VARSPACE * v[] = {&local, p->pubvars, NULL};
                         compile_varspace( p->privars, p->pridata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 1, 0, 1 );
                     } else {
@@ -3550,6 +3564,8 @@ void compile_block( PROCDEF * p ) {
 
                 codeblock_add( code, MN_REPEAT, loop );
                 codeblock_loop_end( code, loop, code->current );
+
+                if ( need_decrement_level ) decrementLevel(&lvlstk);
                 continue;
             }
 
@@ -4009,4 +4025,6 @@ void compile_block( PROCDEF * p ) {
 
         if ( compile_sentence_end() ) break;
     }
+
+    decrementLevel(&lvlstk);
 }

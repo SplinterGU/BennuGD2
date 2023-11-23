@@ -34,6 +34,7 @@
 #include "typedef.h"
 #include "procdef.h"
 #include "varspace.h"
+#include "levelstack.h"
 
 /* Compiler */
 
@@ -129,5 +130,8 @@ extern int64_t reserved_words ;  /* Number of reserved words */
 
 extern int identifier_is_type(int64_t id);
 extern int identifier_is_basic_type(int64_t id);
+extern VARIABLE * varspace_search_in_all_scopes( VARSPACE *n, int64_t code );
+
+extern LevelStack lvlstk;
 
 #endif

@@ -37,6 +37,7 @@
 
 #include "bgdc.h"
 #include "xctype.h"
+#include "levelstack.h"
 
 /* ---------------------------------------------------------------------- */
 /* This module contains the functions that compile data definitions:      */
@@ -492,8 +493,45 @@ TYPEDEF reverse_indices(TYPEDEF type) {
 }
 
 
+static char strid[16384];
+
+const char * identifier_string_for_limited_scope_variable( int64_t code, int l ) {
+    if ( l >= 0 ) {
+        const char * idname = identifier_name( code );
+        char * lstr = getLevelCounters( &lvlstk, l );
+        sprintf( strid, "%s%s", idname, lstr );
+        return strid;
+    }
+    return NULL;
+}
+
+int64_t create_id_variable_code_for_current_scope( int64_t code ) {
+    const char * name = identifier_string_for_limited_scope_variable( code, getStackLevel(&lvlstk) );
+    if ( !name ) name = identifier_name( code );
+    return identifier_search_or_add( name );
+}
+
+VARIABLE * varspace_search_in_all_scopes( VARSPACE *n, int64_t code ) {
+    VARIABLE * var;
+    int l = getStackLevel(&lvlstk);
+    for ( ; l >= 0; l-- ) {
+        const char * name = identifier_string_for_limited_scope_variable( code, l );
+        if ( name ) {
+            int64_t id = identifier_search( name );
+            if ( id && ( var = varspace_search( n, id ) ) ) return var;
+        }
+    }
+    return NULL;
+}
+
+VARIABLE * varspace_search_in_current_scope( VARSPACE *n, int64_t code ) {
+    const char * name = identifier_string_for_limited_scope_variable( code, getStackLevel(&lvlstk) );
+    if ( !name ) name = identifier_name( code );
+    return varspace_search( n, identifier_search( name ) );
+}
+
 VARIABLE * validate_variable( VARSPACE *n, TYPEDEF type, int duplicateignore ) {
-    VARIABLE * var = varspace_search( n, token.code );
+    VARIABLE * var = varspace_search_in_current_scope( n, token.code );
     if ( var ) {
         if ( !duplicateignore ) compile_error( MSG_VARIABLE_REDECLARE );
 
@@ -501,6 +539,7 @@ VARIABLE * validate_variable( VARSPACE *n, TYPEDEF type, int duplicateignore ) {
 
         if ( debug ) compile_warning( 0, MSG_VARIABLE_REDECLARE );
     }
+
     return var;
 }
 
@@ -521,7 +560,7 @@ void skip_values() {
 /*
  *  FUNCTION : compile_varspace
  *
- *  Compile a variable space (a LOCAL, PRIVATE or GLOBAL section, or part of a STRUCT data)
+ *  Compile a variable space (a LOCAL/PUBLIC, PRIVATE or GLOBAL section, or part of a STRUCT data)
  *
  *  PARAMS :
  *      n               Pointer to the VARSPACE object (already initialized)
@@ -667,7 +706,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
         }
 
-        if ( block_without_begin && basetype == TYPE_UNDEFINED && varspace_search( n, token.code ) ) { // end
+        if ( block_without_begin && basetype == TYPE_UNDEFINED && /*varspace_search( n, token.code )*/varspace_search_in_current_scope( n, token.code ) ) { // end
             token_set_pos( tokp );
             break;
         }
@@ -716,9 +755,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                 token_back();
                 break;
             }
-        }
 
-        if ( constants_search( token.code ) ) compile_error( MSG_CONSTANT_REDECLARED_AS_VARIABLE );
+            if ( constants_search( token.code ) ) compile_error( MSG_CONSTANT_REDECLARED_AS_VARIABLE );
+        }
 
         if ( collision )
             for ( i = 0; collision[i]; i++ )
@@ -771,6 +810,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
+            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code );
             token_set_pos( actual_pos );
 
             token_next();
@@ -783,13 +823,16 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     continue;
                 }
 
-
                 int64_t current_offset = data->current;
                 data->current = var->offset;
                 compile_struct_data( members, data, count, 0, is_inline );
                 data->current = current_offset;
             } else {
                 token_back();
+                if ( var_aux ) {
+                    varspace_destroy( members );
+                    continue;
+                }
             }
 
             for ( i = 0 ; i < members->stringvar_count ; i++ )
@@ -844,8 +887,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
+            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code );
             token_set_pos( actual_pos );
-
 
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
                 // If the variable already exists and values are being assigned, then ignore
@@ -923,6 +966,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
+            if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code );
             token_set_pos( actual_pos );
 
             /* Compiles an assignment of default values (variable initialization in declaration) */
@@ -932,7 +976,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     skip_values();
                     continue;
                 }
-
 
                 if ( segm ) {
                     segment_add_from( data, segm );

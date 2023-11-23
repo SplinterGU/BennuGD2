@@ -36,6 +36,8 @@
 
 #include "bgdc.h"
 
+#include "levelstack.h"
+
 #include <bgddl.h>
 
 /* ---------------------------------------------------------------------- */
@@ -648,6 +650,8 @@ void compile_constants() {
 
 /* ---------------------------------------------------------------------- */
 
+LevelStack lvlstk = { .top = -1 } ;
+
 void compile_process() {
     PROCDEF * proc, * external_proc = NULL, *e;
     VARIABLE  * var;
@@ -974,13 +978,18 @@ void compile_process() {
     if ( !is_declare ) {
         if ( token.type != IDENTIFIER || token.code != identifier_begin ) compile_error( MSG_NO_BEGIN );
 
+        initStack(&lvlstk);
+
         compile_block( proc );
+
+        if ( getStackLevel(&lvlstk) != -1 ) compile_error( "INTERNAL ERROR" );
 
         if ( token.code == identifier_else ) compile_error( MSG_ELSE_WOUT_IF );
         
         if ( token.code != identifier_end ) compile_error( MSG_NO_END );
         
         codeblock_add( &proc->code, MN_END, 0 );
+
     } else {
         if ( !wait_semicolon && !wait_for_end && token.code != identifier_semicolon && token.code != identifier_end ) token_back();
         if ( wait_for_end && token.code != identifier_end ) compile_error( MSG_NO_END );
@@ -1035,13 +1044,18 @@ void compile_program() {
 
             mainproc->defined = 1;
 
+            initStack(&lvlstk);
+
             compile_block( mainproc );
+
+            if ( getStackLevel(&lvlstk) != -1 ) compile_error( "INTERNAL ERROR" );
 
             if ( token.type == IDENTIFIER && token.code == identifier_else ) compile_error( MSG_ELSE_WOUT_IF );
 
             if ( token.type != IDENTIFIER || token.code != identifier_end ) compile_error( MSG_NO_END );
 
             codeblock_add( &mainproc->code, MN_END, 0 );
+
         } else if ( token.type == IDENTIFIER && token.code == identifier_type ) { /* User-defined data type */
             compile_type();
         } else if ( token.type == IDENTIFIER &&
