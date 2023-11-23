@@ -3331,6 +3331,7 @@ void compile_block( PROCDEF * p ) {
             token_set_pos( tokp );
 
             if ( !is_process ) {
+                if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
                 token_back();
                 /* It is allowed to declare a variable as private that has been declared as global; it's a local variable, not the global one */
                 VARSPACE * v[] = {&local, p->pubvars, NULL};

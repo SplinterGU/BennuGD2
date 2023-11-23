@@ -539,25 +539,11 @@ VARIABLE * validate_variable( VARSPACE *n, TYPEDEF type, int duplicateignore ) {
 
         if ( !typedef_is_equal( type, var->type )) compile_error( MSG_VARIABLE_REDECLARE_DIFF );
 
-        if ( debug ) compile_warning( 0, MSG_VARIABLE_REDECLARE );
+        compile_warning( 0, MSG_VARIABLE_REDECLARE );
     }
 
     return var;
 }
-
-void skip_values() {
-    if (debug) compile_warning( 0, "Skipping values because the variable is already declared." );
-    for (;;) {
-        token_next();
-        /* It skips everything until the semicolon or the end, or the comma if there is no assignment */
-        if ( token.type == NOTOKEN ) break;
-        if ( token.type == IDENTIFIER ) {
-            if ( token.code == identifier_semicolon || token.code == identifier_end ) break;
-        }
-    }
-    token_back();
-}
-
 
 /*
  *  FUNCTION : compile_varspace
@@ -604,6 +590,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
     type_last = typedef_new( TYPE_UNDEFINED );
 
     for (;;) {
+        int variable_already_exists = 0;
+
         if ( n->reserved == n->count ) varspace_alloc( n, 16 );
 
         if ( alignment && ( n->size % alignment ) > 0 ) {
@@ -652,8 +640,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
         else
         if ( !( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) )
              && ( token.code < reserved_words || sysproc_by_name( token.code ) != NULL )
-             && token.code != identifier_pointer // check this JJP
-             && token.code != identifier_multiply // check this JJP
+             && token.code != identifier_pointer
+             && token.code != identifier_multiply
            ) {
             token_back();
             break;
@@ -708,7 +696,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
         }
 
-        if ( block_without_begin && basetype == TYPE_UNDEFINED && /*varspace_search( n, token.code )*/varspace_search_in_current_scope( n, token.code ) ) { // end
+        if ( block_without_begin && basetype == TYPE_UNDEFINED && varspace_search_in_current_scope( n, token.code ) ) { // end
             token_set_pos( tokp );
             break;
         }
@@ -785,7 +773,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             type.chunk[0].count = 1;
             int count = 1;
             while ( token.type == IDENTIFIER && token.code == identifier_leftb ) {
-                res = compile_expresion( 1, 0, 1, TYPE_INT ); // add ignore code (JJP)
+                res = compile_expresion( 1, 0, 1, TYPE_INT );
                 if ( !typedef_is_integer( res.type ) ) compile_error( MSG_INTEGER_REQUIRED );
                 count *= res.value + 1;
                 type = typedef_enlarge( type );
@@ -817,32 +805,28 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
 
             token_next();
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
-
-                // If the variable already exists and values are being assigned, then ignore and destroy unnecessary data
                 if ( var_aux ) {
-                    skip_values();
-                    varspace_destroy( members );
-                    continue;
+                    variable_already_exists = 1;
+                    var->offset = var_aux->offset;
                 }
 
                 int64_t current_offset = data->current;
                 data->current = var->offset;
                 compile_struct_data( members, data, count, 0, is_inline );
-                data->current = current_offset;
+                data->current = current_offset;    
             } else {
                 token_back();
-                if ( var_aux ) {
-                    varspace_destroy( members );
-                    continue;
-                }
             }
 
-            for ( i = 0 ; i < members->stringvar_count ; i++ )
-                varspace_varstring( n, members->stringvars[i] );
+            if ( var_aux ) { // variable already exists
+                varspace_destroy( members );
+                continue;
+            }
+
+            for ( i = 0 ; i < members->stringvar_count ; i++ ) varspace_varstring( n, members->stringvars[i] );
 
             n->size += typedef_size( type );
             var->type = type;
-
             n->count++;
 
             continue ;  /* No ; */
@@ -871,7 +855,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     // Undefined size dimension only is allowed in arrays of 1 dimension
                     if ( !total_count ) compile_error( MSG_UNDEFINED_MULTIPLE_ARRAY);
                     token_back();
-                    res = compile_expresion( 1, 0, 1, TYPE_QWORD ); // add ignore code (JJP)
+                    res = compile_expresion( 1, 0, 1, TYPE_QWORD );
                     total_count *= res.value + 1;           // + 1 last index of this dimension
                     last_count = res.value + 1;             // + 1 last index of this dimension
                     type.chunk[0].count = res.value + 1;    // + 1 last index of this dimension
@@ -884,7 +868,6 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             /* Reverses the indices [10][5] -> [5][10] */
             type = reverse_indices( type );
 
-
             // check if variable exists and compare types
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
@@ -893,10 +876,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             token_set_pos( actual_pos );
 
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
-                // If the variable already exists and values are being assigned, then ignore
                 if ( var_aux ) {
-                    skip_values();
-                    continue;
+                    variable_already_exists = 1;
+                    var->offset = var_aux->offset;
                 }
 
                 if ( segm ) { // Structs arrays
@@ -905,17 +887,27 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     data->current = var->offset;
                     compile_struct_data( type.varspace, data, typedef_count( type ), 0, is_inline );
 
+                    if ( variable_already_exists ) { // variable already exists
+                        data->current = current_offset;
+                        continue;
+                    }
+
                     if ( !type.chunk[0].count ) type.chunk[0].count = ( data->current - current_offset ) / typedef_size( type_last );
                     else                        data->current = current_offset; /* Only if it had already been allocated */
-
                 }
                 else
                 {
+                    int64_t current_offset = data->current;
+                    if ( variable_already_exists ) data->current = var->offset;
                     // Basic arrays
-                    /* if (basetype == TYPE_UNDEFINED) basetype = TYPE_INT; */
                     int count = compile_array_data( n, data, total_count, last_count, &basetype, is_inline );
                     assert( basetype != TYPE_UNDEFINED );
                     set_type( &type, basetype );
+
+                    if ( variable_already_exists ) { // variable already exists
+                        data->current = current_offset;
+                        continue;
+                    }
 
                     if ( total_count == 0 ) type.chunk[0].count = count;
                     else
@@ -973,15 +965,15 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
 
             /* Compiles an assignment of default values (variable initialization in declaration) */
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
-                // If the variable already exists and values are being assigned, then ignore and destroy unnecessary data
                 if ( var_aux ) {
-                    skip_values();
-                    continue;
+                    variable_already_exists = 1;
+                    var->offset = var_aux->offset;
                 }
+
+                int64_t current_offset = data->current;
 
                 if ( segm ) {
                     segment_add_from( data, segm );
-                    int64_t current_offset = data->current;
                     data->current = var->offset;
                     if ( !additive ) data->current += base_offset;
                     compile_struct_data( type.varspace, data, 1, 0, is_inline );
@@ -995,7 +987,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     if ( is_inline )
                         res = compile_expresion( 0, 0, 0, basetype );
                     else
-                        res = compile_expresion( 1, 0, 1, basetype ); // add ignore code (JJP)
+                        res = compile_expresion( 1, 0, 1, basetype );
 
                     if ( basetype == TYPE_UNDEFINED ) {
                         basetype = typedef_base( res.type );
@@ -1016,6 +1008,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     if ( is_inline ) {
                         codeblock_add( code, MN_LETNP | mntype( res.type, 0 ), 0 );
                     }
+                }
+
+                if ( variable_already_exists ) { // variable already exists
+                    data->current = current_offset;
+                    continue;
                 }
             }
             else
@@ -1045,13 +1042,14 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
         }
 
-        n->size += typedef_size( type );
-        var->type = type;
+        if ( !variable_already_exists ) {
+            n->size += typedef_size( type );
+            var->type = type;
+            n->count++;
+        }
 
         /* Process-type variables, assign varspace to the type */
         if ( proc ) var->type.varspace = proc->pubvars;
-
-        n->count++;
 
         token_next();
 
