@@ -3431,6 +3431,12 @@ void compile_block( PROCDEF * p ) {
                 continue;
             }
 
+            if ( token.code == identifier_begin ) { /* "BEGIN .. END" */
+                if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
+                compile_block( p );
+                continue;
+            }
+
             if ( token.code == identifier_if ) { /* "IF" */
                 /* Label at the end of a IF/ELSEIF/ELSEIF/ELSE chain */
                 int end_of_chain = -1;

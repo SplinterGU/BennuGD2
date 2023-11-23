@@ -45,6 +45,8 @@ extern int64_t bgd_copy_struct( INSTANCE * my, int64_t * params );
 extern int64_t bgd_internal_memcopy( INSTANCE * my, int64_t * params );
 extern int64_t bgd_internal_copy_string_array( INSTANCE * my, int64_t * params );
 
+extern DCB_SYSPROC_CODE2 * sysproc_code_ref;
+
 #include "sysprocs.h"
 #include "sysprocs_p.h"
 
@@ -423,6 +425,16 @@ SYSPROC * sysproc_get( int64_t code ) {
 
 /* ---------------------------------------------------------------------- */
 
+char * sysproc_name( int64_t code ) {
+    DCB_SYSPROC_CODE2 * s = sysproc_code_ref;
+    for ( int n = 0; n < dcb.data.NSysProcsCodes; n++, s++ )
+        if ( s->Code == code ) return getid_name( s->Id );
+
+    return NULL;
+}
+
+/* ---------------------------------------------------------------------- */
+
 void sysproc_add_tab( DLSYSFUNCS * functions_exports ) {
     if ( functions_exports ) {
         while ( functions_exports->name ) {
@@ -601,23 +613,6 @@ void sysproc_init() {
     if ( module_initialize_count )
         for ( n = 0; n < module_initialize_count; n++ )
             module_initialize_list[n]();
-}
-
-/* ---------------------------------------------------------------------- */
-
-extern DCB_SYSPROC_CODE2 * sysproc_code_ref;
-
-/* ---------------------------------------------------------------------- */
-
-char * sysproc_name( int64_t code ) {
-    DCB_SYSPROC_CODE2 * s = NULL;
-    int n;
-
-    s = sysproc_code_ref;
-    for ( n = 0; n < dcb.data.NSysProcsCodes; n++, s++ )
-        if ( s->Code == code ) return getid_name( s->Id );
-
-    return NULL;
 }
 
 /* ---------------------------------------------------------------------- */

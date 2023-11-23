@@ -982,8 +982,6 @@ void compile_process() {
 
         compile_block( proc );
 
-        if ( getStackLevel(&lvlstk) != -1 ) compile_error( "INTERNAL ERROR" );
-
         if ( token.code == identifier_else ) compile_error( MSG_ELSE_WOUT_IF );
         
         if ( token.code != identifier_end ) compile_error( MSG_NO_END );
@@ -1047,8 +1045,6 @@ void compile_program() {
             initStack(&lvlstk);
 
             compile_block( mainproc );
-
-            if ( getStackLevel(&lvlstk) != -1 ) compile_error( "INTERNAL ERROR" );
 
             if ( token.type == IDENTIFIER && token.code == identifier_else ) compile_error( MSG_ELSE_WOUT_IF );
 
