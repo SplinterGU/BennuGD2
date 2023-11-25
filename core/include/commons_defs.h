@@ -31,6 +31,9 @@
 #ifndef __COMMONS_DEFS_H
 #define __COMMONS_DEFS_H
 
+#define STRINGIFY(x) #x             // macro converts the argument to a string literal
+#define TOSTRING(x) STRINGIFY(x)    // macro expands to the string representation of its argument using STRINGIFY
+
 /* Instances Status, used in local STATUS var */
 
 #define STATUS_DEAD             0x0001

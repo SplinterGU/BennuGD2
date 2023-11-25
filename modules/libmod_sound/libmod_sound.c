@@ -52,21 +52,21 @@ static int audio_initialized = 0 ;
 #define SOUND_CHANNELS          2
 
 /* --------------------------------------------------------------------------- */
-/* Son las variables que se desea acceder.                                     */
-/* El interprete completa esta estructura, si la variable existe.              */
-/* (usada en tiempo de ejecucion)                                              */
+/* These are the variables that are intended to be accessed.                   */
+/* The interpreter populates this structure if the variable exists.            */
+/* (used at runtime)                                                           */
 
 DLVARFIXUP  __bgdexport( libmod_sound, globals_fixup )[] =
 {
-    /* Nombre de variable global, puntero al dato, tamano del elemento, cantidad de elementos */
-    { "sound.sound_freq"        , NULL, -1, -1 },
-    { "sound.sound_mode"        , NULL, -1, -1 },
-    { "sound.sound_channels"    , NULL, -1, -1 },
-    { NULL                      , NULL, -1, -1 }
+    /* Global variable name, pointer to data, size of the element, number of elements */
+    { "sound.freq"          , NULL, -1, -1 },
+    { "sound.mode"          , NULL, -1, -1 },
+    { "sound.channels"      , NULL, -1, -1 },
+    { NULL                  , NULL, -1, -1 }
 };
 
 /* --------------------------------------------------------------------------- */
-/* Interfaz SDL_RWops Bennu                                                    */
+/* SDL_RWops Bennu Interface                                                   */
 /* --------------------------------------------------------------------------- */
 
 static Sint64 SDLCALL __libmod_sound_size_cb( struct SDL_RWops *context ) {
@@ -126,51 +126,6 @@ static SDL_RWops *SDL_RWFromBGDFP( file *fp ) {
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 
-/*
- *  FUNCTION : sound_init
- *
- *  Set the SDL_Mixer library
- *
- *  PARAMS:
- *      no params
- *
- *  RETURN VALUE:
- *
- *  no return
- *
- */
-
-static int sound_init() {
-    if ( !audio_initialized ) {
-        /* Initialize variables: but limit quality to some fixed options */
-
-        int audio_rate = GLOQWORD( libmod_sound, SOUND_FREQ );
-
-        if ( audio_rate > 22050 )       audio_rate = 44100;
-        else if ( audio_rate > 11025 )  audio_rate = 22050;
-        else                            audio_rate = 11025;
-
-        Uint16 audio_format = AUDIO_S16;
-        int audio_channels = GLOQWORD( libmod_sound, SOUND_MODE ) + 1;
-        int audio_buffers = 1024 * audio_rate / 22050;
-
-        /* Open the audio device */
-        if ( Mix_OpenAudio( audio_rate, audio_format, audio_channels, audio_buffers ) >= 0 ) {
-            GLOQWORD( libmod_sound, SOUND_CHANNELS ) <= 32 ? Mix_AllocateChannels( GLOQWORD( libmod_sound, SOUND_CHANNELS ) ) : Mix_AllocateChannels( 32 ) ;
-            Mix_QuerySpec( &audio_rate, &audio_format, &audio_channels );
-            int audio_mix_channels = Mix_AllocateChannels( -1 ) ;
-            GLOQWORD( libmod_sound, SOUND_CHANNELS ) = audio_mix_channels ;
-
-            audio_initialized = 1;
-            return 0;
-        }
-    }
-
-    // fprintf( stderr, "[SOUND] No se pudo inicializar el audio: %s\n", SDL_GetError() ) ;
-    audio_initialized = 0;
-    return -1 ;
-}
-
 /* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : sound_quit
@@ -189,11 +144,80 @@ static int sound_init() {
 static void sound_quit() {
     if ( !audio_initialized ) return;
 
-    //falta por comprobar que todo esté descargado
+    // Still need to verify that everything is unloaded
 
     Mix_CloseAudio();
 
     audio_initialized = 0;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : sound_init
+ *
+ *  Set the SDL_Mixer library
+ *
+ *  PARAMS:
+ *      no params
+ *
+ *  RETURN VALUE:
+ *
+ *  no return
+ *
+ */
+
+static int sound_init() {
+    sound_quit();
+    
+    /* Initialize variables: but limit quality to some fixed options */
+    
+    int audio_rate = GLOQWORD( libmod_sound, SOUND_FREQ );
+
+         if ( audio_rate > 44100 )  audio_rate = 48000;
+    else if ( audio_rate > 22050 )  audio_rate = 44100;
+    else if ( audio_rate > 11025 )  audio_rate = 22050;
+    else                            audio_rate = 11025;
+
+    Uint16 audio_format = MIX_DEFAULT_FORMAT;
+    int audio_channels = GLOQWORD( libmod_sound, SOUND_MODE );
+
+    switch ( audio_channels ) {
+        case SOUND_MODE_MONO:           // Mono
+        case SOUND_MODE_STEREO:         // Stereo
+        case SOUND_MODE_STEREO_2_1:     // Stereo 2.1
+        case SOUND_MODE_SURROUND_4_1:   // Surround 4.0 (quadraphonic)
+        case SOUND_MODE_SURROUND_5_1:   // Surround 5.1
+        case SOUND_MODE_SURROUND_7_1:   // Surround 7.1
+            break;
+
+        default:
+            audio_channels = SOUND_MODE_STEREO;
+            break;
+    }
+
+    /* Open the audio device */
+    if ( !Mix_OpenAudio( audio_rate, audio_format, audio_channels, 4096 ) ) {
+        GLOQWORD( libmod_sound, SOUND_CHANNELS ) <= 32 ? Mix_AllocateChannels( GLOQWORD( libmod_sound, SOUND_CHANNELS ) ) : Mix_AllocateChannels( 32 ) ;
+        GLOQWORD( libmod_sound, SOUND_CHANNELS ) = Mix_AllocateChannels( -1 ) ; // Get current audio mix channels
+#if 0
+        Mix_QuerySpec( &audio_rate, &audio_format, &audio_channels );
+        printf("Opened audio at %d Hz %d bit%s %s (%d channel)\n", audio_rate,
+            (audio_format&0xFF),
+            (SDL_AUDIO_ISFLOAT(audio_format) ? " (float)" : ""),
+            (audio_channels > 3) ? "surround" :
+            (audio_channels > 1) ? "stereo" : "mono",
+            audio_channels);
+#endif
+        audio_initialized = 1;
+        return 0;
+    }
+
+#if 0
+    fprintf( stderr, "[SOUND] Could not initialize audio: %s\n", SDL_GetError() ) ;
+#endif
+
+    audio_initialized = 0;
+    return -1 ;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -533,7 +557,7 @@ static int music_rewind() {
 /* --------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------- */
-/* Sonido WAV                                                                  */
+/* WAV                                                                         */
 /* --------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------- */
@@ -1016,7 +1040,7 @@ static int reverse_stereo( int channel, int flip ) {
 
 
 /* --------------------------------------------------------------------------- */
-/* Sonido                                                                      */
+/* Sound                                                                       */
 /* --------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------- */
@@ -1086,6 +1110,27 @@ static int64_t libmod_sound_bgload_music( INSTANCE * my, int64_t * params ) {
 static int64_t libmod_sound_play_music( INSTANCE * my, int64_t * params ) {
     if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
     return( play_music( params[0], params[1] ) );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_play_music_looped
+ *
+ *  Play a MOD looped
+ *
+ *  PARAMS:
+ *      mod id;
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  0 if all goes ok
+ *
+ */
+
+static int64_t libmod_sound_play_music_looped( INSTANCE * my, int64_t * params ) {
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
+    return( play_music( params[0], -1 ) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -1360,10 +1405,6 @@ static int libmod_sound_is_fading_music() {
     return is_fading_music();
 }
 
-
-
-
-
 /* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : libmod_sound_load_sound
@@ -1431,6 +1472,27 @@ static int64_t libmod_sound_bgload_sound( INSTANCE * my, int64_t * params ) {
 static int64_t libmod_sound_play_sound( INSTANCE * my, int64_t * params ) {
     if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
     return( play_sound( params[0], params[1], -1 ) );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_play_sound_once
+ *
+ *  Play a WAV once
+ *
+ *  PARAMS:
+ *      wav id;
+  *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  0 if all goes ok
+ *
+ */
+
+static int64_t libmod_sound_play_sound_once( INSTANCE * my, int64_t * params ) {
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
+    return( play_sound( params[0], 0, -1 ) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -1875,7 +1937,7 @@ static int64_t libmod_sound_quit( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/* Funciones de inicializacion del modulo/plugin                               */
+/* Module/Plugin Initialization Functions                                      */
 
 void  __bgdexport( libmod_sound, module_initialize )() {
     if ( !SDL_WasInit( SDL_INIT_AUDIO ) ) SDL_InitSubSystem( SDL_INIT_AUDIO );

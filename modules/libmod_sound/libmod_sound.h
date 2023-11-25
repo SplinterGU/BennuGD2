@@ -37,6 +37,19 @@
 
 #include "SDL_mixer.h"
 
+enum {
+    SOUND_MODE_MONO           = 1,
+    SOUND_MODE_STEREO         = 2,
+    SOUND_MODE_STEREO_2_1     = 3,
+    SOUND_MODE_SURROUND_4_1   = 5,
+    SOUND_MODE_SURROUND_5_1   = 6,
+    SOUND_MODE_SURROUND_7_1   = 8
+};
+
+#define DEFAULT_SOUND_FREQ      44100
+#define DEFAULT_SOUND_MODE      MODE_STEREO
+#define DEFAULT_SOUND_CHANNELS  8               // Channels (not mono, stereo, etc.), these are sounds that can play simultaneously.
+
 /* --------------------------------------------------------------------------- */
 
 #endif

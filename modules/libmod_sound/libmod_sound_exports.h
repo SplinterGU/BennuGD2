@@ -39,31 +39,42 @@
 #if defined(__BGDC__) || !defined(__STATIC__)
 
 /* ----------------------------------------------------------------- */
-/* Definicion de constantes (usada en tiempo de compilacion)                   */
+/* Constants definition (used at compile time)                                 */
 
 DLCONSTANT  __bgdexport( libmod_sound, constants_def )[] = {
-    { "MODE_MONO"       , TYPE_INT, 0               },
-    { "MODE_STEREO"     , TYPE_INT, 1               },
-    { "ALL_SOUND"       , TYPE_INT, -1              },
+    { "MODE_MONO"                   , TYPE_INT, SOUND_MODE_MONO             },
+    { "MODE_STEREO"                 , TYPE_INT, SOUND_MODE_STEREO           },
+    { "MODE_STEREO_2_1"             , TYPE_INT, SOUND_MODE_STEREO_2_1       },
+    { "MODE_SURROUND_4_1"           , TYPE_INT, SOUND_MODE_SURROUND_4_1     },
+    { "MODE_SURROUND_5_1"           , TYPE_INT, SOUND_MODE_SURROUND_5_1     },
+    { "MODE_SURROUND_7_1"           , TYPE_INT, SOUND_MODE_SURROUND_7_1     },
 
-    { "MIX_NO_FADING"   , TYPE_INT, MIX_NO_FADING   },
-    { "MIX_FADING_OUT"  , TYPE_INT, MIX_FADING_OUT  },
-    { "MIX_FADING_IN"   , TYPE_INT, MIX_FADING_IN   },
+    { "SOUND_MODE_MONO"             , TYPE_INT, SOUND_MODE_MONO             },
+    { "SOUND_MODE_STEREO"           , TYPE_INT, SOUND_MODE_STEREO           },
+    { "SOUND_MODE_STEREO_2_1"       , TYPE_INT, SOUND_MODE_STEREO_2_1       },
+    { "SOUND_MODE_SURROUND_4_1"     , TYPE_INT, SOUND_MODE_SURROUND_4_1     },
+    { "SOUND_MODE_SURROUND_5_1"     , TYPE_INT, SOUND_MODE_SURROUND_5_1     },
+    { "SOUND_MODE_SURROUND_7_1"     , TYPE_INT, SOUND_MODE_SURROUND_7_1     },
 
-    { NULL              , 0       , 0               }
+    { "ALL_SOUND"                   , TYPE_INT, -1                          },
+
+    { "MIX_NO_FADING"               , TYPE_INT, MIX_NO_FADING               },
+    { "MIX_FADING_OUT"              , TYPE_INT, MIX_FADING_OUT              },
+    { "MIX_FADING_IN"               , TYPE_INT, MIX_FADING_IN               },
+
+    { NULL                          , 0       , 0                           }
 } ;
 
 /* --------------------------------------------------------------------------- */
-/* Definicion de variables globales (usada en tiempo de compilacion)           */
+/* Global variables definition (used at compile time)                          */
 
 char * __bgdexport( libmod_sound, globals_def ) =
     "STRUCT sound\n"
-    "   INT sound_freq=22050;\n"
-    "   INT sound_mode=MODE_STEREO;\n"
-    "   INT sound_channels=8;\n"
+    "   INT freq=" TOSTRING(DEFAULT_SOUND_FREQ) ";\n"
+    "   INT mode=" TOSTRING(DEFAULT_SOUND_MODE) ";\n"
+    "   INT channels=" TOSTRING(DEFAULT_SOUND_CHANNELS) ";\n"
     "END\n"
     ;
-
 #endif
 
 /* --------------------------------------------------------------------------- */
@@ -78,6 +89,7 @@ DLSYSFUNCS  __bgdexport( libmod_sound, functions_exports )[] = {
     FUNC( "MUSIC_UNLOAD"            , "P"    , TYPE_INT , libmod_sound_unload_music2        ),
 
     FUNC( "MUSIC_PLAY"              , "II"   , TYPE_INT , libmod_sound_play_music           ),
+    FUNC( "MUSIC_PLAY"              , "I"    , TYPE_INT , libmod_sound_play_music_looped    ),
     FUNC( "MUSIC_STOP"              , ""     , TYPE_INT , libmod_sound_stop_music           ),
     FUNC( "MUSIC_PAUSE"             , ""     , TYPE_INT , libmod_sound_pause_music          ),
     FUNC( "MUSIC_RESUME"            , ""     , TYPE_INT , libmod_sound_resume_music         ),
@@ -99,6 +111,7 @@ DLSYSFUNCS  __bgdexport( libmod_sound, functions_exports )[] = {
     FUNC( "SOUND_UNLOAD"            , "I"    , TYPE_INT , libmod_sound_unload_sound         ),
     FUNC( "SOUND_UNLOAD"            , "P"    , TYPE_INT , libmod_sound_unload_sound2        ),
     FUNC( "SOUND_PLAY"              , "II"   , TYPE_INT , libmod_sound_play_sound           ),
+    FUNC( "SOUND_PLAY"              , "I"    , TYPE_INT , libmod_sound_play_sound_once      ),
     FUNC( "SOUND_PLAY"              , "III"  , TYPE_INT , libmod_sound_play_sound_channel   ),
     FUNC( "SOUND_PLAY"              , "IIII" , TYPE_INT , libmod_sound_play_sound_timed     ),
     FUNC( "SOUND_STOP"              , "I"    , TYPE_INT , libmod_sound_stop_sound           ),
