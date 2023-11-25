@@ -813,7 +813,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                 int64_t current_offset = data->current;
                 data->current = var->offset;
                 compile_struct_data( members, data, count, 0, is_inline );
-                data->current = current_offset;    
+                data->current = current_offset;
             } else {
                 token_back();
             }
@@ -871,6 +871,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             // check if variable exists and compare types
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
+
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
             if ( !var_aux ) var->code = create_id_variable_code_for_current_scope( token.code, level );
             token_set_pos( actual_pos );
@@ -965,15 +966,17 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
 
             /* Compiles an assignment of default values (variable initialization in declaration) */
             if ( token.type == IDENTIFIER && token.code == identifier_equal ) {
+                int64_t current_offset = data->current;
+
                 if ( var_aux ) {
                     variable_already_exists = 1;
                     var->offset = var_aux->offset;
+                    data->current = var->offset;
                 }
-
-                int64_t current_offset = data->current;
 
                 if ( segm ) {
                     segment_add_from( data, segm );
+                    int64_t current_offset = data->current; // 2nd current_offset
                     data->current = var->offset;
                     if ( !additive ) data->current += base_offset;
                     compile_struct_data( type.varspace, data, 1, 0, is_inline );
@@ -1010,7 +1013,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     }
                 }
 
-                if ( variable_already_exists ) { // variable already exists
+                if ( variable_already_exists ) {
                     data->current = current_offset;
                     continue;
                 }
