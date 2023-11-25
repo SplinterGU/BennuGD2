@@ -56,12 +56,14 @@ GLOBAL
 	int skin=22;
 	int idtxt1;
 	int cancion;
-	int disable;
 	int espera_cancion;
 	int esconder_cuadro;
 	int hay_repetidos;
 	int tablero_dificultad;
 	int escalado;
+
+PRIVATE
+	int dot_pos;
 
 BEGIN
 	window_set_title("SudoQ v0.8 - Bombergames Soft 2016");
@@ -133,18 +135,33 @@ BEGIN
 		// BUSCA EN EL DIRECTORIO DE MUSICA ALGO QUE REPRODUCIR
 		if (espera_cancion>0) espera_cancion--; end
 	
-		if (disable!=1 && espera_cancion==0)
+		if (espera_cancion==0)
 			if (get_joy_button(0,JOY_BUTTON_RIGHTSTICK) || NOT music_is_playing())
-				nombre_fichero=glob("music/*.wav");
-				if ( nombre_fichero=="" )
-					glob(""); // Reset glob
-					nombre_fichero=glob("music/*.wav");
+				nombre_fichero = glob("music/*");
+				while( nombre_fichero != "" )
+					if ( nombre_fichero != "." && nombre_fichero != ".." )
+						dot_pos = find(strrev(nombre_fichero), ".");
+						if ( dot_pos > -1 )
+							switch ( lcase( substr(nombre_fichero, -dot_pos) ) )
+								case	"opus", "mod", "s3m", "wav", "mp3", "xm":
+									// Valid
+									break;
+								end
+								case 	"flac", "ogg", "mid":
+									if ( os_id != OS_SWITCH )
+										break;
+									end
+								end
+							end
+						end
+					end
+					nombre_fichero = glob("music/*");
 				end
-				if (nombre_fichero!="")
+				if ( nombre_fichero != "" )
 					cancion=music_load("music/"+nombre_fichero);
 					music_play(cancion,0); espera_cancion=30;
 				else
-					disable=1;
+					glob(""); // Reset glob
 				end
 			end
 		end

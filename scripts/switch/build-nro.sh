@@ -40,6 +40,10 @@ while IFS= read -r string; do
     # Check if the file exists before copying
     if [[ "$string" != *".prg" && "$string" != *".h" && "$string" != *".inc" && "$string" != *".c" && "$string" != *".def" && -e "$string" ]]; then
 
+        if [[ "$string" == ".." || "$string" == "." ]]; then
+            continue;
+        fi
+
         if [[ "$string" == *".."* || "$string" == /* ]]; then
             # Use realpath to obtain the full path of the file
             full_path="$(realpath "$string")"

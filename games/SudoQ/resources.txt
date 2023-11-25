@@ -1,4 +1,14 @@
+music/dwsample1-opus.opus
+music/christmas_songs-jingle_bells.midi
+music/sample-file-2.flac
+music/Westminster-chimes.midi
 music/Happy Ending.ogg
 music/Happy Ending.wav
 music/Music_Credits.txt
 music/put_some_ogg_file_here
+music/2ND_PM.S3M
+music/GSLINGER.mod
+music/hymn_to_aurora.mod
+music/space_debris.mod
+music/external.xm
+music/squired.xm
