@@ -229,6 +229,8 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
 
     FUNC( "CLAMP"           , "DDD"     , TYPE_DOUBLE       , libmod_misc_math_clamp             ),
     FUNC( "BETWEEN"         , "DDD"     , TYPE_INT          , libmod_misc_math_between           ),
+    FUNC( "TOWARDS"         , "DDD"     , TYPE_DOUBLE       , libmod_misc_math_towards_double    ),
+    FUNC( "TOWARDS"         , "III"     , TYPE_INT          , libmod_misc_math_towards           ),
 
     /* Mem */
     FUNC( "MEM_CALLOC"      , "II"      , TYPE_POINTER      , libmod_misc_mem_calloc             ),

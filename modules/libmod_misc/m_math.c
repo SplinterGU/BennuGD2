@@ -552,3 +552,35 @@ int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params 
 }
 
 /* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_towards_double( INSTANCE * my, int64_t * params ) {
+    double from = *( double * ) &params[0], to = *( double * ) &params[1], step = *( double * ) &params[2];
+    double abs_step = ( step < 0.0 ) ? -step : step;
+    double new_value;
+    if ( from > to ) {
+        new_value = from - abs_step;
+        if ( new_value < to ) return to;
+    } else {
+        new_value = from + abs_step;
+        if ( new_value > to ) return to;
+    }
+    return * ( int64_t * ) &new_value;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_towards( INSTANCE * my, int64_t * params ) {
+    int64_t from = params[0], to = params[1], step = params[2];
+    int64_t abs_step = ( step < 0 ) ? -step : step;
+    int64_t new_value;
+    if ( from > to ) {
+        new_value = from - abs_step;
+        if ( new_value < to ) return to;
+    } else {
+        new_value = from + abs_step;
+        if ( new_value > to ) return to;
+    }
+    return new_value;
+}
+
+/* --------------------------------------------------------------------------- */
