@@ -369,7 +369,7 @@ static int fade_music_off( int ms ) {
  *
  */
 
-static int is_fading_music( ) {
+static int is_fading_music() {
     if ( audio_initialized ) return Mix_FadingMusic();
     return ( -1 );
 }
@@ -534,6 +534,28 @@ static int set_music_volume( int volume ) {
 
 /* --------------------------------------------------------------------------- */
 /*
+ *  FUNCTION : get_music_volume
+ *
+ *  Get the current volume value for a music object
+ *
+ *  PARAMS:
+ *
+ *      mod pointer
+ *
+ *  RETURN VALUE:
+ *
+ *      between 0 - MIN_MAX_VOLUME (128)
+ *
+ */
+
+static int get_music_volume( int64_t id ) {
+    if ( !audio_initialized || !id ) return ( 0 );
+    return Mix_GetMusicVolume(( Mix_Music * )( intptr_t )id );
+}
+
+
+/* --------------------------------------------------------------------------- */
+/*
  *  FUNCTION : music_rewind
  *
  *  Rewind a music
@@ -551,6 +573,330 @@ static int music_rewind() {
     return 0;
 }
 
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : set_music_playback_position
+ *
+ *  Set the current position in the music stream, in seconds.
+ *
+ *  To convert from milliseconds, divide by 1000.0.
+ *
+ *   This function is only implemented for MOD music formats ( set pattern order
+ *   number ) and for WAV, OGG, FLAC, MP3, and MODPLUG music at the moment.
+ *
+ *  PARAMS:
+ *
+ *  position    time in seconds with decimals.
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  0 if there is no error
+ *
+ */
+
+static int set_music_playback_position( double position ) {
+    if ( !audio_initialized ) return ( 0 );
+    return ( Mix_SetMusicPosition( position ) );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_playback_position
+ *
+ *  Get the current position in the music stream, in seconds.
+ *
+ *  To convert from milliseconds, divide by 1000.0.
+ *
+ *   This function is only implemented for MOD music formats ( set pattern order
+ *   number ) and for WAV, OGG, FLAC, MP3, and MODPLUG music at the moment.
+ *
+ *  PARAMS:
+ *
+ *  mod id
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  other value position
+ *
+ */
+
+static double get_music_playback_position( int64_t id ) {
+    if ( !audio_initialized || !id ) return ( 0 );
+    return ( Mix_GetMusicPosition(( Mix_Music * )( intptr_t )id ) );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_duration
+ *
+ *  Get a music object's duration, in seconds.
+ *
+ *  To convert to milliseconds, multiply by 1000.0.
+ *
+ *  PARAMS:
+ *
+ *  music       pointer to Mix_Music structure
+ *              if 0, returns duration of current playing music.
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  other value     return duration in seconds
+ *
+ */
+static double get_music_duration( int64_t id ) {
+    if ( !audio_initialized ) return 0.0;
+    return Mix_MusicDuration(( Mix_Music * )( intptr_t )id );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_loop_start_time
+ *
+ *  Get the start time of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  music       pointer to Mix_Music structure
+ *              if 0, returns duration of current playing music.
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop start time is not available
+ *  other value loop start time in seconds
+ *
+ */
+
+static double get_music_loop_start_time( int64_t id ) {
+    if ( !audio_initialized ) return 0.0;
+    return Mix_GetMusicLoopStartTime(( Mix_Music * )( intptr_t )id );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_loop_end_time
+ *
+ *  Get the end time of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  music       pointer to Mix_Music structure
+ *              if 0, returns duration of current playing music.
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop end time is not available
+ *  other value loop end time in seconds
+ *
+ */
+
+static double get_music_loop_end_time( int64_t id ) {
+    if ( !audio_initialized ) return 0.0;
+    return Mix_GetMusicLoopEndTime(( Mix_Music * )( intptr_t )id );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_loop_length_time
+ *
+ *  Get the length of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  music       pointer to Mix_Music structure
+ *              if 0, returns duration of current playing music.
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop length time is not available
+ *  other value loop length time in seconds
+ *
+ */
+
+static double get_music_loop_length_time( int64_t id ) {
+    if ( !audio_initialized ) return 0.0;
+    return Mix_GetMusicLoopLengthTime(( Mix_Music * )( intptr_t )id );
+}
+
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_num_music_decoders
+ *
+ *  Get the number of available music decoders.
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error or if the audio is not initialized
+ *  other value     the number of available music decoders
+ *
+ */
+static int64_t get_num_music_decoders(  ) {
+    if ( !audio_initialized && sound_init() ) return -1;
+    return Mix_GetNumMusicDecoders(  );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_decoder
+ *
+ *  Get the name of the music decoder at the specified index.
+ *
+ *  PARAMS:
+ *
+ *  index       index of the music decoder to query
+ *
+ *  RETURN VALUE:
+ *
+ *  NULL if there is any error or if the audio is not initialized
+ *  other value     the name of the music decoder at the specified index
+ *
+ */
+static const char *get_music_decoder( int index ) {
+    if ( !audio_initialized ) return NULL;
+    return Mix_GetMusicDecoder( index );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : has_music_decoder
+ *
+ *  Check if a music decoder is available by its name.
+ *
+ *  PARAMS:
+ *
+ *  name        the decoder name to query
+ *
+ *  RETURN VALUE:
+ *
+ *  0 if the audio is not initialized or if the decoder is not available
+ *  1 if the decoder is available
+ *
+ */
+static int has_music_decoder( const char *name ) {
+    if ( !audio_initialized ) return 0;
+    return ( int )Mix_HasMusicDecoder( name );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_type
+ *
+ *  Get the type of music.
+ *
+ *  PARAMS:
+ *
+ *  id          ID of the music
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error or if the audio is not initialized
+ *  other value     the type of the music
+ *
+ */
+static int get_music_type( int64_t id ) {
+    if ( !audio_initialized ) return -1;
+    return ( int )Mix_GetMusicType(( Mix_Music * )( intptr_t )id );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_title
+ *
+ *  Get the title of the music.
+ *
+ *  PARAMS:
+ *
+ *  id          ID of the music
+ *
+ *  RETURN VALUE:
+ *
+ *  NULL if there is any error or if the audio is not initialized
+ *  other value     the title of the music
+ *
+ */
+static const char *get_music_title( int64_t id ) {
+    if ( !audio_initialized ) return NULL;
+    return Mix_GetMusicTitle(( Mix_Music * )( intptr_t )id );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_title_tag
+ *
+ *  Get the title tag of the music.
+ *
+ *  PARAMS:
+ *
+ *  id          ID of the music
+ *
+ *  RETURN VALUE:
+ *
+ *  the title tag of the music
+ *
+ */
+static const char *get_music_title_tag( int64_t id ) {
+    return Mix_GetMusicTitleTag(( Mix_Music * )( intptr_t )id );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_artist_tag
+ *
+ *  Get the artist tag of the music.
+ *
+ *  PARAMS:
+ *
+ *  id          ID of the music
+ *
+ *  RETURN VALUE:
+ *
+ *  the artist tag of the music
+ *
+ */
+static const char *get_music_artist_tag( int64_t id ) {
+    return Mix_GetMusicArtistTag(( Mix_Music * )( intptr_t )id );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_album_tag
+ *
+ *  Get the album tag of the music.
+ *
+ *  PARAMS:
+ *
+ *  id          ID of the music
+ *
+ *  RETURN VALUE:
+ *
+ *  the album tag of the music
+ *
+ */
+static const char *get_music_album_tag( int64_t id ) {
+    return Mix_GetMusicAlbumTag(( Mix_Music * )( intptr_t )id );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : get_music_copyright_tag
+ *
+ *  Get the copyright tag of the music.
+ *
+ *  PARAMS:
+ *
+ *  id          ID of the music
+ *
+ *  RETURN VALUE:
+ *
+ *  the copyright tag of the music
+ *
+ */
+static const char *get_music_copyright_tag( int64_t id ) {
+    return Mix_GetMusicCopyrightTag(( Mix_Music * )( intptr_t )id );
+}
 
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
@@ -881,7 +1227,7 @@ static int fade_channel_off( int channel, int ms ) {
  *
  */
 
-static int  set_sound_volume( int64_t sample, int volume ) {
+static int set_sound_volume( int64_t sample, int volume ) {
     if ( !audio_initialized ) return ( -1 );
 
     if ( volume < 0 ) volume = 0;
@@ -896,7 +1242,7 @@ static int  set_sound_volume( int64_t sample, int volume ) {
 /*
  *  FUNCTION : set_channel_volume
  *
- *  Set the volume for wav playing (0-128) IN CHANNEL
+ *  Set the volume for a channel (0-128)
  *
  *  PARAMS:
  *
@@ -1038,9 +1384,327 @@ static int reverse_stereo( int channel, int flip ) {
 }
 
 
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : set_master_volume
+ *
+ *  Set the master volume for all channels.
+ *
+ *  PARAMS:
+ *
+ *  int volume
+ *
+ *  RETURN VALUE:
+ *
+ * -1 if there is any error
+ *  0 if there is no error
+ *
+ */
+
+static int set_master_volume( int volume ) {
+    if ( !audio_initialized && sound_init() ) return ( -1 );
+
+    if ( volume < 0 ) volume = 0;
+    if ( volume > 128 ) volume = 128;
+
+    Mix_MasterVolume( volume );
+    return 0;
+}
+
+
 
 /* --------------------------------------------------------------------------- */
-/* Sound                                                                       */
+/*
+ *  FUNCTION : expire_channel
+ *
+ *  Change the expiration delay for a particular channel.
+ *
+ *  The channel will halt after the 'ticks' milliseconds have elapsed, or
+ *  remove the expiration if 'ticks' is -1.
+ *
+ *  This overrides the value passed to the fourth parameter of
+ *  play_sound_timed().
+ *
+ *  Specifying a channel of -1 will set an expiration for _all_ channels.
+ *
+ *  Any halted channels will have any currently-registered effects
+ *  deregistered, and will call any callback specified by Mix_ChannelFinished()
+ *  once the halt occurs.
+ *
+ *  Note that this function does not block for the number of ticks requested;
+ *  it just schedules the chunk to expire and notes the time for the mixer to
+ *  manage later, and returns immediately.
+ *
+ *  PARAMS:
+ *
+ *  channel     the channel to change the expiration time on.
+ *  ticks       number of milliseconds from now to let channel play before
+ *              halting, -1 to not halt.
+ *
+ *  RETURN VALUE:
+ *
+ *  the number of channels that changed expirations.
+ *
+ */
+static int64_t expire_channel( int64_t channel, int64_t ticks ) {
+    if ( !audio_initialized && sound_init() ) return -1;
+    return Mix_ExpireChannel( ( int )channel, ( int )ticks );
+}
+
+/* --------------------------------------------------------------------------- */
+/* Channel grouping functions                                                  */
+/* --------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : group_channel
+ *
+ *  Assign a tag to a channel.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  If 'tag' is -1, the tag is removed ( actually -1 is the tag used to
+ *  represent the group of all the channels ).
+ *
+ *  This function replaces the requested channel's current tag; you may only
+ *  have one tag per channel.
+ *
+ *  You may not specify MAX_CHANNEL_POST for a channel.
+ *
+ *  PARAMS:
+ *
+ *  which   the channel to set the tag on.
+ *  tag     an arbitrary value to assign a channel.
+ *
+ *  RETURN VALUE:
+ *
+ *  non-zero on success, zero on error ( no such channel ).
+ *
+ */
+static int64_t group_channel( int64_t channel, int tag ) {
+    if ( !audio_initialized && sound_init() ) return -1;
+    return Mix_GroupChannel( ( int )channel, tag );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : group_channels
+ *
+ *  Assign several consecutive channels to the same tag.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  If 'tag' is -1, the tag is removed ( actually -1 is the tag used to
+ *  represent the group of all the channels ).
+ *
+ *  This function replaces the requested channels' current tags; you may only
+ *  have one tag per channel.
+ *
+ *  You may not specify MAX_CHANNEL_POST for a channel.
+ *
+ *  Note that this returns success and failure in the _opposite_ way from
+ *  Mix_GroupChannel(). We regret the API design mistake.
+ *
+ *  PARAMS:
+ *
+ *  from    the first channel to set the tag on.
+ *  to      the last channel to set the tag on, inclusive.
+ *  tag     an arbitrary value to assign a channel.
+ *
+ *  RETURN VALUE:
+ *
+ *  0 if successful, negative on error
+ *
+ */
+static int64_t group_channels( int64_t from, int64_t to, int tag ) {
+    if ( !audio_initialized && sound_init() ) return -1;
+    return Mix_GroupChannels( ( int )from, ( int )to, tag );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : group_available
+ *
+ *  Finds the first available channel in a group of channels.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  This function searches all channels with a specified tag, and returns the
+ *  channel number of the first one it finds that is currently unused.
+ *
+ *  If no channels with the specified tag are unused, this function returns -1.
+ *
+ *  PARAMS:
+ *
+ *  tag an arbitrary value, assigned to channels, to search for.
+ *
+ *  RETURN VALUE:
+ *
+ *  first available channel, or -1 if none are available.
+ *
+ */
+static int64_t group_available( int tag ) {
+    if ( !audio_initialized ) return -1;
+    return Mix_GroupAvailable( tag );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : group_count
+ *
+ *  Returns the number of channels in a group.
+ *
+ *  If tag is -1, this will return the total number of channels allocated,
+ *  regardless of what their tag might be.
+ *
+ *  PARAMS:
+ *
+ *  tag an arbitrary value, assigned to channels, to search for.
+ *
+ *  RETURN VALUE:
+ *
+ *  the number of channels assigned the specified tag.
+ *
+ */
+static int64_t group_count( int tag ) {
+    if ( !audio_initialized ) return -1;
+    return Mix_GroupCount( tag );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : group_oldest
+ *
+ *  Find the "oldest" sample playing in a group of channels.
+ *
+ *  Specifically, this function returns the channel number that is assigned the
+ *  specified tag, is currently playing, and has the lowest start time, based
+ *  on the value of SDL_GetTicks() when the channel started playing.
+ *
+ *  If no channel with this tag is currently playing, this function returns -1.
+ *
+ *  PARAMS:
+ *
+ *  tag an arbitrary value, assigned to channels, to search through.
+ *
+ *  RETURN VALUE:
+ *
+ *  the "oldest" sample playing in a group of channels
+ *
+ */
+static int64_t group_oldest( int tag ) {
+    if ( !audio_initialized ) return -1;
+    return Mix_GroupOldest( tag );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : group_newer
+ *
+ *  Find the "most recent" sample playing in a group of channels.
+ *
+ *  Specifically, this function returns the channel number that is assigned the
+ *  specified tag, is currently playing, and has the highest start time, based
+ *  on the value of SDL_GetTicks() when the channel started playing.
+ *
+ *  If no channel with this tag is currently playing, this function returns -1.
+ *
+ *  PARAMS:
+ *
+ *  tag an arbitrary value, assigned to channels, to search through.
+ *
+ *  RETURN VALUE:
+ *
+ *  the "most recent" sample playing in a group of channels
+ *
+ */
+static int64_t group_newer( int tag ) {
+    if ( !audio_initialized ) return -1;
+    return Mix_GroupNewer( tag );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : halt_group
+ *
+ *  Halt playing of a group of channels by arbitrary tag.
+ *
+ *  This will stop further playback on all channels with a specific tag, until
+ *  a new chunk is started there.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  The default tag for a channel is -1.
+ *
+ *  Any halted channels will have any currently-registered effects
+ *  deregistered, and will call any callback specified by Mix_ChannelFinished()
+ *  before this function returns.
+ *
+ *  PARAMS:
+ *
+ *  tag     an arbitrary value, assigned to channels, to search for.
+ *
+ *  RETURN VALUE:
+ *
+ *  zero, whether any channels were halted or not.
+ *
+ */
+static int64_t halt_group( int64_t tag ) {
+    if ( !audio_initialized ) return -1;
+    return Mix_HaltGroup( ( int )tag );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : fade_out_group
+ *
+ *  Halt a playing group of channels by arbitrary tag, after fading them out
+ *  for a specified time.
+ *
+ *  This will begin fading a group of channels with a specific tag from their
+ *  current volumes to silence over `ms` milliseconds. After that time, those
+ *  channels are halted.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  The default tag for a channel is -1.
+ *
+ *  Any halted channels will have any currently-registered effects
+ *  deregistered, and will call any callback specified by Mix_ChannelFinished()
+ *  once the halt occurs.
+ *
+ *  A fading channel will change its volume progressively, as if Mix_Volume()
+ *  was called on it ( which is to say: you probably shouldn't call Mix_Volume()
+ *  on a fading channel ).
+ *
+ *  Note that this function does not block for the number of milliseconds
+ *  requested; it just schedules the group to fade and notes the time for the
+ *  mixer to manage later, and returns immediately.
+ *
+ *  PARAMS:
+ *
+ *  tag     an arbitrary value, assigned to channels, to search for.
+ *  ms      number of milliseconds to fade before halting the group.
+ *
+ *  RETURN VALUE:
+ *
+ *  the number of channels that were scheduled for fading.
+ *
+ */
+static int64_t fade_out_group( int64_t tag, int64_t ms ) {
+    if ( !audio_initialized ) return -1;
+    return Mix_FadeOutGroup( ( int )tag, ( int )ms );
+}
+
+
+
+/* --------------------------------------------------------------------------- */
+/* Sound Modules Functions                                                     */
 /* --------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------- */
@@ -1156,7 +1820,7 @@ static int64_t libmod_sound_unload_music( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 /*
- *  FUNCTION : libmod_sound_unload_music2
+ *  FUNCTION : libmod_sound_unload_music_and_free
  *
  *  Frees the resources from a MOD and unloads it
  *
@@ -1170,8 +1834,8 @@ static int64_t libmod_sound_unload_music( INSTANCE * my, int64_t * params ) {
  *
  */
 
-static int64_t libmod_sound_unload_music2( INSTANCE * my, int64_t * params ) {
-    int64_t *s = (int64_t *)(intptr_t)(params[0]), r;
+static int64_t libmod_sound_unload_music_and_free( INSTANCE * my, int64_t * params ) {
+    int64_t *s = ( int64_t * )( intptr_t )( params[0] ), r;
     if ( !s || *s == -1LL ) return -1; // check for !*s in internal function
     r = unload_music( *s );
     *s = 0LL;
@@ -1306,6 +1970,26 @@ static int64_t libmod_sound_set_music_volume( INSTANCE * my, int64_t * params ) 
 
 /* --------------------------------------------------------------------------- */
 /*
+ *  FUNCTION : libmod_sound_get_music_volume
+ *
+ *  Get the current volume value for a music object
+ *
+ *  PARAMS:
+ *
+ *      mod pointer
+ *
+ *  RETURN VALUE:
+ *
+ *      between 0 - MIN_MAX_VOLUME (128)
+ *
+ */
+
+static int64_t libmod_sound_get_music_volume( INSTANCE * my, int64_t * params ) {
+    return ( get_music_volume( params[0] ) );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
  *  FUNCTION : libmod_sound_music_rewind
  *
  *  Rewind a music
@@ -1320,6 +2004,584 @@ static int64_t libmod_sound_set_music_volume( INSTANCE * my, int64_t * params ) 
 
 static int64_t libmod_sound_music_rewind( INSTANCE * my, int64_t * params ) {
     return music_rewind();
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_set_music_playback_position
+ *
+ *  Set the current position in the music stream, in seconds.
+ *
+ *  To convert from milliseconds, divide by 1000.0.
+ *
+ *   This function is only implemented for MOD music formats ( set pattern order
+ *   number ) and for WAV, OGG, FLAC, MP3, and MODPLUG music at the moment.
+ *
+ *  PARAMS:
+ *
+ *  position    time in seconds with decimals.
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  0 if there is no error
+ *
+ */
+
+static int64_t libmod_sound_set_music_playback_position( INSTANCE * my, int64_t * params ) {
+    return ( set_music_playback_position( *( double * ) &params[0] ) );
+}
+
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_playback_position
+ *
+ *  Get the current position in the music stream, in seconds.
+ *
+ *  To convert from milliseconds, divide by 1000.0.
+ *
+ *   This function is only implemented for MOD music formats ( set pattern order
+ *   number ) and for WAV, OGG, FLAC, MP3, and MODPLUG music at the moment.
+ *
+ *  PARAMS:
+ *
+ *  mod id
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  other value position
+ *
+ */
+
+static int64_t libmod_sound_get_music_playback_position( INSTANCE * my, int64_t * params ) {
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
+    double res = get_music_playback_position( params[0] ) ;
+    return *( ( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_duration
+ *
+ *  Get a music object's duration, in seconds.
+ *
+ *  To convert to milliseconds, multiply by 1000.0.
+ *
+ *  PARAMS:
+ *
+ *  music       pointer to Mix_Music structure
+ *              if 0, returns duration of current playing music.
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  other value     return duration in seconds
+ *
+ */
+
+static int64_t libmod_sound_get_music_duration( INSTANCE * my, int64_t * params ) {
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
+    double res = get_music_duration( params[0] ) ;
+    return *( ( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_duration_current
+ *
+ *  Get a music object's duration, in seconds.
+ *
+ *  To convert to milliseconds, multiply by 1000.0.
+ *
+ *  PARAMS:
+ *
+ *  none
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  other value     return duration in seconds
+ *
+ */
+
+static int64_t libmod_sound_get_music_duration_current( INSTANCE * my, int64_t * params ) {
+    double res = get_music_duration( 0 ) ;
+    return *( ( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_loop_start_time
+ *
+ *  Get the start time of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  id          identifier for the music
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop start time is not available
+ *  other value loop start time in seconds
+ *
+ */
+
+static int64_t libmod_sound_get_music_loop_start_time( INSTANCE * my, int64_t * params ) {
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
+    double start_time = get_music_loop_start_time( params[0] );
+    return *( ( int64_t * )&start_time );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_loop_start_time_current
+ *
+ *  Get the start time of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  none
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop start time is not available
+ *  other value loop start time in seconds
+ *
+ */
+
+static int64_t libmod_sound_get_music_loop_start_time_current( INSTANCE * my, int64_t * params ) {
+    double start_time = get_music_loop_start_time( 0 );
+    return *( ( int64_t * )&start_time );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_loop_end_time
+ *
+ *  Get the end time of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  id          identifier for the music
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop end time is not available
+ *  other value loop end time in seconds
+ *
+ */
+
+static int64_t libmod_sound_get_music_loop_end_time( INSTANCE * my, int64_t * params ) {
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
+    double end_time = get_music_loop_end_time( params[0] );
+    return *( ( int64_t * )&end_time );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_loop_end_time_current
+ *
+ *  Get the end time of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  none
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop end time is not available
+ *  other value loop end time in seconds
+ *
+ */
+
+static int64_t libmod_sound_get_music_loop_end_time_current( INSTANCE * my, int64_t * params ) {
+    double end_time = get_music_loop_end_time( 0 );
+    return *( ( int64_t * )&end_time );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_loop_length_time
+ *
+ *  Get the length of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  id          identifier for the music
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop length time is not available
+ *  other value loop length time in seconds
+ *
+ */
+
+static int64_t libmod_sound_get_music_loop_length_time( INSTANCE * my, int64_t * params ) {
+    if ( params[0] == -1LL ) return -1; // check for !params[0] in internal function
+    double length_time = get_music_loop_length_time( params[0] );
+    return *( ( int64_t * )&length_time );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_loop_length_time_current
+ *
+ *  Get the length of the loop in the music stream, in seconds.
+ *
+ *  PARAMS:
+ *
+ *  none
+ *
+ *  RETURN VALUE:
+ *
+ *  -1.0 if there is any error or if loop length time is not available
+ *  other value loop length time in seconds
+ *
+ */
+
+static int64_t libmod_sound_get_music_loop_length_time_current( INSTANCE * my, int64_t * params ) {
+    double length_time = get_music_loop_length_time( 0 );
+    return *( ( int64_t * )&length_time );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_num_music_decoders
+ *
+ *  Get the number of available music decoders.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the number of available music decoders
+ *
+ */
+static int64_t libmod_sound_get_num_music_decoders( INSTANCE *my, int64_t *params ) {
+    return get_num_music_decoders(  );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_decoder
+ *
+ *  Get the name of the music decoder at the specified index.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the name of the music decoder at the specified index
+ *
+ */
+static int64_t libmod_sound_get_music_decoder( INSTANCE *my, int64_t *params ) {
+    const char *decoder_name = get_music_decoder( params[0] );
+    int64_t r = string_new( ( char * )decoder_name );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_has_music_decoder
+ *
+ *  Check if a music decoder is available by its name.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  0 if the audio is not initialized or if the decoder is not available
+ *  1 if the decoder is available
+ *
+ */
+static int64_t libmod_sound_has_music_decoder( INSTANCE *my, int64_t *params ) {
+    const char *decoder_name;
+    if ( !( decoder_name = string_get( params[0] ) ) ) return 0;
+    int available = has_music_decoder( decoder_name );
+    string_discard( params[0] );
+    return ( int64_t )available;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_type
+ *
+ *  Get the type of music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the type of the music
+ *
+ */
+static int64_t libmod_sound_get_music_type( INSTANCE *my, int64_t *params ) {
+    return get_music_type( params[0] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_title
+ *
+ *  Get the title of the music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the title of the music
+ *
+ */
+static int64_t libmod_sound_get_music_title( INSTANCE *my, int64_t *params ) {
+    const char *title = get_music_title( params[0] );
+    int64_t r = string_new( ( char * )title );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_title_tag
+ *
+ *  Get the title tag of the music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the title tag of the music
+ *
+ */
+static int64_t libmod_sound_get_music_title_tag( INSTANCE *my, int64_t *params ) {
+    const char *title_tag = get_music_title_tag( params[0] );
+    int64_t r = string_new( ( char * )title_tag );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_artist_tag
+ *
+ *  Get the artist tag of the music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the artist tag of the music
+ *
+ */
+static int64_t libmod_sound_get_music_artist_tag( INSTANCE *my, int64_t *params ) {
+    const char *artist_tag = get_music_artist_tag( params[0] );
+    int64_t r = string_new( ( char * )artist_tag );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_album_tag
+ *
+ *  Get the album tag of the music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the album tag of the music
+ *
+ */
+static int64_t libmod_sound_get_music_album_tag( INSTANCE *my, int64_t *params ) {
+    const char *album_tag = get_music_album_tag( params[0] );
+    int64_t r = string_new( ( char * )album_tag );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_copyright_tag
+ *
+ *  Get the copyright tag of the music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the copyright tag of the music
+ *
+ */
+static int64_t libmod_sound_get_music_copyright_tag( INSTANCE *my, int64_t *params ) {
+    const char *copyright_tag = get_music_copyright_tag( params[0] );
+    int64_t r = string_new( ( char * )copyright_tag );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_type_current
+ *
+ *  Get the type of the currently playing music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the type of the currently playing music
+ *
+ */
+static int64_t libmod_sound_get_music_type_current( INSTANCE *my, int64_t *params ) {
+    return get_music_type( 0 );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_title_current
+ *
+ *  Get the title of the currently playing music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the title of the currently playing music
+ *
+ */
+static int64_t libmod_sound_get_music_title_current( INSTANCE *my, int64_t *params ) {
+    const char *title = get_music_title( 0 );
+    int64_t r = string_new( ( char * )title );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_title_tag_current
+ *
+ *  Get the title tag of the currently playing music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the title tag of the currently playing music
+ *
+ */
+static int64_t libmod_sound_get_music_title_tag_current( INSTANCE *my, int64_t *params ) {
+    const char *title_tag = get_music_title_tag( 0 );
+    int64_t r = string_new( ( char * )title_tag );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_artist_tag_current
+ *
+ *  Get the artist tag of the currently playing music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the artist tag of the currently playing music
+ *
+ */
+static int64_t libmod_sound_get_music_artist_tag_current( INSTANCE *my, int64_t *params ) {
+    const char *artist_tag = get_music_artist_tag( 0 );
+    int64_t r = string_new( ( char * )artist_tag );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_album_tag_current
+ *
+ *  Get the album tag of the currently playing music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the album tag of the currently playing music
+ *
+ */
+static int64_t libmod_sound_get_music_album_tag_current( INSTANCE *my, int64_t *params ) {
+    const char *album_tag = get_music_album_tag( 0 );
+    int64_t r = string_new( ( char * )album_tag );
+    string_use( r );
+    return r;
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_get_music_copyright_tag_current
+ *
+ *  Get the copyright tag of the currently playing music.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers
+ *
+ *  RETURN VALUE:
+ *
+ *  the copyright tag of the currently playing music
+ *
+ */
+static int64_t libmod_sound_get_music_copyright_tag_current( INSTANCE *my, int64_t *params ) {
+    const char *copyright_tag = get_music_copyright_tag( 0 );
+    int64_t r = string_new( ( char * )copyright_tag );
+    string_use( r );
+    return r;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -1401,7 +2663,7 @@ static int64_t libmod_sound_fade_music_off( INSTANCE * my, int64_t * params ) {
  *
  */
 
-static int libmod_sound_is_fading_music() {
+static int libmod_sound_is_fading_music( INSTANCE * my, int64_t * params ) {
     return is_fading_music();
 }
 
@@ -1434,7 +2696,7 @@ static int64_t libmod_sound_load_sound( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 /*
- *  FUNCTION : libmod_sound_load_sound2
+ *  FUNCTION : libmod_sound_bgload_sound
  *
  *  Load a WAV from a file
  *
@@ -1504,7 +2766,7 @@ static int64_t libmod_sound_play_sound_once( INSTANCE * my, int64_t * params ) {
  *  PARAMS:
  *      wav id;
  *      number of loops (-1 infinite loops)
- *      channel (-1 like libmod_sound_play_sound)
+ *      channel ( -1 like libmod_sound_play_sound )
  *
  *  RETURN VALUE:
  *
@@ -1633,7 +2895,7 @@ static int64_t libmod_sound_unload_sound( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 /*
- *  FUNCTION : libmod_sound_unload_sound2
+ *  FUNCTION : libmod_sound_unload_sound_and_free
  *
  *  Frees the resources from a wav, unloading it
  *
@@ -1648,8 +2910,8 @@ static int64_t libmod_sound_unload_sound( INSTANCE * my, int64_t * params ) {
  *
  */
 
-static int64_t libmod_sound_unload_sound2( INSTANCE * my, int64_t * params ) {
-    int64_t *s = (int64_t *)(intptr_t)(params[0]), r;
+static int64_t libmod_sound_unload_sound_and_free( INSTANCE * my, int64_t * params ) {
+    int64_t *s = ( int64_t * )( intptr_t )( params[0] ), r;
     if ( !s || *s == -1LL ) return -1; // check for !*s in internal function
     r = unload_sound( *s );
     *s = 0LL;
@@ -1784,7 +3046,7 @@ static int64_t libmod_sound_fade_channel_off( INSTANCE * my, int64_t * params ) 
 /*
  *  FUNCTION : libmod_sound_set_channel_volume
  *
- *  Set the volume for a wav playing (0-128)
+ *  Set the volume for a channel (0-128)
  *
  *  PARAMS:
  *
@@ -1800,6 +3062,27 @@ static int64_t libmod_sound_fade_channel_off( INSTANCE * my, int64_t * params ) 
 
 static int64_t libmod_sound_set_channel_volume( INSTANCE * my, int64_t * params ) {
     return( set_channel_volume( params[0], params[1] ) );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_set_channel_volume
+ *
+ *  Set the volume for all channels (0-128)
+ *
+ *  PARAMS:
+ *
+ *  int volume
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  0 if there is no error
+ *
+ */
+
+static int64_t libmod_sound_set_channel_volume_all( INSTANCE * my, int64_t * params ) {
+    return( set_channel_volume( -1, params[1] ) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -1842,6 +3125,27 @@ static int64_t libmod_sound_reserve_channels( INSTANCE * my, int64_t * params ) 
 
 static int64_t libmod_sound_set_sound_volume( INSTANCE * my, int64_t * params ) {
     return( set_sound_volume( params[0], params[1] ) );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_set_sound_volume_all
+ *
+ *  Set the volume for all channels (0-128)
+ *
+ *  PARAMS:
+ *
+ *  int volume
+ *
+ *  RETURN VALUE:
+ *
+ *  -1 if there is any error
+ *  0 if there is no error
+ *
+ */
+
+static int64_t libmod_sound_set_sound_volume_all( INSTANCE * my, int64_t * params ) {
+    return( set_sound_volume( -1, params[1] ) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -1918,11 +3222,342 @@ static int64_t libmod_sound_reverse_stereo( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_set_master_volume
+ *
+ *  Set the master volume for all channels.
+ *
+ *  PARAMS:
+ *
+ *  int volume
+ *
+ *  RETURN VALUE:
+ *
+ * -1 if there is any error
+ *  0 if there is no error
+ *
+ */
 
-static int64_t libmod_sound_set_music_position( INSTANCE * my, int64_t * params ) {
-    return ( Mix_SetMusicPosition( *( double * ) &params[0] ) );
+static int64_t libmod_sound_set_master_volume( INSTANCE * my, int64_t * params ) {
+    return ( set_master_volume( params[0] ) );
 }
 
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_expire_channel
+ *
+ *  Change the expiration delay for a particular channel.
+ *
+ *  The channel will halt after the 'ticks' milliseconds have elapsed, or
+ *  remove the expiration if 'ticks' is -1.
+ *
+ *  This overrides the value passed to the fourth parameter of 
+ *  libmod_sound_play_sound_timed().
+ *
+ *  Specifying a channel of -1 will set an expiration for _all_ channels.
+ *
+ *  Any halted channels will have any currently-registered effects
+ *  deregistered, and will call any callback specified by Mix_ChannelFinished()
+ *  once the halt occurs.
+ *
+ *  Note that this function does not block for the number of ticks requested;
+ *  it just schedules the chunk to expire and notes the time for the mixer to
+ *  manage later, and returns immediately.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers containing the channel and ticks
+ *
+ *  RETURN VALUE:
+ *
+ *  the number of channels that changed expirations.
+ *
+ */
+static int64_t libmod_sound_expire_channel( INSTANCE *my, int64_t *params ) {
+    return Mix_ExpireChannel( ( int )params[0], ( int )params[1] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_expire_channel_all
+ *
+ *  Change the expiration delay for all channel.
+ *
+ *  The channel will halt after the 'ticks' milliseconds have elapsed, or
+ *  remove the expiration if 'ticks' is -1.
+ *
+ *  This overrides the value passed to the fourth parameter of 
+ *  libmod_sound_play_sound_timed().
+ *
+ *  Any halted channels will have any currently-registered effects
+ *  deregistered, and will call any callback specified by Mix_ChannelFinished()
+ *  once the halt occurs.
+ *
+ *  Note that this function does not block for the number of ticks requested;
+ *  it just schedules the chunk to expire and notes the time for the mixer to
+ *  manage later, and returns immediately.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers containing the ticks
+ *
+ *  RETURN VALUE:
+ *
+ *  the number of channels that changed expirations.
+ *
+ */
+static int64_t libmod_sound_expire_channel_all( INSTANCE *my, int64_t *params ) {
+    return expire_channel( -1, params[0] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_group_channel
+ *
+ *  Assign a tag to a channel.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  If 'tag' is -1, the tag is removed ( actually -1 is the tag used to
+ *  represent the group of all the channels ).
+ *
+ *  This function replaces the requested channel's current tag; you may only
+ *  have one tag per channel.
+ *
+ *  You may not specify MAX_CHANNEL_POST for a channel.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers containing the channel and tag
+ *
+ *  RETURN VALUE:
+ *
+ *  non-zero on success, zero on error ( no such channel ).
+ *
+ */
+static int64_t libmod_sound_group_channel( INSTANCE *my, int64_t *params ) {
+    return group_channel( params[0], params[1] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_group_channels
+ *
+ *  Assign several consecutive channels to the same tag.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  If 'tag' is -1, the tag is removed ( actually -1 is the tag used to
+ *  represent the group of all the channels ).
+ *
+ *  This function replaces the requested channels' current tags; you may only
+ *  have one tag per channel.
+ *
+ *  You may not specify MAX_CHANNEL_POST for a channel.
+ *
+ *  Note that this returns success and failure in the _opposite_ way from
+ *  Mix_GroupChannel(). We regret the API design mistake.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an array of integers containing from, to, and tag
+ *
+ *  RETURN VALUE:
+ *
+ *  0 if successful, negative on error
+ *
+ */
+static int64_t libmod_sound_group_channels( INSTANCE *my, int64_t *params ) {
+    return group_channels( params[0], params[1], params[2] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_group_available
+ *
+ *  Finds the first available channel in a group of channels.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  This function searches all channels with a specified tag, and returns the
+ *  channel number of the first one it finds that is currently unused.
+ *
+ *  If no channels with the specified tag are unused, this function returns -1.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an integer containing the tag
+ *
+ *  RETURN VALUE:
+ *
+ *  first available channel, or -1 if none are available.
+ *
+ */
+static int64_t libmod_sound_group_available( INSTANCE *my, int64_t *params ) {
+    return group_available( params[0] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_group_count
+ *
+ *  Returns the number of channels in a group.
+ *
+ *  If tag is -1, this will return the total number of channels allocated,
+ *  regardless of what their tag might be.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an integer containing the tag
+ *
+ *  RETURN VALUE:
+ *
+ *  the number of channels assigned the specified tag.
+ *
+ */
+static int64_t libmod_sound_group_count( INSTANCE *my, int64_t *params ) {
+    return group_count( params[0] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_group_oldest
+ *
+ *  Find the "oldest" sample playing in a group of channels.
+ *
+ *  Specifically, this function returns the channel number that is assigned the
+ *  specified tag, is currently playing, and has the lowest start time, based
+ *  on the value of SDL_GetTicks() when the channel started playing.
+ *
+ *  If no channel with this tag is currently playing, this function returns -1.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an integer containing the tag
+ *
+ *  RETURN VALUE:
+ *
+ *  the "oldest" sample playing in a group of channels
+ *
+ */
+static int64_t libmod_sound_group_oldest( INSTANCE *my, int64_t *params ) {
+    return group_oldest( params[0] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_group_newer
+ *
+ *  Find the "most recent" sample playing in a group of channels.
+ *
+ *  Specifically, this function returns the channel number that is assigned the
+ *  specified tag, is currently playing, and has the highest start time, based
+ *  on the value of SDL_GetTicks() when the channel started playing.
+ *
+ *  If no channel with this tag is currently playing, this function returns -1.
+ *
+ *  PARAMS:
+ *
+ *  my          an INSTANCE pointer
+ *  params      pointer to an integer containing the tag
+ *
+ *  RETURN VALUE:
+ *
+ *  the "most recent" sample playing in a group of channels
+ *
+ */
+static int64_t libmod_sound_group_newer( INSTANCE *my, int64_t *params ) {
+    return group_newer( params[0] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_halt_group
+ *
+ *  Halt playing of a group of channels by arbitrary tag.
+ *
+ *  This will stop further playback on all channels with a specific tag, until
+ *  a new chunk is started there.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  The default tag for a channel is -1.
+ *
+ *  Any halted channels will have any currently-registered effects
+ *  deregistered, and will call any callback specified by Mix_ChannelFinished()
+ *  before this function returns.
+ *
+ *  PARAMS:
+ *
+ *  my      an INSTANCE pointer
+ *  params  pointer to an array of integers containing the tag
+ *
+ *  RETURN VALUE:
+ *
+ *  zero, whether any channels were halted or not.
+ *
+ */
+static int64_t libmod_sound_halt_group( INSTANCE *my, int64_t *params ) {
+    return halt_group( params[0] );
+}
+
+/* --------------------------------------------------------------------------- */
+/*
+ *  FUNCTION : libmod_sound_fade_out_group
+ *
+ *  Halt a playing group of channels by arbitrary tag, after fading them out
+ *  for a specified time.
+ *
+ *  This will begin fading a group of channels with a specific tag from their
+ *  current volumes to silence over `ms` milliseconds. After that time, those
+ *  channels are halted.
+ *
+ *  A tag is an arbitrary number that can be assigned to several mixer channels,
+ *  to form groups of channels.
+ *
+ *  The default tag for a channel is -1.
+ *
+ *  Any halted channels will have any currently-registered effects
+ *  deregistered, and will call any callback specified by Mix_ChannelFinished()
+ *  once the halt occurs.
+ *
+ *  A fading channel will change its volume progressively, as if Mix_Volume()
+ *  was called on it ( which is to say: you probably shouldn't call Mix_Volume()
+ *  on a fading channel ).
+ *
+ *  Note that this function does not block for the number of milliseconds
+ *  requested; it just schedules the group to fade and notes the time for the
+ *  mixer to manage later, and returns immediately.
+ *
+ *  PARAMS:
+ *
+ *  my      an INSTANCE pointer
+ *  params  pointer to an array of integers containing the tag and ms
+ *
+ *  RETURN VALUE:
+ *
+ *  the number of channels that were scheduled for fading.
+ *
+ */
+static int64_t libmod_sound_fade_out_group( INSTANCE *my, int64_t *params ) {
+    return fade_out_group( params[0], params[1] );
+}
+
+/* --------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------- */
+/* Init/Quit                                                                   */
 /* --------------------------------------------------------------------------- */
 
 static int64_t libmod_sound_init( INSTANCE * my, int64_t * params ) {
@@ -1958,3 +3593,14 @@ void __bgdexport( libmod_sound, module_finalize )() {
 #include "libmod_sound_exports.h"
 
 /* --------------------------------------------------------------------------- */
+
+
+/*
+TODO (?):
+
+extern DECLSPEC int SDLCALL Mix_SetSoundFonts( const char *paths );
+extern DECLSPEC const char* SDLCALL Mix_GetSoundFonts( void );
+extern DECLSPEC int SDLCALL Mix_EachSoundFont( int ( SDLCALL *function )( const char*, void* ), void *data );
+extern DECLSPEC int SDLCALL Mix_SetTimidityCfg( const char *path );
+extern DECLSPEC const char* SDLCALL Mix_GetTimidityCfg( void );
+*/
