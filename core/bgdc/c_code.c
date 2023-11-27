@@ -958,12 +958,9 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                     strdelchars( validtypes, "SPDF" );
                     break;
                 case TYPE_DOUBLE:
-                    if ( strchr( validtypes, 'D' ) ) strdelchars( validtypes, "IiWBSPF" );
-                    else                             strdelchars( validtypes, "SP" );
-                    break;
                 case TYPE_FLOAT:
-                    if ( strchr( validtypes, 'F' ) ) strdelchars( validtypes, "IiWBSPD" );
-                    else                             strdelchars( validtypes, "SP" );
+                    if ( strchr( validtypes, 'F' ) ||  strchr( validtypes, 'D' ) )  strdelchars( validtypes, "IiWBSP" );
+                    else                                                            strdelchars( validtypes, "SP" );
                     break;
                 case TYPE_STRING:
                     if ( strchr( validtypes, 'S' ) ) strdelchars( validtypes, "IiWBPDF" );
