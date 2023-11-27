@@ -4,6 +4,12 @@ import "libmod_misc";
 
 global
     int err_msg;
+    int font;
+    int list;
+    string fonts_names[256];
+    int fonts_total = 0;
+    int selected;
+    string sample_text;
 end
 
 function string UTF8Toisolat1( string in )
@@ -103,17 +109,78 @@ begin
     return atoi( number );
 end
 
-
-
-global
-    int map;
+function int fontsheet_load(string folder, string filename)
+begin
     int font;
-    int list;
-    string fonts_names[256];
-    int fonts_total = 0;
-    int selected;
+    int w, h;
+    int pw, ph, px, pe;
+
+    string name;
+
+    name = substr( filename, 0, find(filename, "_") );
+
+    // get dimensions
+
+    pw = find(filename, "_", 5 ) + 1;
+    px = find(filename, "x", pw );
+    pe = find(filename, ".", px + 1 );
+
+    w = atoi(substr(filename,pw,px-pw));
+    h = atoi(substr(filename,px+1, pe-(px+1)));
+
+    int first, last;
+    string info;
+    string charmap, value;
+    int charset;
+
+    charset = CHARSET_ISO8859;
+    charmap = "";
+    first = 32;
+    last = 128;
+    sample_text = "";
+
+    if ( fexists( folder + name + ".dat" ) )
+        info = file( folder + name + ".dat" );
+
+        // charmap
+        if ( ( value = get_value( info, "charmap" ) ) != "" ) charmap = UTF8Toisolat1(value); end
+
+        // first
+        if ( ( value = get_value( info, "first" ) ) != "" ) first = atoi(value); end
+
+        // last
+        if ( ( value = get_value( info, "last" ) ) != "" ) last = atoi(value); end
+
+        // sample_text
+        if ( ( value = get_value( info, "sample_text" ) ) != "" ) sample_text = value; end
+
+        // charset
+        if ( ( value = get_value( info, "charset" ) ) != "" )
+            switch( value )
+                case "CHARSET_ISO8859", "ISO8859", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
+                    charset = CHARSET_ISO8859; 
+                end
+                case "CHARSET_CP850", "CP850", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
+                    charset = CHARSET_CP850; 
+                end
+            end
+        end
+
+    end
+
+    int map = map_load( folder + filename );
+    center_set(0,map,0,0);
+
+    if ( charmap != "" )
+        font = fnt_new(0,map,CHARSET_ISO8859,w,h,first,last,NFB_VARIABLEWIDTH,charmap);
+    else
+        font = fnt_new(0,map,CHARSET_ISO8859,w,h,first,last,NFB_VARIABLEWIDTH);//,"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,;:?!-_~#\"'&()[]|`\\/@º+=*$ª€<>%");  // NFB_FIXEDWIDTH
+    end
+
+    return font;
 end
 
+process int main()
 begin
     set_mode(1024,768);
 
@@ -161,74 +228,12 @@ begin
 
         write_delete(ALL_TEXT);
 
-        int w, h;
-        int pw, ph, px, pe;
-
-        string name;
-
-        name = substr( fonts_names[ number - 1 ], 0, find(fonts_names[ number - 1 ], "_") );
-
-        // get dimensions
-
-        pw = find(fonts_names[ number - 1 ], "_", 5 ) + 1;
-        px = find(fonts_names[ number - 1 ], "x", pw );
-        pe = find(fonts_names[ number - 1 ], ".", px + 1 );
-
-        w = atoi(substr(fonts_names[ number - 1 ],pw,px-pw));
-        h = atoi(substr(fonts_names[ number - 1 ],px+1, pe-(px+1)));
-
-        int first, last;
-        string info;
-        string charmap, sample_text, value;
-        int charset;
-
-        charset = CHARSET_ISO8859;
-        charmap = "";
-        first = 32;
-        last = 128;
-        sample_text = "";
-
-        if ( fexists( "res/" + name + ".dat" ) )
-            info = file( "res/" + name + ".dat" );
-
-            // charmap
-            if ( ( value = get_value( info, "charmap" ) ) != "" ) charmap = value; end
-
-            // first
-            if ( ( value = get_value( info, "first" ) ) != "" ) first = atoi(value); end
-
-            // last
-            if ( ( value = get_value( info, "last" ) ) != "" ) last = atoi(value); end
-
-            // sample_text
-            if ( ( value = get_value( info, "sample_text" ) ) != "" ) sample_text = value; end
-
-            // charset
-            if ( ( value = get_value( info, "charset" ) ) != "" )
-                switch( value )
-                    case "CHARSET_ISO8859", "ISO8859", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
-                        charset = CHARSET_ISO8859; 
-                    end
-                    case "CHARSET_CP850", "CP850", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
-                        charset = CHARSET_CP850; 
-                    end
-                end
-            end
-
-        end
-
-        map = map_load("res/"+fonts_names[ number - 1 ]);
-        center_set(0,map,0,0);
-
-        if ( charmap != "" )
-            font = fnt_new(0,map,CHARSET_ISO8859,w,h,first,last,NFB_VARIABLEWIDTH,charmap);
-        else
-            font = fnt_new(0,map,CHARSET_ISO8859,w,h,first,last,NFB_VARIABLEWIDTH);//,"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,;:?!-_~#\"'&()[]|`\\/@º+=*$ª€<>%");  // NFB_FIXEDWIDTH
-        end
+        font = fontsheet_load("res/", fonts_names[ number - 1 ]);
 
         int ii;
 
         string text;
+        int h = text_height(font, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
         write( font, 0, 0, 0, sample_text != "" ? sample_text : "Hello World!" );
         write( font, 0, h, 0, UTF8Toisolat1("áéíóúñÁÉÍÓÚÑ") );
@@ -243,13 +248,10 @@ begin
             write( font, 0, ( 5 + h ) * ( ii + 2 ), 0, text );
         end
 
-        while(!key(_ENTER))
-            if ( key( _ESC ) )
-                return;
-            end
+        while(!key(_ENTER) && !key(_ESC))
             frame;
         end
-        while(key(_ENTER))
+        while(key(_ENTER) || key(_ESC))
             frame;
         end        
     end
