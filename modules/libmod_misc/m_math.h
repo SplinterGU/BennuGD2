@@ -47,8 +47,13 @@ extern int64_t libmod_misc_math_fget_dist( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_near_angle( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_get_distx( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_get_disty( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_clamp_double( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_clamp( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_between_double( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_between( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_towards_double( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_towards( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_wrap( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_min( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_max( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_sgn( INSTANCE * my, int64_t * params );
@@ -64,7 +69,5 @@ extern int64_t libmod_misc_math_intersect_line_circle( INSTANCE * my, int64_t * 
 extern int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_normal_projection( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params );
-extern int64_t libmod_misc_math_towards_double( INSTANCE * my, int64_t * params );
-extern int64_t libmod_misc_math_towards( INSTANCE * my, int64_t * params );
 
 #endif

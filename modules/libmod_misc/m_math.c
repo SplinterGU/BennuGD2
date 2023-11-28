@@ -41,7 +41,7 @@
 
 /* --------------------------------------------------------------------------- */
 
-#define DBL_EPSILON 0.000001f
+#define DBL_EPSILON 0.0000001f
 
 /* --------------------------------------------------------------------------- */
 /* Funciones matemáticas */
@@ -206,7 +206,7 @@ int64_t libmod_misc_math_get_disty( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_misc_math_clamp( INSTANCE * my, int64_t * params ) {
+int64_t libmod_misc_math_clamp_double( INSTANCE * my, int64_t * params ) {
     double value = *( double * ) &params[0], v1 = *( double * ) &params[1], v2 = *( double * ) &params[2];
     double res = ( value < v1 ? v1 : value > v2 ? v2 : value );
     return * (( int64_t * )&res );
@@ -214,9 +214,65 @@ int64_t libmod_misc_math_clamp( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_misc_math_between( INSTANCE * my, int64_t * params ) {
+int64_t libmod_misc_math_clamp( INSTANCE * my, int64_t * params ) {
+    int64_t value = params[0], v1 = params[1], v2 = params[2];
+    return ( value < v1 ? v1 : value > v2 ? v2 : value );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_between_double( INSTANCE * my, int64_t * params ) {
     double value = *( double * ) &params[0], lim1 = *( double * ) &params[1], lim2 = *( double * ) &params[2];
     return ( value >= MIN(lim1,lim2) && value <= MAX(lim1,lim2) );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_between( INSTANCE * my, int64_t * params ) {
+    int64_t value = params[0], lim1 = params[1], lim2 = params[2];
+    return ( value >= MIN(lim1,lim2) && value <= MAX(lim1,lim2) );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_towards_double( INSTANCE * my, int64_t * params ) {
+    double from = *( double * ) &params[0], to = *( double * ) &params[1], step = *( double * ) &params[2];
+    double abs_step = ( step < 0.0 ) ? -step : step;
+    double new_value;
+    if ( from > to ) {
+        new_value = from - abs_step;
+        if ( new_value < to ) return to;
+    } else {
+        new_value = from + abs_step;
+        if ( new_value > to ) return to;
+    }
+    return * ( int64_t * ) &new_value;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_towards( INSTANCE * my, int64_t * params ) {
+    int64_t from = params[0], to = params[1], step = params[2];
+    int64_t abs_step = ( step < 0 ) ? -step : step;
+    int64_t new_value;
+    if ( from > to ) {
+        new_value = from - abs_step;
+        if ( new_value < to ) return to;
+    } else {
+        new_value = from + abs_step;
+        if ( new_value > to ) return to;
+    }
+    return new_value;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_wrap( INSTANCE * my, int64_t * params ) {
+    int64_t value = params[0], lim1 = params[1], lim2 = params[2];
+    int64_t min = MIN(lim1, lim2);
+    int64_t max = MAX(lim1, lim2);
+    int64_t range = max - min + 1;
+    return (value - min + range) % range + min;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -549,38 +605,6 @@ int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params 
     double dist = sqrt( ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ) );
 
     return * ( int64_t * ) &dist;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_misc_math_towards_double( INSTANCE * my, int64_t * params ) {
-    double from = *( double * ) &params[0], to = *( double * ) &params[1], step = *( double * ) &params[2];
-    double abs_step = ( step < 0.0 ) ? -step : step;
-    double new_value;
-    if ( from > to ) {
-        new_value = from - abs_step;
-        if ( new_value < to ) return to;
-    } else {
-        new_value = from + abs_step;
-        if ( new_value > to ) return to;
-    }
-    return * ( int64_t * ) &new_value;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_misc_math_towards( INSTANCE * my, int64_t * params ) {
-    int64_t from = params[0], to = params[1], step = params[2];
-    int64_t abs_step = ( step < 0 ) ? -step : step;
-    int64_t new_value;
-    if ( from > to ) {
-        new_value = from - abs_step;
-        if ( new_value < to ) return to;
-    } else {
-        new_value = from + abs_step;
-        if ( new_value > to ) return to;
-    }
-    return new_value;
 }
 
 /* --------------------------------------------------------------------------- */

@@ -227,10 +227,13 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "GET_DISTX"               , "ID"          , TYPE_DOUBLE       , libmod_misc_math_get_distx                 ),
     FUNC( "GET_DISTY"               , "ID"          , TYPE_DOUBLE       , libmod_misc_math_get_disty                 ),
 
-    FUNC( "CLAMP"                   , "DDD"         , TYPE_DOUBLE       , libmod_misc_math_clamp                     ),
-    FUNC( "BETWEEN"                 , "DDD"         , TYPE_INT          , libmod_misc_math_between                   ),
+    FUNC( "CLAMP"                   , "DDD"         , TYPE_DOUBLE       , libmod_misc_math_clamp_double              ),
+    FUNC( "CLAMP"                   , "III"         , TYPE_INT          , libmod_misc_math_clamp                     ),
+    FUNC( "BETWEEN"                 , "DDD"         , TYPE_INT          , libmod_misc_math_between_double            ),
+    FUNC( "BETWEEN"                 , "III"         , TYPE_INT          , libmod_misc_math_between                   ),
     FUNC( "TOWARDS"                 , "DDD"         , TYPE_DOUBLE       , libmod_misc_math_towards_double            ),
     FUNC( "TOWARDS"                 , "III"         , TYPE_INT          , libmod_misc_math_towards                   ),
+    FUNC( "WRAP"                    , "III"         , TYPE_INT          , libmod_misc_math_wrap                      ),
 
     /* Mem */
     FUNC( "MEM_CALLOC"              , "II"          , TYPE_POINTER      , libmod_misc_mem_calloc                     ),
