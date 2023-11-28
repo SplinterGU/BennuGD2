@@ -130,20 +130,20 @@ int64_t __moddir_read(__DIR_ST * dh ) {
 
     /* Store file times */
 #ifdef _WIN32
-    strftime( buffer, 20, "%d/%m/%Y %H:%M:S", &dif->mtime );
+    strftime( buffer, 20, "%d/%m/%Y %H:%M:%S", &dif->mtime );
     GLOQWORD( libmod_misc, FILE_CREATED     ) = string_new( buffer ); string_use( GLOQWORD( libmod_misc, FILE_CREATED  ) );
 #else
     GLOQWORD( libmod_misc, FILE_CREATED     ) = string_new( "" ); string_use( GLOQWORD( libmod_misc, FILE_CREATED  ) );
 #endif
 
-    strftime( buffer, 20, "%d/%m/%Y %H:%M:S", &dif->crtime );
+    strftime( buffer, 20, "%d/%m/%Y %H:%M:%S", &dif->crtime );
     GLOQWORD( libmod_misc, FILE_MODIFIED    ) = string_new( buffer ); string_use( GLOQWORD( libmod_misc, FILE_MODIFIED ) );
 
-    strftime( buffer, 20, "%d/%m/%Y %H:%M:S", &dif->atime );
+    strftime( buffer, 20, "%d/%m/%Y %H:%M:%S", &dif->atime );
     GLOQWORD( libmod_misc, FILE_ACCESSED    ) = string_new( buffer ); string_use( GLOQWORD( libmod_misc, FILE_ACCESSED ) );
 
 //#ifndef _WIN32
-    strftime( buffer, 20, "%d/%m/%Y %H:%M:S", &dif->ctime );
+    strftime( buffer, 20, "%d/%m/%Y %H:%M:%S", &dif->ctime );
     GLOQWORD( libmod_misc, FILE_STATECHG    ) = string_new( buffer ); string_use( GLOQWORD( libmod_misc, FILE_STATECHG ) );
 //#else
 //    GLOQWORD( libmod_misc, FILE_STATECHG    ) = string_new( "" ); string_use( GLOQWORD( libmod_misc, FILE_STATECHG ) );
