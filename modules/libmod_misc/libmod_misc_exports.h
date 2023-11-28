@@ -199,17 +199,20 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "FRAC"                    , "D"           , TYPE_DOUBLE       , libmod_misc_math_frac                      ),
     FUNC( "DECIMAL"                 , "D"           , TYPE_DOUBLE       , libmod_misc_math_decimal                   ),
 
+    FUNC( "RAD"                     , "I"           , TYPE_DOUBLE       , libmod_misc_math_rad                       ),
+    FUNC( "DEG"                     , "D"           , TYPE_INT          , libmod_misc_math_deg                       ),
+
     FUNC( "ABS"                     , "D"           , TYPE_DOUBLE       , libmod_misc_math_abs                       ),
     FUNC( "POW"                     , "DD"          , TYPE_DOUBLE       , libmod_misc_math_pow                       ),
     FUNC( "SQRT"                    , "D"           , TYPE_DOUBLE       , libmod_misc_math_sqrt                      ),
 
-    FUNC( "COS"                     , "D"           , TYPE_DOUBLE       , libmod_misc_math_cos                       ),
-    FUNC( "SIN"                     , "D"           , TYPE_DOUBLE       , libmod_misc_math_sin                       ),
-    FUNC( "TAN"                     , "D"           , TYPE_DOUBLE       , libmod_misc_math_tan                       ),
-    FUNC( "ACOS"                    , "D"           , TYPE_DOUBLE       , libmod_misc_math_acos                      ),
-    FUNC( "ASIN"                    , "D"           , TYPE_DOUBLE       , libmod_misc_math_asin                      ),
-    FUNC( "ATAN"                    , "D"           , TYPE_DOUBLE       , libmod_misc_math_atan                      ),
-    FUNC( "ATAN2"                   , "DD"          , TYPE_DOUBLE       , libmod_misc_math_atan2                     ),
+    FUNC( "COS"                     , "I"           , TYPE_DOUBLE       , libmod_misc_math_cos                       ),
+    FUNC( "SIN"                     , "I"           , TYPE_DOUBLE       , libmod_misc_math_sin                       ),
+    FUNC( "TAN"                     , "I"           , TYPE_DOUBLE       , libmod_misc_math_tan                       ),
+    FUNC( "ACOS"                    , "D"           , TYPE_INT          , libmod_misc_math_acos                      ),
+    FUNC( "ASIN"                    , "D"           , TYPE_INT          , libmod_misc_math_asin                      ),
+    FUNC( "ATAN"                    , "D"           , TYPE_INT          , libmod_misc_math_atan                      ),
+    FUNC( "ATAN2"                   , "DD"          , TYPE_INT          , libmod_misc_math_atan2                     ),
 
     FUNC( "ISINF"                   , "D"           , TYPE_INT          , libmod_misc_math_isinf                     ),
     FUNC( "ISNAN"                   , "D"           , TYPE_INT          , libmod_misc_math_isnan                     ),
@@ -234,6 +237,12 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "TOWARDS"                 , "DDD"         , TYPE_DOUBLE       , libmod_misc_math_towards_double            ),
     FUNC( "TOWARDS"                 , "III"         , TYPE_INT          , libmod_misc_math_towards                   ),
     FUNC( "WRAP"                    , "III"         , TYPE_INT          , libmod_misc_math_wrap                      ),
+    FUNC( "LERP"                    , "DDD"         , TYPE_DOUBLE       , libmod_misc_math_lerp                      ),
+    FUNC( "INVLERP"                 , "DDD"         , TYPE_DOUBLE       , libmod_misc_math_invert_lerp               ),
+    FUNC( "RANGECHK"                , "DDD"         , TYPE_INT          , libmod_misc_math_check_range_double        ),
+    FUNC( "RANGECHK"                , "III"         , TYPE_INT          , libmod_misc_math_check_range               ),
+    FUNC( "REMAP"                   , "DDDDD"       , TYPE_DOUBLE       , libmod_misc_math_remap_double              ),
+    FUNC( "REMAP"                   , "IIIII"       , TYPE_INT          , libmod_misc_math_remap                     ),
 
     /* Mem */
     FUNC( "MEM_CALLOC"              , "II"          , TYPE_POINTER      , libmod_misc_mem_calloc                     ),

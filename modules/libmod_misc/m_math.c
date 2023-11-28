@@ -70,57 +70,46 @@ int64_t libmod_misc_math_sqrt( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_cos( INSTANCE * my, int64_t * params ) {
-    double res = cos_deg( *( double * ) &params[0] );
+    double res = cos_deg( params[0] );
     return *(( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_sin( INSTANCE * my, int64_t * params ) {
-    double res = sin_deg( *( double * ) &params[0] );
+    double res = sin_deg( params[0] );
     return *(( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_tan( INSTANCE * my, int64_t * params ) {
-//    double res = sin_deg( *( double * ) &params[0] )/cos_deg( *( double * ) &params[0] );
-    double param = *( double * ) &params[0];
-    double res = tan( param * M_PI / 180000.0 );
+    double res = tan( params[0] * M_PI / 180000.0 );
     return *(( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_acos( INSTANCE * my, int64_t * params ) {
-    double param = *( double * ) &params[0];
-    double res = acos(( double )param ) * 180000.0 / M_PI;
-    return *(( int64_t * )&res );
+    return ( int64_t ) ( acos( *( double * ) &params[0] ) * 180000.0 / M_PI );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_asin( INSTANCE * my, int64_t * params ) {
-    double param = *( double * ) &params[0];
-    double res = asin(( double )param ) * 180000.0 / M_PI;
-    return *(( int64_t * )&res );
+    return ( int64_t ) ( asin( *( double * ) &params[0] ) * 180000.0 / M_PI );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_atan( INSTANCE * my, int64_t * params ) {
-    double param = *( double * ) &params[0];
-    double res = atan(( double )param ) * 180000.0 / M_PI;
-    return *(( int64_t * )&res );
+    return ( int64_t ) ( atan( *( double * ) &params[0] ) * 180000.0 / M_PI );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_atan2( INSTANCE * my, int64_t * params ) {
-    double param1 = *( double * ) &params[0],
-           param2 = *( double * ) &params[1];
-    double res = atan2(( double )param1, ( double )param2 ) * 180000.0 / M_PI;
-    return *(( int64_t * )&res );
+    return ( int64_t ) ( atan2( *( double * ) &params[0], *( double * ) &params[1] ) * 180000.0 / M_PI );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -277,6 +266,66 @@ int64_t libmod_misc_math_wrap( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_misc_math_lerp( INSTANCE * my, int64_t * params ) {
+    double x = *( double * ) &params[0], y = *( double * ) &params[1], a = *( double * ) &params[2];
+    double res = x + a * (y - x);
+    return * ( int64_t * ) &res;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_invert_lerp( INSTANCE * my, int64_t * params ) {
+    double x = *( double * ) &params[0], y = *( double * ) &params[1], a = *( double * ) &params[2];
+    double res = ( a - x ) / (y - x);
+    return * ( int64_t * ) &res;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_check_range_double( INSTANCE * my, int64_t * params ) {
+    double value = *( double * ) &params[0], lim1 = *( double * ) &params[1], lim2 = *( double * ) &params[2];
+    double min = MIN(lim1, lim2);
+    double max = MAX(lim1, lim2);
+    double res = 0;
+    if (value < min) {
+        res = -1;
+    } else if (value > max) {
+        res = 1;
+    }
+    return * ( int64_t * ) &res;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_check_range( INSTANCE * my, int64_t * params ) {
+    int64_t min = MIN(params[1], params[2]);
+    int64_t max = MAX(params[1], params[2]);
+    int64_t value = params[0];
+    if (value < min) {
+        return -1;
+    } else if (value > max) {
+        return 1;
+    }
+    return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_remap_double( INSTANCE * my, int64_t * params ) {
+    double value = *( double * ) &params[0], fromLow = *( double * ) &params[1], fromHigh = *( double * ) &params[2], toLow = *( double * ) &params[3], toHigh = *( double * ) &params[4];
+    double res = (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+    return * ( int64_t * ) &res;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_remap( INSTANCE * my, int64_t * params ) {
+    int64_t value = params[0], fromLow = params[1], fromHigh = params[2], toLow = params[3], toHigh = params[4];
+    return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_misc_math_min( INSTANCE * my, int64_t * params ) {
     double param1 = *( double * ) &params[0], param2 = *( double * ) &params[1];
     double res = param1 < param2 ? param1 : param2;
@@ -351,6 +400,19 @@ int64_t libmod_misc_math_decimal( INSTANCE * my, int64_t * params ) {
     double param = *( double * ) &params[0];
     double res = param - trunc( param );
     return * (( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_rad( INSTANCE * my, int64_t * params ) {
+    double res = params[0] * M_PI / 180000.0;
+    return * ( int64_t * ) &res;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_deg( INSTANCE * my, int64_t * params ) {
+    return ( *( double * ) &params[0] ) * 180000.0 / M_PI;
 }
 
 /* --------------------------------------------------------------------------- */
