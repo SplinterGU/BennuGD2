@@ -291,7 +291,7 @@ int64_t libmod_misc_string_formatFI( INSTANCE * my, int64_t * params ) {
 /* ----------------------------------------------------------------- */
 
 /** STRING_NEWA( size )
- *  Create a new "string *"
+ *  Create a new string array ("STRING *")
  */
 
 int64_t modstring_string_new_array( INSTANCE * my, int64_t * params )
@@ -300,6 +300,19 @@ int64_t modstring_string_new_array( INSTANCE * my, int64_t * params )
 
     array[0] = params[0];
 
+    return ( int64_t ) ( array + 1 );
+}
+
+/* ----------------------------------------------------------------- */
+
+/** STRING_NEWA()
+ *  Create a new empty string array ("STRING *")
+ */
+
+int64_t modstring_string_new_array_empty( INSTANCE * my, int64_t * params )
+{
+    int64_t * array = calloc( 1, sizeof( int64_t ) ) ;
+    array[0] = 0;
     return ( int64_t ) ( array + 1 );
 }
 
@@ -320,8 +333,7 @@ int64_t modstring_string_resize_array( INSTANCE * my, int64_t * params )
     if ( current_size == new_size ) return new_size;
 
     if ( current_size > new_size ) {
-        int i;
-        for ( i = new_size + 1; i <= current_size; i++ ) {
+        for ( int i = new_size + 1; i <= current_size; i++ ) {
             string_discard( current_array[ i ] );
         }
     }
@@ -331,8 +343,8 @@ int64_t modstring_string_resize_array( INSTANCE * my, int64_t * params )
     
     if ( current_size < new_size ) memset( new_array + new_size, 0, ( new_size - current_size ) * sizeof( int64_t ) );
 
-    * new_array = new_size;
-    * presult = new_array + 1;
+    *new_array = new_size;
+    *presult = new_array + 1;
 
     return ( int64_t ) new_size ;
 }
@@ -360,6 +372,17 @@ int64_t modstring_string_delete_array( INSTANCE * my, int64_t * params )
     * presult = NULL;
 
     return ( int64_t ) 1 ;
+}
+
+/* ----------------------------------------------------------------- */
+
+/** STRING_SIZEA( STRING * )
+ * Return string array items
+ */
+int64_t modstring_string_size_array( INSTANCE * my, int64_t * params )
+{
+    if ( !params[0] ) return ( int64_t ) 0;
+    return ( ( int64_t * ) ( params[0] ) )[ -1 ];
 }
 
 /* ----------------------------------------------------------------- */

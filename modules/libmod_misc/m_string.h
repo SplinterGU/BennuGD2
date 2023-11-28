@@ -52,8 +52,10 @@ extern int64_t libmod_misc_string_formatF( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_string_formatFI( INSTANCE * my, int64_t * params );
 
 extern int64_t modstring_string_new_array( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_new_array_empty( INSTANCE * my, int64_t * params );
 extern int64_t modstring_string_resize_array( INSTANCE * my, int64_t * params );
 extern int64_t modstring_string_delete_array( INSTANCE * my, int64_t * params );
+extern int64_t modstring_string_size_array( INSTANCE * my, int64_t * params );
 extern int64_t modstring_string_dump( INSTANCE * my, int64_t * params );
 
 extern int64_t modstring_string_isalpha( INSTANCE * my, int64_t * params );
