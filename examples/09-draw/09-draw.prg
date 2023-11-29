@@ -334,24 +334,23 @@ begin
         actors_angle[ i ] = rand( 0, 359000 );
         actors_angle2[ i ] = rand( 0, 359000 );
 
+        float cx;
+        float cy;
+        float radius;
 
-            float cx;
-            float cy;
-            float radius;
+        cx = rand(0, cResX);
+        cy = rand(0, cResY);
+        radius = 20 + rand(0,cResX/8);
 
-            cx = rand(0, cResX);
-            cy = rand(0, cResY);
-            radius = 20 + rand(0,cResX/8);
+        int j;
 
-            int j;
+        pn[i] = rand(3,11);
+        pv[i] = (float*)alloc(2*pn[i]*sizeof(float));
 
-            pn[i] = rand(3,11);
-            pv[i] = (float*)alloc(2*pn[i]*sizeof(float));
-
-            for(j = 0; j < pn[i]*2; j+=2)
-                pv[i][j] = cx + radius*cos(2*PI*(((float)j)/(pn[i]*2))) + rand(0,(int)radius/2);
-                pv[i][j+1] = cy + radius*sin(2*PI*(((float)j)/(pn[i]*2))) + rand(0,(int)radius/2);
-            end
+        for(j = 0; j < pn[i]*2; j+=2)
+            pv[i][j] = cx + radius*cos(2*PI*(((float)j)/(pn[i]*2))) + rand(0,(int)radius/2);
+            pv[i][j+1] = cy + radius*sin(2*PI*(((float)j)/(pn[i]*2))) + rand(0,(int)radius/2);
+        end
 
         color[ i ][ 0 ] = rand( 0, 255 );
         color[ i ][ 1 ] = rand( 0, 255 );
