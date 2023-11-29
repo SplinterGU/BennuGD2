@@ -170,6 +170,15 @@ int64_t libmod_misc_math_fget_angle( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_misc_math_mag( INSTANCE * my, int64_t * params ) {
+    double dx = *( double * ) &params[0];
+    double dy = *( double * ) &params[1];
+    double res = sqrt( dx*dx + dy*dy );
+    return *( int64_t * ) &res;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_misc_math_fget_dist( INSTANCE * my, int64_t * params ) {
     double dx = *( double * ) &params[2] - *( double * ) &params[0];
     double dy = *( double * ) &params[3] - *( double * ) &params[1];

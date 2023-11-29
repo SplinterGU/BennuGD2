@@ -235,6 +235,8 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "GET_DISTX"               , "ID"          , TYPE_DOUBLE       , libmod_misc_math_get_distx                 ),
     FUNC( "GET_DISTY"               , "ID"          , TYPE_DOUBLE       , libmod_misc_math_get_disty                 ),
 
+    FUNC( "MAG"                     , "DD"          , TYPE_DOUBLE       , libmod_misc_math_mag                       ),
+
     FUNC( "CLAMP"                   , "DDD"         , TYPE_DOUBLE       , libmod_misc_math_clamp_double              ),
     FUNC( "CLAMP"                   , "III"         , TYPE_INT          , libmod_misc_math_clamp                     ),
     FUNC( "BETWEEN"                 , "DDD"         , TYPE_INT          , libmod_misc_math_between_double            ),

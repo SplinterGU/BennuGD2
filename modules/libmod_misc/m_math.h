@@ -45,6 +45,7 @@ extern int64_t libmod_misc_math_atan2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_isinf( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_isnan( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_finite( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_mag( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_fget_angle( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_fget_dist( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_near_angle( INSTANCE * my, int64_t * params );
