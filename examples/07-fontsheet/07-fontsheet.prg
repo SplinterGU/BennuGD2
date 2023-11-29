@@ -2,6 +2,8 @@ import "libmod_gfx";
 import "libmod_input";
 import "libmod_misc";
 
+#include "fontsheet.inc"
+
 global
     int err_msg;
     int font;
@@ -11,56 +13,6 @@ global
     int selected;
     string sample_text;
 end
-
-function string UTF8Toisolat1( string in )
-begin
-    byte c, d;
-    int trailing, ix, l;
-    string out;
-
-    l = len(in);
-
-    out = "";
-    ix = 0;
-
-    while ( ix < l )
-        d = in[ix++];
-        
-        if   ( d < 0x80 ) c = d; trailing = 0;
-        elif ( d < 0xC0 ) c = '?'; trailing = 0; /* trailing byte in leading position */
-        elif ( d < 0xE0 ) c = d & 0x1F; trailing = 1;
-        elif ( d < 0xF0 ) c = d & 0x0F; trailing = 2;
-        elif ( d < 0xF8 ) c = d & 0x07; trailing = 3;
-        else              c = d; trailing = 0; end
-        
-        for ( ; trailing; trailing-- )
-            if ( ( ( d = in[ix++] ) & 0xC0 ) != 0x80 ) break; end
-            c <<= 6;
-            c |= d & 0x3F;
-        end
-        out += chr(c);
-    end
-    return out;
-end
-
-
-function string get_value(string data, string key )
-begin
-    int lenkey, vp, endv;
-    key += "=";
-    lenkey = len(key);
-    vp = find(data,key);
-    if ( vp != -1 )
-        endv = find( data, 13, vp + lenkey ); // Search ENTER
-        if ( endv != -1 )
-            return substr( data, vp + lenkey , endv - ( vp + lenkey ) );
-        else
-            return substr( data, vp + lenkey );
-        end
-    end
-    return "";
-end
-
 
 function int input_number(double x, double y)
 private
@@ -107,77 +59,6 @@ begin
     if ( keyboard.ascii == 27 ) return -1; end
 
     return atoi( number );
-end
-
-function int fontsheet_load(string folder, string filename)
-begin
-    int font;
-    int w, h;
-    int pw, ph, px, pe;
-
-    string name;
-
-    name = substr( filename, 0, find(filename, "_") );
-
-    // get dimensions
-
-    pw = find(filename, "_", 5 ) + 1;
-    px = find(filename, "x", pw );
-    pe = find(filename, ".", px + 1 );
-
-    w = atoi(substr(filename,pw,px-pw));
-    h = atoi(substr(filename,px+1, pe-(px+1)));
-
-    int first, last;
-    string info;
-    string charmap, value;
-    int charset;
-
-    charset = CHARSET_ISO8859;
-    charmap = "";
-    first = 32;
-    last = 128;
-    sample_text = "";
-
-    if ( fexists( folder + name + ".dat" ) )
-        info = file( folder + name + ".dat" );
-
-        // charmap
-        if ( ( value = get_value( info, "charmap" ) ) != "" ) charmap = UTF8Toisolat1(value); end
-
-        // first
-        if ( ( value = get_value( info, "first" ) ) != "" ) first = atoi(value); end
-
-        // last
-        if ( ( value = get_value( info, "last" ) ) != "" ) last = atoi(value); end
-
-        // sample_text
-        if ( ( value = get_value( info, "sample_text" ) ) != "" ) sample_text = value; end
-
-        // charset
-        if ( ( value = get_value( info, "charset" ) ) != "" )
-            switch( value )
-                case "CHARSET_ISO8859", "ISO8859", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
-                    charset = CHARSET_ISO8859; 
-                end
-                case "CHARSET_CP850", "CP850", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
-                    charset = CHARSET_CP850; 
-                end
-            end
-        end
-
-    end
-
-    int map = map_load( folder + filename );
-    center_set(0,map,0,0);
-
-    if ( charmap != "" )
-        font = fnt_new(0,map,CHARSET_ISO8859,w,h,first,last,NFB_VARIABLEWIDTH,charmap);
-    else
-        font = fnt_new(0,map,CHARSET_ISO8859,w,h,first,last,NFB_VARIABLEWIDTH);//,"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,;:?!-_~#\"'&()[]|`\\/@º+=*$ª€<>%");  // NFB_FIXEDWIDTH
-    end
-
-    return font;
 end
 
 process int main()
@@ -228,7 +109,7 @@ begin
 
         write_delete(ALL_TEXT);
 
-        font = fontsheet_load("res/", fonts_names[ number - 1 ]);
+        font = fontsheet_load("res/" + fonts_names[ number - 1 ]);
 
         int ii;
 
