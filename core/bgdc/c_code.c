@@ -48,7 +48,7 @@ int64_t mntype( TYPEDEF type, int accept_structs ) {
     while ( typedef_is_array( type ) ) type = typedef_reduce( type );
 
     t = typedef_base( type );
-    switch (t) {
+    switch ( t ) {
         case TYPE_QWORD     : return MN_QWORD | MN_UNSIGNED;
         case TYPE_INT       : return MN_QWORD;
         case TYPE_DWORD     : return MN_DWORD | MN_UNSIGNED;
@@ -257,8 +257,12 @@ static int64_t check_numeric_types( expresion_result *left, expresion_result *ri
 
         if ( typedef_is_integer( right->type ) ) {
             codeblock_add( code, MN_INT2DOUBLE | mntype( right->type, 0 ), 0 );
+            if ( typedef_is_unsigned( right->type ) ) {
+                right->fvalue = (uint64_t)right->value;
+            } else {
+                right->fvalue = (double)right->value;
+            }
             left->type = typedef_new( TYPE_DOUBLE );
-            right->fvalue = ( double )right->value;
             return MN_DOUBLE;
         }
     }
@@ -275,24 +279,36 @@ static int64_t check_numeric_types( expresion_result *left, expresion_result *ri
 
         if ( typedef_is_integer( right->type ) ) {
             codeblock_add( code, MN_INT2FLOAT | mntype( right->type, 0 ), 0 );
+            if ( typedef_is_unsigned( right->type ) ) {
+                right->fvalue = (uint64_t)right->value;
+            } else {
+                right->fvalue = (float)right->value;
+            }
             left->type = typedef_new( TYPE_FLOAT );
-            right->fvalue = ( float )right->value;
             return MN_FLOAT;
         }
     }
 
     if ( typedef_is_integer( left->type ) || typedef_is_pointer( left->type ) ) {
         if ( typedef_is_double( right->type ) ) {
-            codeblock_add( code, MN_INT2DOUBLE, 1 );
+            codeblock_add( code, MN_INT2DOUBLE | mntype( left->type, 0 ), 1 );
+            if ( typedef_is_unsigned( left->type ) ) {
+                left->fvalue = (uint64_t)left->value;
+            } else {
+                left->fvalue = (double)left->value;
+            }
             left->type = typedef_new( TYPE_DOUBLE );
-            left->fvalue = ( double )left->value;
             return MN_DOUBLE;
         }
 
         if ( typedef_is_float( right->type ) ) {
-            codeblock_add( code, MN_INT2FLOAT, 1 );
+            codeblock_add( code, MN_INT2FLOAT | mntype( left->type, 0 ), 1 );
+            if ( typedef_is_unsigned( left->type ) ) {
+                left->fvalue = (uint64_t)left->value;
+            } else {
+                left->fvalue = (float)left->value;
+            }
             left->type = typedef_new( TYPE_FLOAT );
-            left->fvalue = ( float )left->value;
             return MN_FLOAT;
         }
 
@@ -523,12 +539,12 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
 
 #define MAX_EXPR_LEVEL 1024
 
-int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type, int * parent_count ) {
+uint64_t compile_sizeof( VARSPACE * here, int64_t * content_size, int64_t * content_type, int64_t * parent_count ) {
     VARIABLE * var  = NULL;
     expresion_result ind;
     TYPEDEF type, * usertype;
     int64_t * _content_type = NULL, tcode;
-    int base = 0, _content_size = 0, _parent_count = 0, /*check_datatype = 0, */ index_pointer = 0;
+    int64_t base = 0, _content_size = 0, _parent_count = 0, /*check_datatype = 0, */ index_pointer = 0;
 
     if ( !content_size ) content_size = &_content_size;
     if ( !content_type ) content_type = _content_type = ( int64_t * ) calloc( MAX_EXPR_LEVEL, sizeof( int64_t ) );
@@ -715,7 +731,7 @@ int compile_sizeof( VARSPACE * here, int * content_size, int64_t * content_type,
     }
 
     if ( token.type == IDENTIFIER && token.code == identifier_point ) { /* "." */
-        int ret;
+        int64_t ret;
 
         if ( typedef_is_pointer( type ) ) type = typedef_reduce( type );
         if ( !typedef_is_struct( type ) && typedef_base( type ) != TYPE_QWORD && typedef_base( type ) != TYPE_INT ) { /* Support for process type for public variables */
@@ -1219,7 +1235,7 @@ expresion_result compile_cast() {
                 codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
                 res.lvalue = 0;
             }
-            codeblock_add( code, MN_DOUBLE2INT, 0 );
+            codeblock_add( code, MN_DOUBLE2INT | mntype( type, 0 ), 0 );
             res.type = type;
             return res;
         } else if ( typedef_is_float( res.type ) ) {
@@ -1228,7 +1244,7 @@ expresion_result compile_cast() {
                 codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
                 res.lvalue = 0;
             }
-            codeblock_add( code, MN_FLOAT2INT, 0 );
+            codeblock_add( code, MN_FLOAT2INT | mntype( type, 0 ), 0 );
             res.type = type;
             return res;
         }
@@ -1241,7 +1257,7 @@ expresion_result compile_cast() {
                 codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
                 res.lvalue = 0;
             }
-            codeblock_add( code, MN_INT2DOUBLE, 0 );
+            codeblock_add( code, MN_INT2DOUBLE | mntype( res.type, 0 ), 0 );
             res.type = type;
         } else if ( typedef_is_float( res.type ) ) {
             /* ( pointer ) <float> */
@@ -1263,7 +1279,7 @@ expresion_result compile_cast() {
                 codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
                 res.lvalue = 0;
             }
-            codeblock_add( code, MN_INT2FLOAT, 0 );
+            codeblock_add( code, MN_INT2FLOAT | mntype( res.type, 0 ), 0 );
             res.type = type;
         } else if ( typedef_is_double( res.type ) ) {
             /* ( pointer ) <double> */
@@ -1311,7 +1327,7 @@ expresion_result compile_cast() {
                 codeblock_add( code, MN_PTR | MN_DOUBLE, 0 );
                 res.lvalue = 0;
             }
-            codeblock_add( code, MN_DOUBLE2INT, 0 );
+            codeblock_add( code, MN_DOUBLE2INT | mntype( type, 0 ), 0 );
             res.type = typedef_new( TYPE_INT );
         } else if ( typedef_is_float( res.type ) ) {
             /* ( any integer ) <float> */
@@ -1319,7 +1335,7 @@ expresion_result compile_cast() {
                 codeblock_add( code, MN_PTR | MN_FLOAT, 0 );
                 res.lvalue = 0;
             }
-            codeblock_add( code, MN_FLOAT2INT, 0 );
+            codeblock_add( code, MN_FLOAT2INT | mntype( type, 0 ), 0 );
             res.type = typedef_new( TYPE_INT );
         } else if ( typedef_is_string( res.type ) ) {
             /* ( any integer ) <string> */
@@ -1613,6 +1629,30 @@ expresion_result compile_value() {
 
             return res;
         }
+
+        /* "+2" (Positive) */
+        if ( token.type == IDENTIFIER && token.code == identifier_plus ) token_next() ; /* "+" */
+
+        if ( token.type == IDENTIFIER ) {
+            if ( token.code == identifier_minus ) { /* "-" */ /* "-2" (Negative) */
+                expresion_result part = compile_value();
+                if ( part.lvalue ) codeblock_add( code, mntype( part.type, 0 ) | MN_PTR, 0 );
+                BASETYPE t = mntype( part.type, 0 );
+                codeblock_add( code, ( ( t == MN_DOUBLE || t == MN_FLOAT ) ? t : 0 ) | MN_NEG, 0 );
+                res.type = part.type;
+                if ( typedef_is_numeric( part.type ) ) {
+                    res.constant = part.constant;
+                    res.value    = -part.value;
+                    if ( typedef_is_unsigned( res.type ) ) {
+                        res.fvalue   = ( uint64_t ) -part.value;
+                    } else {
+                        res.fvalue   = -part.fvalue;
+                    }
+                    return res;
+                }
+                compile_error( MSG_NUMBER_REQUIRED );
+            }
+        }
     }
 
     switch ( token.type ) {
@@ -1793,7 +1833,11 @@ expresion_result compile_factor() {
             if ( typedef_is_numeric( part.type ) ) {
                 res.constant = part.constant;
                 res.value    = -part.value;
-                res.fvalue   = -part.fvalue;
+                if ( typedef_is_unsigned( res.type ) ) {
+                    res.fvalue   = ( uint64_t ) -part.value;
+                } else {
+                    res.fvalue   = -part.fvalue;
+                }
                 return res;
             }
             compile_error( MSG_NUMBER_REQUIRED );
@@ -2689,12 +2733,12 @@ expresion_result compile_subexpresion() {
 
                 if ( typedef_is_double( right.type ) ) {
                     // implicit conversion (DOUBLE to POINTER)
-                    codeblock_add( code, MN_DOUBLE2INT, 0 );
+                    codeblock_add( code, MN_DOUBLE2INT | mntype( base.type, 0 ), 0 );
                 }
 
                 if ( typedef_is_float( right.type ) ) {
                     // implicit conversion (FLOAT to POINTER)
-                    codeblock_add( code, MN_FLOAT2INT, 0 );
+                    codeblock_add( code, MN_FLOAT2INT | mntype( base.type, 0 ), 0 );
                 }
 
                 if ( typedef_is_string( right.type ) && base.type.chunk[1].type == TYPE_CHAR ) {
@@ -2739,10 +2783,10 @@ expresion_result compile_subexpresion() {
                     codeblock_add( code, MN_STR2CHR, 0 );
                 } else if ( typedef_is_double( right.type ) ) {
                     compile_warning( 1, "implicit conversion (DOUBLE to CHAR)" );
-                    codeblock_add( code, MN_DOUBLE2INT, 0 );
+                    codeblock_add( code, MN_DOUBLE2INT | mntype( base.type, 0 ), 0 );
                 } else if ( typedef_is_float( right.type ) ) {
                     compile_warning( 1, "implicit conversion (FLOAT to CHAR)" );
-                    codeblock_add( code, MN_FLOAT2INT, 0 );
+                    codeblock_add( code, MN_FLOAT2INT | mntype( base.type, 0 ), 0 );
                 } else if ( !typedef_is_numeric( right.type ) ) {
                     compile_error( MSG_INCOMP_TYPE );
                 }
@@ -3105,25 +3149,33 @@ expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
     } else if ( t < TYPE_CHAR && typedef_base( res.type ) == TYPE_POINTER ) {
         res.type = typedef_new( t ) ; /* Pointer -> Int */
     } else if ( t < TYPE_CHAR && typedef_is_double( res.type ) ) {
-        codeblock_add( code, MN_DOUBLE2INT, 0 );
         res.type = typedef_new( t );
         res.value = ( int64_t )res.fvalue;
+        codeblock_add( code, MN_DOUBLE2INT | mntype( res.type, 0 ), 0 );
     } else if ( t < TYPE_CHAR && typedef_is_float( res.type ) ) {
-        codeblock_add( code, MN_FLOAT2INT, 0 );
         res.type = typedef_new( t );
         res.value = ( int64_t )res.fvalue;
+        codeblock_add( code, MN_FLOAT2INT | mntype( res.type, 0 ), 0 );
     } else if ( t == TYPE_DOUBLE && typedef_is_integer( res.type ) ) {
-        codeblock_add( code, MN_INT2DOUBLE, 0 );
+        codeblock_add( code, MN_INT2DOUBLE | mntype( res.type, 0 ), 0 );
+        if ( typedef_is_unsigned( res.type ) ) {
+            res.fvalue = ( double )( uint64_t )res.value;
+        } else {
+            res.fvalue = ( double )res.value;
+        }
         res.type = typedef_new( t );
-        res.fvalue = ( double )res.value;
     } else if ( t == TYPE_DOUBLE && typedef_is_float( res.type ) ) {
         codeblock_add( code, MN_FLOAT2DOUBLE, 0 );
         res.type = typedef_new( t );
         res.value = ( double )res.fvalue;
     } else if ( t == TYPE_FLOAT && typedef_is_integer( res.type ) ) {
-        codeblock_add( code, MN_INT2FLOAT, 0 );
+        codeblock_add( code, MN_INT2FLOAT | mntype( res.type, 0 ), 0 );
+        if ( typedef_is_unsigned( res.type ) ) {
+            res.fvalue = ( float )( uint64_t )res.value;
+        } else {
+            res.fvalue = ( float )res.value;
+        }
         res.type = typedef_new( TYPE_FLOAT );
-        res.fvalue = ( float )res.value;
     } else if ( t == TYPE_FLOAT && typedef_is_double( res.type ) ) {
         codeblock_add( code, MN_DOUBLE2FLOAT, 0 );
         res.type = typedef_new( t );
