@@ -55,6 +55,27 @@ int64_t libmod_misc_math_abs( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_misc_math_exp( INSTANCE * my, int64_t * params ) {
+    double res = exp( *( double * ) &params[0] );
+    return *(( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_log( INSTANCE * my, int64_t * params ) {
+    double res = log( *( double * ) &params[0] );
+    return *(( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_log10( INSTANCE * my, int64_t * params ) {
+    double res = log10( *( double * ) &params[0] );
+    return *(( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_misc_math_pow( INSTANCE * my, int64_t * params ) {
     double res = pow( *( double * ) &params[0], *( double * ) &params[1] );
     return *(( int64_t * )&res );
@@ -322,6 +343,26 @@ int64_t libmod_misc_math_remap_double( INSTANCE * my, int64_t * params ) {
 int64_t libmod_misc_math_remap( INSTANCE * my, int64_t * params ) {
     int64_t value = params[0], fromLow = params[1], fromHigh = params[2], toLow = params[3], toHigh = params[4];
     return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_normalize_double( INSTANCE * my, int64_t * params ) {
+    double value = *( double * ) &params[0], low = *( double * ) &params[1], high = *( double * ) &params[2];
+    double min = MIN(low, high);
+    double max = MAX(low, high);
+    double res = (value - low) / (high - low);
+    return * ( int64_t * ) &res;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_normalize( INSTANCE * my, int64_t * params ) {
+    int64_t value = params[0], low = params[1], high = params[2];
+    int64_t min = MIN(low, high);
+    int64_t max = MAX(low, high);
+    double res = (value - low) / (high - low);
+    return * ( int64_t * ) &res;
 }
 
 /* --------------------------------------------------------------------------- */

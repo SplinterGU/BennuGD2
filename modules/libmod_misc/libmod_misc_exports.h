@@ -203,6 +203,9 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "DEG"                     , "D"           , TYPE_INT          , libmod_misc_math_deg                       ),
 
     FUNC( "ABS"                     , "D"           , TYPE_DOUBLE       , libmod_misc_math_abs                       ),
+    FUNC( "EXP"                     , "D"           , TYPE_DOUBLE       , libmod_misc_math_exp                       ),
+    FUNC( "LOG"                     , "D"           , TYPE_DOUBLE       , libmod_misc_math_log                       ),
+    FUNC( "LOG10"                   , "D"           , TYPE_DOUBLE       , libmod_misc_math_log10                     ),
     FUNC( "POW"                     , "DD"          , TYPE_DOUBLE       , libmod_misc_math_pow                       ),
     FUNC( "SQRT"                    , "D"           , TYPE_DOUBLE       , libmod_misc_math_sqrt                      ),
 
@@ -226,6 +229,8 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
 
     FUNC( "FGET_ANGLE"              , "DDDD"        , TYPE_INT          , libmod_misc_math_fget_angle                ),
     FUNC( "FGET_DIST"               , "DDDD"        , TYPE_DOUBLE       , libmod_misc_math_fget_dist                 ),
+    FUNC( "DISTANCE"                , "DDDD"        , TYPE_DOUBLE       , libmod_misc_math_fget_dist                 ),
+    FUNC( "DIST"                    , "DDDD"        , TYPE_DOUBLE       , libmod_misc_math_fget_dist                 ),
     FUNC( "NEAR_ANGLE"              , "III"         , TYPE_INT          , libmod_misc_math_near_angle                ),
     FUNC( "GET_DISTX"               , "ID"          , TYPE_DOUBLE       , libmod_misc_math_get_distx                 ),
     FUNC( "GET_DISTY"               , "ID"          , TYPE_DOUBLE       , libmod_misc_math_get_disty                 ),
@@ -243,6 +248,8 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "RANGECHK"                , "III"         , TYPE_INT          , libmod_misc_math_check_range               ),
     FUNC( "REMAP"                   , "DDDDD"       , TYPE_DOUBLE       , libmod_misc_math_remap_double              ),
     FUNC( "REMAP"                   , "IIIII"       , TYPE_INT          , libmod_misc_math_remap                     ),
+    FUNC( "NORMALIZE"               , "DDD"         , TYPE_DOUBLE       , libmod_misc_math_normalize_double          ),
+    FUNC( "NORMALIZE"               , "III"         , TYPE_DOUBLE       , libmod_misc_math_normalize                 ),
 
     /* Mem */
     FUNC( "MEM_CALLOC"              , "II"          , TYPE_POINTER      , libmod_misc_mem_calloc                     ),

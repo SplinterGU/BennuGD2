@@ -30,6 +30,9 @@
 #define __M_MATH_H
 
 extern int64_t libmod_misc_math_abs( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_exp( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_log( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_log10( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_pow( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_sqrt( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_cos( INSTANCE * my, int64_t * params );
@@ -60,6 +63,8 @@ extern int64_t libmod_misc_math_check_range_double( INSTANCE * my, int64_t * par
 extern int64_t libmod_misc_math_check_range( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_remap_double( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_remap( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_normalize_double( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_normalize( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_min( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_max( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_sgn( INSTANCE * my, int64_t * params );
