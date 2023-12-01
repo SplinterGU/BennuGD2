@@ -754,20 +754,18 @@ int64_t string_substr( int64_t code, int first, int len ) {
         fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
         exit(2);
     }
-//    assert( str );
+
     rlen = strlen( str );
 
     if ( first < 0 ) {
         first = rlen + first;
-//        if ( first < 0 ) return string_new( "" );
         if ( first < 0 ) first = 0;
     } else
-        if ( first > ( rlen - 1 ) ) return string_new( "" );
+        if ( first > ( rlen - 1 ) ) return 0;
 
     if ( len < 0 ) {
         len = ( rlen - first ) + ( len + 1 );
-//        len = rlen + ( len + 2 ) - first - 1;
-        if ( len < 1 ) return string_new( "" );
+        if ( len < 1 ) return 0;
     }
 
     if ( first + len > rlen ) len = ( rlen - first );
@@ -1160,3 +1158,37 @@ int64_t string_pad( int64_t code, int total, int align ) {
 
     return id;
 }
+
+/*
+ *  FUNCTION : string_tok
+ *
+ *  Extract tokens from strings
+ *
+ *  PARAMS:
+ *              code                    Code of the string
+ *              delim_code              Set of bytes that delimit the tokens in the parsed string
+ *
+ *  RETURN VALUE:
+ *      String token
+ */
+
+int64_t string_tok( int64_t code, int64_t delim_code ) {
+    static unsigned char * str = NULL;
+    char * result;
+
+    if ( code ) {
+        if ( str ) free( str );
+        str = ( unsigned char * ) string_get( code );
+        if ( !str ) return 0;
+        str = strdup( str );
+        if ( !str ) return 0;
+        result = strtok( str, string_get( delim_code ) );
+    } else {
+        result = strtok( NULL, string_get( delim_code ) );
+    }
+
+    if ( result ) return string_new( result );
+
+    return 0;
+}
+

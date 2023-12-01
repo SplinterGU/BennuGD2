@@ -70,5 +70,5 @@ extern int64_t      string_strip( int64_t code ) ;
 extern int64_t      string_pad( int64_t code, int length, int align ) ;
 extern int64_t      string_format( double number, int dec, char point, char thousands ) ;
 extern int64_t      string_concat( int64_t code1, unsigned char * str2 ) ;
-
+extern int64_t      string_tok( int64_t code, int64_t delim_code );
 #endif

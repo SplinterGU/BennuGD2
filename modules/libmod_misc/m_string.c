@@ -151,6 +151,18 @@ int64_t libmod_misc_string_strrfindSSI( INSTANCE * my, int64_t * params ) {
     return r ;
 }
 
+/** STRTOK (STRING SOURCE, STRING DELIM)
+ *  Extract tokens from strings
+ */
+
+int64_t libmod_misc_string_tok( INSTANCE * my, int64_t * params ) {
+    int64_t r = string_tok( params[0], params[1] ) ;
+    string_discard( params[0] ) ;
+    string_discard( params[1] ) ;
+    string_use( r ) ;
+    return r ;
+}
+
 /** STRING LPAD (STRING SOURCE, LENGTH)
  *  Expands the string up to the given length, adding spaces at the left
  */
