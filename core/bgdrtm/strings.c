@@ -843,6 +843,65 @@ int64_t string_find( int64_t code1, int64_t code2, int first ) {
 }
 
 /*
+ *  FUNCTION : string_rfind
+ *
+ *  Reverse find a substring. Returns the position of the leftmost character (0
+ *  for the leftmost position) or -1 if the string was not found.
+ *
+ *  PARAMS:
+ *              code1                   Code of the string
+ *              code2                   Code of the substring
+ *              first                   Character pos to start the search from end
+ *                                      (negative to search from begin)
+ *
+ *  RETURN VALUE:
+ *      Result of the comparison
+ */
+
+int64_t string_rfind(int64_t code1, int64_t code2, int first) {
+    unsigned char *str1 =  ( unsigned char * ) string_get( code1 );
+    unsigned char *str2 =  ( unsigned char * ) string_get( code2 );
+
+    if ( !str1 || !str2 ) {
+        fprintf( stderr, "ERROR: Runtime error - %s: internal error\n", __FUNCTION__ );
+        exit(2);
+    }
+
+    int64_t len_str1 = strlen( str1 );
+    int64_t len_str2 = strlen( str2 );
+
+    if ( first < 0 ) {
+        first = -( first + 1 );
+    } else if ( first < len_str2 ) {
+        first = len_str1 - len_str2;
+    } else {
+        first = len_str1 - first;
+    }
+
+    if ( first < 0 ) return -1;
+
+    unsigned char *p = str1 + first;
+    unsigned char *p1, *p2;
+
+    while ( p >= str1 ) {
+        if (*p == *str2) {
+            p1 = p + 1;
+            p2 = str2 + 1;
+
+            while (*p1 && *p2 && *p1 == *p2) {
+                p1++;
+                p2++;
+            }
+
+            if (!*p2) return p - str1;
+        }
+        p--;
+    }
+
+    return -1;
+}
+
+/*
  *  FUNCTION : string_ucase
  *
  *  Convert an string to upper case. It does not alter the given string, but

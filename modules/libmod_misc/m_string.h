@@ -37,6 +37,8 @@ extern int64_t libmod_misc_string_substr( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_string_substr2( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_string_strfind( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_string_strfindSSI( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_string_strrfind( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_string_strrfindSSI( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_string_lpad( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_string_rpad( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_string_itos( INSTANCE * my, int64_t * params );

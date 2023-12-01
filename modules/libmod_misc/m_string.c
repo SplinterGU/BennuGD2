@@ -129,6 +129,28 @@ int64_t libmod_misc_string_strfindSSI( INSTANCE * my, int64_t * params ) {
     return r ;
 }
 
+/** RFIND (STRING SOURCE, STRING SUBSTRING)
+ *  Searchs a substring in a string, and returns its position
+ */
+
+int64_t libmod_misc_string_strrfind( INSTANCE * my, int64_t * params ) {
+    int64_t r = string_rfind( params[0], params[1], 0 ) ;
+    string_discard( params[0] ) ;
+    string_discard( params[1] ) ;
+    return r ;
+}
+
+/** RFIND (STRING SOURCE, STRING SUBSTRING, INT FIRST)
+ *  Searchs a substring in a string, starting from the given position, and returns its position
+ */
+
+int64_t libmod_misc_string_strrfindSSI( INSTANCE * my, int64_t * params ) {
+    int64_t r = string_rfind( params[0], params[1], params[2] ) ;
+    string_discard( params[0] ) ;
+    string_discard( params[1] ) ;
+    return r ;
+}
+
 /** STRING LPAD (STRING SOURCE, LENGTH)
  *  Expands the string up to the given length, adding spaces at the left
  */

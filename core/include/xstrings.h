@@ -63,6 +63,7 @@ extern int64_t      string_casecmp( int64_t code1, int64_t code2 ) ;
 extern int64_t      string_char( int64_t n, int nchar ) ;
 extern int64_t      string_substr( int64_t code, int first, int len ) ;
 extern int64_t      string_find( int64_t code1, int64_t code2, int first ) ;
+extern int64_t      string_rfind( int64_t code1, int64_t code2, int first ) ;
 extern int64_t      string_ucase( int64_t code1 ) ;
 extern int64_t      string_lcase( int64_t code1 ) ;
 extern int64_t      string_strip( int64_t code ) ;

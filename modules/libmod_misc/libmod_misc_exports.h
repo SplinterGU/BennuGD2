@@ -333,6 +333,8 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "SUBSTR"                  , "SI"          , TYPE_STRING       , libmod_misc_string_substr2                 ),
     FUNC( "FIND"                    , "SS"          , TYPE_INT          , libmod_misc_string_strfind                 ),
     FUNC( "FIND"                    , "SSI"         , TYPE_INT          , libmod_misc_string_strfindSSI              ),
+    FUNC( "RFIND"                   , "SS"          , TYPE_INT          , libmod_misc_string_strrfind                ),
+    FUNC( "RFIND"                   , "SSI"         , TYPE_INT          , libmod_misc_string_strrfindSSI             ),
     FUNC( "LPAD"                    , "SI"          , TYPE_STRING       , libmod_misc_string_lpad                    ),
     FUNC( "RPAD"                    , "SI"          , TYPE_STRING       , libmod_misc_string_rpad                    ),
     FUNC( "ITOA"                    , "I"           , TYPE_STRING       , libmod_misc_string_itos                    ),
