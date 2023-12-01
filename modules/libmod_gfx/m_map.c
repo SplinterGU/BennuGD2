@@ -449,7 +449,7 @@ int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/** MAP_XPUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B)
+/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B)
  *  Draws a graph into another one, with most blitter options including flags and alpha
  */
 
@@ -484,7 +484,7 @@ int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/** MAP_XPUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B, blend_mode)
+/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B, blend_mode)
  *  Draws a graph into another one, with most blitter options including flags and alpha
  */
 
@@ -519,7 +519,7 @@ int64_t libmod_gfx_map_put3( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/** MAP_XPUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B, blend_mode, src_rgb, src_alpha, dst_rgb, dst_alpha, equation_rgb, equation_alpha)
+/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B, blend_mode, src_rgb, src_alpha, dst_rgb, dst_alpha, equation_rgb, equation_alpha)
  *  Draws a graph into another one, with most blitter options including flags and alpha
  */
 
