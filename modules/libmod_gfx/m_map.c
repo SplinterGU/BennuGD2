@@ -449,7 +449,7 @@ int64_t libmod_gfx_map_put( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B)
+/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, ANGLE, SCALEX, SCALEY, FLAGS, R, G, B, ALPHA)
  *  Draws a graph into another one, with most blitter options including flags and alpha
  */
 
@@ -472,10 +472,10 @@ int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
              POINT_UNDEFINED, // centery
              orig,       // orig
              NULL,       // orig_clip
-             params[10], // alpha
-             params[11], // r
-             params[12], // g
-             params[13], // b
+             params[13], // alpha
+             params[10], // r
+             params[11], // g
+             params[12], // b
              BLEND_DISABLED,
              NULL
          );
@@ -484,7 +484,7 @@ int64_t libmod_gfx_map_put2( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B, blend_mode)
+/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, ANGLE, SCALEX, SCALEY, FLAGS, R, G, B, ALPHA, BLEND_MODE)
  *  Draws a graph into another one, with most blitter options including flags and alpha
  */
 
@@ -507,10 +507,10 @@ int64_t libmod_gfx_map_put3( INSTANCE * my, int64_t * params ) {
              POINT_UNDEFINED, // centery
              orig,       // orig
              NULL,       // orig_clip
-             params[10], // alpha
-             params[11], // r
-             params[12], // g
-             params[13], // b
+             params[13], // alpha
+             params[10], // r
+             params[11], // g
+             params[12], // b
              params[14], // blend_mode
              NULL
          );
@@ -519,7 +519,7 @@ int64_t libmod_gfx_map_put3( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, SCALEX, SCALEY, ANGLE, SIZE, FLAGS, ALPHA, R, G, B, blend_mode, src_rgb, src_alpha, dst_rgb, dst_alpha, equation_rgb, equation_alpha)
+/** MAP_PUT(FILE, GRAPH_DEST, FILE_SRC, GRAPH_SRC, X, Y, ANGLE, SCALEX, SCALEY, FLAGS, R, G, B, ALPHA, BLEND_MODE, SRC_RGB, DST_RGB, SRC_ALPHA, DST_ALPHA, EQUATION_RGB, EQUATION_ALPHA)
  *  Draws a graph into another one, with most blitter options including flags and alpha
  */
 
@@ -551,10 +551,10 @@ int64_t libmod_gfx_map_put4( INSTANCE * my, int64_t * params ) {
              POINT_UNDEFINED, // centery
              orig,       // orig
              NULL,       // orig_clip
-             params[10], // alpha
-             params[11], // r
-             params[12], // g
-             params[13], // b
+             params[13], // alpha
+             params[10], // r
+             params[11], // g
+             params[12], // b
              params[14], // blend_mode
              &custom_blendmode
          );
@@ -675,6 +675,8 @@ static int64_t __libmod_gfx_map_block_copy(
 }
 
 /* --------------------------------------------------------------------------- */
+/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA, BLEND_MODE, SRC_RGB, DST_RGB, SRC_ALPHA, DST_ALPHA, EQUATION_RGB, EQUATION_ALPHA)
+*/
 
 int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
     return __libmod_gfx_map_block_copy(
@@ -699,6 +701,8 @@ int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA )
+*/
 
 int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params ) {
     return __libmod_gfx_map_block_copy(
@@ -723,6 +727,8 @@ int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA, BLEND_MODE)
+*/
 
 int64_t libmod_gfx_map_block_copy3( INSTANCE * my, int64_t * params ) {
     return __libmod_gfx_map_block_copy(
@@ -747,6 +753,8 @@ int64_t libmod_gfx_map_block_copy3( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA, BLEND_MODE, SRC_RGB, DST_RGB, SRC_ALPHA, DST_ALPHA, EQUATION_RGB, EQUATION_ALPHA)
+*/
 
 int64_t libmod_gfx_map_block_copy4( INSTANCE * my, int64_t * params ) {
     CUSTOM_BLENDMODE custom_blendmode;
