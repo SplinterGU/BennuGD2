@@ -788,7 +788,8 @@ static void strdelchars( char * str, char * chars ) {
 SYSPROC * compile_bestproc( SYSPROC ** procs ) {
     const char * proc_name = procs[0]->name;
     int n, proc_count = 0, count = 0, min_params = 0;
-    char validtypes[32], type = -1;
+    char validtypes[32];
+    BASETYPE type = TYPE_UNDEFINED;
     CODEBLOCK_POS code_pos_code;
     expresion_result res;
     tok_pos token_save;
@@ -950,7 +951,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                         compile_error( MSG_INVALID_PARAMT );
                 }
 
-                res = compile_expresion( 0, 0, 0, ( BASETYPE ) type );
+                res = compile_expresion( 0, 0, 0, type );
                 if ( res.lvalue ) codeblock_add( code, mntype( res.type, 0 ) | MN_PTR, 0 );
             }
         } else {
@@ -1034,7 +1035,7 @@ SYSPROC * compile_bestproc( SYSPROC ** procs ) {
                     compile_error( MSG_INVALID_PARAMT );
             }
 
-            convert_result_type( res, (BASETYPE)type );
+            convert_result_type( res, type );
         }
 
         token_next();
@@ -1068,7 +1069,7 @@ int compile_paramlist( BASETYPE * types, const char * paramtypes ) {
     int count = 0;
 
     for (;;) {
-        int type = types ? *types : TYPE_UNDEFINED;
+        BASETYPE type = types ? *types : TYPE_UNDEFINED;
         if ( paramtypes ) {
             switch ( *paramtypes++ ) {
                 case 'I':
@@ -1100,7 +1101,7 @@ int compile_paramlist( BASETYPE * types, const char * paramtypes ) {
             }
         }
 
-        res = compile_expresion( 0, 0, 0, ( BASETYPE ) type );
+        res = compile_expresion( 0, 0, 0, type );
 
         if ( types ) {
             if ( *types == TYPE_UNDEFINED ) *types = typedef_base( res.type );
@@ -2986,10 +2987,13 @@ expresion_result compile_subexpresion() {
                     codeblock_add( code, MN_COPY_ARRAY | MN_BYTE, 0 );
                 }
 
-                base.type = right.type;
-                base.constant = 0;
-                base.lvalue = 0;
-                base.call = 1;
+                base.lvalue     = 1;
+                base.asignation = 1;
+                base.call       = 0;
+                base.constant   = 0;
+                base.value      = 0;
+                base.type       = right.type;
+
                 return base;
             }
 
@@ -3004,19 +3008,16 @@ expresion_result compile_subexpresion() {
 
                 int count = typedef_tcount( base.type );
 
-                while ( typedef_is_array( base.type ) ) {
-                    base.type = typedef_reduce( base.type );
-                    right.type = typedef_reduce( right.type );
-                }
-
                 /* Optimized fast memcopy version */
                 codeblock_add( code, MN_PUSH, count );
-                codeblock_add( code, MN_COPY_ARRAY | mntype( base.type, 0 ), 0 );
+                codeblock_add( code, MN_COPY_ARRAY | mntype( base.type, 1 ), 0 );
 
-                base.type = right.type;
-                base.constant = 0;
-                base.lvalue = 0;
-                base.call = 1;
+                base.lvalue     = 1;
+                base.asignation = 1;
+                base.call       = 0;
+                base.constant   = 0;
+                base.value      = 0;
+                base.type       = right.type;
 
                 return base;
             }
