@@ -678,7 +678,7 @@ void compile_process() {
         token_next();
     }
 
-    BASETYPE return_type = TYPE_INT;
+    TYPEDEF proc_type = typedef_new( TYPE_INT );
 
     /* "Sign" */
     if ( token.code == identifier_unsigned ) {
@@ -690,14 +690,17 @@ void compile_process() {
     }
 
     if ( identifier_is_basic_type(token.code) ) {
-        return_type = typedef_basic_type_basetype_by_name( token.code, sign_prefix );
-        if ( return_type == TYPE_UNDEFINED ) compile_error( MSG_INVALID_TYPE );
+        BASETYPE btype = typedef_basic_type_basetype_by_name( token.code, sign_prefix );
+        if ( btype == TYPE_UNDEFINED ) compile_error( MSG_INVALID_TYPE );
+        proc_type = typedef_new( btype );
         token_next();
         sign_prefix = 0;
     }
     else
     if ( token.type == IDENTIFIER && segment_by_name( token.code ) ) {
-        return_type = TYPE_POINTER;
+        // TYPE_STRUCT
+        proc_type = *typedef_by_name( token.code );
+        proc_type = typedef_pointer( proc_type ); // TYPE_POINTER - pointer to struct
         token_next();
         if ( token.code == identifier_leftp ) {
             token_back();
@@ -706,13 +709,13 @@ void compile_process() {
     }
     else
     if ( procdef_search( token.code ) ) { /* Process-type variables */
-        return_type = TYPE_INT;
+        proc_type = typedef_new( TYPE_INT );
         token_next();
         if ( token.code == identifier_leftp ) token_back();
     }
 
     while ( token.type == IDENTIFIER && ( token.code == identifier_pointer || token.code == identifier_multiply ) ) {
-        return_type = TYPE_POINTER;
+        proc_type = typedef_pointer( proc_type );
         token_next();
     }
 
@@ -728,7 +731,7 @@ void compile_process() {
 
     if ( proc->defined ) {
         if ( !is_declare ) compile_error( MSG_PROC_ALREADY_DEFINED );
-        if ( proc->type != return_type ) compile_error( MSG_PROTO_ERROR );
+        if ( !typedef_is_equal( proc->type, proc_type ) ) compile_error( MSG_PROTO_ERROR );
     }
 
     /* is a function? */
@@ -737,7 +740,7 @@ void compile_process() {
         proc->flags |= PROC_FUNCTION;
     }
 
-    proc->type = return_type;
+    proc->type = proc_type;
 
     /* Parse the process parameters */
 

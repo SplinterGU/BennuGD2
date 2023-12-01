@@ -74,7 +74,7 @@ typedef struct _procdef {
         double paramfvalue[MAX_PARAMS];
     };
 
-    BASETYPE    type;
+    TYPEDEF     type;
 
     CODEBLOCK   code;
 

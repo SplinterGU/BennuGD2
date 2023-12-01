@@ -74,7 +74,7 @@ PROCDEF * procdef_new( int64_t typeid, int64_t id ) {
     proc->minparams         = -1;
     proc->defined           = 0;
     proc->declared          = 0;
-    proc->type              = TYPE_QWORD;
+    proc->type              = typedef_new( TYPE_QWORD );
     proc->flags             = 0;
     proc->imported          = 0;
 
