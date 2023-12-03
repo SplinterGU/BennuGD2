@@ -1,7 +1,9 @@
 MIT License
 
 Copyright © SplinterGU (Fenix/BennuGD) (Since 2006)
+
 Copyright © 2002-2006 Fenix Team (Fenix)
+
 Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
