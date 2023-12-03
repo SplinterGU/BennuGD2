@@ -1,0 +1,53 @@
+_bgdc() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    case "${prev}" in
+	    -o)
+            _filedir '@([dD][cC][bB]|[dD][aA][tT]|[bB][iI][nN])'
+            return 0
+            ;;
+
+        -i)
+            _filedir '()'
+            return 0
+            ;;
+
+	    -f)
+            _filedir '@(*)'
+            return 0
+            ;;
+
+        -l)
+            return 0
+            ;;
+
+	    -s)
+            _filedir '@(*)'
+            return 0
+            ;;
+
+        -D)
+            return 0
+            ;;
+
+        -f)
+            _filedir '@([dD][cC][lL])'
+            return 0
+            ;;
+
+        *)
+            _filedir '@([pP][rR][gG])'
+        ;;
+    esac
+
+    if [[ ${cur} == -* ]] ; then
+        COMPREPLY=( $(compgen -W "-d -o -i -a -f -l -s -g -D -p --pedantic --libmode -L -Ca" -- ${cur}) )
+        return 0
+    fi
+}
+complete -F _bgdc bgdc
+
