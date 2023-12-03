@@ -1,4 +1,3 @@
-```markdown
 # BennuGD2
 
 Welcome to BennuGD2! BennuGD2 is a game development system focused on ease of use and portability.
@@ -62,4 +61,3 @@ This should successfully build BennuGD2 for Windows using MSYS2.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-```
