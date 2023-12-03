@@ -1,3 +1,268 @@
+??-??-2023:
+
+- Added bash_completion files
+
+- Added string strtok(string string, string delims)
+
+- Added rfind(string, pattern [, first]) for reverse search
+
+- Fixed (cast)-value and (cast)+value.
+- Fixed conversions to float and double
+
+- Added double MAG(double x, double y) which is the same as DIST(0,0,x,y)
+
+- Added: double EXP(double), double LOG(double)
+    double LOG10(double)
+    double NORMALIZE(double value, double lo, double high)
+    double NORMALIZE(int value, int lo, int hi)
+
+    DIST() and DISTANCE() now act as aliases for FGET_DIST()
+
+    NOTE: NORMALIZE is the same as REMAP(value, lo, double, 0, 1)
+
+- Added:
+    double rad(int angle)
+    int deg(double rad)
+    double lerp(double a, double b, double value)
+    double invlerp(double a, double b, double value)
+    int rangechk(double value, double low, double high); return -1 if value < range, 0 if between range, 1 if value > range
+    int rangechk(int value, int low, int high); return -1 if value < range, 0 if between range, 1 if value > range
+    double remap(double value, double lowRangeFrom, double highRangeFrom, double lowRangeTo, double highRangeTo)
+    int remap(int value, int lowRangeFrom, int highRangeFrom, int lowRangeTo, int highRangeTo)
+
+- Fixed:
+    cos() -> double cos(int <deg>)
+    sin() -> double sin(int <deg>)
+    tan() -> double tan(int <deg>)
+    acos() -> int <deg> acos(double)
+    asin() -> int <deg> asin(double)
+    atan() -> int <deg> atan(double)
+    atan2() -> int <deg> atan2(double, double)
+
+- Added CLAMP(int, int, int), BETWEEN(int, int, int)
+- Added WRAP(int value, int min, int max)
+
+- Added:
+    STRING_SIZE_ARRAY(string *)
+    STRING_NEW_ARRAY()
+
+- Added aliases:
+    STRING_NEWA -> STRING_NEW_ARRAY
+    STRING_RESIZEA -> STRING_RESIZE_ARRAY
+    STRING_DELA -> STRING_DEL_ARRAY
+    STRING_SIZEA -> STRING_SIZE_ARRAY
+
+- Fixed stats timestamps on glob*
+
+- Fixed issues in system functions with double and float parameters
+
+- Added:
+    double TOWARDS(double from, double to, double step)
+    int TOWARDS(int from, int to, int step)
+
+- Changed global names:
+    sound.sound_freq
+    sound.sound_mode
+    sound.sound_channels
+
+    to
+
+    sound.freq
+    sound.mode
+    sound.channels
+
+- Added new "sound mode" defines:
+    SOUND_MODE_MONO (or MODE_MONO) for Mono
+    SOUND_MODE_STEREO (or MODE_STEREO) for Stereo
+    SOUND_MODE_STEREO_2_1 (or MODE_STEREO_2_1) for Stereo 2.1
+    SOUND_MODE_SURROUND_4_1 (or MODE_SURROUND_4_1) for Surround 4.0 (quadraphonic)
+    SOUND_MODE_SURROUND_5_1 (or MODE_SURROUND_5_1) for Surround 5.1
+    SOUND_MODE_SURROUND_7_1 (or MODE_SURROUND_7_1) for Surround 7.1
+
+- Changed values for:
+    MODE_MONO before 0, now 1
+    MODE_STEREO before 1, now 2
+
+- Default sound.freq is now 44100 Mhz
+
+- Added support for sound.freq 48000 Mhz
+
+- Added new functions:
+    MUSIC_PLAY(music) to play a music looped
+    SOUND_PLAY(sound) to play a sound once
+
+- Modified the compiler to allow variable redeclaration with value update
+        
+    Additionally, functionality has been implemented to update the values of variables when assigning a value during their declaration. This ensures that when specifying a value during declaration, this value is maintained and updated in the variable definition.
+
+- Added block sections:
+    BEGIN .. END
+
+- Limited Scope Variables
+
+- Added joy_query(e)
+- Added JOY_QUERY_HAS, JOY_QUERY_HAS_BUTTON, JOY_QUERY_HAS_AXIS
+- Added JOY_QUERY_FIRST_ATTACHED
+
+- New joys layer
+
+- Support for Joystick mapping
+
+- Changed:
+    FROM ... TO logic (fixed issues with non-qword vars)
+    
+- Joystick event disconnect/connect
+
+- Added JOY_IS_ATTACHED
+
+- Fixed utf-8 windows console output
+
+- Nintendo Switch support
+
+- A global variable can be redeclared as private (new variable) in the main process
+- Duplicated variables in the same context and of the same type are allowed
+
+    It is no longer necessary to include 'end' in the declaration after declaring the variables; the old syntax is still supported.
+
+- Added support for optional parameters with default values in processes and functions.
+
+- Inline definition and initialization of variables, arrays, and structures are implemented.
+- Initializing pointer variables with a value other than NULL or 0 is allowed.
+- The conversion of pointers to strings and strings to pointers is made consistent.
+- Several bugs in string handling (memory leaks) are fixed.
+- New mnemonics are added.
+- The generated code (DBC) is optimized in some cases (compilation).
+- Improved support for null-terminated strings (C).
+- Missing comments in the core are translated.
+
+- Clearer messages in string_dump()
+
+- Support for ending DECLARE with a semicolon has been added if no local or public variables are declared in the statement (END is still supported but optional)
+
+- Added constants dump in compile with verbose
+
+- Support for null-terminated strings pointed to by 'char *' is added. To obtain the string from a pointer, precede the pointer with the '$' prefix. To set a null-terminated string to a pointer, simply assign the string to the pointer. Ensure that the pointer points to a buffer with enough space to contain the string.
+
+- Compilation improvements:
+    - Fixed pause when the debug console is displayed
+    - Added multimedia functions for subtitles, audio/video/subtitle tracks, and chapters access
+    - Added extra parameters for font bitmap sheet
+    - Changed character string from char to unsigned char (fixed some related bugs)
+    - Default encoding is now iso8859-1 (in the future, the default encoding will be utf-8)
+    - Added some missing font chars in the debug console
+    - Fixed alignment in bitmap fonts
+    - Added bitmap fixed width but with content centered (NFB_FIXEDWITDHCENTER)
+    - pause() now works with fade, sounds, video playing, and others
+    - The debug console is displayed above the fade
+    - Added some string characters functions: isalpha, isspace, isnum, isxnum, isalnum, iswordchar, iswordfist, toupper, tolower
+
+- Added subtitles, chapter, audio tracks for video (internal functions)
+
+- Updated/Added:
+    MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA, BLEND_MODE, SRC_RGB, DST_RGB, SRC_ALPHA, DST_ALPHA, EQUATION_RGB, EQUATION_ALPHA)
+
+    MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA )
+
+    MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA, BLEND_MODE)
+
+    MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA, BLEND_MODE, SRC_RGB, DST_RGB, SRC_ALPHA, DST_ALPHA, EQUATION_RGB, EQUATION_ALPHA)
+
+- Multimedia support with libvlc
+
+- Added:
+    write_in_map( file dest, map dest, font, x, y, text, alignment )
+
+- Added:
+    KEY_UP(int key)
+    KEY_DOWN(int key)
+
+- Replaced COLOR_MAROON with COLOR_RED (debug console)
+
+- Added console_alpha in the debug console
+
+- Added dynamic string arrays allocation functions
+
+- Changed xadvance and get_real_point x and y from int to double
+
+- Added Scientific Notation
+
+- Coords (locals x and y) to double
+
+- drawing_z()
+
+- Intersect/projection functions (experimentals)(WIP)
+
+- Added max limits constants:
+    MAX_INT
+    MAX_INT64
+    MAX_LONG
+    MAX_QWORD
+    MAX_INT32
+    MAX_DWORD
+    MAX_SHORT
+    MAX_WORD
+    MAX_SBYTE
+    MAX_BYTE
+    MAX_CHAR
+
+- Fixed shader scroll back1 and back2
+    
+- Fixed shader set float
+
+- Added:
+    int intersect(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, double *x, double *y)
+    int intersec_circle(double cx1, double cy1, double cx2, double cy2, double r1, double r2, double *x, double *y, double *x1, double *y2)
+    int intersect_line_circle(double x1, double y1, double x2, double y2, double cx, double cy, double r, double *x, double *y, double *x1, double *y2)
+    double ortho(double x1, double y1, double x2, double y2, double px, double py, double *x, double *y)
+    double project(double x1, double y1, double x2, double y2, double px, double py, double *x, double *y)
+
+- Added:
+    double between(double val1, double val2)
+
+- Individual shader on process, scroll, mouse, text...
+
+- Added:
+    double max(double, double)
+    double min(double, double)
+    double sgn(double)
+    int sgn(int)
+    double round(double)
+    double floor(double)
+    double ceil(double)
+    double trunc(double)
+    double frac(double)
+    double decimal(double)
+
+- Renamed clampf to clamp
+
+- Sorted cbox and used qsort/bsearch for cbox
+
+- Custom Blend mode & other blend modes
+
+- Max scrolls increased to 64
+
+- screen.scale_resolution = 0 sets desktop size
+
+- Control box functions
+
+- Added:
+    POINT_GET_TOTAL(file,graph)
+- Added:
+    GET_REAL_POINT(instance,cpoint,&x,&y)
+- Added:
+    COLLISION(instance, instance|type)
+
+- Added center to the process
+
+- Shaders
+
+- Collision ignores farthest objects
+
+- Added new collision system
+
+- Refactored get_real_point
+
+
 2019-07-23:
 
 - modsound changes:
