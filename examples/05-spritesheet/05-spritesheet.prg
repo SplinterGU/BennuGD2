@@ -4,57 +4,32 @@ import "libmod_gfx";
 import "libmod_input";
 import "libmod_misc";
 
+#include "sprsheet.inc"
+
 const
     scrw = 640;
     scrh = 200;
 end
 
-type _animation_clip
-    int x, y, w, h;
-end
-
-
 global
-    _animation_clip animation_clip[]    =   10,0,100,168,
-                                            10,168,114,168,
-                                            10,336,100,168;
-
-    int animation_frames[]              =   6,
-                                            5,
-                                            9;
-
-    int animation_offsetx1[]            =   0,109,107,103,106,101;
-    int animation_offsetx2[]            =   0,119,119,120,117;
-    int animation_offsetx3[]            =   0,113,110,110,112,114,109,113,111;
-                        
-    int *animation_offsetx_ptr_array[16];
-
+    __SPRSHEET_LIB * sprites = NULL;
 end
 
-process animate( int idx, double x, y, int graph )
+process animate( int start_spr, int end_spr, double x, y )
 private
     int i, ii;
     int * animation_offsetx;
     int sentido = 1;
 begin
+    i = start_spr;
 
-    clip.x = animation_clip[idx].x;
-    clip.y = animation_clip[idx].y;
-    clip.w = animation_clip[idx].w;
-    clip.h = animation_clip[idx].h;
-
-    animation_offsetx = animation_offsetx_ptr_array[idx];
+    sprsheet_set_sprite( sprites, start_spr );
 
     while(1)
-        if ( ii++ > 10 )
-            ii = 0;
-            i++;
-            if ( i >= animation_frames[idx] )
-                i = 0;          
-                clip.x = animation_clip[idx].x;
-            end
-
-            clip.x += animation_offsetx[i];
+        ii = wrap( ii + 1, 0, 10 );
+        if ( ii == 0 )
+            i = wrap( i + 1, start_spr, end_spr );
+            sprsheet_set_sprite( sprites, i );
         end
         x += 2.5 * sentido;
         if ( x > scrw - 32 || x < 32 ) sentido = -sentido; end
@@ -69,20 +44,17 @@ begin
     set_mode(scrw,scrh);
     set_fps(60,0);
 
-    sprite_sheet = map_load("res/DSsheet-maya.png");
+    sprites = sprsheet_load("res/DSsheet-maya.png");
 
-    animation_offsetx_ptr_array[0] = &animation_offsetx1;
-    animation_offsetx_ptr_array[1] = &animation_offsetx2;
-    animation_offsetx_ptr_array[2] = &animation_offsetx3;
-    animation_offsetx_ptr_array[3] = &animation_offsetx3;
-
-    animate(0,60,100,sprite_sheet);
-    animate(1,200,100,sprite_sheet);
-    animate(2,340,100,sprite_sheet);
+    animate( 1,  6,  60, 100);
+    animate( 7, 11, 200, 100);
+    animate(12, 20, 340, 100);
 
     while(!key(_ESC))
         frame;
     end
+
+    sprsheet_unload( sprites );
 
     let_me_alone();
 
