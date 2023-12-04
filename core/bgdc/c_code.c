@@ -1393,6 +1393,10 @@ expresion_result compile_cast() {
                     case TYPE_SBYTE:
                         res.fvalue = res.value = ( int8_t ) res.value;
                         break;
+
+                    // remove compiler warning
+                    default:
+                        break;
                 }
             }
         } else {

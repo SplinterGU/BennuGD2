@@ -237,7 +237,7 @@ void mnemonic_dump( int64_t i, int64_t param ) {
     }
 #endif
 
-    if ( mnemonics_sorted[ n ].name ) {
+//    if ( mnemonics_sorted[ n ].name ) {
 #ifdef __BGDRTM__
         if ( debug > 1 ) {
 #endif
@@ -331,7 +331,7 @@ void mnemonic_dump( int64_t i, int64_t param ) {
             printf( "%s:%-10" PRId64 "\n", files[param >> 20], param & (( 1 << 20 ) - 1 ) );
 #endif
         }
-    }
+//    }
 #ifdef __BGDRTM__
     else if ( debug > 1 )
 #endif

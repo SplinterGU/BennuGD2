@@ -115,7 +115,7 @@ typedef struct _drawing_object {
 
     int64_t z;
 
-    int64_t preallocated:1; // if data is preallocated, user must release it
+    int64_t preallocated; // if data is preallocated, user must release it
 
     int64_t data_size; // count items of objs
     void * data; // objs Rects/Points

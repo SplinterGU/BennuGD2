@@ -151,7 +151,7 @@ int64_t libmod_misc_math_isnan( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_misc_math_finite( INSTANCE * my, int64_t * params ) {
     double param = *( double * ) &params[0];
-    return finite( param );
+    return isfinite( param );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -571,13 +571,13 @@ int64_t libmod_misc_math_intersect_line_circle( INSTANCE * my, int64_t * params 
     max_x = MAX(x1,x2) + DBL_EPSILON;
     max_y = MAX(y1,y2) + DBL_EPSILON;
 
-    if ( finite(x0_1) && finite(y0_1) && !( x0_1 > max_x || x0_1 < min_x || y0_1 > max_y || y0_1 < min_y ) ) {
+    if ( isfinite(x0_1) && isfinite(y0_1) && !( x0_1 > max_x || x0_1 < min_x || y0_1 > max_y || y0_1 < min_y ) ) {
         * ( int64_t * ) params[7] = * ( int64_t * ) &x0_1;
         * ( int64_t * ) params[8] = * ( int64_t * ) &y0_1;
         nret++;
     }
 
-    if ( finite(x0_2) && finite(y0_2) && !( x0_2 > max_x || x0_2 < min_x || y0_2 > max_y || y0_2 < min_y ) ) {
+    if ( isfinite(x0_2) && isfinite(y0_2) && !( x0_2 > max_x || x0_2 < min_x || y0_2 > max_y || y0_2 < min_y ) ) {
         if ( nret ) {
             * ( int64_t * ) params[9]  = * ( int64_t * ) &x0_2;
             * ( int64_t * ) params[10] = * ( int64_t * ) &y0_2;
@@ -619,7 +619,7 @@ int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params ) {
 
     acos_a = acos( ( r1 * r1 + dist * dist - r2 * r2 ) / ( ( r1 + r1 ) * dist ) );
 
-    if ( finite( acos_a ) ) {
+    if ( isfinite( acos_a ) ) {
         acos_a *= 180000.0 / M_PI;
 
         x0 = cx1 + cos_deg( angle + acos_a ) * r1;

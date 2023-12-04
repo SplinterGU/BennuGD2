@@ -160,7 +160,11 @@ GRID * path_new( GRAPH * gr ) {
             int pos = 0;
             for ( y = 0; y < h; y++, pmem += surface->pitch )
                 for ( mem = pmem, x = 0; x < w; x++ ) {
-                    grid->matrix[pos].walkable = ( ( *mem++ << surface->format->Rmask ) | ( *mem++ << surface->format->Gmask ) | ( *mem++ << surface->format->Bmask ) ) ? 0 : 1;
+                    uint8_t r = *mem++ << surface->format->Rmask;
+                    uint8_t g = *mem++ << surface->format->Gmask;
+                    uint8_t b = *mem++ << surface->format->Bmask;
+                    grid->matrix[pos].walkable = (r | g | b) ? 0 : 1;
+//                    grid->matrix[pos].walkable = ( ( *mem++ << surface->format->Rmask ) | ( *mem++ << surface->format->Gmask ) | ( *mem++ << surface->format->Bmask ) ) ? 0 : 1;
                     grid->matrix[pos].x = x;
                     grid->matrix[pos].y = y;
                     pos++;

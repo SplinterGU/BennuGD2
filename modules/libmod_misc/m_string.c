@@ -267,7 +267,9 @@ static char * strrev( char * str ) {
     char *start = str;
     char *left = str;
 
-    while ( *str++ ); str -= 2;
+    while ( *str++ )
+        ;
+    str -= 2;
 
     while ( left < str ) {
         char ch = *left;

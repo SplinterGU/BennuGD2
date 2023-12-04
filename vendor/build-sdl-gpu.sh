@@ -130,8 +130,7 @@ if [ $? -eq 0 ]; then
 
         x86_64-apple-darwin14)
             mkdir -p ../../../../dependencies/$TARGET
-            cp SDL_gpu/lib/SDL2_gpu.framework/Versions/Current/SDL2_gpu ../../../../dependencies/$TARGET/libSDL2_gpu.dylib
-            cp SDL_gpu/lib/*.a ../../../../dependencies/$TARGET
+            cp -Rf SDL_gpu/lib/* ../../../../dependencies/$TARGET
             ;;
 
     esac

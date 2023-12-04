@@ -1280,7 +1280,8 @@ static uint8_t sysfont[] = {
 
                             };
 
-static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|&$-><_,\\/+*!‘?Ώ~^\"'`\x01\x02\x03ΑΙΝΣΪΡαινσϊρ\xffΊ" ;
+// static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|&$-><_,\\/+*!‘?Ώ~^\"'`\x01\x02\x03ΑΙΝΣΪΡαινσϊρ\xffΊ" ;
+static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|&$-><_,\\/+*!\xA1?\xBF~^\"'`\x01\x02\x03\xC1\xC9\xCD\xD3\xDA\xD1\xE1\xE9\xED\xF3\xFA\xF1\xFF\xBA";
 
 static int64_t debug_sysfont = -1;
 
