@@ -60,7 +60,7 @@
 #endif
 
 /* Mac OS X INCLUDES */
-#ifdef TARGET_MAC
+#ifdef __APPLE__
 #include <unistd.h>
 #include <sys/utsname.h>
 #include <ctype.h>
@@ -127,7 +127,7 @@ int64_t libmod_misc_mem_memory_free( INSTANCE * my, int64_t * params ) {
     get_system_info( &info );
     return B_PAGE_SIZE * ( info.max_pages - info.used_pages );
 
-#elif !defined(TARGET_MAC) && !defined(TARGET_WII) && !defined(__SWITCH__)
+#elif !defined(__APPLE__) && !defined(TARGET_WII) && !defined(__SWITCH__)
     /* Linux and other Unix (?) */
     struct sysinfo meminf;
     int fv;
@@ -164,7 +164,7 @@ int64_t libmod_misc_mem_memory_total( INSTANCE * my, int64_t * params ) {
     get_system_info( &info );
     return  B_PAGE_SIZE * ( info.max_pages );
 
-#elif !defined(TARGET_MAC) && !defined(TARGET_WII) && !defined(__SWITCH__)
+#elif !defined(__APPLE__) && !defined(TARGET_WII) && !defined(__SWITCH__)
     /* Linux and other Unix (?) */
     struct sysinfo meminf;
     int fv;

@@ -370,10 +370,10 @@ __DIR_ST * dir_open( const char * path )
     /* Convert '*.*' to '*' */
     if ( fptr > hDir->pattern + 2 && fptr[ -1 ] == '*' && fptr[ -2 ] == '.' && fptr[ -3 ] == '*' ) fptr[ -2 ] = 0;
 
-#if defined(TARGET_MAC) || defined(TARGET_BEOS)
-    r = glob( hDir->pattern, GLOB_ERR | GLOB_NOSORT, NULL, &hDir->globd );
-#else
+#ifdef GLOB_PERIOD
     r = glob( hDir->pattern, GLOB_ERR | GLOB_PERIOD | GLOB_NOSORT, NULL, &hDir->globd );
+#else //  defined(__APPLE__) || defined(TARGET_BEOS) || ( defined(__APPLE__) && defined(__MACH__) )
+    r = glob( hDir->pattern, GLOB_ERR | GLOB_NOSORT, NULL, &hDir->globd );
 #endif
 
     if ( r )

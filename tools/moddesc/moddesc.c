@@ -197,7 +197,7 @@ void describe_module( char *filename ) {
 
 #if defined( WIN32 )
 #define DLLEXT      ".dll"
-#elif defined(TARGET_MAC)
+#elif defined(__APPLE__)
 #define DLLEXT      ".dylib"
 #else
 #define DLLEXT      ".so"

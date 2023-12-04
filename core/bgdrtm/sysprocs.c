@@ -482,7 +482,7 @@ void sysproc_init() {
 
 #if defined( WIN32 )
 #define DLLEXT      ".dll"
-#elif defined(TARGET_MAC)
+#elif defined(__APPLE__)
 #define DLLEXT      ".dylib"
 #elif defined(__linux__)
 #define DLLEXT      ".so"

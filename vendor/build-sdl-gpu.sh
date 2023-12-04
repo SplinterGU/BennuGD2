@@ -2,11 +2,12 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32|switch] [debug] [clean] [verbose]"
+    echo "    $0 [windows|windows32|linux|linux32|switch] [debug] [clean] [verbose] [one-job]"
     exit 1
 }
 
 BUILD_TYPE=Release
+ONE_JOB=0
 
 for i in "$@"
 do
@@ -48,6 +49,11 @@ do
             export INCLUDE_DIRECTORIES
             ;;
 
+        macosx)
+            TARGET=x86_64-apple-darwin14
+            CMAKE_EXTRA="-DCMAKE_C_FLAGS=-Wno-incompatible-function-pointer-types -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DSDL2_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_LIBRARIES=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DCMAKE_C_COMPILER=${SDKROOT}/../../bin/o64-clang -DCMAKE_CXX_COMPILER=${SDKROOT}/../../bin/o64-clang++  -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=${SDKROOT}/../../SDK/MacOSX10.10.sdk"
+            ;;
+
         debug)
             BUILD_TYPE=RelWithDebInfo
             ;;
@@ -58,6 +64,10 @@ do
 
         verbose)
             VERBOSE="-DCMAKE_VERBOSE_MAKEFILE=ON"
+            ;;
+
+        one-job)
+            ONE_JOB=1
             ;;
 
         *)
@@ -92,7 +102,11 @@ cmake ../.. $DEBUG -DINCLUDE_DIRECTORIES="${INCLUDE_DIRECTORIES}" -DCMAKE_BUILD_
 if grep -q "CMAKE_GENERATOR:INTERNAL=Ninja" CMakeCache.txt; then
     ninja
 elif grep -q "CMAKE_GENERATOR:INTERNAL=Unix Makefiles" CMakeCache.txt; then
-    make -j
+    if [ $ONE_JOB -eq 0 ]; then
+        make -j
+    else
+        make
+    fi
 fi
 
 if [ $? -eq 0 ]; then
@@ -111,7 +125,13 @@ if [ $? -eq 0 ]; then
 
         i386-linux-gnu)
             cp SDL_gpu/lib/*.so ../../../../dependencies/$TARGET
-            cp SDL_gpu/lib/*.so SDL_gpu/lib/*.a /usr/lib/${TARGET}
+            cp SDL_gpu/lib/*.a /usr/lib/${TARGET}
+            ;;
+
+        x86_64-apple-darwin14)
+            mkdir -p ../../../../dependencies/$TARGET
+            cp SDL_gpu/lib/SDL2_gpu.framework/Versions/Current/SDL2_gpu ../../../../dependencies/$TARGET/libSDL2_gpu.dylib
+            cp SDL_gpu/lib/*.a ../../../../dependencies/$TARGET
             ;;
 
     esac

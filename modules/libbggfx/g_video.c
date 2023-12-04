@@ -44,7 +44,11 @@
 #endif
 
 #ifdef USE_SDL2_GPU
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #endif
 
 /* --------------------------------------------------------------------------- */

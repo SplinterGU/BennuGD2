@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32|switch] [debug] [clean] [packages] [use_sdl2|use_sdl2_gpu] [verbose] [static] [one-job]"
+    echo "    $0 [windows|windows32|linux|linux32|switch|macosx] [debug] [clean] [packages] [use_sdl2|use_sdl2_gpu] [verbose] [static] [one-job]"
     exit 1
 }
 
@@ -70,6 +70,13 @@ do
                 # linux
                 CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/linux_i686.toolchain.cmake -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=/usr/lib/${TARGET}/libSDL2-2.0.so.0 -DSDL2_IMAGE_LIBRARY=/usr/lib/${TARGET}/libSDL2_image-2.0.so.0 -DSDLMIXER_LIBRARY=/usr/lib/${TARGET}/libSDL2_mixer-2.0.so.0"
             fi
+            ;;
+
+        macosx)
+            TARGET=x86_64-apple-darwin14
+            CMAKE_EXTRA="-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DSDL2_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_LIBRARIES=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_IMAGE_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_IMAGE_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_image.dylib -DSDL2_Mixer_INCLUDE_DIRS=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDLMIXER_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_mixer.dylib -DCMAKE_C_COMPILER=${SDKROOT}/../../bin/o64-clang -DCMAKE_CXX_COMPILER=${SDKROOT}/../../bin/o64-clang++  -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=${SDKROOT}/../../SDK/MacOSX10.10.sdk"
+#            SDL2GPUDIR=../../vendor/sdl-gpu/include
+#            SDL2GPULIBDIR=../../dependencies/x86_64-apple-darwin14
             ;;
 
         static)
@@ -140,6 +147,7 @@ fi
 export PKG_CONFIG_PATH
 export TARGET
 export SDL2GPUDIR
+export SDL2GPULIBDIR
 export COMPILER
 export LIBRARY_BUILD_TYPE
 

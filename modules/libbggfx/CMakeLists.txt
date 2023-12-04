@@ -22,6 +22,10 @@ if(MINGW)
     set(OGL_LIB -lopengl32)
 endif()
 
+if(APPLE)
+    set(OGL_LIB -L$ENV{SDKROOT}/System/Library/Frameworks/OpenGL.framework/Libraries/ -lGL)
+endif()
+
 if(LIBVLC_ENABLED)
     set(VLC_LIB -lvlc)
 endif()
