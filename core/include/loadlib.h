@@ -113,16 +113,47 @@ static void * dlibopen( const char * fname ) {
         f = ( char * ) fname + strlen( fname );
         while ( f > fname && f[-1] != '\\' && f[-1] != '/' ) f-- ;
 
+#ifdef __APPLE__
+        _fname = malloc( strlen( fname ) + 32 );
+#endif
+
         if ( strncmp( f, "lib", 3 ) ) {
-            if ( ( _fname = malloc( strlen( fname ) + 5 ) ) ) {
+#ifndef __APPLE__
+            _fname = malloc( strlen( fname ) + 5 );
+#endif
+            if ( _fname ) {
                 sprintf( _fname, "%.*slib%s", ( int ) ( f - fname ), fname, f );
 #ifdef _WIN32
                 hnd = LoadLibrary( _fname );
 #else
                 hnd = dlopen( _fname, RTLD_NOW | RTLD_GLOBAL );
 #endif
+
+#ifdef __APPLE__
+                if ( !hnd ) {
+                    sprintf( _fname, "@executable_path/%.*slib%s", ( int ) ( f - fname ), fname, f );
+                    hnd = dlopen( _fname, RTLD_NOW | RTLD_GLOBAL );
+                    if ( !hnd ) {
+                        sprintf( _fname, "@rpath/%.*slib%s", ( int ) ( f - fname ), fname, f );
+                        hnd = dlopen( _fname, RTLD_NOW | RTLD_GLOBAL );
+                    }
+                }
+#endif
             }
         }
+#ifdef __APPLE__
+        else
+        {
+            if ( _fname ) {
+                sprintf( _fname, "@executable_path/%s", fname );
+                hnd = dlopen( _fname, RTLD_NOW | RTLD_GLOBAL );
+                if ( !hnd ) {
+                    sprintf( _fname, "@rpath/%s", fname );
+                    hnd = dlopen( _fname, RTLD_NOW | RTLD_GLOBAL );
+                }
+            }
+        }
+#endif
     }
 
     if ( !hnd ) {

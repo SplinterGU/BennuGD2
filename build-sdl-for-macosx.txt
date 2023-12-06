@@ -1,0 +1,15 @@
+mkdir -p /opt/osxcross
+cd /opt
+git clone https://github.com/tpoechtrager/osxcross.git
+cd osxcross
+wget -nc https://github.com/joseluisq/macosx-sdks/releases/download/10.10/MacOSX10.10.sdk.tar.xz
+mv MacOSX10.10.sdk.tar.xz tarballs/
+./tools/get_dependencies.sh
+UNATTENDED=yes ./build.sh
+
+export OSX_VERSION_MIN=10.7
+export PATH=/opt/osxcross/target/bin:$PATH
+export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
+export MACOSX_DEPLOYMENT_TARGET=10.10
+
+osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
