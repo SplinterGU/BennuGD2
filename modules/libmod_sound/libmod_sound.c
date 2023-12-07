@@ -550,7 +550,7 @@ static int set_music_volume( int volume ) {
 
 static int get_music_volume( int64_t id ) {
     if ( !audio_initialized || !id ) return ( 0 );
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return -1;
 #else
     return Mix_GetMusicVolume(( Mix_Music * )( intptr_t )id );
@@ -628,7 +628,7 @@ static int set_music_playback_position( double position ) {
 
 static double get_music_playback_position( int64_t id ) {
     if ( !audio_initialized || !id ) return ( 0 );
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return -1;
 #else
     return ( Mix_GetMusicPosition(( Mix_Music * )( intptr_t )id ) );
@@ -656,7 +656,7 @@ static double get_music_playback_position( int64_t id ) {
  */
 static double get_music_duration( int64_t id ) {
     if ( !audio_initialized ) return 0.0;
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return -1;
 #else
     return Mix_MusicDuration(( Mix_Music * )( intptr_t )id );
@@ -683,7 +683,7 @@ static double get_music_duration( int64_t id ) {
 
 static double get_music_loop_start_time( int64_t id ) {
     if ( !audio_initialized ) return 0.0;
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return -1;
 #else
     return Mix_GetMusicLoopStartTime(( Mix_Music * )( intptr_t )id );
@@ -710,7 +710,7 @@ static double get_music_loop_start_time( int64_t id ) {
 
 static double get_music_loop_end_time( int64_t id ) {
     if ( !audio_initialized ) return 0.0;
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return -1;
 #else
     return Mix_GetMusicLoopEndTime(( Mix_Music * )( intptr_t )id );
@@ -737,7 +737,7 @@ static double get_music_loop_end_time( int64_t id ) {
 
 static double get_music_loop_length_time( int64_t id ) {
     if ( !audio_initialized ) return 0.0;
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return -1;
 #else
     return Mix_GetMusicLoopLengthTime(( Mix_Music * )( intptr_t )id );
@@ -801,7 +801,7 @@ static const char *get_music_decoder( int index ) {
  */
 static int has_music_decoder( const char *name ) {
     if ( !audio_initialized ) return 0;
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return 0;
 #else
     return ( int )Mix_HasMusicDecoder( name );
@@ -847,7 +847,7 @@ static int get_music_type( int64_t id ) {
  */
 static const char *get_music_title( int64_t id ) {
     if ( !audio_initialized ) return NULL;
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return "";
 #else
     return Mix_GetMusicTitle(( Mix_Music * )( intptr_t )id );
@@ -870,7 +870,7 @@ static const char *get_music_title( int64_t id ) {
  *
  */
 static const char *get_music_title_tag( int64_t id ) {
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return "";
 #else
     return Mix_GetMusicTitleTag(( Mix_Music * )( intptr_t )id );
@@ -893,7 +893,7 @@ static const char *get_music_title_tag( int64_t id ) {
  *
  */
 static const char *get_music_artist_tag( int64_t id ) {
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return "";
 #else
     return Mix_GetMusicArtistTag(( Mix_Music * )( intptr_t )id );
@@ -916,7 +916,7 @@ static const char *get_music_artist_tag( int64_t id ) {
  *
  */
 static const char *get_music_album_tag( int64_t id ) {
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return "";
 #else
     return Mix_GetMusicAlbumTag(( Mix_Music * )( intptr_t )id );
@@ -939,7 +939,7 @@ static const char *get_music_album_tag( int64_t id ) {
  *
  */
 static const char *get_music_copyright_tag( int64_t id ) {
-#ifdef __SWITCH__
+#if !(SDL_MIXER_VERSION_ATLEAST(2, 6, 0))
     return "";
 #else
     return Mix_GetMusicCopyrightTag(( Mix_Music * )( intptr_t )id );
