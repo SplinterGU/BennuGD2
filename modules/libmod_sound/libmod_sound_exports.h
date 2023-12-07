@@ -111,19 +111,19 @@ DLSYSFUNCS  __bgdexport( libmod_sound, functions_exports )[] = {
     FUNC( "MUSIC_IS_PAUSED"             , ""            , TYPE_INT      , libmod_sound_is_paused_music                      ),
     FUNC( "MUSIC_IS_FADING"             , ""            , TYPE_INT      , libmod_sound_is_fading_music                      ),
     FUNC( "MUSIC_SET_VOLUME"            , "I"           , TYPE_INT      , libmod_sound_set_music_volume                     ),
-    FUNC( "MUSIC_GET_VOLUME"            , "I"           , TYPE_INT      , libmod_sound_get_music_volume                     ),
+    FUNC( "MUSIC_GET_VOLUME"            , "I"           , TYPE_INT      , libmod_sound_get_music_volume                     ), // not available on Nintendo SWITCH 
     FUNC( "MUSIC_SET_PLAYBACK_POSITION" , "D"           , TYPE_INT      , libmod_sound_set_music_playback_position          ),
     FUNC( "MUSIC_SET_TIME_POSITION"     , "D"           , TYPE_INT      , libmod_sound_set_music_playback_position          ),
-    FUNC( "MUSIC_GET_PLAYBACK_POSITION" , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_playback_position          ),
-    FUNC( "MUSIC_GET_TIME_POSITION"     , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_playback_position          ),
-    FUNC( "MUSIC_GET_DURATION"          , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_duration                   ),
-    FUNC( "MUSIC_GET_DURATION"          , ""            , TYPE_DOUBLE   , libmod_sound_get_music_duration_current           ),
-    FUNC( "MUSIC_GET_LOOP_START"        , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_loop_start_time            ),
-    FUNC( "MUSIC_GET_LOOP_START"        , ""            , TYPE_DOUBLE   , libmod_sound_get_music_loop_start_time_current    ),
-    FUNC( "MUSIC_GET_LOOP_END"          , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_loop_end_time              ),
-    FUNC( "MUSIC_GET_LOOP_END"          , ""            , TYPE_DOUBLE   , libmod_sound_get_music_loop_end_time_current      ),
-    FUNC( "MUSIC_GET_LOOP_LEN"          , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_loop_length_time           ),
-    FUNC( "MUSIC_GET_LOOP_LEN"          , ""            , TYPE_DOUBLE   , libmod_sound_get_music_loop_length_time_current   ),
+    FUNC( "MUSIC_GET_PLAYBACK_POSITION" , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_playback_position          ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_TIME_POSITION"     , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_playback_position          ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_DURATION"          , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_duration                   ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_DURATION"          , ""            , TYPE_DOUBLE   , libmod_sound_get_music_duration_current           ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_LOOP_START"        , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_loop_start_time            ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_LOOP_START"        , ""            , TYPE_DOUBLE   , libmod_sound_get_music_loop_start_time_current    ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_LOOP_END"          , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_loop_end_time              ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_LOOP_END"          , ""            , TYPE_DOUBLE   , libmod_sound_get_music_loop_end_time_current      ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_LOOP_LEN"          , "I"           , TYPE_DOUBLE   , libmod_sound_get_music_loop_length_time           ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_LOOP_LEN"          , ""            , TYPE_DOUBLE   , libmod_sound_get_music_loop_length_time_current   ), // not available on Nintendo SWITCH 
     FUNC( "SOUND_LOAD"                  , "S"           , TYPE_INT      , libmod_sound_load_sound                           ),
     FUNC( "SOUND_LOAD"                  , "SP"          , TYPE_INT      , libmod_sound_bgload_sound                         ),
     FUNC( "SOUND_UNLOAD"                , "I"           , TYPE_INT      , libmod_sound_unload_sound                         ),
@@ -159,19 +159,19 @@ DLSYSFUNCS  __bgdexport( libmod_sound, functions_exports )[] = {
     FUNC( "REVERSE_STEREO"              , "II"          , TYPE_INT      , libmod_sound_reverse_stereo                       ),
     FUNC( "GET_NUM_MUSIC_DECODERS"      , ""            , TYPE_INT      , libmod_sound_get_num_music_decoders               ),
     FUNC( "GET_MUSIC_DECODER"           , "I"           , TYPE_STRING   , libmod_sound_get_music_decoder                    ),
-    FUNC( "HAS_MUSIC_DECODER"           , "S"           , TYPE_INT      , libmod_sound_has_music_decoder                    ),
+    FUNC( "HAS_MUSIC_DECODER"           , "S"           , TYPE_INT      , libmod_sound_has_music_decoder                    ), // not available on Nintendo SWITCH 
     FUNC( "MUSIC_GET_TYPE"              , "I"           , TYPE_INT      , libmod_sound_get_music_type                       ),
-    FUNC( "MUSIC_GET_TITLE"             , "I"           , TYPE_STRING   , libmod_sound_get_music_title                      ),
-    FUNC( "MUSIC_GET_TITLE_TAG"         , "I"           , TYPE_STRING   , libmod_sound_get_music_title_tag                  ),
-    FUNC( "MUSIC_GET_ARTIST_TAG"        , "I"           , TYPE_STRING   , libmod_sound_get_music_artist_tag                 ),
-    FUNC( "MUSIC_GET_ALBUM_TAG"         , "I"           , TYPE_STRING   , libmod_sound_get_music_album_tag                  ),
-    FUNC( "MUSIC_GET_COPYRIGHT_TAG"     , "I"           , TYPE_STRING   , libmod_sound_get_music_copyright_tag              ),
+    FUNC( "MUSIC_GET_TITLE"             , "I"           , TYPE_STRING   , libmod_sound_get_music_title                      ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_TITLE_TAG"         , "I"           , TYPE_STRING   , libmod_sound_get_music_title_tag                  ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_ARTIST_TAG"        , "I"           , TYPE_STRING   , libmod_sound_get_music_artist_tag                 ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_ALBUM_TAG"         , "I"           , TYPE_STRING   , libmod_sound_get_music_album_tag                  ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_COPYRIGHT_TAG"     , "I"           , TYPE_STRING   , libmod_sound_get_music_copyright_tag              ), // not available on Nintendo SWITCH 
     FUNC( "MUSIC_GET_TYPE"              , ""            , TYPE_INT      , libmod_sound_get_music_type_current               ),
-    FUNC( "MUSIC_GET_TITLE"             , ""            , TYPE_STRING   , libmod_sound_get_music_title_current              ),
-    FUNC( "MUSIC_GET_TITLE_TAG"         , ""            , TYPE_STRING   , libmod_sound_get_music_title_tag_current          ),
-    FUNC( "MUSIC_GET_ARTIST_TAG"        , ""            , TYPE_STRING   , libmod_sound_get_music_artist_tag_current         ),
-    FUNC( "MUSIC_GET_ALBUM_TAG"         , ""            , TYPE_STRING   , libmod_sound_get_music_album_tag_current          ),
-    FUNC( "MUSIC_GET_COPYRIGHT_TAG"     , ""            , TYPE_STRING   , libmod_sound_get_music_copyright_tag_current      ),
+    FUNC( "MUSIC_GET_TITLE"             , ""            , TYPE_STRING   , libmod_sound_get_music_title_current              ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_TITLE_TAG"         , ""            , TYPE_STRING   , libmod_sound_get_music_title_tag_current          ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_ARTIST_TAG"        , ""            , TYPE_STRING   , libmod_sound_get_music_artist_tag_current         ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_ALBUM_TAG"         , ""            , TYPE_STRING   , libmod_sound_get_music_album_tag_current          ), // not available on Nintendo SWITCH 
+    FUNC( "MUSIC_GET_COPYRIGHT_TAG"     , ""            , TYPE_STRING   , libmod_sound_get_music_copyright_tag_current      ), // not available on Nintendo SWITCH 
     FUNC( "SOUND_GROUP_CHANNEL"         , "II"          , TYPE_INT      , libmod_sound_group_channel                        ),
     FUNC( "SOUND_GROUP_CHANNELS"        , "III"         , TYPE_INT      , libmod_sound_group_channels                       ),
     FUNC( "SOUND_GROUP_AVAILABLE"       , "I"           , TYPE_INT      , libmod_sound_group_available                      ),
