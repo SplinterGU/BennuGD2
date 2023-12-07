@@ -359,8 +359,17 @@ static char * trim( char * ptr ) {
 /* ---------------------------------------------------------------------- */
 
 static int import_exists( char * libname ) {
-    int n;
-    for ( n = 0; n < nimports; n++ ) if ( !strcmp( libname, string_get( imports[n] ) ) ) return n;
+    for ( int n = 0; n < nimports; n++ ) {
+        const char *import_str = string_get( imports[n] );
+
+        int libname_name_offset = !strncmp( libname, "lib", 3 ) ? 3 : 0;
+        int imports_name_offset = !strncmp( import_str, "lib", 3 ) ? 3 : 0;
+
+        if ( !strcmp( libname + libname_name_offset, import_str + imports_name_offset ) ) {
+            return n;
+        }
+    }
+
     return -1;
 }
 
