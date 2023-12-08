@@ -3084,7 +3084,7 @@ main_loop_instance_go:
                 while( sz-- ) {
                     string_discard( *dst );
                     *dst = *src;
-                    string_use( *dst );
+//                    string_use( *dst );
                     dst++; src++;
                 }
                 r->stack_ptr -= 2;
@@ -3170,7 +3170,7 @@ main_loop_instance_go:
                     while( sz-- ) {
                         string_discard( *dst );
                         *dst = *src;
-                        string_use( *dst );
+//                        string_use( *dst );
                         dst++; src++;
                     }
                 }
