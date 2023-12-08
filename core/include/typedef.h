@@ -38,7 +38,7 @@ extern TYPEDEF      typedef_enlarge  (TYPEDEF base);
 extern TYPEDEF      typedef_reduce   (TYPEDEF base);
 extern int          typedef_size     (TYPEDEF t);
 extern int          typedef_subsize  (TYPEDEF t, int c);
-extern void         typedef_describe (char * buffer, TYPEDEF t);
+extern char       * typedef_describe (TYPEDEF t);
 extern TYPEDEF      typedef_pointer  (TYPEDEF to);
 extern int			typedef_tcount   (TYPEDEF t);
 extern int			typedef_is_equal (TYPEDEF a, TYPEDEF b);

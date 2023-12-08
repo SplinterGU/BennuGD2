@@ -66,76 +66,97 @@ TYPEDEF typedef_pointer( TYPEDEF base ) {
     return t;
 }
 
-void typedef_describe( char * buffer, TYPEDEF t ) {
-    switch ( t.chunk[0].type ) {
+char* typedef_describe(TYPEDEF t) {
+    char* buffer = NULL;
+    switch (t.chunk[0].type) {
         case TYPE_INT:
-            strcpy( buffer, "INT" );
-            return;
+            buffer = strdup("INT");
+            break;
 
         case TYPE_QWORD:
-            strcpy( buffer, "QWORD" );
-            return;
+            buffer = strdup("QWORD");
+            break;
 
         case TYPE_INT32:
-            strcpy( buffer, "INT32" );
-            return;
+            buffer = strdup("INT32");
+            break;
 
         case TYPE_DWORD:
-            strcpy( buffer, "DWORD" );
-            return;
+            buffer = strdup("DWORD");
+            break;
 
         case TYPE_SHORT:
-            strcpy( buffer, "SHORT" );
-            return;
+            buffer = strdup("SHORT");
+            break;
 
         case TYPE_WORD:
-            strcpy( buffer, "WORD" );
-            return;
+            buffer = strdup("WORD");
+            break;
 
         case TYPE_BYTE:
-            strcpy( buffer, "BYTE" );
-            return;
+            buffer = strdup("BYTE");
+            break;
 
         case TYPE_CHAR:
-            strcpy( buffer, "CHAR" );
-            return;
+            buffer = strdup("CHAR");
+            break;
 
         case TYPE_SBYTE:
-            strcpy( buffer, "SIGNED BYTE" );
-            return;
+            buffer = strdup("SIGNED BYTE");
+            break;
 
         case TYPE_STRING:
-            strcpy( buffer, "STRING" );
-            return;
+            buffer = strdup("STRING");
+            break;
 
         case TYPE_DOUBLE:
-            strcpy( buffer, "DOUBLE" );
-            return;
+            buffer = strdup("DOUBLE");
+            break;
 
         case TYPE_FLOAT:
-            strcpy( buffer, "FLOAT" );
-            return;
+            buffer = strdup("FLOAT");
+            break;
 
         case TYPE_STRUCT:
-            if ( t.chunk[0].count > 1 ) sprintf( buffer, "STRUCT [%d]", t.chunk[0].count );
-            else                        strcpy( buffer, "STRUCT" );
-            return;
+            if (t.chunk[0].count > 1) {
+                size_t len = snprintf(NULL, 0, "STRUCT [%d]", t.chunk[0].count) + 1;
+                buffer = (char*)malloc(len);
+                if (buffer != NULL) {
+                    snprintf(buffer, len, "STRUCT [%d]", t.chunk[0].count);
+                }
+            } else {
+                buffer = strdup("STRUCT");
+            }
+            break;
 
-        case TYPE_ARRAY:
-            sprintf( buffer, "ARRAY [%d] OF ", t.chunk[0].count );
-            typedef_describe( buffer + strlen( buffer ), typedef_reduce( t ) );
-            return;
+        case TYPE_ARRAY: {
+            char* type_desc = typedef_describe(typedef_reduce(t)); // typedef_reduce no está definido en tu código, asumo que está definido en otra parte
+            size_t len = snprintf(NULL, 0, "ARRAY [%d] OF %s", t.chunk[0].count, type_desc) + 1;
+            buffer = (char*)malloc(len);
+            if (buffer != NULL) {
+                snprintf(buffer, len, "ARRAY [%d] OF %s", t.chunk[0].count, type_desc);
+                free(type_desc);
+            }
+            break;
+        }
 
-        case TYPE_POINTER:
-            strcpy( buffer, "POINTER TO " );
-            typedef_describe( buffer + strlen( buffer ), typedef_reduce( t ) );
-            return;
+        case TYPE_POINTER: {
+            char* type_desc = typedef_describe(typedef_reduce(t)); // typedef_reduce no está definido en tu código, asumo que está definido en otra parte
+            size_t len = snprintf(NULL, 0, "POINTER TO %s", type_desc) + 1;
+            buffer = (char*)malloc(len);
+            if (buffer != NULL) {
+                snprintf(buffer, len, "POINTER TO %s", type_desc);
+                free(type_desc);
+            }
+            break;
+        }
 
         case TYPE_UNDEFINED:
         default:
-            strcpy( buffer, "<UNDEFINED>" );
-            return;
+            buffer = strdup("<UNDEFINED>");
+            break;
     }
+    return buffer;
 }
 
 int typedef_subsize( TYPEDEF t, int c ) {
