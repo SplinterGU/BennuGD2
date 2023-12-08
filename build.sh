@@ -66,7 +66,13 @@ EXTRA_CFLAGS=
 MISC_FLAGS=
 ONE_JOB=0
 
-for i in "$@"
+args=$@
+
+if [ $# -eq 0 ]; then
+    args=$(uname -s|tr '[:upper:]' '[:lower:]')
+fi
+
+for i in "$args"
 do
     case $i in
         use_sdl2)
@@ -79,7 +85,7 @@ do
             USE_SDL2_GPU=1
             ;;
 
-        windows)
+        windows|mingw64*)
             TARGET=x86_64-w64-mingw32
             COMPILER="-MINGW"
             SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
@@ -123,7 +129,7 @@ do
             fi
             ;;
 
-        macosx)
+        macosx|darwin)
             TARGET=x86_64-apple-darwin14
             CMAKE_EXTRA="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.10 -DSDL2_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_LIBRARIES=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_IMAGE_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_IMAGE_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_image.dylib -DSDL2_Mixer_INCLUDE_DIRS=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDLMIXER_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_mixer.dylib -DCMAKE_C_COMPILER=${SDKROOT}/../../bin/o64-clang -DCMAKE_CXX_COMPILER=${SDKROOT}/../../bin/o64-clang++  -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=${SDKROOT}/../../SDK/MacOSX10.10.sdk"
             CMAKE_EXTRA+=" -DCMAKE_C_FLAGS=-Wno-pointer-sign"
