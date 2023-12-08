@@ -130,7 +130,7 @@ char* typedef_describe(TYPEDEF t) {
             break;
 
         case TYPE_ARRAY: {
-            char* type_desc = typedef_describe(typedef_reduce(t)); // typedef_reduce no está definido en tu código, asumo que está definido en otra parte
+            char* type_desc = typedef_describe(typedef_reduce(t));
             size_t len = snprintf(NULL, 0, "ARRAY [%d] OF %s", t.chunk[0].count, type_desc) + 1;
             buffer = (char*)malloc(len);
             if (buffer != NULL) {
@@ -141,7 +141,7 @@ char* typedef_describe(TYPEDEF t) {
         }
 
         case TYPE_POINTER: {
-            char* type_desc = typedef_describe(typedef_reduce(t)); // typedef_reduce no está definido en tu código, asumo que está definido en otra parte
+            char* type_desc = typedef_describe(typedef_reduce(t));
             size_t len = snprintf(NULL, 0, "POINTER TO %s", type_desc) + 1;
             buffer = (char*)malloc(len);
             if (buffer != NULL) {
