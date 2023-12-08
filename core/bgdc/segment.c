@@ -324,6 +324,19 @@ void segment_copy(segment *s, int64_t base_offset, int64_t total_length) {
 }
 
 /**
+ * Fill data with 0.
+ *
+ * @param s The target segment.
+ * @param total_length The total length of data to be filled.
+ */
+
+void segment_fill(segment *s, int64_t total_length) {
+	segment_ensure_capacity(s, total_length);
+	memset((uint8_t *)s->bytes + s->current, '\0', total_length);
+	s->current += total_length;
+}
+
+/**
  * Creates a new VARIABLE structure and initializes it.
  *
  * @return A pointer to the newly created VARIABLE structure.

@@ -195,25 +195,56 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
                     }
                 }
 
-                base = res.value;
-                if ( *t == TYPE_DOUBLE ) base = *( int64_t * ) &res.fvalue;
-                if ( *t == TYPE_FLOAT ) {
-                    float f = ( float ) res.fvalue;
-                    base = *( int32_t * ) &f;
-                }
+                if ( typedef_is_array( res.type ) ) {
+                    if ( typedef_size( res.type ) != size * typedef_size( type ) ) compile_error( MSG_TYPES_NOT_THE_SAME );
 
-                if ( is_inline ) {
+                    int rescount = typedef_tcount( res.type );
+
                     CODEBLOCK_POS curr_pos = codeblock_pos(code);
                     codeblock_setpos(code, pos1);
                     codeblock_add(code, MN_PRIVATE | mn, data->current);
                     codeblock_setpos(code, curr_pos);
-                    codeblock_add(code, MN_LETNP | mn, 0);
+
+                    /* Optimized fast memcopy version */
+                    codeblock_add( code, MN_PUSH, rescount );
+                    codeblock_add( code, MN_COPY_ARRAY | mntype( res.type, 1 ), 0 );
+                    codeblock_add( code, MN_POP, 0 );
+
+                    token_back();
+
+                    if ( *t == TYPE_STRING ) {
+                        int64_t tsize = typedef_size( type );
+                        for ( int64_t j = 0; j < rescount; j++, data->current += tsize ) {
+                            varspace_varstring( n, data->current );
+                            segment_add_as(data, 0, TYPE_STRING);
+                        }
+                    } else {
+                        segment_fill(data, typedef_size( res.type ));
+                    }
+
+                    count+=rescount;
+                    if ( size ) remaining-=rescount;
+                } else {
+                    base = res.value;
+                    if ( *t == TYPE_DOUBLE ) base = *( int64_t * ) &res.fvalue;
+                    if ( *t == TYPE_FLOAT ) {
+                        float f = ( float ) res.fvalue;
+                        base = *( int32_t * ) &f;
+                    }
+
+                    if ( is_inline ) {
+                        CODEBLOCK_POS curr_pos = codeblock_pos(code);
+                        codeblock_setpos(code, pos1);
+                        codeblock_add(code, MN_PRIVATE | mn, data->current);
+                        codeblock_setpos(code, curr_pos);
+                        codeblock_add(code, MN_LETNP | mn, 0);
+                    }
+                    token_back();
+                    if ( *t == TYPE_STRING ) varspace_varstring( n, data->current );
+                    segment_add_as( data, base, *t );
+                    count++;
+                    if ( size ) remaining--;
                 }
-                token_back();
-                if ( *t == TYPE_STRING ) varspace_varstring( n, data->current );
-                segment_add_as( data, base, *t );
-                count++;
-                if ( size ) remaining--;
             }
         }
         token_next();
@@ -900,10 +931,12 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                 {
                     int64_t current_offset = data->current;
                     if ( variable_already_exists ) data->current = var->offset;
+  
                     // Basic arrays
                     int count = compile_array_data( n, data, total_count, last_count, &basetype, is_inline );
                     assert( basetype != TYPE_UNDEFINED );
                     set_type( &type, basetype );
+
 
                     if ( variable_already_exists ) { // variable already exists
                         data->current = current_offset;

@@ -57,6 +57,7 @@ extern int64_t segment_add_from(segment * n, segment * s);
 extern void segment_dump(segment *);
 extern void segment_destroy(segment *);
 extern void segment_copy(segment *, int64_t base_offset, int64_t total_length);
+extern void segment_fill(segment *s, int64_t total_length);
 extern void segment_alloc(segment * n, int64_t count);
 extern void segment_ensure_capacity(segment * n, int64_t count);
 
