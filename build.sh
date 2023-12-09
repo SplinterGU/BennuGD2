@@ -87,7 +87,7 @@ if [ $# -eq 0 ]; then
     args=$(uname -s|tr '[:upper:]' '[:lower:]')
 fi
 
-for i in "$args"
+for i in $args
 do
     case $i in
         use_sdl2)
