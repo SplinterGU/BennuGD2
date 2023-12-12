@@ -457,7 +457,6 @@ INSTANCE * instance_new( PROCDEF * proc, INSTANCE * father ) {
     }
 
     /* Counts uses of string variables */
-
     for ( n = 0; n < proc->string_count; n++ ) string_use( PRIQWORD( r, proc->strings[n] ) );  /* Private strings */
     for ( n = 0; n < proc->pubstring_count; n++ ) string_use( PUBQWORD( r, proc->pubstrings[n] ) ); /* Public strings */
     for ( n = 0; n < local_strings; n++ ) string_use( LOCQWORD( r, localstr[n] ) ); /* Local strings */

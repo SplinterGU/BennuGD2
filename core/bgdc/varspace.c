@@ -169,6 +169,10 @@ void varspace_init( VARSPACE * n ) {
 
 void varspace_varstring( VARSPACE * n, int64_t offset ) {
     if ( !n ) return;
+
+    // ignore if already added
+    for ( int i = 0; i < n->stringvar_count; i++ ) if ( n->stringvars[ i ] == offset ) return;
+
     if ( n->stringvar_reserved == n->stringvar_count ) {
         n->stringvars = ( int64_t * ) realloc( n->stringvars, ( n->stringvar_reserved += 16 ) * sizeof( int64_t ) );
         if ( !n->stringvars ) {

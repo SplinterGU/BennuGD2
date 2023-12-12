@@ -273,7 +273,7 @@ static int64_t check_numeric_types( expresion_result *left, expresion_result *ri
         if ( typedef_is_double( right->type ) ) {
             codeblock_add( code, MN_DOUBLE2FLOAT, 0 );
             left->type = typedef_new( TYPE_FLOAT );
-            right->fvalue = ( float )right->value;
+//            right->value = ( float )right->fvalue;
             return MN_FLOAT;
         }
 
@@ -483,6 +483,7 @@ expresion_result compile_sublvalue( VARSPACE * from, int base_offset, VARSPACE *
     res.constant   = 0;
     res.call       = 0;
     res.value      = 0;
+    res.fvalue     = 0;
     res.count      = 1;
 
     /* Indexed via [...] */
@@ -761,6 +762,278 @@ uint64_t compile_sizeof( VARSPACE * here, int64_t * content_size, int64_t * cont
     token_back();
     return typedef_size( type );
 
+}
+
+/*
+ *  FUNCTION : convert_result_type
+ *
+ *  Given an expresion result in the current context, convert it
+ *  if possible to the basic type given(and emit the necessary code)
+ *
+ *  PARAMS:
+ *      res             Result of expression at current context
+ *      t               Basic type required
+ *
+ *  RETURN VALUE:
+ *      The converted type result
+ */
+
+expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
+    /* Type conversions */
+    if ( t == TYPE_STRING && typedef_base( res.type ) == TYPE_POINTER ) {
+        res.type = typedef_new( t ) ; /* Pointer -> String */
+        codeblock_add( code, MN_POINTER2STR, 0 );
+    }
+    else
+    if ( t == TYPE_POINTER && typedef_is_integer( res.type ) ) {
+        res.type = typedef_new( t ) ; /* pointer */
+    }
+    else
+    if ( t == TYPE_POINTER && typedef_is_double( res.type ) ) {
+        res.type = typedef_new( t ) ; /* pointer */
+        res.value = res.fvalue;
+        codeblock_add( code, MN_DOUBLE2INT, 0 );
+    }
+    else
+    if ( t == TYPE_POINTER && typedef_is_float( res.type ) ) {
+        res.type = typedef_new( t ) ; /* pointer */
+        res.value = res.fvalue;
+        codeblock_add( code, MN_FLOAT2INT, 0 );
+    }
+    else
+    if ( t == TYPE_POINTER && typedef_is_string( res.type ) ) {
+        res.type = typedef_new( t ) ; /* pointer */
+        res.value = string_atop( ( unsigned char * ) string_get( res.value ) );
+        codeblock_add( code, MN_STR2POINTER, 0 );
+    }
+    else
+    if ( t < TYPE_CHAR && typedef_base( res.type ) == TYPE_POINTER ) {
+        res.type = typedef_new( t ) ; /* Pointer -> Int */
+    }
+    else
+    if ( t < TYPE_CHAR && typedef_is_double( res.type ) ) {
+        res.type = typedef_new( t );
+        res.value = ( int64_t )res.fvalue;
+        codeblock_add( code, MN_DOUBLE2INT | mntype( res.type, 0 ), 0 );
+    }
+    else
+    if ( t < TYPE_CHAR && typedef_is_float( res.type ) ) {
+        res.type = typedef_new( t );
+        res.value = ( int64_t )res.fvalue;
+        codeblock_add( code, MN_FLOAT2INT | mntype( res.type, 0 ), 0 );
+    }
+    else
+    if ( t == TYPE_DOUBLE && typedef_is_integer( res.type ) ) {
+        codeblock_add( code, MN_INT2DOUBLE | mntype( res.type, 0 ), 0 );
+        if ( typedef_is_unsigned( res.type ) ) {
+            res.fvalue = ( double )( uint64_t )res.value;
+        } else {
+            res.fvalue = ( double )res.value;
+        }
+        res.type = typedef_new( t );
+    }
+    else
+    if ( t == TYPE_DOUBLE && typedef_is_float( res.type ) ) {
+        res.type = typedef_new( t );
+        res.value = ( double )res.fvalue;
+        codeblock_add( code, MN_FLOAT2DOUBLE, 0 );
+    }
+    else
+    if ( t == TYPE_FLOAT && typedef_is_integer( res.type ) ) {
+        codeblock_add( code, MN_INT2FLOAT | mntype( res.type, 0 ), 0 );
+        if ( typedef_is_unsigned( res.type ) ) {
+            res.fvalue = ( float )( uint64_t )res.value;
+        } else {
+            res.fvalue = ( float )res.value;
+        }
+        res.type = typedef_new( TYPE_FLOAT );
+    }
+    else
+    if ( t == TYPE_FLOAT && typedef_is_double( res.type ) ) {
+        codeblock_add( code, MN_DOUBLE2FLOAT, 0 );
+        res.type = typedef_new( t );
+    }
+    else
+    if (( t == TYPE_BYTE || t == TYPE_WORD || t == TYPE_DWORD || t == TYPE_QWORD ) && typedef_is_integer( res.type ) ) {
+        res.type = typedef_new( t );
+    }
+    else
+    if ( t < TYPE_FLOAT && typedef_is_integer( res.type ) ) {
+        res.type = typedef_new( t );
+    }
+    else
+    if ( t == TYPE_STRING && typedef_is_integer( res.type ) ) {
+        codeblock_add( code, MN_INT2STR | mntype( res.type, 0 ), 0 );
+        if ( res.constant ) {
+            char buffer[128];
+            switch ( res.type.chunk[0].type ) {
+                case TYPE_INT:
+                    sprintf( buffer, "%" PRId64, res.value );
+                    break;
+
+                case TYPE_QWORD:
+                    sprintf( buffer, "%" PRIu64, res.value );
+                    break;
+
+                case TYPE_INT32:
+                    sprintf( buffer, "%d", ( int32_t )res.value );
+                    break;
+
+                case TYPE_DWORD:
+                    sprintf( buffer, "%u", ( uint32_t )res.value );
+                    break;
+
+                case TYPE_SHORT:
+                    sprintf( buffer, "%d", ( int16_t )res.value );
+                    break;
+
+                case TYPE_WORD:
+                    sprintf( buffer, "%d", ( uint16_t )res.value );
+                    break;
+
+                case TYPE_SBYTE:
+                    sprintf( buffer, "%d", ( int8_t )res.value );
+                    break;
+
+                case TYPE_BYTE:
+                    sprintf( buffer, "%d", ( uint8_t )res.value );
+                    break;
+
+                case TYPE_UNDEFINED :
+                case TYPE_CHAR      :
+                case TYPE_FLOAT     :
+                case TYPE_DOUBLE    :
+                case TYPE_STRING    :
+                case TYPE_ARRAY     :
+                case TYPE_STRUCT    :
+                case TYPE_POINTER   :
+                    break;
+            }
+            res.value = string_new( buffer );
+        }
+        res.type = typedef_new( TYPE_STRING );
+    }
+    else
+    if ( t == TYPE_STRING && typedef_is_float( res.type ) ) {
+        codeblock_add( code, MN_FLOAT2STR, 0 );
+        if ( res.constant ) {
+            char buffer[128];
+            sprintf( buffer, "%f", res.fvalue );
+            res.value = string_new( buffer );
+            res.fvalue = res.value;
+        }
+        res.type = typedef_new( TYPE_STRING );
+    }
+    else
+    if ( t == TYPE_STRING && typedef_is_double( res.type ) ) {
+        codeblock_add( code, MN_DOUBLE2STR, 0 );
+        if ( res.constant ) {
+            char buffer[128];
+            sprintf( buffer, "%f", res.fvalue );
+            res.value = string_new( buffer );
+            res.fvalue = res.value;
+        }
+        res.type = typedef_new( TYPE_STRING );
+    }
+    else
+    if ( t == TYPE_STRING && typedef_base( res.type ) == TYPE_CHAR ) {
+        codeblock_add( code, MN_CHR2STR, 0 );
+        if ( res.constant ) {
+            char buffer[2];
+            buffer[0] = res.value;
+            buffer[1] = 0;
+            res.value = string_new( buffer );
+        }
+        res.type = typedef_new( TYPE_STRING );
+    }
+    else
+    if ( t != TYPE_UNDEFINED && typedef_base( res.type ) != t ) {
+        switch ( t ) {
+            case TYPE_CHAR:
+                /* Allow string-to-char conversions */
+                if ( typedef_is_string( res.type ) ) {
+                    codeblock_add( code, MN_STR2CHR, 0 );
+                    if ( res.constant == 1 ) res.value = ( unsigned char ) * ( string_get( res.value ) );
+                } else
+                    compile_error( MSG_INTEGER_REQUIRED );
+                break;
+
+            case TYPE_QWORD:
+            case TYPE_INT:
+            case TYPE_DWORD:
+            case TYPE_INT32:
+            case TYPE_WORD:
+            case TYPE_SHORT:
+            case TYPE_BYTE:
+            case TYPE_SBYTE:
+                if ( typedef_is_array( res.type ) && res.lvalue && res.type.chunk[1].type == TYPE_CHAR ) {
+                    codeblock_add( code, MN_A2STR, 0 );
+                    codeblock_add( code, MN_STR2INT, 0 );
+                    res.lvalue = 0;
+                    res.constant = 0;
+                } else if ( typedef_is_string( res.type ) ) {
+                    codeblock_add( code, MN_STR2INT, 0 );
+                    if ( res.constant == 1 ) res.value = atoi( string_get( res.value ) );
+                } else if ( typedef_base( res.type ) != TYPE_CHAR ) //{
+//                    res.type = typedef_new( t );
+//                } else
+                    compile_error( MSG_INTEGER_REQUIRED );
+                break;
+
+            case TYPE_DOUBLE:
+                if ( typedef_is_string( res.type ) ) {
+                    codeblock_add( code, MN_STR2DOUBLE, 0 );
+                    if ( res.constant == 1 ) res.fvalue = ( double )atof( string_get( res.value ) );
+                } else {
+                    compile_error( MSG_NUMBER_REQUIRED );
+                }
+                break;
+
+            case TYPE_FLOAT:
+                if ( typedef_is_string( res.type ) ) {
+                    codeblock_add( code, MN_STR2FLOAT, 0 );
+                    if ( res.constant == 1 ) res.fvalue = ( float )atof( string_get( res.value ) );
+                } else {
+                    compile_error( MSG_NUMBER_REQUIRED );
+                }
+                break;
+
+            case TYPE_STRING:
+                if ( typedef_is_array( res.type ) && res.lvalue && res.type.chunk[1].type == TYPE_CHAR ) {
+                    codeblock_add( code, MN_A2STR, 0 );
+                    res.lvalue = 0;
+                } else if ( typedef_is_integer( res.type ) ) {
+                    codeblock_add( code, MN_INT2STR | mntype( res.type, 0 ), 0 );
+                    if ( res.constant ) {
+                        char buffer[32];
+                        sprintf( buffer, "%" PRId64, res.value );
+                        res.value = string_new( buffer );
+                    }
+                } else if ( typedef_is_double( res.type ) ) {
+                    codeblock_add( code, MN_DOUBLE2STR, 0 );
+                    if ( res.constant ) {
+                        char buffer[384];
+                        sprintf( buffer, "%f", res.fvalue );
+                        res.value = string_new( buffer );
+                    }
+                } else if ( typedef_is_float( res.type ) ) {
+                    codeblock_add( code, MN_FLOAT2STR, 0 );
+                    if ( res.constant ) {
+                        char buffer[384];
+                        sprintf( buffer, "%f", res.fvalue );
+                        res.value = string_new( buffer );
+                    }
+                } else
+                    compile_error( MSG_STRING_EXP );
+                break;
+
+            default:
+                compile_error( MSG_INCOMP_TYPE );
+        }
+        res.type = typedef_new( t );
+    }
+
+    return res;
 }
 
 /* Static utility function for compile_bestproc */
@@ -2736,14 +3009,31 @@ expresion_result compile_subexpresion() {
                 if ( typedef_is_double( right.type ) ) {
                     // implicit conversion (DOUBLE to POINTER)
                     codeblock_add( code, MN_DOUBLE2INT | mntype( base.type, 0 ), 0 );
+                    right.value = right.fvalue;
                 }
 
                 if ( typedef_is_float( right.type ) ) {
                     // implicit conversion (FLOAT to POINTER)
                     codeblock_add( code, MN_FLOAT2INT | mntype( base.type, 0 ), 0 );
+                    right.value = right.fvalue;
                 }
 
-                if ( typedef_is_string( right.type ) && base.type.chunk[1].type == TYPE_CHAR ) {
+                if ( typedef_is_string( right.type ) ) {
+#if 0
+                    if ( base.type.chunk[1].type == TYPE_CHAR ) {
+                        if ( cstring_target ) {
+                            // implicit conversion (STRING to C CHAR*)
+                            codeblock_add( code, MN_STR2CHARNUL, 0 );
+                        } else {
+                            // implicit conversion (STRING to POINTER)
+                            codeblock_add( code, MN_STR2POINTER, 0 );
+                        }
+                    } else {
+                        // implicit conversion (STRING to POINTER)
+                        codeblock_add( code, MN_STR2POINTER, 0 );
+                        right.value = string_atop( ( unsigned char * ) string_get( right.value ) );
+                    }
+#endif
                     if ( cstring_target ) {
                         // implicit conversion (STRING to C CHAR*)
                         codeblock_add( code, MN_STR2CHARNUL, 0 );
@@ -2751,6 +3041,7 @@ expresion_result compile_subexpresion() {
                         // implicit conversion (STRING to POINTER)
                         codeblock_add( code, MN_STR2POINTER, 0 );
                     }
+                    right.value = string_atop( ( unsigned char * ) string_get( right.value ) );
                 }
 
                 /* A "void" pointer can be assigned to any other */
@@ -2948,15 +3239,23 @@ expresion_result compile_subexpresion() {
             op = token.code;
 
             /* Assignation to struct: struct copy */
-            if ( typedef_is_struct( base.type ) ) {
+
+            TYPEDEF btype = base.type;
+            while ( typedef_is_array( btype ) ) btype = typedef_reduce( btype );
+
+            if ( typedef_is_struct( btype ) ) {
                 if ( token.code != identifier_equal ) compile_error( MSG_EXPECTED, "=" ) ; /* "=" */
 
                 right = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
-                while ( typedef_is_array( right.type ) ) right.type = typedef_reduce( right.type );
 
-                if ( typedef_base( right.type ) != TYPE_POINTER ) compile_error( MSG_STRUCT_REQUIRED );
-                if ( !typedef_is_struct( typedef_reduce( right.type ) ) ) compile_error( MSG_STRUCT_REQUIRED );
-                if ( right.type.varspace != base.type.varspace ) compile_error( MSG_TYPES_NOT_THE_SAME );
+                TYPEDEF rtype = right.type;
+                while ( typedef_is_array( rtype ) || typedef_is_pointer( rtype ) ) rtype = typedef_reduce( rtype );
+
+                if ( typedef_is_pointer( right.type ) ) right.type = typedef_reduce( right.type );
+
+                if ( !typedef_is_struct( rtype ) ) compile_error( MSG_STRUCT_REQUIRED );
+
+                if ( !typedef_is_equal( right.type, base.type ) ) compile_error( MSG_TYPES_NOT_THE_SAME );
 
                 /* Struct copy operator */
                 while ( typedef_is_pointer( base.type ) ) {
@@ -2964,13 +3263,14 @@ expresion_result compile_subexpresion() {
                     res.type = typedef_reduce( base.type );
                 }
 
-                if ( typedef_base( base.type ) != TYPE_STRUCT ) compile_error( MSG_STRUCT_REQUIRED );
+                if ( typedef_base( btype ) != TYPE_STRUCT ) compile_error( MSG_STRUCT_REQUIRED );
 
                 if ( right.type.varspace->stringvar_count > 0 ) {
                     /* True struct copy version */
                     int size = right.type.varspace->count * sizeof( DCB_TYPEDEF );
                     segment_ensure_capacity(globaldata, size);
                     codeblock_add( code, MN_GLOBAL, globaldata->current );
+
                     for ( int nvar = 0 ; nvar < right.type.varspace->count ; nvar++ ) {
                         DCB_TYPEDEF dcbtype;
                         dcb_settype( &dcbtype, &right.type.varspace->vars[nvar].type );
@@ -2978,11 +3278,11 @@ expresion_result compile_subexpresion() {
                         globaldata->current += sizeof( DCB_TYPEDEF );
                     }
                     codeblock_add( code, MN_PUSH, right.type.varspace->count );
-                    codeblock_add( code, MN_PUSH, right.count ? right.count : 1 );
+                    codeblock_add( code, MN_PUSH, typedef_tcount( right.type ) );
                     codeblock_add( code, MN_COPY_STRUCT, 0 );
                 } else {
                     /* Optimized fast memcopy version */
-                    codeblock_add( code, MN_PUSH, right.type.varspace->size*( right.count ? right.count : 1 ) );
+                    codeblock_add( code, MN_PUSH, typedef_size( right.type ) );
                     codeblock_add( code, MN_COPY_ARRAY | MN_BYTE, 0 );
                 }
 
@@ -3071,6 +3371,7 @@ expresion_result compile_expresion( int need_constant, int need_lvalue, int disc
     CODEBLOCK_POS pos = { 0 };
 
     if ( code ) pos = codeblock_pos( code );
+
     res = compile_subexpresion();
 
     /* Interprets a structure as a pointer to itself */
@@ -3120,240 +3421,6 @@ expresion_result compile_expresion( int need_constant, int need_lvalue, int disc
     if ( need_constant && !res.constant ) compile_error( MSG_CONSTANT_EXP );
 
     if ( discart_code && code ) codeblock_setpos( code, pos );
-
-    return res;
-}
-
-/*
- *  FUNCTION : convert_result_type
- *
- *  Given an expresion result in the current context, convert it
- *  if possible to the basic type given(and emit the necessary code)
- *
- *  PARAMS:
- *      res             Result of expression at current context
- *      t               Basic type required
- *
- *  RETURN VALUE:
- *      The converted type result
- */
-
-expresion_result convert_result_type( expresion_result res, BASETYPE t ) {
-    /* Type conversions */
-
-    if ( t == TYPE_STRING && typedef_base( res.type ) == TYPE_POINTER ) {
-        codeblock_add( code, MN_POINTER2STR, 0 );
-        res.type = typedef_new( t ) ; /* Pointer -> String */
-    }
-    else
-    if ( t == TYPE_POINTER && typedef_is_integer( res.type ) /*&& res.constant && res.value == 0*/ ) {
-        res.type = typedef_new( t ) ; /* pointer */
-    }
-    else
-    if ( t < TYPE_CHAR && typedef_base( res.type ) == TYPE_POINTER ) {
-        res.type = typedef_new( t ) ; /* Pointer -> Int */
-    }
-    else
-    if ( t < TYPE_CHAR && typedef_is_double( res.type ) ) {
-        res.type = typedef_new( t );
-        res.value = ( int64_t )res.fvalue;
-        codeblock_add( code, MN_DOUBLE2INT | mntype( res.type, 0 ), 0 );
-    }
-    else
-    if ( t < TYPE_CHAR && typedef_is_float( res.type ) ) {
-        res.type = typedef_new( t );
-        res.value = ( int64_t )res.fvalue;
-        codeblock_add( code, MN_FLOAT2INT | mntype( res.type, 0 ), 0 );
-    }
-    else
-    if ( t == TYPE_DOUBLE && typedef_is_integer( res.type ) ) {
-        codeblock_add( code, MN_INT2DOUBLE | mntype( res.type, 0 ), 0 );
-        if ( typedef_is_unsigned( res.type ) ) {
-            res.fvalue = ( double )( uint64_t )res.value;
-        } else {
-            res.fvalue = ( double )res.value;
-        }
-        res.type = typedef_new( t );
-    }
-    else
-    if ( t == TYPE_DOUBLE && typedef_is_float( res.type ) ) {
-        codeblock_add( code, MN_FLOAT2DOUBLE, 0 );
-        res.type = typedef_new( t );
-        res.value = ( double )res.fvalue;
-    }
-    else
-    if ( t == TYPE_FLOAT && typedef_is_integer( res.type ) ) {
-        codeblock_add( code, MN_INT2FLOAT | mntype( res.type, 0 ), 0 );
-        if ( typedef_is_unsigned( res.type ) ) {
-            res.fvalue = ( float )( uint64_t )res.value;
-        } else {
-            res.fvalue = ( float )res.value;
-        }
-        res.type = typedef_new( TYPE_FLOAT );
-    }
-    else
-    if ( t == TYPE_FLOAT && typedef_is_double( res.type ) ) {
-        codeblock_add( code, MN_DOUBLE2FLOAT, 0 );
-        res.type = typedef_new( t );
-        res.value = ( float )res.fvalue;
-    }
-    else
-    if (( t == TYPE_BYTE || t == TYPE_WORD || t == TYPE_DWORD || t == TYPE_QWORD ) && typedef_is_integer( res.type ) ) {
-        res.type = typedef_new( t );
-    }
-    else
-    if ( t < TYPE_FLOAT && typedef_is_integer( res.type ) ) {
-        res.type = typedef_new( t );
-    }
-    else
-    if ( t == TYPE_STRING && typedef_is_integer( res.type ) ) {
-        codeblock_add( code, MN_INT2STR | mntype( res.type, 0 ), 0 );
-        if ( res.constant ) {
-            char buffer[128];
-            switch ( res.type.chunk[0].type ) {
-                case TYPE_INT:
-                    sprintf( buffer, "%" PRId64, res.value );
-                    break;
-
-                case TYPE_QWORD:
-                    sprintf( buffer, "%" PRIu64, res.value );
-                    break;
-
-                case TYPE_INT32:
-                    sprintf( buffer, "%d", ( int32_t )res.value );
-                    break;
-
-                case TYPE_DWORD:
-                    sprintf( buffer, "%u", ( uint32_t )res.value );
-                    break;
-
-                case TYPE_SHORT:
-                    sprintf( buffer, "%d", ( int16_t )res.value );
-                    break;
-
-                case TYPE_WORD:
-                    sprintf( buffer, "%d", ( uint16_t )res.value );
-                    break;
-
-                case TYPE_SBYTE:
-                    sprintf( buffer, "%d", ( int8_t )res.value );
-                    break;
-
-                case TYPE_BYTE:
-                    sprintf( buffer, "%d", ( uint8_t )res.value );
-                    break;
-
-                case TYPE_UNDEFINED :
-                case TYPE_CHAR      :
-                case TYPE_FLOAT     :
-                case TYPE_DOUBLE    :
-                case TYPE_STRING    :
-                case TYPE_ARRAY     :
-                case TYPE_STRUCT    :
-                case TYPE_POINTER   :
-                    break;
-            }
-            res.value = string_new( buffer );
-        }
-        res.type = typedef_new( t );
-    }
-    else
-    if ( t == TYPE_STRING && typedef_base( res.type ) == TYPE_CHAR ) {
-        codeblock_add( code, MN_CHR2STR, 0 );
-        if ( res.constant ) {
-            char buffer[2];
-            buffer[0] = res.value;
-            buffer[1] = 0;
-            res.value = string_new( buffer );
-        }
-        res.type = typedef_new( t );
-    }
-    else
-    if ( t != TYPE_UNDEFINED && typedef_base( res.type ) != t ) {
-        switch ( t ) {
-            case TYPE_CHAR:
-                /* Allow string-to-char conversions */
-                if ( typedef_is_string( res.type ) ) {
-                    codeblock_add( code, MN_STR2CHR, 0 );
-                    if ( res.constant == 1 ) res.value = ( unsigned char ) * ( string_get( res.value ) );
-                } else
-                    compile_error( MSG_INTEGER_REQUIRED );
-                break;
-
-            case TYPE_QWORD:
-            case TYPE_INT:
-            case TYPE_DWORD:
-            case TYPE_INT32:
-            case TYPE_WORD:
-            case TYPE_SHORT:
-            case TYPE_BYTE:
-            case TYPE_SBYTE:
-                if ( typedef_is_array( res.type ) && res.lvalue && res.type.chunk[1].type == TYPE_CHAR ) {
-                    codeblock_add( code, MN_A2STR, 0 );
-                    codeblock_add( code, MN_STR2INT, 0 );
-                    res.lvalue = 0;
-                    res.constant = 0;
-                } else if ( typedef_is_string( res.type ) ) {
-                    codeblock_add( code, MN_STR2INT, 0 );
-                    if ( res.constant == 1 ) res.value = atoi( string_get( res.value ) );
-                } else if ( typedef_base( res.type ) != TYPE_CHAR ) //{
-//                    res.type = typedef_new( t );
-//                } else
-                    compile_error( MSG_INTEGER_REQUIRED );
-                break;
-
-            case TYPE_DOUBLE:
-                if ( typedef_is_string( res.type ) ) {
-                    codeblock_add( code, MN_STR2DOUBLE, 0 );
-                    if ( res.constant == 1 ) res.fvalue = ( double )atof( string_get( res.value ) );
-                } else {
-                    compile_error( MSG_NUMBER_REQUIRED );
-                }
-                break;
-
-            case TYPE_FLOAT:
-                if ( typedef_is_string( res.type ) ) {
-                    codeblock_add( code, MN_STR2FLOAT, 0 );
-                    if ( res.constant == 1 ) res.fvalue = ( float )atof( string_get( res.value ) );
-                } else {
-                    compile_error( MSG_NUMBER_REQUIRED );
-                }
-                break;
-
-            case TYPE_STRING:
-                if ( typedef_is_array( res.type ) && res.lvalue && res.type.chunk[1].type == TYPE_CHAR ) {
-                    codeblock_add( code, MN_A2STR, 0 );
-                    res.lvalue = 0;
-                } else if ( typedef_is_integer( res.type ) ) {
-                    codeblock_add( code, MN_INT2STR | mntype( res.type, 0 ), 0 );
-                    if ( res.constant ) {
-                        char buffer[32];
-                        sprintf( buffer, "%" PRId64, res.value );
-                        res.value = string_new( buffer );
-                    }
-                } else if ( typedef_is_double( res.type ) ) {
-                    codeblock_add( code, MN_DOUBLE2STR, 0 );
-                    if ( res.constant ) {
-                        char buffer[384];
-                        sprintf( buffer, "%f", res.fvalue );
-                        res.value = string_new( buffer );
-                    }
-                } else if ( typedef_is_float( res.type ) ) {
-                    codeblock_add( code, MN_FLOAT2STR, 0 );
-                    if ( res.constant ) {
-                        char buffer[384];
-                        sprintf( buffer, "%f", res.fvalue );
-                        res.value = string_new( buffer );
-                    }
-                } else
-                    compile_error( MSG_STRING_EXP );
-                break;
-
-            default:
-                compile_error( MSG_INCOMP_TYPE );
-        }
-        res.type = typedef_new( t );
-    }
 
     return res;
 }
@@ -3784,6 +3851,7 @@ void compile_block( PROCDEF * p ) {
                 if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
 
                 var_pos = codeblock_pos( code );
+
                 res = compile_value();
 
                 res_type = typedef_base( res.type );

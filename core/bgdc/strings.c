@@ -262,3 +262,26 @@ const unsigned char * string_get( int64_t code ) {
     assert( code < string_count && code >= 0 );
     return string_mem + string_offset[ code ];
 }
+
+int64_t string_atop( unsigned char *str )  {
+    unsigned char c;
+    if ( !str ) return 0;
+
+    int64_t result = 0, value;
+
+    while ( ( c = *str ) ) {
+        if (c >= '0' && c <= '9') {
+            value = c - '0';
+        } else if (c >= 'a' && c <= 'f') {
+            value = c - 'a' + 10;
+        } else if (c >= 'A' && c <= 'F') {
+            value = c - 'A' + 10;
+        } else {
+            return result;
+        }
+        result = (result << 4) | value;
+        str++;
+    }
+
+    return result;
+}

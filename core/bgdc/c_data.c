@@ -46,8 +46,7 @@
 
 int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BASETYPE *t, int is_inline ) {
     int block, count = 0, remaining = size;
-    int64_t base_offset, total_length;
-    int64_t base;
+    int64_t base_offset, total_length, base;
     expresion_result res;
 
     for (;;) {
@@ -57,13 +56,8 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
         }
 
         token_next();
-        /*
-        if (*t == TYPE_UNDEFINED && token.type == STRING)
-        {
-            *t = typedef_base(typedef_new(TYPE_STRING));
-        }
-        */
-        if ( token.type == IDENTIFIER && ( token.code == identifier_rightp || token.code == identifier_semicolon ) ) {
+
+        if ( token.type == IDENTIFIER && ( token.code == identifier_rightcb || token.code == identifier_semicolon ) ) {
             token_back();
             break;
         }
@@ -96,13 +90,12 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
             remaining -= subsize;
         }
         else
-        if ( token.type == IDENTIFIER && token.code == identifier_leftp ) {
+        if ( token.type == IDENTIFIER && token.code == identifier_leftcb ) {
             block = compile_array_data( n, data, remaining, remaining, t, is_inline );
             remaining -= block;
             count += block;
             token_next();
-            if ( token.type != IDENTIFIER || token.code != identifier_rightp )
-                compile_error( MSG_EXPECTED, ")" );
+            if ( token.type != IDENTIFIER || token.code != identifier_rightcb ) compile_error( MSG_EXPECTED, "}" );
         }
         else
         {
@@ -111,16 +104,13 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
             CODEBLOCK_POS pos1 = codeblock_pos(code), pos2;
 
             if ( is_inline ) {
-                // Reserve space to set 'MN_PRIVATE | mntype(*t, 0)' when the type of *t is resolved.
+                /* Reserve space to set 'MN_PRIVATE | mntype(*t, 0)' when the type of *t is resolved. */
                 codeblock_add(code, MN_NOP, 0);
                 codeblock_add(code, MN_NOP, 0);
-                pos2 = codeblock_pos(code); // Save this point for optimize constants
-                res = compile_expresion( 0, 0, 0, TYPE_UNDEFINED );
+                pos2 = codeblock_pos(code); /* Save this point for optimize constants */
             }
-            else
-            {
-                res = compile_expresion( 1, 0, 1, TYPE_UNDEFINED );
-            }
+
+            res = compile_expresion( !is_inline, 0, !is_inline, TYPE_UNDEFINED );
 
             if ( *t == TYPE_UNDEFINED ) {
                 *t = typedef_base( res.type );
@@ -145,13 +135,14 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
                 }
 
                 base = res.value;
-                if ( *t == TYPE_DOUBLE ) base = *( int64_t * ) &res.fvalue;
                 if ( *t == TYPE_FLOAT ) {
                     float f = ( float ) res.fvalue;
                     base = *( int32_t * ) &f;
                 }
+                else
+                if ( *t == TYPE_DOUBLE ) base = *( int64_t * ) &res.fvalue;
 
-                // Ignore code from "pos1"
+                /* Ignore code from "pos1" */
                 codeblock_setpos(code, pos1);
 
                 token_next();
@@ -181,20 +172,11 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
                     base_offset += total_length;
                 }
                 token_next();
-                if ( token.type != IDENTIFIER || token.code != identifier_rightp )
-                    compile_error( MSG_EXPECTED, ")" );
+                if ( token.type != IDENTIFIER || token.code != identifier_rightp ) compile_error( MSG_EXPECTED, ")" );
             }
             /* Non DUP */
             else
             {
-                if ( res.constant ) {
-                    if ( *t != typedef_base( res.type ) ) {
-                        res = convert_result_type( res, *t );
-                        codeblock_setpos(code, pos2);
-                        codeblock_add(code, MN_PUSH | ( *t == TYPE_STRING ? MN_STRING : 0 ), res.value);
-                    }
-                }
-
                 if ( typedef_is_array( res.type ) ) {
                     if ( typedef_size( res.type ) != size * typedef_size( type ) ) compile_error( MSG_TYPES_NOT_THE_SAME );
 
@@ -225,14 +207,24 @@ int compile_array_data( VARSPACE * n, segment * data, int size, int subsize, BAS
                     count+=rescount;
                     if ( size ) remaining-=rescount;
                 } else {
+                    if ( *t != typedef_base( res.type ) ) {
+                        res = convert_result_type( res, *t );
+                    }
+
                     base = res.value;
-                    if ( *t == TYPE_DOUBLE ) base = *( int64_t * ) &res.fvalue;
                     if ( *t == TYPE_FLOAT ) {
                         float f = ( float ) res.fvalue;
                         base = *( int32_t * ) &f;
                     }
+                    else
+                    if ( *t == TYPE_DOUBLE ) base = *( int64_t * ) &res.fvalue;
 
                     if ( is_inline ) {
+                        if ( res.constant ) {
+                            codeblock_setpos( code, pos2 );
+                            codeblock_add( code, MN_PUSH | ( *t == TYPE_STRING ? MN_STRING : 0 ), base );
+                        }
+
                         CODEBLOCK_POS curr_pos = codeblock_pos(code);
                         codeblock_setpos(code, pos1);
                         codeblock_add(code, MN_PRIVATE | mn, data->current);
@@ -316,7 +308,7 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub, int is
         token_next();
 
         /* Allow parenthized struct initialization */
-        if ( token.type == IDENTIFIER && token.code == identifier_leftp ) {
+        if ( token.type == IDENTIFIER && token.code == identifier_leftcb ) {
 
             if (( elements % n->count ) != 0 ) compile_error( MSG_NOT_ENOUGH_INIT );
 
@@ -326,7 +318,8 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub, int is
             if ( elements >= n->count ) size -= ( elements / n->count );
 
             token_next();
-            if ( token.type != IDENTIFIER || token.code != identifier_rightp ) compile_error( MSG_EXPECTED, ")" );
+
+            if ( token.type != IDENTIFIER || token.code != identifier_rightcb ) compile_error( MSG_EXPECTED, "}" );
 
             token_next();
             if (( elements % n->count ) == 0 && size > 0 && token.type == IDENTIFIER && token.code == identifier_comma )
@@ -351,18 +344,28 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub, int is
 
                 if ( is_inline ) codeblock_add(code, MN_PRIVATE | mn, data->current);
 
-                res = compile_expresion( !( is_inline ), 0, 0, TYPE_QWORD );
+                CODEBLOCK_POS pos = codeblock_pos(code);
+
+                res = compile_expresion( !is_inline, 0, !is_inline, TYPE_UNDEFINED );
 
                 if ( !is_inline && !res.constant ) compile_error( MSG_INCORRECT_PTR_INIT );
 
-                if ( is_inline ) {
-                    codeblock_add( code, MN_LETNP | mn, 0);
-                    segment_add_as( data, res.value, TYPE_POINTER );
+                if ( TYPE_POINTER != typedef_base( res.type ) ) {
+                    res = convert_result_type( res, TYPE_POINTER );
                 }
-                else
-                    segment_add_as( data, 0, TYPE_POINTER );
 
-            } else if ( typedef_is_array( next_type ) ) { /* Next variable is an array */
+                if ( !is_inline || res.constant ) codeblock_setpos(code, pos);
+
+                if ( is_inline ) {
+                    if ( res.constant ) codeblock_add( code, MN_PUSH, res.value );
+                    codeblock_add( code, MN_LETNP | mn, 0);
+                }
+
+                segment_add_as( data, res.value, TYPE_POINTER );
+
+            } else
+            /* Next variable is an array */
+            if ( typedef_is_array( next_type ) ) {
                 int elements = typedef_tcount( next_type );
                 BASETYPE base;
 
@@ -406,18 +409,18 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub, int is
                     else
                     /* Initializing normal arrays */
                     {
-                        int has_parents = 1;
+                        int has_curlybraces = 1;
 
-                        if ( token.type != IDENTIFIER || token.code != identifier_leftp ) {
-                            has_parents = 0;
+                        if ( token.type != IDENTIFIER || token.code != identifier_leftcb ) {
+                            has_curlybraces = 0;
                             token_back();
                         }
 
                         compile_array_data( n, data, elements, elements, &base, is_inline );
 
-                        if ( has_parents ) {
+                        if ( has_curlybraces ) {
                             token_next();
-                            if ( token.type != IDENTIFIER || token.code != identifier_rightp ) compile_error( MSG_EXPECTED, ")" );
+                            if ( token.type != IDENTIFIER || token.code != identifier_rightcb ) compile_error( MSG_EXPECTED, "}" );
                         }
                     }
                 }
@@ -430,31 +433,78 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub, int is
             else
             /* Next variable is a single type */
             {
-                BASETYPE t;
+                BASETYPE t = typedef_base( next_type );
 
                 int64_t mn = mntype( next_type, 0 );
 
-                if ( is_inline ) codeblock_add(code, MN_PRIVATE | mn, data->current);
-
-                res = compile_expresion( !( is_inline ), 0, 0, typedef_base( next_type ) );
-
-                if ( is_inline ) codeblock_add(code, MN_LETNP | mn, 0);
-
-                if ( !is_inline && !res.constant ) compile_error( MSG_CONSTANT_EXP );
-
-                t = typedef_base( next_type );
-                if ( t == TYPE_FLOAT ) {
-                    float f = ( float ) res.fvalue;
-                    segment_add_as( data, *( int32_t * ) &f, t );
+                CODEBLOCK_POS pos;
+                if ( is_inline ) {
+                    codeblock_add(code, MN_PRIVATE | mn, data->current);
+                    pos = codeblock_pos(code);
                 }
-                else
-                if ( t == TYPE_DOUBLE ) {
-                    segment_add_as( data, *( int64_t * ) &res.fvalue, t );
-                }
-                else
-                {
-                    if ( t == TYPE_STRING ) varspace_varstring( n, data->current );
-                    segment_add_as( data, res.value, t );
+
+                res = compile_expresion( !is_inline, 0, 0, TYPE_UNDEFINED );
+
+                if ( typedef_is_array( res.type ) ) {
+                    if ( !typedef_is_equal( res.type, next_type ) || typedef_size( res.type ) != size * n->size ) compile_error( MSG_TYPES_NOT_THE_SAME );
+
+                    int typesize = res.type.varspace->count * sizeof( DCB_TYPEDEF );
+                    segment_ensure_capacity(globaldata, typesize);
+                    codeblock_add( code, MN_GLOBAL, globaldata->current );
+                    for ( int nvar = 0 ; nvar < res.type.varspace->count ; nvar++ ) {
+                        DCB_TYPEDEF dcbtype;
+                        dcb_settype( &dcbtype, &res.type.varspace->vars[nvar].type );
+                        memcpy(( uint8_t* )globaldata->bytes + globaldata->current, &dcbtype, sizeof( DCB_TYPEDEF ) );
+                        globaldata->current += sizeof( DCB_TYPEDEF );
+                    }
+
+                    /* Optimized fast memcopy version */
+                    codeblock_add( code, MN_PUSH, n->count );
+                    codeblock_add( code, MN_PUSH, size ? size : 1 );
+                    codeblock_add( code, MN_COPY_STRUCT, 0 );
+                    codeblock_add( code, MN_POP, 0 );
+
+                    position+=n->size-1;
+                    elements+=size-1;
+
+                } else {
+                    if ( t != typedef_base( res.type ) ) {
+                        res = convert_result_type( res, t );
+                    }
+
+                    if ( is_inline ) {
+                        if ( res.constant ) {
+                            codeblock_setpos(code, pos);
+
+                            int64_t base = res.value;
+                            if ( t == TYPE_FLOAT ) {
+                                float f = ( float ) res.fvalue;
+                                base = *( int32_t * ) &f;
+                            }
+                            else
+                            if ( t == TYPE_DOUBLE ) base = *( int64_t * ) &res.fvalue;
+
+                            codeblock_add(code, MN_PUSH | ( t == TYPE_STRING ? MN_STRING : 0 ), base);
+                        }
+                        codeblock_add(code, MN_LETNP | mn, 0);
+                    }
+                    else
+                    /* not inline */
+                    if ( !res.constant ) compile_error( MSG_CONSTANT_EXP );
+
+                    if ( t == TYPE_FLOAT ) {
+                        float f = ( float ) res.fvalue;
+                        segment_add_as( data, *( int32_t * ) &f, t );
+                    }
+                    else
+                    if ( t == TYPE_DOUBLE ) {
+                        segment_add_as( data, *( int64_t * ) &res.fvalue, t );
+                    }
+                    else
+                    {
+                        if ( t == TYPE_STRING ) varspace_varstring( n, data->current );
+                        segment_add_as( data, res.value, t );
+                    }
                 }
             }
 
@@ -470,7 +520,7 @@ int compile_struct_data( VARSPACE * n, segment * data, int size, int sub, int is
                 break;
             }
 
-            if ( token.type == IDENTIFIER && token.code == identifier_rightp ) {
+            if ( token.type == IDENTIFIER && token.code == identifier_rightcb ) {
                 token_back();
                 break;
             }
@@ -602,7 +652,7 @@ VARIABLE * validate_variable( VARSPACE *n, TYPEDEF type, int duplicateignore ) {
 int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VARSPACE ** collision, int alignment, int duplicateignore, int block_without_begin, int level, int is_inline ) {
     int i, j,
         total_count, last_count = 0,
-        base_offset = data->current, // base_offset is the current data pos of the varspace
+        base_offset = data->current, /* base_offset is the current data pos of the varspace */
         total_length,
         sign_prefix = 0;
     expresion_result res;
@@ -727,14 +777,14 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
         }
 
-        if ( block_without_begin && basetype == TYPE_UNDEFINED && varspace_search_in_current_scope( n, token.code ) ) { // end
+        if ( block_without_begin && basetype == TYPE_UNDEFINED && varspace_search_in_current_scope( n, token.code ) ) { /* end */
             token_set_pos( tokp );
             break;
         }
 
         tok_pos tokp1 = token_pos();
         token_next();
-        if ( token.code == identifier_leftp ) { // process without type
+        if ( token.code == identifier_leftcb ) { /* process without type */
             token_set_pos( tokp );
             compile_process();
             break;
@@ -742,7 +792,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
         token_set_pos( tokp1 );
 
         /* Variable type required */
-        if ( basetype == TYPE_UNDEFINED && token.code != identifier_struct ) compile_error( MSG_DATA_TYPE_REQUIRED ); // type = typedef_new( TYPE_INT ); // Data Type Required
+        if ( basetype == TYPE_UNDEFINED && token.code != identifier_struct ) compile_error( MSG_DATA_TYPE_REQUIRED ); /* Data Type Required */
 
         if ( token.type == IDENTIFIER && token.code == identifier_struct ) {
             type.chunk[0].type = TYPE_STRUCT;
@@ -823,11 +873,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             if ( !members ) compile_error( MSG_OUT_OF_MEMORY );
             varspace_init( members );
 
-            ( void ) compile_varspace( members, data, 0, count, NULL, 0, duplicateignore, 0, level + 1, is_inline );
+            ( void ) compile_varspace( members, data, is_inline /* test */, count, NULL, 0, duplicateignore, 0, level + 1, is_inline );
 
             type.varspace = members;
 
-            // check if variable exists and compare types
+            /* check if variable exists and compare types */
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
@@ -849,7 +899,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                 token_back();
             }
 
-            if ( var_aux ) { // variable already exists
+            if ( var_aux ) { /* variable already exists */
                 varspace_destroy( members );
                 continue;
             }
@@ -875,7 +925,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
 
                 token_next();
                 if ( token.type == IDENTIFIER && token.code == identifier_rightb ) {
-                    // Undefined size dimension only is allowed in arrays of 1 dimension
+                    /* Undefined size dimension only is allowed in arrays of 1 dimension */
                     type.chunk[0].count = 0;
                     if ( total_count != 1 ) compile_error( MSG_UNDEFINED_MULTIPLE_ARRAY );
                     total_count = 0;
@@ -883,13 +933,13 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                 }
                 else
                 {
-                    // Undefined size dimension only is allowed in arrays of 1 dimension
+                    /* Undefined size dimension only is allowed in arrays of 1 dimension */
                     if ( !total_count ) compile_error( MSG_UNDEFINED_MULTIPLE_ARRAY);
                     token_back();
                     res = compile_expresion( 1, 0, 1, TYPE_QWORD );
-                    total_count *= res.value + 1;           // + 1 last index of this dimension
-                    last_count = res.value + 1;             // + 1 last index of this dimension
-                    type.chunk[0].count = res.value + 1;    // + 1 last index of this dimension
+                    total_count *= res.value + 1;           /* + 1 last index of this dimension */
+                    last_count = res.value + 1;             /* + 1 last index of this dimension */
+                    type.chunk[0].count = res.value + 1;    /* + 1 last index of this dimension */
                     token_next();
                     if ( token.type != IDENTIFIER || token.code != identifier_rightb ) compile_error( MSG_EXPECTED, "]" );
                 }
@@ -899,7 +949,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             /* Reverses the indices [10][5] -> [5][10] */
             type = reverse_indices( type );
 
-            // check if variable exists and compare types
+            /* check if variable exists and compare types */
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
 
@@ -913,13 +963,14 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     var->offset = var_aux->offset;
                 }
 
-                if ( segm ) { // Structs arrays
+                /* Structs arrays */
+                if ( segm ) {
                     for ( i = 0 ; i < total_count ; i++ ) segment_add_from( data, segm );
                     int64_t current_offset = data->current;
                     data->current = var->offset;
                     compile_struct_data( type.varspace, data, typedef_count( type ), 0, is_inline );
 
-                    if ( variable_already_exists ) { // variable already exists
+                    if ( variable_already_exists ) { /* variable already exists */
                         data->current = current_offset;
                         continue;
                     }
@@ -928,17 +979,17 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     else                        data->current = current_offset; /* Only if it had already been allocated */
                 }
                 else
+                /* Basic arrays */
                 {
                     int64_t current_offset = data->current;
                     if ( variable_already_exists ) data->current = var->offset;
   
-                    // Basic arrays
                     int count = compile_array_data( n, data, total_count, last_count, &basetype, is_inline );
                     assert( basetype != TYPE_UNDEFINED );
                     set_type( &type, basetype );
 
 
-                    if ( variable_already_exists ) { // variable already exists
+                    if ( variable_already_exists ) { /* variable already exists */
                         data->current = current_offset;
                         continue;
                     }
@@ -952,14 +1003,14 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                 }
             }
             else
+            /* Arrays without value */
             {
-                // If the variable already exists then ignore
+                /* If the variable already exists then ignore */
                 if ( var_aux ) continue;
 
-                // Arrays without value
-
-                if ( segm ) { // Struct Array
-                    // Error if the variable is an array and does not have a specified dimension or initialization values
+                /* Struct Array */
+                if ( segm ) {
+                    /* Error if the variable is an array and does not have a specified dimension or initialization values */
                     if ( total_count == 0 ) compile_error( MSG_EXPECTED, "=" );
 
                     int string_offset = 0;
@@ -971,8 +1022,11 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                         string_offset += type.varspace->size;
                     }
                     token_back();
-                } else { // Simple Array
-                    // Error if the variable is an array and does not have a specified dimension or initialization values
+                }
+                else
+                /* Simple Array */
+                {
+                    /* Error if the variable is an array and does not have a specified dimension or initialization values */
                     if ( type.chunk[0].count == 0 ) compile_error( MSG_EXPECTED, "=" );
 
                     if ( basetype == TYPE_UNDEFINED ) {
@@ -989,8 +1043,9 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
         }
         else
+        /* Compile non-struct and non-array */
         {
-            // check if variable exists and compare types
+            /* check if variable exists and compare types */
             tok_pos actual_pos = token_pos();
             token_set_pos( var_pos );
             VARIABLE * var_aux = validate_variable( n, type, duplicateignore );
@@ -1009,7 +1064,7 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
 
                 if ( segm ) {
                     segment_add_from( data, segm );
-                    int64_t current_offset = data->current; // 2nd current_offset
+                    int64_t current_offset = data->current; /* 2nd current_offset */
                     data->current = var->offset;
                     if ( !additive ) data->current += base_offset;
                     compile_struct_data( type.varspace, data, 1, 0, is_inline );
@@ -1020,10 +1075,8 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
                     if ( is_inline ) {
                         codeblock_add( code, MN_PRIVATE | mntype( type, 0 ), var->offset );
                     }
-                    if ( is_inline )
-                        res = compile_expresion( 0, 0, 0, basetype );
-                    else
-                        res = compile_expresion( 1, 0, 1, basetype );
+
+                    res = compile_expresion( !is_inline, 0, !is_inline, basetype );
 
                     if ( basetype == TYPE_UNDEFINED ) {
                         basetype = typedef_base( res.type );
@@ -1053,17 +1106,19 @@ int compile_varspace( VARSPACE * n, segment * data, int additive, int copies, VA
             }
             else
             {
-                // If the variable already exists then ignore
+                /* If the variable already exists then ignore */
                 if ( var_aux ) continue;
 
                 /* Compiles an nil value assignment  (variable initialization, without value) */
-                if ( !segm ) { /* Assigns default values (0) */
+                /* Assigns default values (0) */
+                if ( !segm ) {
                     if ( basetype == TYPE_UNDEFINED ) {
                         basetype = TYPE_INT;
                         set_type( &type, basetype );
                     }
 
                     if ( basetype == TYPE_STRING ) varspace_varstring( n, data->current );
+
                     segment_add_as( data, 0, basetype );
                     token_back();
                 }
