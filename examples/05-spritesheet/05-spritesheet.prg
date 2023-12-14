@@ -1,4 +1,4 @@
-// Sprite sheet credits http://www.court-records.net/
+// Assets from https://kangkan.itch.io/helmet-girl
 
 import "libmod_gfx";
 import "libmod_input";
@@ -26,13 +26,14 @@ begin
     sprsheet_set_sprite( sprites, start_spr );
 
     while(1)
-        ii = wrap( ii + 1, 0, 10 );
+        ii = wrap( ii + 1, 0, 1 );
         if ( ii == 0 )
             i = wrap( i + 1, start_spr, end_spr );
             sprsheet_set_sprite( sprites, i );
         end
         x += 2.5 * sentido;
         if ( x > scrw - 32 || x < 32 ) sentido = -sentido; end
+        if ( sentido < 0 ) flags = b_hmirror; else flags &= ~b_hmirror; end
         frame;
     end
 end
@@ -44,11 +45,11 @@ begin
     set_mode(scrw,scrh);
     set_fps(60,0);
 
-    sprites = sprsheet_load("res/DSsheet-maya.png");
+    sprites = sprsheet_load("res/girlme.png");
 
-    animate( 1,  6,  60, 100);
-    animate( 7, 11, 200, 100);
-    animate(12, 20, 340, 100);
+    animate( 42, 61,  60, 100);
+    animate( 42, 61, 200, 100);
+    animate( 42, 61, 340, 100);
 
     while(!key(_ESC))
         frame;
