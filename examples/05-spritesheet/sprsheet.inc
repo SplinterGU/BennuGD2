@@ -108,7 +108,7 @@ begin
             if ( comments > -1 )
                 line = substr( line, 0, comments );
             end
-            string keyword = strtok( lcase( line ), "=" );
+            string keyword = lcase( strtok( line, "=" ) );
             if ( keyword != "" )
                 string value = strtok( "", "=" );
                 switch ( keyword )

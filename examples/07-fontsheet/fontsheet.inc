@@ -32,56 +32,41 @@ begin
     return out;
 end
 
-function string get_value(string data, string key )
-begin
-    int lenkey, vp, endv;
-    key += "=";
-    lenkey = len(key);
-    vp = find(data,key);
-    if ( vp != -1 )
-        int endv = find( data, chr(13), vp + lenkey ); // Search ENTER
-        int endv1 = find( data, chr(10), vp + lenkey ); // Search LF
-        if ( endv == -1 )
-            endv = endv1;
-        else
-            if ( endv1 < endv && endv1 != -1 ) endv = endv1; end
-        end
-        if ( endv != -1 )
-            return substr( data, vp + lenkey , endv - ( vp + lenkey ) );
-        else
-            return substr( data, vp + lenkey );
-        end
-    end
-    return "";
-end
-
 function int fontsheet_load(string filename)
 begin
     int font;
 
     string folder;
-    string filename_reverse = strrev( filename );
 
-    int dot_pos = find( filename_reverse, "/" );
-    if ( dot_pos == -1 )
-        dot_pos = find( filename_reverse, "\\" );
+    int path_sep_pos = rfind( filename, "/" );
+    if ( path_sep_pos == -1 )
+        path_sep_pos = rfind( filename, "\\" );
     end
 
-    if ( dot_pos > -1 )
-        folder = strrev( substr( filename_reverse, dot_pos ) );
-        filename = strrev( substr( filename_reverse, 0, dot_pos ) );
+    if ( path_sep_pos > -1 )
+        path_sep_pos++;
+        folder = substr( filename, 0, path_sep_pos );
+        filename = substr( filename, path_sep_pos );
     end
 
-    string name = substr( filename, 0, find(filename, "_") );
+    string name = filename;
+    int sep_pos = rfind( filename, "." );
+    if ( sep_pos > -1 )
+        name = substr( filename, 0, sep_pos );
+    end
+
+    int u_pos = rfind(name, "_");
+    if ( u_pos == -1 )
+        return 0;
+    end
+    
+    name = substr( name, 0, u_pos );
 
     // get dimensions
+    string dimensions = substr( filename, u_pos + 1 );
 
-    int pw = find(filename, "_", 5 ) + 1;
-    int px = find(filename, "x", pw );
-    int pe = find(filename, ".", px + 1 );
-
-    int w = atoi(substr(filename,pw,px-pw));
-    int h = atoi(substr(filename,px+1, pe-(px+1)));
+    int w = atoi(dimensions);
+    int h = atoi(substr(dimensions, find(dimensions, "x") + 1));
 
     string value;
     
@@ -91,44 +76,53 @@ begin
     int last = 128;
     int widthtype = NFB_VARIABLEWIDTH;
 
-    if ( fexists( folder + name + ".dat" ) )
-        string info = file( folder + name + ".dat" );
+    string line;
 
-        // charmap
-        if ( ( value = get_value( info, "charmap" ) ) != "" ) charmap = UTF8ToISOLat1(value); end
-
-        // first
-        if ( ( value = get_value( info, "first" ) ) != "" ) first = atoi(value); end
-
-        // last
-        if ( ( value = get_value( info, "last" ) ) != "" ) last = atoi(value); end
-
-        // width type
-        if ( ( value = get_value( info, "widthtype" ) ) != "" ) 
-            switch( ucase( value ) )
-                case "VARIABLE":
-                    widthtype = NFB_VARIABLEWIDTH; 
-                end
-                case "FIXED":
-                    widthtype = NFB_FIXEDWIDTH; 
-                end
-                case "FIXED_CENTER":
-                    widthtype = NFB_FIXEDWIDTHCENTER; 
+    int fp = fopen( folder + name + ".font", O_READ );
+    if ( fp )
+        int spriteID = -1;
+        while ( !feof( fp ) )
+            line = fgets( fp );
+            string keyword = lcase( strtok( line, "=" ) );
+            if ( keyword != "" )
+                string value = strtok( "", "\r\n" );
+                switch ( keyword )
+                    case "charmap":
+                        charmap = UTF8ToISOLat1(value);
+                    end
+                    case "first":
+                        first = atoi(value);
+                    end
+                    case "last":
+                        last = atoi(value);
+                    end
+                    case "widthtype":
+                        switch( ucase( value ) )
+                            case "VARIABLE":
+                                widthtype = NFB_VARIABLEWIDTH; 
+                            end
+                            case "FIXED":
+                                widthtype = NFB_FIXEDWIDTH; 
+                            end
+                            case "FIXED_CENTER":
+                                widthtype = NFB_FIXEDWIDTHCENTER; 
+                            end
+                        end
+                    end
+                    case "charset":
+                        switch( ucase( value ) )
+                            case "CHARSET_ISO8859", "ISO8859", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
+                                charset = CHARSET_ISO8859; 
+                            end
+                            case "CHARSET_CP850", "CP850", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
+                                charset = CHARSET_CP850; 
+                            end
+                        end
+                    end
                 end
             end
         end
-
-        // charset
-        if ( ( value = get_value( info, "charset" ) ) != "" )
-            switch( ucase( value ) )
-                case "CHARSET_ISO8859", "ISO8859", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
-                    charset = CHARSET_ISO8859; 
-                end
-                case "CHARSET_CP850", "CP850", "ISO8859-1", "ISOLATIN-1", "ISOLATIN", "LATIN-1", "WIN":
-                    charset = CHARSET_CP850; 
-                end
-            end
-        end
+        fclose( fp );
     end
 
     int map = map_load( folder + filename );
