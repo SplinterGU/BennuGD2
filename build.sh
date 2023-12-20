@@ -83,10 +83,6 @@ ONE_JOB=0
 
 args=$@
 
-if [ $# -eq 0 ]; then
-    args=$(uname -s|tr '[:upper:]' '[:lower:]')
-fi
-
 for i in $args
 do
     case $i in
@@ -100,7 +96,7 @@ do
             USE_SDL2_GPU=1
             ;;
 
-        windows|mingw64*)
+        windows)
             TARGET=x86_64-w64-mingw32
             COMPILER="-MINGW"
             SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
@@ -144,7 +140,7 @@ do
             fi
             ;;
 
-        macosx|darwin)
+        macosx)
             TARGET=x86_64-apple-darwin14
             CMAKE_EXTRA="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.10 -DSDL2_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_LIBRARIES=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_IMAGE_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_IMAGE_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_image.dylib -DSDL2_Mixer_INCLUDE_DIRS=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDLMIXER_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_mixer.dylib -DCMAKE_C_COMPILER=${SDKROOT}/../../bin/o64-clang -DCMAKE_CXX_COMPILER=${SDKROOT}/../../bin/o64-clang++  -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=${SDKROOT}/../../SDK/MacOSX10.10.sdk"
             CMAKE_EXTRA+=" -DCMAKE_C_FLAGS=-Wno-pointer-sign"
@@ -196,7 +192,27 @@ done
 
 if [ "$TARGET" == "" ]
 then
-    show_help
+    case $(uname -s|tr '[:upper:]' '[:lower:]') in
+        mingw64*)
+            TARGET=x86_64-w64-mingw32
+            COMPILER="-MINGW"
+            SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
+            if [ "$MSYSTEM" = "" ]; then
+                # linux
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2"
+            fi
+            ;;
+
+        linux)
+            TARGET=linux-gnu
+            LIBVLC=1
+            ;;
+    esac
+
+    if [ "$TARGET" == "" ]
+    then
+        show_help
+    fi
 fi
 
 if [ "$LIBVLC" == "1" ]
