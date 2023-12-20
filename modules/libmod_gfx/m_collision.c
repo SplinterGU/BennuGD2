@@ -680,6 +680,10 @@ static inline int __check_collision( __obj_col_info * ociA, __obj_col_info * oci
 static __obj_col_info __ociA = { 0 }, __ociB = { 0 };
 
 static int64_t __collision( INSTANCE * my, int64_t id ) {
+    int64_t render_graph = LOCINT64( libmod_gfx, my, RENDER_GRAPHID );
+
+    if ( render_graph && id == -1 ) return 0; // collision with mouse not supported on instances with render_graph
+
     int             collision = 0;
     INSTANCE        * ptr,
                     ** ctx;
@@ -784,7 +788,12 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         }
 
         ptr = instance_get( id );
-        if ( ptr && ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
+        if ( ptr &&
+             ptr != my &&
+             ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) &&
+             render_graph == LOCINT64( libmod_gfx, ptr, RENDER_GRAPHID ) &&
+             LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN )
+           ) {
             if ( __get_proc_info( ptr, ociB ) ) {
                 collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code, penetration ) ;
                 FREE( ociB->cboxes );
@@ -823,7 +832,11 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
         if ( id_scan ) ptr = instance_get( id_scan );
 
         while ( ptr ) {
-            if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
+            if ( ptr != my &&
+                 ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) &&
+                 render_graph == LOCINT64( libmod_gfx, ptr, RENDER_GRAPHID ) &&
+                 LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN )
+               ) {
                 if ( __get_proc_info( ptr, ociB ) ) {
                     collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code, penetration ) ;
                     FREE( ociB->cboxes );
@@ -868,7 +881,11 @@ static int64_t __collision( INSTANCE * my, int64_t id ) {
     if ( !ptr ) ptr = instance_get_by_type( id, ctx );
 
     while ( ptr ) {
-        if ( ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) && LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) && ptr != my ) {
+        if ( ptr != my &&
+             ctype == LOCQWORD( libmod_gfx, ptr, CTYPE ) &&
+             render_graph == LOCINT64( libmod_gfx, ptr, RENDER_GRAPHID ) &&
+             LOCQWORD( libmod_gfx, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN )
+           ) {
             if ( __get_proc_info( ptr, ociB ) ) {
                 collision = __check_collision( ociA, ociB, idxA, idxB, cbox_result_code, penetration ) ;
                 FREE( ociB->cboxes );

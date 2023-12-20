@@ -120,7 +120,8 @@ enum {
     COLLIDED_ID,
     COLLIDED_CBOX,
     PENETRATION_X,
-    PENETRATION_Y
+    PENETRATION_Y,
+    RENDER_GRAPHID
 };
 
 /* Globals */
