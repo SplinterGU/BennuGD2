@@ -208,6 +208,9 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
     FUNC( "LOG10"                   , "D"           , TYPE_DOUBLE       , libmod_misc_math_log10                     ),
     FUNC( "POW"                     , "DD"          , TYPE_DOUBLE       , libmod_misc_math_pow                       ),
     FUNC( "SQRT"                    , "D"           , TYPE_DOUBLE       , libmod_misc_math_sqrt                      ),
+    FUNC( "FMOD"                    , "DD"          , TYPE_DOUBLE       , libmod_misc_math_fmod                      ),
+    FUNC( "MMOD"                    , "DD"          , TYPE_DOUBLE       , libmod_misc_math_modulus                   ),
+    FUNC( "MODULUS"                 , "DD"          , TYPE_DOUBLE       , libmod_misc_math_modulus                   ),
 
     FUNC( "COS"                     , "I"           , TYPE_DOUBLE       , libmod_misc_math_cos                       ),
     FUNC( "SIN"                     , "I"           , TYPE_DOUBLE       , libmod_misc_math_sin                       ),

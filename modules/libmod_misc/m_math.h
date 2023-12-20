@@ -35,6 +35,8 @@ extern int64_t libmod_misc_math_log( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_log10( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_pow( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_sqrt( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_fmod( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_math_modulus( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_cos( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_sin( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_math_tan( INSTANCE * my, int64_t * params );

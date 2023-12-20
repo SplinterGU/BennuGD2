@@ -90,6 +90,23 @@ int64_t libmod_misc_math_sqrt( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_misc_math_fmod( INSTANCE * my, int64_t * params ) {
+    double res = fmod( *( double * ) &params[0], *( double * ) &params[1] );
+    return *(( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_misc_math_modulus( INSTANCE * my, int64_t * params ) {
+    double a = *( double * ) &params[0],
+           b = *( double * ) &params[1];
+    double m = fmod( a, b );
+    double res = (m < 0) ? m + b : m;
+    return *(( int64_t * )&res );
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_misc_math_cos( INSTANCE * my, int64_t * params ) {
     double res = cos_deg( params[0] );
     return *(( int64_t * )&res );
