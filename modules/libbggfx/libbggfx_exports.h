@@ -74,19 +74,19 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
 
     { "BLEND_CUSTOM"                    , TYPE_INT      , BLEND_CUSTOM                  },
     { "BLEND_DISABLED"                  , TYPE_INT      , BLEND_DISABLED                },
-#ifdef USE_SDL2_GPU
-    { "BLEND_NORMAL"                    , TYPE_INT      , GPU_BLEND_NORMAL              },
-    { "BLEND_PREMULTIPLIED_ALPHA"       , TYPE_INT      , GPU_BLEND_PREMULTIPLIED_ALPHA },
-    { "BLEND_MULTIPLY"                  , TYPE_INT      , GPU_BLEND_MULTIPLY            },
-    { "BLEND_ADD"                       , TYPE_INT      , GPU_BLEND_ADD                 },
-    { "BLEND_SUBTRACT"                  , TYPE_INT      , GPU_BLEND_SUBTRACT            },
-    { "BLEND_MOD_ALPHA"                 , TYPE_INT      , GPU_BLEND_MOD_ALPHA           },
-    { "BLEND_SET_ALPHA"                 , TYPE_INT      , GPU_BLEND_SET_ALPHA           },
-    { "BLEND_SET"                       , TYPE_INT      , GPU_BLEND_SET                 },
-    { "BLEND_NORMAL_KEEP_ALPHA"         , TYPE_INT      , GPU_BLEND_NORMAL_KEEP_ALPHA   },
-    { "BLEND_NORMAL_ADD_ALPHA"          , TYPE_INT      , GPU_BLEND_NORMAL_ADD_ALPHA    },
-    { "BLEND_NORMAL_FACTOR_ALPHA"       , TYPE_INT      , GPU_BLEND_NORMAL_FACTOR_ALPHA },
-#endif
+    { "BLEND_NONE"                      , TYPE_INT      , BLEND_NONE                    },
+    { "BLEND_NORMAL"                    , TYPE_INT      , BLEND_NORMAL                  },
+    { "BLEND_PREMULTIPLIED_ALPHA"       , TYPE_INT      , BLEND_PREMULTIPLIED_ALPHA     },
+    { "BLEND_MULTIPLY"                  , TYPE_INT      , BLEND_MULTIPLY                },
+    { "BLEND_ADD"                       , TYPE_INT      , BLEND_ADD                     },
+    { "BLEND_SUBTRACT"                  , TYPE_INT      , BLEND_SUBTRACT                },
+    { "BLEND_MOD_ALPHA"                 , TYPE_INT      , BLEND_MOD_ALPHA               },
+    { "BLEND_SET_ALPHA"                 , TYPE_INT      , BLEND_SET_ALPHA               },
+    { "BLEND_SET"                       , TYPE_INT      , BLEND_SET                     },
+    { "BLEND_NORMAL_KEEP_ALPHA"         , TYPE_INT      , BLEND_NORMAL_KEEP_ALPHA       },
+    { "BLEND_NORMAL_ADD_ALPHA"          , TYPE_INT      , BLEND_NORMAL_ADD_ALPHA        },
+    { "BLEND_NORMAL_FACTOR_ALPHA"       , TYPE_INT      , BLEND_NORMAL_FACTOR_ALPHA     },
+
     { "GL_ZERO"                         , TYPE_QWORD    , 0                             },
     { "GL_ONE"                          , TYPE_QWORD    , 1                             },
     { "GL_SRC_COLOR"                    , TYPE_QWORD    , 0x0300                        },
@@ -283,7 +283,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   BYTE color_r=255;\n"
     "   BYTE color_g=255;\n"
     "   BYTE color_b=255;\n"
-    "   INT blendmode=-1;\n"
+    "   INT blendmode=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
     "   UINT * shader=NULL;\n"
     "END\n"
@@ -300,7 +300,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   DOUBLE size=100.0;\n"
     "   DOUBLE size_x=100.0;\n"
     "   DOUBLE size_y=100.0;\n"
-    "   INT blendmode=-1;\n"
+    "   INT blendmode=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
     "   UINT * shader=NULL;\n"
     "END\n"
@@ -328,9 +328,9 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   BYTE color_r2=255;\n"
     "   BYTE color_g2=255;\n"
     "   BYTE color_b2=255;\n"
-    "   INT blendmode1=-1;\n"
+    "   INT blendmode1=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode1;\n"
-    "   INT blendmode2=-1;\n"
+    "   INT blendmode2=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode2;\n"
     "   UINT * shader1=NULL;\n"
     "   UINT * shader2=NULL;\n"
@@ -377,7 +377,7 @@ char * __bgdexport( libbggfx, locals_def ) =
     "   INT xgraph_flags;\n"
     "END\n"
 
-    "INT blendmode = -1;\n"
+    "INT blendmode=" TOSTRING(BLEND_DISABLED) ";\n"
     "G_CUSTOM_BLENDMODE custom_blendmode;\n"
 
     "UINT * shader = NULL;\n"

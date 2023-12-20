@@ -79,6 +79,91 @@ static inline int gr_update_texture( GRAPH * gr ) {
 
     return 0;
 }
+
+/* --------------------------------------------------------------------------- */
+
+SDL_BlendFactor __Get_SDL_BlendFactor( int64_t factor ) {
+    switch( factor ) {
+        case    0:  // GL_ZERO
+            return SDL_BLENDFACTOR_ZERO;
+            break;
+
+        case    1:  // GL_ONE
+            return SDL_BLENDFACTOR_ONE;
+            break;
+
+        case    0x0300: // GL_SRC_COLOR
+            return SDL_BLENDFACTOR_SRC_COLOR;
+            break;
+
+        case    0x0301: // GL_ONE_MINUS_SRC_COLOR
+            return SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR;
+            break;
+
+        case    0x0302: // GL_SRC_ALPHA
+            return SDL_BLENDFACTOR_SRC_ALPHA;
+            break;
+
+        case    0x0303: // GL_ONE_MINUS_SRC_ALPHA
+            return SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+            break;
+
+        case    0x0304: // GL_DST_ALPHA
+            return SDL_BLENDFACTOR_DST_ALPHA;
+            break;
+
+        case    0x0305: // GL_ONE_MINUS_DST_ALPHA
+            return SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA;
+            break;
+
+        case    0x0306: // GL_DST_COLOR
+            return SDL_BLENDFACTOR_DST_COLOR;
+            break;
+
+        case    0x0307: // GL_ONE_MINUS_DST_COLOR
+            return SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR;
+            break;
+
+        case    0x0308: // GL_SRC_ALPHA_SATURATE
+        case    0x8001: // GL_CONSTANT_COLOR
+        case    0x8002: // GL_ONE_MINUS_CONSTANT_COLOR
+        case    0x8003: // GL_CONSTANT_ALPHA
+        case    0x8004: // GL_ONE_MINUS_CONSTANT_ALPHA
+            break;
+    }
+
+    return SDL_BLENDMODE_NONE;
+
+}
+
+/* --------------------------------------------------------------------------- */
+
+SDL_BlendOperation __Get_SDL_BlendOperation( int64_t operation ) {
+    switch( operation ) {
+        case 0x8006: // GL_FUNC_ADD
+            return SDL_BLENDOPERATION_ADD;
+            break;
+
+        case 0x8007: // GL_MIN
+            return SDL_BLENDOPERATION_MINIMUM;
+            break;
+
+        case 0x8008: // GL_MAX
+            return SDL_BLENDOPERATION_MAXIMUM;
+            break;
+
+        case 0x800A: // GL_FUNC_SUBTRACT
+            return SDL_BLENDOPERATION_SUBTRACT;
+            break;
+
+        case 0x800B: // GL_FUNC_REVERSE_SUBTRACT
+            return SDL_BLENDOPERATION_REV_SUBTRACT;
+            break;
+    }
+
+    return SDL_BLENDOPERATION_ADD;
+}
+
 #endif
 
 /* --------------------------------------------------------------------------- */
@@ -100,6 +185,159 @@ int gr_create_image_for_graph( GRAPH * gr ) {
     if ( !gr->tex->target ) GPU_LoadTarget( gr->tex );
 #endif
     return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+void gr_set_blend( 
+#ifdef USE_SDL2
+        SDL_Texture * tex
+#endif
+#ifdef USE_SDL2_GPU
+        GPU_Image * tex
+#endif
+    , BLENDMODE blend_mode, CUSTOM_BLENDMODE * custom_blendmode ) {
+#ifdef USE_SDL2
+    if ( blend_mode == BLEND_DISABLED || blend_mode == BLEND_NONE ) {
+        SDL_SetTextureBlendMode( tex, SDL_BLENDMODE_NONE );
+    } else {
+        SDL_BlendMode b;
+
+        if ( blend_mode == BLEND_CUSTOM ) { // custom
+            if ( custom_blendmode ) {
+                CUSTOM_BLENDMODE cbm_sdl_format;
+
+                b = SDL_ComposeCustomBlendMode(
+                        __Get_SDL_BlendFactor( custom_blendmode->src_rgb ),
+                        __Get_SDL_BlendFactor( custom_blendmode->dst_rgb ),
+                        __Get_SDL_BlendOperation( custom_blendmode->eq_rgb ),
+                        __Get_SDL_BlendFactor( custom_blendmode->src_alpha ),
+                        __Get_SDL_BlendFactor( custom_blendmode->dst_alpha ),
+                        __Get_SDL_BlendOperation( custom_blendmode->eq_alpha )
+                    );
+            }
+        } else {
+            switch( blend_mode ) {
+                case BLEND_NORMAL:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_PREMULTIPLIED_ALPHA:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_MULTIPLY:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_ADD:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_SUBTRACT:
+                    // FIXME: Use src alpha for source components?
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT );
+// maybe we must try this -> b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT );
+                    break;
+
+                case BLEND_MOD_ALPHA:
+                    // Don't disturb the colors, but multiply the dest alpha by the src alpha
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_SET_ALPHA:
+                    // Don't disturb the colors, but set the alpha to the src alpha
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_SET:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_NORMAL_KEEP_ALPHA:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_NORMAL_ADD_ALPHA:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD );
+                    break;
+
+                case BLEND_NORMAL_FACTOR_ALPHA:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD );
+                    break;
+            }
+        }
+        SDL_SetTextureBlendMode( tex, b );
+    }
+#endif
+#ifdef USE_SDL2_GPU
+    if ( blend_mode == BLEND_DISABLED || blend_mode == BLEND_NONE ) {
+        GPU_SetBlending( tex, GPU_FALSE );
+    } else {
+        GPU_SetBlending( tex, GPU_TRUE );
+        if ( blend_mode == BLEND_CUSTOM ) { // custom
+            if ( custom_blendmode ) {
+                GPU_SetBlendFunction( tex, custom_blendmode->src_rgb, custom_blendmode->dst_rgb, custom_blendmode->src_alpha, custom_blendmode->dst_alpha );
+                GPU_SetBlendEquation( tex, custom_blendmode->eq_rgb, custom_blendmode->eq_alpha );
+            }
+        } else {
+            GPU_BlendPresetEnum b;
+
+            switch( blend_mode ) {
+                case BLEND_NORMAL:
+                    b = GPU_BLEND_NORMAL;
+                    break;
+
+                case BLEND_PREMULTIPLIED_ALPHA:
+                    b = GPU_BLEND_PREMULTIPLIED_ALPHA;
+                    break;
+
+                case BLEND_MULTIPLY:
+                    b = GPU_BLEND_MULTIPLY;
+                    break;
+
+                case BLEND_ADD:
+                    b = GPU_BLEND_ADD;
+                    break;
+
+                case BLEND_SUBTRACT:
+/*
+maybe we must do a custom and try this
+                GPU_SetBlendFunction( tex, 0x0302 GL_SRC_ALPHA, 1 , 0, 1 ); // GL_SRC_ALPHA, GL_ONE, GL_ZERO, GL_ONE
+                GPU_SetBlendEquation( tex, 0x800A, 0x800A ); // GL_FUNC_SUBTRACT, GL_FUNC_SUBTRACT
+*/
+                    b = GPU_BLEND_SUBTRACT;
+                    break;
+
+                case BLEND_MOD_ALPHA:
+                    b = GPU_BLEND_MOD_ALPHA;
+                    break;
+
+                case BLEND_SET_ALPHA:
+                    b = GPU_BLEND_SET_ALPHA;
+                    break;
+
+                case BLEND_SET:
+                    b = GPU_BLEND_SET;
+                    break;
+
+                case BLEND_NORMAL_KEEP_ALPHA:
+                    b = GPU_BLEND_NORMAL_KEEP_ALPHA;
+                    break;
+
+                case BLEND_NORMAL_ADD_ALPHA:
+                    b = GPU_BLEND_NORMAL_ADD_ALPHA;
+                    break;
+
+                case BLEND_NORMAL_FACTOR_ALPHA:
+                    b = GPU_BLEND_NORMAL_FACTOR_ALPHA;
+                    break;
+            }
+
+            GPU_SetBlendMode( tex, b );
+        }
+    }
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -139,22 +377,12 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE *
 #endif
     }
 
-#ifdef USE_SDL2
-         if ( flags & B_NOCOLORKEY )    *blend_mode = SDL_BLENDMODE_NONE;   //Disable blending on texture
-    else if ( flags & B_ABLEND     )    *blend_mode = SDL_BLENDMODE_ADD;    //Additive blending on texture
-    else if ( flags & B_SBLEND     ) {
-        *blend_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_SUBTRACT);
-    }
-    else                                *blend_mode = SDL_BLENDMODE_BLEND;  //Enable blending on texture
-#endif
-#ifdef USE_SDL2_GPU
-    if ( *blend_mode == BLEND_DISABLED ) {
+    if ( *blend_mode == BLEND_DISABLED || *blend_mode == BLEND_NONE ) {
              if ( flags & B_NOCOLORKEY )    *blend_mode = BLEND_DISABLED;       //Disable
-        else if ( flags & B_ABLEND     )    *blend_mode = GPU_BLEND_ADD;        //Additive
-        else if ( flags & B_SBLEND     )    *blend_mode = GPU_BLEND_SUBTRACT;   //Substract
-        else                                *blend_mode = GPU_BLEND_NORMAL;     //Enable blending on texture
+        else if ( flags & B_ABLEND     )    *blend_mode = BLEND_ADD;            //Additive
+        else if ( flags & B_SBLEND     )    *blend_mode = BLEND_SUBTRACT;       //Substract
+        else                                *blend_mode = BLEND_NORMAL;         //Enable blending on texture
     }
-#endif
 
 #ifdef USE_SDL2
     SDL_Rect rect;
@@ -480,7 +708,7 @@ void gr_blit(   GRAPH * dest,
             dstrect.w = 1 + scalex_adjusted * gr->segments[ i ].width; // Calculate dest region according texture
             dstrect.h = 1 + scaley_adjusted * gr->segments[ i ].height; // Calculate dest region according texture
 
-            SDL_SetTextureBlendMode( tex, blend_mode );
+            gr_set_blend( tex, blend_mode, custom_blendmode );
             SDL_SetTextureAlphaMod( tex, alpha );
             SDL_SetTextureColorMod( tex, color_r, color_g, color_b );
 
@@ -488,19 +716,7 @@ void gr_blit(   GRAPH * dest,
             SDL_RenderCopyEx( gRenderer, tex, gr_clip, &dstrect, angle / -1000.0, &center, flip );
 #endif
 #ifdef USE_SDL2_GPU
-            if ( blend_mode == BLEND_DISABLED ) {
-                GPU_SetBlending( tex, GPU_FALSE );
-            } else {
-                GPU_SetBlending( tex, GPU_TRUE );
-                if ( blend_mode == BLEND_CUSTOM ) { // custom
-                    if ( custom_blendmode ) {
-                        GPU_SetBlendFunction( tex, custom_blendmode->src_rgb, custom_blendmode->dst_rgb, custom_blendmode->src_alpha, custom_blendmode->dst_alpha );
-                        GPU_SetBlendEquation( tex, custom_blendmode->eq_rgb, custom_blendmode->eq_alpha );
-                    }
-                } else {
-                    GPU_SetBlendMode( tex, blend_mode );
-                }
-            }
+            gr_set_blend( tex, blend_mode, custom_blendmode );
             GPU_SetRGBA( tex, color_r, color_g, color_b, alpha );
 
             if ( tex->filter_mode != gr_filter_mode ) GPU_SetImageFilter( tex, gr_filter_mode );
@@ -520,7 +736,7 @@ void gr_blit(   GRAPH * dest,
         dstrect.w = scalex_adjusted * w;
         dstrect.h = scaley_adjusted * h;
 
-        SDL_SetTextureBlendMode( gr->tex, blend_mode );
+        gr_set_blend( gr->tex, blend_mode, custom_blendmode );
         SDL_SetTextureAlphaMod( gr->tex, alpha );
         SDL_SetTextureColorMod( gr->tex, color_r, color_g, color_b );
 
@@ -528,19 +744,7 @@ void gr_blit(   GRAPH * dest,
         SDL_RenderCopyEx( gRenderer, gr->tex, gr_clip, &dstrect, angle / -1000.0, &center, flip );
 #endif
 #ifdef USE_SDL2_GPU
-        if ( blend_mode == BLEND_DISABLED ) {
-            GPU_SetBlending( gr->tex, GPU_FALSE );
-        } else {
-            GPU_SetBlending( gr->tex, GPU_TRUE );
-            if ( blend_mode == BLEND_CUSTOM ) { // custom
-                if ( custom_blendmode ) {
-                    GPU_SetBlendFunction( gr->tex, custom_blendmode->src_rgb, custom_blendmode->dst_rgb, custom_blendmode->src_alpha, custom_blendmode->dst_alpha );
-                    GPU_SetBlendEquation( gr->tex, custom_blendmode->eq_rgb, custom_blendmode->eq_alpha);
-                }
-            } else {
-                GPU_SetBlendMode( gr->tex, blend_mode );
-            }
-        }
+        gr_set_blend( gr->tex, blend_mode, custom_blendmode );
         GPU_SetRGBA( gr->tex, color_r, color_g, color_b, alpha );
 
         if ( gr->tex->filter_mode != gr_filter_mode ) GPU_SetImageFilter( gr->tex, gr_filter_mode );

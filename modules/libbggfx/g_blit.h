@@ -36,24 +36,35 @@
 /* --------------------------------------------------------------------------- */
 /* Flags for gr_blit                                                           */
 
-#define B_HMIRROR       0x0001
-#define B_VMIRROR       0x0002
-#define B_TRANSLUCENT   0x0004
-#define B_ABLEND        0x0010
-#define B_SBLEND        0x0020
-#define B_NOCOLORKEY    0x0080
+#define B_HMIRROR                   0x0001
+#define B_VMIRROR                   0x0002
+#define B_TRANSLUCENT               0x0004
+#define B_ABLEND                    0x0010
+#define B_SBLEND                    0x0020
+#define B_NOCOLORKEY                0x0080
 
+/* Blend Modes */
 
-#define BLEND_DISABLED  -1
-#define BLEND_CUSTOM    -2
+#define BLEND_CUSTOM                -2
+#define BLEND_DISABLED              -1
+#define BLEND_NONE                  0
+#define BLEND_NORMAL                1
+#define BLEND_PREMULTIPLIED_ALPHA   2
+#define BLEND_MULTIPLY              3
+#define BLEND_ADD                   4
+#define BLEND_SUBTRACT              5
+#define BLEND_MOD_ALPHA             6
+#define BLEND_SET_ALPHA             7
+#define BLEND_SET                   8
+#define BLEND_NORMAL_KEEP_ALPHA     9
+#define BLEND_NORMAL_ADD_ALPHA      10
+#define BLEND_NORMAL_FACTOR_ALPHA   11
 
 /* --------------------------------------------------------------------------- */
 
-#ifdef USE_SDL2
-    typedef SDL_BlendMode BLENDMODE;
-#endif
+typedef int64_t BLENDMODE;
+
 #ifdef USE_SDL2_GPU
-    typedef GPU_BlendPresetEnum BLENDMODE;
     extern GPU_FilterEnum gr_filter_mode;
 #endif
 
@@ -95,6 +106,11 @@ extern int gr_prepare_renderer( GRAPH * dest,
 
 extern void gr_blit( GRAPH * dest, REGION * clip, double scrx, double scry, int64_t flags, int64_t angle, double scalex, double scaley, double centerx, double centery, GRAPH * gr, BGD_Rect * gr_clip, uint8_t alpha, uint8_t color_r, uint8_t color_g, uint8_t color_b, BLENDMODE blend_mode, CUSTOM_BLENDMODE * custom_blendmode );
 extern void gr_get_bbox( REGION * dest, REGION * clip, double x, double y, int64_t flags, int64_t angle, double scalex, double scaley, double centerx, double centery, GRAPH * gr, BGD_Rect * map_clip );
+
+#ifdef USE_SDL2
+extern SDL_BlendFactor __Get_SDL_BlendFactor( int64_t factor );
+extern SDL_BlendOperation __Get_SDL_BlendOperation( int64_t operation );
+#endif
 
 /* --------------------------------------------------------------------------- */
 
