@@ -129,25 +129,29 @@ int64_t libmod_misc_math_tan( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_acos( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) ( acos( *( double * ) &params[0] ) * 180000.0 / M_PI );
+    double res = acos( *( double * ) &params[0] ) * 180000.0 / M_PI;
+    return *(( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_asin( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) ( asin( *( double * ) &params[0] ) * 180000.0 / M_PI );
+    double res = asin( *( double * ) &params[0] ) * 180000.0 / M_PI;
+    return *(( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_atan( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) ( atan( *( double * ) &params[0] ) * 180000.0 / M_PI );
+    double res = atan( *( double * ) &params[0] ) * 180000.0 / M_PI;
+    return *(( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_misc_math_atan2( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) ( atan2( *( double * ) &params[0], *( double * ) &params[1] ) * 180000.0 / M_PI );
+    double res = atan2( *( double * ) &params[0], *( double * ) &params[1] ) * 180000.0 / M_PI;
+    return *(( int64_t * )&res );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -372,7 +376,7 @@ int64_t libmod_misc_math_remap( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-
+// Same that remap(value,fromlow,fromhigh,0,1)
 int64_t libmod_misc_math_normalize_double( INSTANCE * my, int64_t * params ) {
     double value = *( double * ) &params[0], low = *( double * ) &params[1], high = *( double * ) &params[2];
     double min = MIN(low, high);
@@ -382,7 +386,7 @@ int64_t libmod_misc_math_normalize_double( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-
+// Same that remap(value,fromlow,fromhigh,0,1)
 int64_t libmod_misc_math_normalize( INSTANCE * my, int64_t * params ) {
     int64_t value = params[0], low = params[1], high = params[2];
     int64_t min = MIN(low, high);
