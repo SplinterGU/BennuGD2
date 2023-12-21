@@ -516,7 +516,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, REGION * cli
 
     i = charmap ? 0 : first;
 
-    if ( ( ( ~options & NFB_FIXEDWIDTH ) || ( options & NFB_FIXEDWIDTHCENTER ) ) && !spacing ) spacing = 1;
+    if ( !( options & ( NFB_FIXEDWIDTH | NFB_FIXEDWIDTHCENTER ) ) && !spacing ) spacing = 1;
 
     for ( h = 0; h < ch; h++ ) {
         int base_y = clip_y + cell_margin_top + h * cell_height;
@@ -532,12 +532,13 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, REGION * cli
 //            int idx = ( charmap ) ? charmap[ i ] : i ;
             
             // not Fixed Width ( Variable Width or Fixed Width Centered )
-            if ( ~options & NFB_FIXEDWIDTH ) {
+            if ( !( options & NFB_FIXEDWIDTH ) ) {
                 align = align_bitmap_char_left( ( ( unsigned char * ) charptr ),
                                                     width,
                                                     height,
                                                     surface->pitch,
                                                     surface->format->BitsPerPixel );
+                if ( align == width ) align = 0;
             }
 
             f->glyph[ idx ].fontsource.x = base_x + cell_width * w + align;
@@ -547,7 +548,7 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, REGION * cli
             f->glyph[ idx ].yoffset = 0;
 
             // not Fixed Width ( Variable Width or Fixed Width Centered )
-            if ( ~options & NFB_FIXEDWIDTH ) {
+            if ( !( options & NFB_FIXEDWIDTH ) ) {
                 int ww = get_bitmap_char_width( ( ( unsigned char * ) charptr ) + align * surface->format->BytesPerPixel,
                                                     width - align,
                                                     height,
@@ -573,9 +574,13 @@ int64_t gr_font_new_from_bitmap( GRAPH * map, SDL_Surface * source, REGION * cli
 
     /* Set a reasonable size for the space */
 
-    if ( f->glyph[ 32 ].xadvance - spacing <= 0 ) {
-        if ( !options ) f->glyph[ 32 ].xadvance = maxwidth * 0.65; // width * 65 / 100;
-        else            f->glyph[ 32 ].xadvance = width;
+    if ( options & NFB_VARIABLEWIDTH ) {
+        if ( f->glyph[ 32 ].xadvance - spacing <= 0 ) {
+            f->glyph[ 32 ].xadvance = maxwidth * 0.65; // width * 65 / 100;
+        }
+    } else {
+        f->glyph[ 32 ].xoffset = 0;
+        f->glyph[ 32 ].xadvance = width;
     }
 
     f->maxwidth = maxwidth;
