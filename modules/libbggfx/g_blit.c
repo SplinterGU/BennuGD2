@@ -265,6 +265,10 @@ void gr_set_blend(
                 case BLEND_NORMAL_FACTOR_ALPHA:
                     b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD );
                     break;
+
+                case BLEND_ALPHA_MASK:
+                    b = SDL_ComposeCustomBlendMode( SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD );
+                    break;
             }
         }
         SDL_SetTextureBlendMode( tex, b );
@@ -303,7 +307,7 @@ void gr_set_blend(
                 case BLEND_SUBTRACT:
 /*
 maybe we must do a custom and try this
-                GPU_SetBlendFunction( tex, 0x0302 GL_SRC_ALPHA, 1 , 0, 1 ); // GL_SRC_ALPHA, GL_ONE, GL_ZERO, GL_ONE
+                GPU_SetBlendFunction( tex, 0x0302, 1 , 0, 1 ); // GL_SRC_ALPHA, GL_ONE, GL_ZERO, GL_ONE
                 GPU_SetBlendEquation( tex, 0x800A, 0x800A ); // GL_FUNC_SUBTRACT, GL_FUNC_SUBTRACT
 */
                     b = GPU_BLEND_SUBTRACT;
@@ -332,9 +336,15 @@ maybe we must do a custom and try this
                 case BLEND_NORMAL_FACTOR_ALPHA:
                     b = GPU_BLEND_NORMAL_FACTOR_ALPHA;
                     break;
+
+                case BLEND_ALPHA_MASK:
+                    GPU_SetBlendFunction( tex, 0, 1, 0, 0x0303 ); // GL_ZERO, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA
+                    GPU_SetBlendEquation( tex, 0x8006, 0x8006 ); // GL_FUNC_ADD, GL_FUNC_ADD
+                    break;
+
             }
 
-            GPU_SetBlendMode( tex, b );
+            if ( blend_mode != BLEND_ALPHA_MASK ) GPU_SetBlendMode( tex, b );
         }
     }
 #endif

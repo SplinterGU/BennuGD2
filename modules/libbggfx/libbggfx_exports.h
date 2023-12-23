@@ -86,6 +86,7 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "BLEND_NORMAL_KEEP_ALPHA"         , TYPE_INT      , BLEND_NORMAL_KEEP_ALPHA       },
     { "BLEND_NORMAL_ADD_ALPHA"          , TYPE_INT      , BLEND_NORMAL_ADD_ALPHA        },
     { "BLEND_NORMAL_FACTOR_ALPHA"       , TYPE_INT      , BLEND_NORMAL_FACTOR_ALPHA     },
+    { "BLEND_ALPHA_MASK"                , TYPE_INT      , BLEND_ALPHA_MASK              },
 
     { "GL_ZERO"                         , TYPE_QWORD    , 0                             },
     { "GL_ONE"                          , TYPE_QWORD    , 1                             },

@@ -59,6 +59,7 @@
 #define BLEND_NORMAL_KEEP_ALPHA     9
 #define BLEND_NORMAL_ADD_ALPHA      10
 #define BLEND_NORMAL_FACTOR_ALPHA   11
+#define BLEND_ALPHA_MASK            12
 
 /* --------------------------------------------------------------------------- */
 

@@ -788,6 +788,8 @@ int64_t libmod_gfx_map_block_copy4( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS)
+*/
 
 int64_t libmod_gfx_map_block_copy5( INSTANCE * my, int64_t * params ) {
     return __libmod_gfx_map_block_copy(
