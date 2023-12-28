@@ -4,7 +4,7 @@ Welcome to BennuGD2! BennuGD2 is a game development system focused on ease of us
 
 ## How to Build BennuGD2
 
-### Unix
+### Unix - Ubuntu/Debian
 
 **Step 1: Build SDL_gpu**
 
@@ -20,6 +20,33 @@ Welcome to BennuGD2! BennuGD2 is a game development system focused on ease of us
    ```
    ./build.sh linux clean
    ```
+
+For Ubuntu, you may need to install the following packages:
+
+```bash
+sudo apt install binutils git cmake build-essential zlib1g-dev libsdl2-dev libglu1-mesa-dev libsdl2-image-dev libvlc-dev libsdl2-mixer-dev
+```
+
+### Other Distros
+
+For other distributions, you might need to install the equivalent packages:
+
+- **Fedora**:
+  ```bash
+  sudo dnf install binutils git cmake gcc-c++ zlib-devel SDL2-devel mesa-libGLU-devel SDL2_image-devel libvlc-devel SDL2_mixer-devel
+  ```
+
+- **Arch Linux**:
+  ```bash
+  sudo pacman -S git cmake gcc zlib sdl2 glu sdl2_image vlc sdl2_mixer
+  ```
+
+- **openSUSE**:
+  ```bash
+  sudo zypper install git cmake gcc-c++ zlib-devel SDL2-devel libglvnd-devel libSDL2_image-devel libvlc-devel libSDL2_mixer-devel
+  ```
+
+You can adapt these commands based on the package managers and package names of your specific Linux distribution.
 
 ### Windows 64
 
