@@ -85,6 +85,48 @@ cp dependencies/x86_64-w64-mingw32/* build/x86_64-w64-mingw32/bin/
 
 This should successfully build BennuGD2 for Windows using MSYS2.
 
+## Setup Environment
+
+### For Unix
+
+Add the following environment variables to your shell profile (e.g., `.bashrc`, `.zshrc`) for your BennuGD2 installation:
+
+```bash
+# BENNUGD2 DEV
+
+# Set the path to your BennuGD2 installation directory
+export BGD2DEV=<path_to_your_BennuGD2_installation_directory>
+
+# Setup for Linux systems
+export PATH=$BGD2DEV/build/linux-gnu/bin:$PATH
+export LD_LIBRARY_PATH=$BGD2DEV/build/linux-gnu/bin:$LD_LIBRARY_PATH
+
+# For other platforms:
+# Replace `linux-gnu` in the paths according to the desired platform.
+
+# aarch64-none-elf
+# export PATH=$BGD2DEV/build/aarch64-none-elf/bin:$PATH
+# export LD_LIBRARY_PATH=$BGD2DEV/build/aarch64-none-elf/bin:$LD_LIBRARY_PATH
+
+# i386-linux-gnu
+# export PATH=$BGD2DEV/build/i386-linux-gnu/bin:$PATH
+# export LD_LIBRARY_PATH=$BGD2DEV/build/i386-linux-gnu/bin:$LD_LIBRARY_PATH
+
+# i686-w64-mingw32
+# export PATH=$BGD2DEV/build/i686-w64-mingw32/bin:$PATH
+# export LD_LIBRARY_PATH=$BGD2DEV/build/i686-w64-mingw32/bin:$LD_LIBRARY_PATH
+
+# x86_64-apple-darwin14
+# export PATH=$BGD2DEV/build/x86_64-apple-darwin14/bin:$PATH
+# export DYLD_LIBRARY_PATH=$BGD2DEV/build/x86_64-apple-darwin14/bin:$DYLD_LIBRARY_PATH
+
+# x86_64-w64-mingw32
+# export PATH=$BGD2DEV/build/x86_64-w64-mingw32/bin:$PATH
+# export LD_LIBRARY_PATH=$BGD2DEV/build/x86_64-w64-mingw32/bin:$LD_LIBRARY_PATH
+```
+
+Please replace `<path_to_your_BennuGD2_installation_directory>` with the actual path where BennuGD2 is installed on your system.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
