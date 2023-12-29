@@ -981,6 +981,70 @@ PROCESS MuestraNivel();                          // Proceso de mostrado del nive
     END
 
 
+
+struct estrellas[99]
+    double x;
+    double y;
+    int color;
+    int blink_start_counter;
+    int blink_counter;
+    int blink_status;
+end
+
+PROCESS EstrellasFondo()
+BEGIN
+
+    for ( int i = 0; i < 100; i++ )
+        estrellas[i].x = rand( 0, Gal_ResolucionX );
+        estrellas[i].y = rand( 0, Gal_ResolucionY );
+        estrellas[i].color = rgb( 255 * rand( 0, 1 ), 255 * rand( 0, 1 ), 255 * rand( 0, 1 ) );
+        estrellas[i].blink_status = rand( 0, 1 );
+        estrellas[i].blink_counter = 0;
+        estrellas[i].blink_start_counter = rand( 10, 30 );
+    end
+
+
+    while ( 1 )
+        draw_delete(0);
+        for ( int i = 0; i < 100; i++ )
+            estrellas[i].blink_counter--;
+            if ( estrellas[i].blink_counter < 0 )
+                estrellas[i].blink_status ^= 1;
+                estrellas[i].blink_counter = estrellas[i].blink_start_counter;
+            end
+
+            if ( estrellas[i].blink_status )
+                draw_point( estrellas[i].x-1, estrellas[i].y-1, estrellas[i].color );
+                draw_point( estrellas[i].x,   estrellas[i].y-1, estrellas[i].color );
+                draw_point( estrellas[i].x+1, estrellas[i].y-1, estrellas[i].color );
+                draw_point( estrellas[i].x-1, estrellas[i].y, estrellas[i].color );
+                draw_point( estrellas[i].x,   estrellas[i].y, estrellas[i].color );
+                draw_point( estrellas[i].x+1, estrellas[i].y, estrellas[i].color );
+                draw_point( estrellas[i].x-1, estrellas[i].y+1, estrellas[i].color );
+                draw_point( estrellas[i].x,   estrellas[i].y+1, estrellas[i].color );
+                draw_point( estrellas[i].x+1, estrellas[i].y+1, estrellas[i].color );
+            end
+
+            estrellas[i].y++;
+
+            if ( estrellas[i].y > Gal_ResolucionY )
+                estrellas[i].x = rand( 0, Gal_ResolucionX );
+                estrellas[i].y = rand( -20, -1 );
+                estrellas[i].color = rgb( 255 * rand( 0, 1 ), 255 * rand( 0, 1 ), 255 * rand( 0, 1 ) );
+                estrellas[i].blink_status = 0;
+                estrellas[i].blink_counter = 0;
+                estrellas[i].blink_start_counter = rand( 10, 30 );
+            end
+
+        end
+
+        frame;
+    end
+
+END
+
+
+
 //********************************************************************************************************
 //                                 PROCESO GALAXIAN
 //********************************************************************************************************
@@ -988,6 +1052,7 @@ PROCESS MuestraNivel();                          // Proceso de mostrado del nive
 
 PROCESS Galaxian_main();                              // Proceso principal galaxian.
     BEGIN
+        EstrellasFondo();
 
         Write_Delete(ALL_TEXT);                   // Borramos todos los textos residuales del menu de seleccion de juegos.
         IniciaPrograma();                        // Inicializamos el juego.
