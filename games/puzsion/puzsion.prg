@@ -435,7 +435,7 @@ Process MENU(MODO) //--> EL PROCESO PRINCIPAL. ACTUALMENTE SOLO SIRVE DE LANZADO
 
 		CASE 0: //-->
 			music_stop();
-			music=music_load("music/musicintro.ogg");
+			music=music_load("music/musicintro.mp3");
 			music_play(music,-1);
 			tiempo_juego=GTM;
 			INTRO(0);
@@ -444,7 +444,7 @@ Process MENU(MODO) //--> EL PROCESO PRINCIPAL. ACTUALMENTE SOLO SIRVE DE LANZADO
 
 		CASE 1: //--> QUOTA MODE
 			music_stop();
-			music_unload(music); music=music_load("music/musicquota.ogg");music_play(music,-1);
+			music_unload(music); music=music_load("music/musicquota.mp3");music_play(music,-1);
 			RELOJ+=75;
 			NIVEL_GLOBAL=1;
 			firstime=0;
@@ -458,7 +458,7 @@ Process MENU(MODO) //--> EL PROCESO PRINCIPAL. ACTUALMENTE SOLO SIRVE DE LANZADO
 
 		CASE 2: //--> GLASS MODE
 		    music_stop();
-			music_unload(music);music= music_load("music/musicglass.ogg");music_play(music,-1);
+			music_unload(music);music= music_load("music/musicglass.mp3");music_play(music,-1);
 			reloj=75;
 			QJ1=0; QJ2=0; QJ3=0; QJ4=0;
 			NIVEL_GLOBAL=1;
@@ -468,7 +468,7 @@ Process MENU(MODO) //--> EL PROCESO PRINCIPAL. ACTUALMENTE SOLO SIRVE DE LANZADO
 
 		END
 		CASE 3: //--> RUSH MODE
-			music_stop();music_unload(music);music=music_load("music/musicrush.ogg");music_play(music,-1);
+			music_stop();music_unload(music);music=music_load("music/musicrush.mp3");music_play(music,-1);
 			RUSH_LEVEL=4;
 			LEVEL_RUSH();
 			PUNTERO();
@@ -2974,7 +2974,7 @@ BEGIN
 	NOMBRE=0;
 	music_stop();
 	music_unload(music);
-	music=music_load("music/musicgameover.ogg");
+	music=music_load("music/musicgameover.mp3");
 	music_play(music,-1);
 	signal(type puntero,s_sleep);
 	file=joyas;
@@ -3186,7 +3186,7 @@ BEGIN
 	FRAME(10000);
 
 	music_unload(music);
-	music=music_load("music/musicintro.ogg");
+	music=music_load("music/musicintro.mp3");
 
 	music_stop();
 	music_play(music,-1);
