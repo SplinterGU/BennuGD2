@@ -38,5 +38,7 @@ extern int64_t libmod_misc_dir_glob( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_dir_open( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_dir_close( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_dir_read( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_dir_get_basepath( INSTANCE *my, int64_t *params );
+extern int64_t libmod_misc_dir_get_prefpath( INSTANCE *my, int64_t *params );
 
 #endif
