@@ -222,15 +222,15 @@ int64_t libmod_misc_dir_read( INSTANCE * my, int64_t * params ) {
 int64_t libmod_misc_dir_get_basepath( INSTANCE *my, int64_t *params ) {
     int64_t code;
     char *path = SDL_GetBasePath();
-    if ( !path ) {
+    if ( path ) {
+        code = string_new( path );
+        SDL_free(path);
+    } else {
 #ifdef __SWITCH__
         code = string_new( "romfs:/" );
 #else
         code = string_new( "" );
 #endif
-    } else {
-        code = string_new( path );
-        free(path);
     }
     string_use( code );
     return code;
@@ -246,12 +246,12 @@ int64_t libmod_misc_dir_get_prefpath( INSTANCE *my, int64_t *params ) {
     if ( !path ) {
         if (app) {
             size_t length = snprintf( NULL, 0, "sdmc:/switch/%s/", app ) + 1;
-            path = (char *) calloc( length, sizeof( char ) );
+            path = (char *) SDL_calloc( length, sizeof( char ) );
             if ( path ) {
                 snprintf( path, length, "sdmc:/switch/%s/", app );
                 int result = mkdir(path, 0666);
                 if (result == -1 && errno != EEXIST) {
-                    free(path);
+                    SDL_free(path);
                     path = NULL;
                 }
             }
@@ -260,7 +260,7 @@ int64_t libmod_misc_dir_get_prefpath( INSTANCE *my, int64_t *params ) {
 #endif
     if ( path ) {
         code = string_new( path );
-        free( path );
+        SDL_free( path );
     } else {
         code = string_new( "" );
     }
@@ -268,6 +268,7 @@ int64_t libmod_misc_dir_get_prefpath( INSTANCE *my, int64_t *params ) {
     string_use( code );
     string_discard( params[ 0 ] );
     string_discard( params[ 1 ] );
+
     return code;
 }
 
