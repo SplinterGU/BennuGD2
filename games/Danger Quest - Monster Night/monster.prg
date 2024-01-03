@@ -65,7 +65,7 @@ BEGIN
 	graph=0;
 
 	//check if profile is set up
-	IF(fexists("files/prof.dat"))
+	IF(fexists(get_pref_path("bennugd.org", "DangerQuestMonsterNight") + "prof.dat"))
 		load_prof();
 		menu_overhead();
 	//	keyboard();

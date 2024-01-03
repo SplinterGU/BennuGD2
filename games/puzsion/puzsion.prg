@@ -239,7 +239,7 @@ END
 process MAIN();
 	PRIVATE int CONTADOR=0;
 	BEGIN
-	load("files/options.file",saved);
+	load(get_pref_path("bennugd.org", "puzsion") + "options.file", saved);
 
 	SWITCH(saved[3].option)
 	CASE 0: GTM=43200;END   //-12
@@ -396,14 +396,14 @@ process MAIN();
 
 	SPEAKER(saved[0].option);
 	//--> Merge on
-	if(fexists("files/newrhighscore.file"))
-			mergerhighscore();
+	if(fexists(get_pref_path("bennugd.org", "puzsion") + "newrhighscore.file"))
+		mergerhighscore();
 	end
-	if(fexists("files/newqhighscore.file"))
-			mergeqhighscore();
+	if(fexists(get_pref_path("bennugd.org", "puzsion") + "newqhighscore.file"))
+		mergeqhighscore();
 	end
-	if(fexists("files/newghighscore.file"))
-			mergeghighscore();
+	if(fexists(get_pref_path("bennugd.org", "puzsion") + "newghighscore.file"))
+		mergeghighscore();
 	end
 
 	MENU(0);
@@ -1058,8 +1058,8 @@ FROM CONTAOP2=0 TO 9;
 	qhighscore[CONTADOR].hname[6]="N";
 	END
 
-   SORT(qhighscore,10);
-save("files/qhighscore.file",qhighscore);
+   	SORT(qhighscore,10);
+	save(get_pref_path("bennugd.org", "puzsion") + "qhighscore.file",qhighscore);
 end
 
 
@@ -1098,7 +1098,7 @@ IF(MOUSE.LEFT AND MOUSE.X>130 AND MOUSE.X<190 AND MOUSE.Y>160 AND MOUSE.Y<175 AN
 	END
 
    SORT(rhighscore,10);
-   save("files/rhighscore.file",rhighscore);
+   save(get_pref_path("bennugd.org", "puzsion") + "rhighscore.file",rhighscore);
 
 	END
 
@@ -1117,25 +1117,25 @@ IF(MOUSE.LEFT AND MOUSE.X>130 AND MOUSE.X<190 AND MOUSE.Y>160 AND MOUSE.Y<175 AN
 		OPCIONES[3].RESPUESTA[2]=Rhiscore;
 		CAMBIO=0;
 	 //File does not exist, fill the highscore table with standard values:
- for(i = 0;i < 10; i++ )
-   //Fill in a generated score(lower index means higher score)
-   ghighscore[i].hscore = (10-i)*10000;;
-   ghighscore[i].hfase = (10-i);
-   ghighscore[i].dia=fecha;
-   ghighscore[i].tiempo=ftime("%H:%M:%S",GTM+(10-i)*10);
+ 	for(i = 0;i < 10; i++ )
+   		//Fill in a generated score(lower index means higher score)
+   		ghighscore[i].hscore = (10-i)*10000;;
+   		ghighscore[i].hfase = (10-i);
+   		ghighscore[i].dia=fecha;
+   		ghighscore[i].tiempo=ftime("%H:%M:%S",GTM+(10-i)*10);
 
- end
-   FOR (CONTADOR=0;CONTADOR<10;CONTADOR++)
-	ghighscore[CONTADOR].hname[0]="G";
-	ghighscore[CONTADOR].hname[1]="U";
-	ghighscore[CONTADOR].hname[2]="Z";
-	ghighscore[CONTADOR].hname[3]="S";
-	ghighscore[CONTADOR].hname[4]="I";
-	ghighscore[CONTADOR].hname[5]="O";
-	ghighscore[CONTADOR].hname[6]="N";
+ 	end
+   	FOR (CONTADOR=0;CONTADOR<10;CONTADOR++)
+		ghighscore[CONTADOR].hname[0]="G";
+		ghighscore[CONTADOR].hname[1]="U";
+		ghighscore[CONTADOR].hname[2]="Z";
+		ghighscore[CONTADOR].hname[3]="S";
+		ghighscore[CONTADOR].hname[4]="I";
+		ghighscore[CONTADOR].hname[5]="O";
+		ghighscore[CONTADOR].hname[6]="N";
 	END
-   SORT(ghighscore,10);
-   save("files/ghighscore.file",ghighscore);
+   	SORT(ghighscore,10);
+   	save(get_pref_path("bennugd.org", "puzsion") + "ghighscore.file",ghighscore);
 
 
 
@@ -1210,7 +1210,7 @@ IF(MOUSE.LEFT AND MOUSE.X>130 AND MOUSE.X<190 AND MOUSE.Y>160 AND MOUSE.Y<175 AN
 			FRAME(10000);
 			saved[0].option--;
 			saved[4].option--;
-			save("files/options.file",saved);
+			save(get_pref_path("bennugd.org", "puzsion") + "options.file",saved);
 			SPEAKER(saved[0].option);
 			INTRO(0); RETURN;
 		END
@@ -3053,7 +3053,7 @@ BEGIN
 					qhighscore[0].hname[NOMBRE]=" ";
 				END
 				SORT(qhighscore,10);
-				save("files/qhighscore.file",qhighscore);
+				save(get_pref_path("bennugd.org", "puzsion") + "qhighscore.file",qhighscore);
 			END //--> ENTER NAME
 		end //--> case 1
 
@@ -3111,7 +3111,7 @@ BEGIN
 					ghighscore[0].hname[NOMBRE]=" ";
 				END
 				SORT(ghighscore,10);
-				save("files/ghighscore.file",ghighscore);
+				save(get_pref_path("bennugd.org", "puzsion") + "ghighscore.file",ghighscore);
 			END //--> ENTER NAME
 		end //--> case 2
 
@@ -3169,7 +3169,7 @@ BEGIN
 					rhighscore[0].hname[NOMBRE]=" ";
 				END
 				SORT(rhighscore,10);
-				save("files/rhighscore.file",rhighscore);
+				save(get_pref_path("bennugd.org", "puzsion") + "rhighscore.file",rhighscore);
 			END //--> ENTER NAME
 		end //--> case 3
 	END //--> SWITCH
@@ -3725,7 +3725,7 @@ int CONTADOR=0;
 
 begin
 
-load("files/newrhighscore.file", mergerhighscore_dat);
+	load(get_pref_path("bennugd.org", "puzsion") + "newrhighscore.file", mergerhighscore_dat);
 	FOR (CONTADOR=0;CONTADOR<10;CONTADOR++)
 		IF(mergerhighscore_dat[CONTADOR].hscore>rhighscore[0].hscore)
 			rhighscore[0].hscore=mergerhighscore_dat[CONTADOR].hscore;
@@ -3745,8 +3745,8 @@ load("files/newrhighscore.file", mergerhighscore_dat);
 			SORT(rhighscore,10);
 		end
 	end
-	save("files/rhighscore.file",rhighscore);
-	rm("files/newrhighscore.file");
+	save(get_pref_path("bennugd.org", "puzsion") + "rhighscore.file",rhighscore);
+	rm(get_pref_path("bennugd.org", "puzsion") + "newrhighscore.file");
 end
 
 //****************************************************************
@@ -3760,7 +3760,7 @@ int CONTADOR=0;
 
 begin
 
-load("files/newqhighscore.file", mergeqhighscore_dat);
+	load(get_pref_path("bennugd.org", "puzsion") + "newqhighscore.file", mergeqhighscore_dat);
 	FOR (CONTADOR=0;CONTADOR<10;CONTADOR++)
 		IF(mergeqhighscore_dat[CONTADOR].hscore>qhighscore[0].hscore)
 			qhighscore[0].hscore=mergeqhighscore_dat[CONTADOR].hscore;
@@ -3780,8 +3780,8 @@ load("files/newqhighscore.file", mergeqhighscore_dat);
 			SORT(qhighscore,10);
 		end
 	end
-	save("files/qhighscore.file",qhighscore);
-	rm("files/newqhighscore.file");
+	save(get_pref_path("bennugd.org", "puzsion") + "qhighscore.file",qhighscore);
+	rm(get_pref_path("bennugd.org", "puzsion") + "newqhighscore.file");
 end
 
 //****************************************************************
@@ -3795,7 +3795,7 @@ int CONTADOR=0;
 
 begin
 
-load("files/newghighscore.file", mergeghighscore_dat);
+load(get_pref_path("bennugd.org", "puzsion") + "newghighscore.file", mergeghighscore_dat);
 	FOR (CONTADOR=0;CONTADOR<10;CONTADOR++)
 		IF(mergeghighscore_dat[CONTADOR].hscore>ghighscore[0].hscore)
 			ghighscore[0].hscore=mergeghighscore_dat[CONTADOR].hscore;
@@ -3815,8 +3815,8 @@ load("files/newghighscore.file", mergeghighscore_dat);
 			SORT(ghighscore,10);
 		end
 	end
-	save("files/ghighscore.file",ghighscore);
-	rm("files/newghighscore.file");
+	save(get_pref_path("bennugd.org", "puzsion") + "ghighscore.file",ghighscore);
+	rm(get_pref_path("bennugd.org", "puzsion") + "newghighscore.file");
 end
 //****************************************************************
 //***                   PROCESS INITHIGHSCORES                 ***
@@ -3830,10 +3830,10 @@ int i=0;
 
 begin
 
-if(fexists("files/rhighscore.file"))
+if(fexists(get_pref_path("bennugd.org", "puzsion") + "rhighscore.file"))
 
  //File exists and can be loaded:
- load("files/rhighscore.file", rhighscore);
+ load(get_pref_path("bennugd.org", "puzsion") + "rhighscore.file", rhighscore);
 
 else
 
@@ -3862,10 +3862,10 @@ end
 CONTADOR=0;
 i=0;
 
-if(fexists("files/ghighscore.file"))
+if(fexists(get_pref_path("bennugd.org", "puzsion") + "ghighscore.file"))
 
  //File exists and can be loaded:
- load("files/ghighscore.file", ghighscore);
+ load(get_pref_path("bennugd.org", "puzsion") + "ghighscore.file", ghighscore);
 
 else
 
@@ -3896,10 +3896,10 @@ end
 CONTADOR=0;
 i=0;
 
-if(fexists("files/qhighscore.file"))
+if(fexists(get_pref_path("bennugd.org", "puzsion") + "qhighscore.file"))
 
  //File exists and can be loaded:
- load("files/qhighscore.file", qhighscore);
+ load(get_pref_path("bennugd.org", "puzsion") + "qhighscore.file", qhighscore);
 
 else
 
@@ -3979,7 +3979,7 @@ for( i = 0; i <10; i++ )
 				write_string(yhiscore, 250+contador*8,221-i*16,1,&rhighscore[i].hname[contador]);
 			end
 		rhighscore[I].last=0;
-		save("files/rhighscore.file",rhighscore);
+		save(get_pref_path("bennugd.org", "puzsion") + "rhighscore.file",rhighscore);
 	END
 
 end
@@ -4032,7 +4032,7 @@ for( i = 0; i <10; i++ )
 				write_string(yhiscore, 250+contador*8,221-i*16,1,&ghighscore[i].hname[contador]);
 			end
 		ghighscore[I].last=0;
-		save("files/ghighscore.file",ghighscore);
+		save(get_pref_path("bennugd.org", "puzsion") + "ghighscore.file",ghighscore);
 	END
 
 end
@@ -4085,7 +4085,7 @@ for( i = 0; i <10; i++ )
 				write_string(yhiscore, 250+contador*8,221-i*16,1,&qhighscore[i].hname[contador]);
 			end
 		qhighscore[I].last=0;
-		save("files/qhighscore.file",qhighscore);
+		save(get_pref_path("bennugd.org", "puzsion") + "qhighscore.file",qhighscore);
 	END
 
 end

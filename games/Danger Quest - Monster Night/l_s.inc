@@ -14,12 +14,12 @@ PROCESS save_prof();
 BEGIN
 	profile[0].lang=lang;
 	profile[0].vol=volume_level;
-	save("files/prof.dat",profile);
+	save(get_pref_path("bennugd.org", "DangerQuestMonsterNight") + "prof.dat", profile);
 END
 
 PROCESS load_prof();
 BEGIN
-	load("files/prof.dat",profile);
+	load(get_pref_path("bennugd.org", "DangerQuestMonsterNight") + "prof.dat", profile);
 	lang=profile[0].lang;
 	volume_level=profile[0].vol;
 END
