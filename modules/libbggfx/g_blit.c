@@ -175,6 +175,19 @@ int gr_create_image_for_graph( GRAPH * gr ) {
         gr->surface = SDL_CreateRGBSurface( 0, gr->width, gr->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
         if ( !gr->surface ) return 1;
     }
+
+    if ( !gr->tex ) {
+        gr->tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, gr->width, gr->height );
+        if ( !gr->tex ) {
+            printf ("error in RW texture creation [%s]\n", SDL_GetError() );
+            return 1;
+        }
+
+        gr_update_texture(gr);
+
+        gr->type = BITMAP_TEXTURE_TARGET;
+    }
+    else if ( gr->type != BITMAP_TEXTURE_TARGET ) return 1;
 #endif
 #ifdef USE_SDL2_GPU
     if ( !gr->tex ) gr->tex = GPU_CreateImage( gr->width, gr->height, GPU_FORMAT_RGBA );
@@ -369,23 +382,7 @@ maybe we must do a custom and try this
 
 int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE * blend_mode ) {
 
-    if ( dest ) {
-        if ( gr_create_image_for_graph( dest ) ) return 1;
-#ifdef USE_SDL2
-        if ( !dest->tex ) {
-            dest->tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, dest->width, dest->height );
-            if ( !dest->tex ) {
-                printf ("error in RW texture creation [%s]\n", SDL_GetError() );
-                return 1;
-            }
-
-            gr_update_texture(dest);
-
-            dest->type = BITMAP_TEXTURE_TARGET;
-        }
-        else if ( dest->type != BITMAP_TEXTURE_TARGET ) return 1;
-#endif
-    }
+    if ( dest && gr_create_image_for_graph( dest ) ) return 1;
 
     if ( *blend_mode == BLEND_DISABLED || *blend_mode == BLEND_NONE ) {
              if ( flags & B_NOCOLORKEY )    *blend_mode = BLEND_DISABLED;       //Disable

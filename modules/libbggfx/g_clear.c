@@ -47,9 +47,11 @@
 void gr_clear( GRAPH * dest ) {
     if ( !dest ) return;
     if ( gr_create_image_for_graph( dest ) ) return;
+
 #ifdef USE_SDL2
-    memset( dest->surface->pixels, '\0', dest->height * dest->surface->pitch );
-    dest->texture_must_update = 1;
+    SDL_SetRenderTarget( gRenderer, dest->tex );
+    SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 255 );
+    SDL_RenderClear( gRenderer );
 #endif
 #ifdef USE_SDL2_GPU
     GPU_Clear( dest->tex->target );
@@ -76,49 +78,13 @@ void gr_clear_as( GRAPH * dest, int color ) {
     if ( gr_create_image_for_graph( dest ) ) return;
 
 #ifdef USE_SDL2
-    if ( !color ) {
-        gr_clear( dest );
-        return;
-    }
-
-    switch ( dest->surface->format->BitsPerPixel ) {
-        case 1: {
-            int c = color ? 0xFF : 0 ;
-            memset( dest->surface->pixels, c, dest->surface->pitch * dest->height ) ;
-            break;
-        }
-
-        case 8: {
-            memset( dest->surface->pixels, color, dest->surface->pitch * dest->height ) ;
-            break;
-        }
-
-        case 16: {
-            uint8_t * data = dest->surface->pixels ;
-            int y = dest->height;
-            while ( y-- ) {
-                int16_t * ptr = ( int16_t * ) data;
-                int n = dest->width;
-                while ( n-- ) * ptr++ = color ;
-                data += dest->surface->pitch;
-            }
-            break;
-        }
-
-        case 32: {
-            uint8_t * data = dest->surface->pixels ;
-            int y = dest->height;
-            while ( y-- ) {
-                uint32_t * ptr = ( uint32_t * ) data;
-                int n = dest->width;
-                while ( n-- ) * ptr++ = color ;
-                data += dest->surface->pitch;
-            }
-            break;
-        }
-    }
-
-    dest->texture_must_update = 1;
+    Uint8 r, g, b, a;
+    SDL_SetRenderTarget( gRenderer, dest->tex );
+    SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
+    SDL_SetRenderDrawColor( gRenderer, r, g, b, a );
+    SDL_Rect eraseRect = { 0, 0, dest->width, dest->height };
+    SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_NONE );
+    SDL_RenderFillRect( gRenderer, &eraseRect );
 #endif
 #ifdef USE_SDL2_GPU
     Uint8 r, g, b, a;
@@ -164,79 +130,15 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     if ( ( x + w ) < 0 || ( y + h ) < 0 ) return;
 
     if ( gr_create_image_for_graph( dest ) ) return;
+
 #ifdef USE_SDL2
-    switch ( dest->surface->format->BitsPerPixel ) {
-        case 1: {
-            uint8_t * mem, * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y;
-            int w2, h2;
-
-            if ( color ) {
-                for ( h2 = 0; h2 < h; h2++ ) {
-                    mem = pmem;
-                    for ( w2 = 0; w2 < w; w2++ ) * ( mem + ( ( x + w2 ) >> 3 ) ) |= ( 0x80 >> ( ( x + w2 ) & 7 ) );
-                    pmem += dest->surface->pitch;
-                }
-            } else {
-                for ( h2 = 0; h2 < h; h2++ ) {
-                    mem = pmem;
-                    for ( w2 = 0; w2 < w; w2++ ) * ( mem + ( ( x + w2 ) >> 3 ) ) &= ~( 0x80 >> ( ( x + w2 ) & 7 ) );
-                    pmem += dest->surface->pitch;
-                }
-            }
-            dest->texture_must_update = 1;
-            break;
-        }
-
-        case 8: {
-            uint8_t * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x;
-            int w2, h2;
-
-            for ( h2 = 0; h2 < h; h2++ ) {
-                uint8_t *mem = pmem;
-                for ( w2 = 0; w2 < w; w2++ ) {
-                    *mem++ = color;
-                }
-                pmem += dest->surface->pitch;
-            }
-            dest->texture_must_update = 1;
-            break;
-        }
-
-        case 16: {
-            uint8_t * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x * 2;
-            int w2, h2;
-
-            for ( h2 = 0; h2 < h; h2++ ) {
-                uint16_t * mem = ( uint16_t * ) pmem;
-                for ( w2 = 0; w2 < w; w2++ ) {
-                    *mem++ = color;
-                }
-                pmem += dest->surface->pitch;
-            }
-            dest->texture_must_update = 1;
-            break;
-        }
-
-        case 32: {
-            uint8_t * pmem = ( (uint8_t *) dest->surface->pixels ) + dest->surface->pitch * y + x * 4;
-            int w2, h2;
-
-            for ( h2 = 0; h2 < h; h2++ ) {
-                uint32_t * mem = ( uint32_t * ) pmem;
-                for ( w2 = 0; w2 < w; w2++ ) {
-                    *mem++ = color;
-                }
-                pmem += dest->surface->pitch;
-            }
-            dest->texture_must_update = 1;
-            break;
-        }
-
-        default:
-            return;
-    }
-
-    dest->texture_must_update = 1;
+    Uint8 r, g, b, a;
+    SDL_SetRenderTarget( gRenderer, dest->tex );
+    SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
+    SDL_SetRenderDrawColor( gRenderer, r, g, b, a );
+    SDL_Rect eraseRect = { x, y, w, h };
+    SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_NONE );
+    SDL_RenderFillRect( gRenderer, &eraseRect );
 #endif
 #ifdef USE_SDL2_GPU
     Uint8 r, g, b, a;

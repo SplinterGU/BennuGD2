@@ -46,38 +46,38 @@
  */
 
 int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
-#ifdef USE_SDL2
-    if ( !gr || !gr->surface ) return -1;
-#endif
-#ifdef USE_SDL2_GPU
     if ( !gr || !gr->tex ) return -1;
-#endif
 
     if ( x < 0 || y < 0 ) return -1;
 
 #ifdef USE_SDL2
-    if ( x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return -1;
+    if ( x >= ( int64_t ) gr->width || y >= ( int64_t ) gr->height ) return -1;
 #endif
 #ifdef USE_SDL2_GPU
     if ( x >= ( int64_t ) gr->tex->w || y >= ( int64_t ) gr->tex->h ) return -1;
 #endif
 
 #ifdef USE_SDL2
-    switch ( gr->surface->format->BitsPerPixel ) {
-        case 1:
-            return ( int64_t ) (( *( uint8_t * )( gr->surface->pixels + gr->surface->pitch * y + ( x >> 3 ) ) ) & ( 0x80 >> ( x & 7 ) ) ) ? 1 : 0;
+    if ( gr_create_image_for_graph( gr ) ) return -1;
 
-        case 8:
-            return ( int64_t ) *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + x );
+    SDL_Texture* auxTexture = SDL_CreateTexture(gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, 1, 1);
+    SDL_SetRenderTarget(gRenderer, auxTexture);
 
-        case 16:
-            return ( int64_t ) *( uint16_t * )(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 1 ) );
+    SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
+    SDL_RenderClear( gRenderer );
 
-        case 32:
-            return ( int64_t ) *( uint32_t * )(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 2 ) );
-    }
+    SDL_SetTextureBlendMode( auxTexture, SDL_BLENDMODE_NONE );
 
-    return -1;
+    SDL_Rect sourceRect = { x, y, 1, 1 };
+    SDL_RenderCopy(gRenderer, gr->tex, &sourceRect, NULL);
+
+    Uint32 pixelColor;
+
+    SDL_RenderReadPixels(gRenderer, NULL, gPixelFormat->format, &pixelColor, sizeof(Uint32));
+
+    SDL_DestroyTexture(auxTexture);
+
+    return pixelColor;
 #endif
 #ifdef USE_SDL2_GPU
     if ( !gr->tex->target ) GPU_LoadTarget( gr->tex );
@@ -112,36 +112,19 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
     if ( gr_create_image_for_graph( gr ) ) return;
 
 #ifdef USE_SDL2
-    if ( x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return;
+    if ( x >= ( int64_t ) gr->width || y >= ( int64_t ) gr->height ) return;
 #endif
 #ifdef USE_SDL2_GPU
     if ( x >= ( int64_t ) gr->tex->w || y >= ( int64_t ) gr->tex->h ) return;
 #endif
 
 #ifdef USE_SDL2
-    switch ( gr->surface->format->BitsPerPixel ) {
-        case 1:
-            if ( color )    *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x >> 3 ) ) |= ( 0x80 >> ( x & 7 ) );
-            else            *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x >> 3 ) ) &= ~( 0x80 >> ( x & 7 ) );
-            gr->texture_must_update = 1;
-            break;
-
-        case 8:
-            *(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + x ) = color;
-            gr->texture_must_update = 1;
-            break;
-
-        case 16:
-            *( uint16_t * )(( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 1 )) = color;
-            gr->texture_must_update = 1;
-            break;
-
-        case 32:
-            *( uint32_t * ) (( uint8_t * ) gr->surface->pixels + gr->surface->pitch * y + ( x << 2 )) = color;
-            gr->texture_must_update = 1;
-            break;
-
-    }
+    SDL_Color c;
+    SDL_SetRenderTarget( gRenderer, gr->tex );
+    SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a ) ;
+    SDL_SetRenderDrawColor( gRenderer, c.r, c.g, c.b, c.a );
+    SDL_Rect rect = { x, y, 1, 1 };
+    SDL_RenderFillRect( gRenderer, &rect );
 #endif
 #ifdef USE_SDL2_GPU
     SDL_Color c;
