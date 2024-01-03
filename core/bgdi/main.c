@@ -81,6 +81,7 @@ int main( int argc, char *argv[] ) {
 #ifdef __SWITCH__
 //    consoleInit(NULL);
     romfsInit();
+    fsdevMountSdmc();
     chdir("romfs:/");
 #endif
 
