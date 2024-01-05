@@ -65,26 +65,12 @@ declare PROCESS EXPLOSION();
 #define write_string(font_id,x,y,alignment,pointer_to_data) WRITE_VALUE(font_id,x,y,alignment,text_string,pointer_to_data)
 #define write_int(font_id,x,y,alignment,pointer_to_data) WRITE_VALUE(font_id,x,y,alignment,text_int,pointer_to_data)
 
-function clear_screen()
-begin
-    signal(type PUT, s_kill_force);
-    signal(type XPUT, s_kill_force);
-end
-
-process PUT(file,graph,double x,y)
-begin
-    SIGNAL_ACTION(S_IGN,S_KILL);
-    SIGNAL_ACTION(S_IGN,S_KILL_TREE);
-    SIGNAL(id,S_FREEZE);
-    frame;
-end
-process XPUT(int file,graph,double x,y,int angle, double size, int flags,region)
-begin
-    SIGNAL_ACTION(S_IGN,S_KILL);
-    SIGNAL_ACTION(S_IGN,S_KILL_TREE);
-    SIGNAL(id,S_FREEZE);
-    frame;
-end
+#define init_bgd1_background_emulation() background.file = 0; background.graph = map_new(320,240)
+#define put_screen(f,g) map_clear(0, background.graph ); map_put(0, background.graph, f, g, 160, 120)
+#define clear_screen() map_clear(0, background.graph )
+#define put(f,g,x,y) map_put(0, background.graph, f, g, x, y)
+#define xput(f,g,x,y,angle,size,flags,region) map_put(0, background.graph, f, g, x, y, angle, size, size, flags, 255, 255, 255, 255)
+#define map_xput(fdst,gdst,gsrc,x,y,angle,size,flags) map_put(fdst, gdst, fdst, gsrc, x, y, angle, size, size, flags, 255, 255, 255, 255)
 
 GLOBAL
 	INT JOYAS; //--> ID DEL FPG PARA LOS GFX DE LAS "JOYAS"
@@ -224,10 +210,6 @@ GLOBAL
 		262, 222,  1,     48,         56,        0,         54,     0,    0,    0, //55
 		296, 222,  1,     49,          0,        0,         55,     0,    0,    0; //56
 
-
-
-
-
 	struct LISTA[56] INT ELIMINAR;END //--> STRUCT QUE CONTIENE LA LISTA DE JOYAS QUE SE VAN A ELIMINAR
 	Struct SORTEO[3] INT NUMERO;END=1,11,21,31; // STRUCT CON EL NUJMERO DEL GRAFICO DE LAS JOYAS ORIGINALES
 END
@@ -287,10 +269,13 @@ process MAIN();
     set_fps(75,0);
     set_mode(320,240);
 	END
+
+	init_bgd1_background_emulation();
+
 	SFX_VOL=saved[1].option;channel_set_volume(-1,SFX_VOL);
 	MUS_VOL=saved[2].option;music_set_volume(MUS_VOL);
 
-	 fecha = ftime("%d/%m/%Y",time()); //--> se calcula la fecha
+	fecha = ftime("%d/%m/%Y",time()); //--> se calcula la fecha
 	initHighscore();
 
 	splash=fpg_load("graphics/splash.fpg");
@@ -315,10 +300,6 @@ process MAIN();
 	NUMEROSQUOTA=fpg_load("graphics/numerosquota.fpg");
 	NUMEROSGLASS=fpg_load("graphics/numerosglass.fpg");
 	NUMEROSRUSH=fpg_load("graphics/numerosrush.fpg");
-
-
-
-
 
 	marcador=fpg_load("graphics/marcador.fpg");
 	gfx_hit=fpg_load("graphics/hit.fpg");
@@ -2131,9 +2112,8 @@ BEGIN
 
 	write_delete(all_text);
     clear_screen();
+	put_screen(fondo,nivel);
 
-	background.file=fondo;
-    background.graph=nivel;
 	timer[0]=0;
 	reloj+=25*NIVEL;
 	if(firstime>0) FLYT(38,128,Z,25*NIVEL); end;
@@ -2578,8 +2558,7 @@ BEGIN
 	joyas=fpg_load("graphics/magic.fpg");
     write_delete(all_text);
 	clear_screen();
-    background.file=fondo;
-    background.graph=GLASS_NIVEL;
+    put_screen(fondo,GLASS_NIVEL);
 	QUOTA_DESTROYED=GLASS_NIVEL;
 	timer[0]=0;
 	refill=1;
@@ -2655,8 +2634,7 @@ BEGIN
 	RUSH_LEVEL=4;
     write_delete(all_text);
 	clear_screen();
-    background.file=fondo;
-    background.graph=1;
+    put_screen(fondo,1);
 	timer[0]=0;
 	reloj=30;
 	refill=2;
