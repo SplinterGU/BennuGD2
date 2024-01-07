@@ -2348,6 +2348,10 @@ expresion_result compile_operand() {
                     res.type = typedef_new( TYPE_INT32 );
                     break;
 
+                case    MN_WORD:
+                    res.type = typedef_new( TYPE_WORD );
+                    break;
+
                 case    MN_BYTE:
                     res.type = typedef_new( TYPE_BYTE );
                     break;
