@@ -207,13 +207,11 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
 
     if ( !( idx >= 0 && idx < b->ncpoints ) ) return 0 ;
 
-    if ( !idx ) {
+    if ( !b->ncpoints || b->cpoints[idx].x == CPOINT_UNDEFINED || b->cpoints[idx].y == CPOINT_UNDEFINED ) {
         *( double * )( intptr_t )params[1] = LOCDOUBLE( libmod_gfx, my, COORDX ) ;
         *( double * )( intptr_t )params[2] = LOCDOUBLE( libmod_gfx, my, COORDY ) ;
         return 1;
     }
-
-    if ( b->cpoints[idx].x == CPOINT_UNDEFINED || b->cpoints[idx].y == CPOINT_UNDEFINED ) return 0;
 
     return __get_real_point( my, &params[1], b, b->cpoints[idx].x, b->cpoints[idx].y );
 }
@@ -237,7 +235,7 @@ int64_t libmod_gfx_get_real_point3( INSTANCE * my, int64_t * params ) {
     b = instance_graph( my ) ;
     if ( !b ) return 0 ;
 
-    return __get_real_point( my, &params[3], b, params[1], params[1] );
+    return __get_real_point( my, &params[3], b, params[1], params[2] );
 }
 
 /* --------------------------------------------------------------------------- */
