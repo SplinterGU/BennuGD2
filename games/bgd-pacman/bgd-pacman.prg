@@ -122,7 +122,7 @@ BEGIN
     PACMAN_snd_inicio=sound_load("sfx/tambor2.wav");
 
     // Carga la maxima puntuacion
-    load("pacman.dat",PACMAN_puntuacion_max);
+    load(get_pref_path("bennugd.org", "pacman") + "pacman.dat",PACMAN_puntuacion_max);
 
     // Define la region 1 que sera la que se use como de impresion
     region_define(1,105,0,(640-209),480);
@@ -152,7 +152,7 @@ BEGIN
     IF (PACMAN_puntuacion > PACMAN_puntuacion_max)
         PACMAN_puntuacion_max=PACMAN_puntuacion;  // Cambia la variable que guarda el valor de maxima puntuacion
         // Y graba la maxima puntuacion en disco
-        save("pacman.dat",PACMAN_puntuacion_max);
+        save(get_pref_path("bennugd.org", "pacman") + "pacman.dat",PACMAN_puntuacion_max);
     END
 
     // Resetea todas las variables para empezar de nuevo
@@ -976,7 +976,7 @@ BEGIN
                     IF (PACMAN_puntuacion > PACMAN_puntuacion_max)
                         PACMAN_puntuacion_max=PACMAN_puntuacion;  // Cambia la variable que guarda el valor de maxima puntuacion
                         // Y graba la maxima puntuacion en disco
-                        save("pacman.dat",PACMAN_puntuacion_max);
+                        save(get_pref_path("bennugd.org", "pacman") + "pacman.dat",PACMAN_puntuacion_max);
                     END
 
                     // Resetea todas las variables para empezar de nuevo

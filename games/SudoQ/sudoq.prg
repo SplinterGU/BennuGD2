@@ -86,8 +86,8 @@ BEGIN
 	raton(1);
 
 	// carga el tablero tal y como lo dejamos
-	if (fexists("save.dat"))
-		fichero=fopen("save.dat",O_READ);
+	if (fexists(get_pref_path("bennugd.org", "sudoq") + "save.dat"))
+		fichero=fopen(get_pref_path("bennugd.org", "sudoq") + "save.dat",O_READ);
 		fread(fichero,savegame);
 		fclose(fichero);
 
@@ -280,7 +280,7 @@ BEGIN
 			savegame.sudoku_finalizado=sudoku_finalizado;
 			savegame.skin=skin;
 
-			fichero=fopen("save.dat",O_WRITE);
+			fichero=fopen(get_pref_path("bennugd.org", "sudoq") + "save.dat",O_WRITE);
 			fwrite(fichero ,savegame);
 			fclose(fichero);
 
