@@ -139,7 +139,7 @@ int64_t libmod_gfx_get_dist2( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
-static inline int64_t __get_real_point( INSTANCE * my, int64_t * params, GRAPH * b, int64_t point_x, int64_t point_y ) {
+static inline int64_t __get_real_point( INSTANCE * my, int64_t * params, GRAPH * b, double point_x, double point_y ) {
     int64_t sx = 1, sy = -1, angle = 0, flags;
     double x, y, centerx, centery, dx = 0, dy = 0, px, py, size_x, size_y;
 
@@ -213,7 +213,7 @@ int64_t libmod_gfx_get_real_point( INSTANCE * my, int64_t * params ) {
         return 1;
     }
 
-    return __get_real_point( my, &params[1], b, b->cpoints[idx].x, b->cpoints[idx].y );
+    return __get_real_point( my, &params[1], b, ( double ) b->cpoints[idx].x, ( double ) b->cpoints[idx].y );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -235,7 +235,7 @@ int64_t libmod_gfx_get_real_point3( INSTANCE * my, int64_t * params ) {
     b = instance_graph( my ) ;
     if ( !b ) return 0 ;
 
-    return __get_real_point( my, &params[3], b, params[1], params[2] );
+    return __get_real_point( my, &params[3], b, *( double * ) &params[1], *( double * ) &params[2] );
 }
 
 /* --------------------------------------------------------------------------- */

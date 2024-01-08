@@ -200,7 +200,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "GET_DIST"            , "I"               , TYPE_DOUBLE     , libmod_gfx_get_dist             ),
     FUNC( "GET_DIST"            , "II"              , TYPE_DOUBLE     , libmod_gfx_get_dist2            ),
 
-    FUNC( "GET_REAL_POINT"      , "IIIPP"           , TYPE_INT        , libmod_gfx_get_real_point3      ),
+    FUNC( "GET_REAL_POINT"      , "IDDPP"           , TYPE_INT        , libmod_gfx_get_real_point3      ),
     FUNC( "GET_REAL_POINT"      , "IIPP"            , TYPE_INT        , libmod_gfx_get_real_point2      ),
     FUNC( "GET_REAL_POINT"      , "IPP"             , TYPE_INT        , libmod_gfx_get_real_point       ),
 
