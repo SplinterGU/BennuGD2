@@ -4,7 +4,6 @@ import "mod_gfx";
 import "mod_input";
 import "mod_sound";
 import "mod_misc";
-import "mod_debug";
 
 #define init_bgd1_background_emulation() background.file = 0; background.graph = map_new(320,240)
 #define put_screen(f,g) map_clear(0, background.graph ); map_put(0, background.graph, f, g, 160, 120)
