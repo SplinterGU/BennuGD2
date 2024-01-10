@@ -39,7 +39,7 @@
 /* Graph Mode */
 #define MODE_WINDOW         0x0000
 #define MODE_FULLSCREEN     0x0200
-#define MODE_MODAL          0x1000
+#define MODE_GRAB_INPUT     0x1000
 #define MODE_FRAMELESS      0x2000
 #define MODE_WAITVSYNC      0x4000
 

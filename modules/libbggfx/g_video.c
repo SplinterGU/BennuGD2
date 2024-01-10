@@ -197,7 +197,7 @@ int gr_set_mode( int width, int height, int flags ) {
     renderer_height = height;
 
     fullscreen = ( flags & MODE_FULLSCREEN ) ? 1 : 0 ;
-    grab_input = ( flags & MODE_MODAL ) ? 1 : 0 ;
+    grab_input = ( flags & MODE_GRAB_INPUT ) ? 1 : 0 ;
     frameless = ( flags & MODE_FRAMELESS ) ? 1 : 0 ;
     waitvsync = ( flags & MODE_WAITVSYNC ) ? 1 : 0 ;
     fullscreen |= GLOQWORD( libbggfx, fullscreen );
@@ -217,9 +217,10 @@ int gr_set_mode( int width, int height, int flags ) {
         renderer_height = ( int ) scale_resolution % 10000L ;
     }
 
+    SDL_SetHint( SDL_HINT_GRAB_KEYBOARD, "1" );
+
 #ifdef USE_SDL2
     SDL_SetHint( SDL_HINT_RENDER_VSYNC, waitvsync ? "1" : "0" );
-
     if ( !gWindow ) {
         //Create window
         int sdl_flags = SDL_WINDOW_SHOWN;
@@ -280,6 +281,11 @@ int gr_set_mode( int width, int height, int flags ) {
 
         GPU_SetViewport( gRenderer, GPU_MakeRect(0, 0, renderer_width, renderer_height) );
         GPU_SetVirtualResolution( gRenderer, renderer_width, renderer_height );
+
+        gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
+
+        SDL_SetWindowBordered( gWindow, frameless ? SDL_FALSE : SDL_TRUE );
+        SDL_SetWindowGrab( gWindow, grab_input ? SDL_TRUE : SDL_FALSE );
     }
 
     if ( waitvsync ) {
@@ -301,7 +307,6 @@ int gr_set_mode( int width, int height, int flags ) {
             }
         }
     }
-
 #endif
 
 #ifdef USE_SDL2

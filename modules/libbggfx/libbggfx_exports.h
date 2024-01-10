@@ -51,7 +51,8 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "MODE_WAITVSYNC"                  , TYPE_QWORD    , MODE_WAITVSYNC                },
     { "WAITVSYNC"                       , TYPE_QWORD    , MODE_WAITVSYNC                },
 
-    { "MODE_MODAL"                      , TYPE_QWORD    , MODE_MODAL                    },  /* GRAB INPU */
+    { "MODE_GRAB_INPUT"                 , TYPE_QWORD    , MODE_GRAB_INPUT               },  /* GRAB INPUT */
+    { "MODE_MODAL"                      , TYPE_QWORD    , MODE_GRAB_INPUT               },  /* GRAB INPUT */
     { "MODE_FRAMELESS"                  , TYPE_QWORD    , MODE_FRAMELESS                },  /* FRAMELESS window */
 
     { "SRA_PRESERVE"                    , TYPE_QWORD    , SRA_PRESERVE                  },
