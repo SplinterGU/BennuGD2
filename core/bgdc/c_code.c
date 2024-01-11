@@ -2047,7 +2047,7 @@ expresion_result compile_value() {
         if ( cproc->params == -1 ) {
             cproc->params = param_count;
         } else if ( cproc->params != param_count ) {
-            if ( cproc->minparams == -1 || cproc->minparams > param_count ) {
+            if ( cproc->minparams == -1 || cproc->minparams > param_count || cproc->params < param_count ) {
                 compile_error( MSG_INCORRECT_PARAMC, identifier_name( cproc->identifier ), cproc->minparams == -1 ? cproc->params : cproc->minparams );
             }
             for ( int i = param_count; i < cproc->params; i++ ) {
