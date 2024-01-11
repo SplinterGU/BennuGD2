@@ -79,8 +79,8 @@ typedef struct {
 
 /* --------------------------------------------------------------------------- */
 
-#define in_radius(x,y,x2,y2,radius)             ((x-x2)*(x-x2)+(y-y2)*(y-y2))<((radius)*(radius))
-#define in_radius2(x,y,x2,y2,radius,radius2)    ((x-x2)*(x-x2)+(y-y2)*(y-y2))<((radius+radius2)*(radius+radius2))
+#define in_radius_box_circle(x,y,x2,y2,radius)              ((x-x2)*(x-x2)+(y-y2)*(y-y2))<((radius)*(radius))
+#define in_radius_circle_circle(x,y,x2,y2,radius,radius2)   ((x-x2)*(x-x2)+(y-y2)*(y-y2))<((radius+radius2)*(radius+radius2))
 
 #define FREE(a) free(a);a=NULL
 
@@ -400,13 +400,13 @@ static inline int __is_collision_box_circle( BGD_Box * limits, int64_t radius, d
     // Find the unrotated closest y point from center of unrotated circle
     closest_y = clamp( normalized_vertices[1], limits->y, limits->y2 );
 
-    return in_radius( closest_x, closest_y, normalized_vertices[0], normalized_vertices[1], radius );
+    return in_radius_box_circle( closest_x, closest_y, normalized_vertices[0], normalized_vertices[1], radius );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static inline int __is_collision_circle_circle( int64_t radiusA, double * verticesA, int64_t radiusB, double * verticesB ) {
-    return in_radius2( verticesA[0], verticesA[1], verticesB[0], verticesB[1], radiusA, radiusB );
+    return in_radius_circle_circle( verticesA[0], verticesA[1], verticesB[0], verticesB[1], radiusA, radiusB );
 }
 
 /* --------------------------------------------------------------------------- */
