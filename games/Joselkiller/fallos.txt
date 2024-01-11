@@ -1,0 +1,39 @@
+1. Ya no caen piedras en explosiones de helicopteros (fase aerea)
+2. Menús innecesarios borrados
+3. Al volver de la fase aerea tras un gameover el scroll del menú puede verse mal
+4. Reflejos añadidos a la versión Bennu
+5. Añadido que la hora del reloj afecte al juego en versión Bennu
+6. Set a 24 canales de sonido
+7. Añadido uso de canales independientes para cada sonido o voz
+8. Optimizaciones dump y restore type
+9. Ya no es necesario recoger todos los items de la fase para pasar de nivel
+10. Ahora los items dan puntuación como bonificación por recogerlos
+11. Correcciones en algunos gráficos
+12. Correcciones en los fades y fundidos en transiciones entre fases
+13. Optimizaciones en los fpgs, imágenes no necesarias borradas
+14. La música ahora se desvanece suavemente entre cambio de fases
+15. Añadido Alt+Enter para alternar entre ventana y pantalla completa
+16. Pulsando cruz en la ventana ahora se cierra el juego
+17. Bug corregido: Al salir de una partida y volver a entrar el truco munición infinita se desactivaba
+18. Añadido otro robot de linea en la cueva (versión Bennu)
+19. Corregido robot de linea que dispara fuera de la pantalla
+20. Ahora se puede pausar y entrar en el menú en las fases de vagoneta y avión
+21. Calidad de las melodías ogg mejorada
+22. La sangre de los enemigos ahora es roja
+23. Añadida sangre adicional en explosiones o escopetazos
+24. Bug corregido: El terremoto puede quedar a medias al completar misión
+25. Bug corregido: Algunas armas no contabilizaban disparos, otras contaban más de lo necesario
+26. Las balas ya no impactan contra enemigos que están muriendo
+27. Corregido sentido en el que caen o explotan algunos enemigos al morir
+28. Bug corregido: Algunos disparos de los helicopteros y caídas al ser derribados
+29. Bug corregido: No todos los objetos se congelaban al pausar
+30. Añadido txt para cambiar los controles del teclado
+31. Añadido soporte para joystick (xbox 360 pad) y controles de Wiz
+32. Ahora cuando se acaba la munición de un arma vuelve a la principal en lugar de a la siguiente obtenida
+33. Mapas de durezas reducidos a la mitad y mejorados
+34. Colisiones con los mapas de durezas mejorado para personaje y enemigos
+35. Boss corregido: El primer boss puede lanzar balas infínitas durante un instante
+36. Añadidas rondas de enemigos y pausas de cámara en algunas zonas
+37. Los enemigos quemados ahora chocan con el agua
+38. Cambios en los finales
+39. Cambios y correcciones en algunas otras cosas

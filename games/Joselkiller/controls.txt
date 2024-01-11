@@ -1,0 +1,24 @@
+////////////// KEYBOARD /////////////// (a-z,1-9,arrows,enter)
+// UP
+up
+
+// DOWN
+down
+
+// LEFT
+left
+
+// RIGHT
+right
+
+// START
+enter
+
+// BUTTON 1 (JUMP)
+x
+
+// BUTTON 2 (SHOOT)
+c
+
+// BUTTON 3 (WEAPON)
+v
