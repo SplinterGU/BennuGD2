@@ -92,4 +92,4 @@ else
 fi
 cp ${dir_output}/$NAME.nro /home/hdd/Switch-Games
 
-#rm -Rf ${dir_output}
+rm -Rf ${dir_output}
