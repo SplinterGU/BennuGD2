@@ -955,14 +955,9 @@ int64_t libmod_gfx_set_texture_quality( INSTANCE * my, int64_t * params ) {
 #ifdef USE_SDL2
             return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "linear" );
 #endif
-#ifdef USE_SDL2_GPU
-        case Q_BEST:
-            gr_filter_mode  = GPU_FILTER_LINEAR;
-            break;
-#endif
 
-#ifdef USE_SDL2
         case Q_BEST:
+#ifdef USE_SDL2
             return SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
 #endif
 #ifdef USE_SDL2_GPU

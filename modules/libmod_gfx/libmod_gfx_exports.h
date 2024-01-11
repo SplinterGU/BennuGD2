@@ -61,6 +61,8 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "Q_BEST"              , TYPE_INT          , Q_BEST                                },
 #ifdef USE_SDL2_GPU
     { "Q_MIPMAP"            , TYPE_INT          , Q_MIPMAP                              },
+#else
+    { "Q_MIPMAP"            , TYPE_INT          , -1                                    },
 #endif
     { "CHARSET_ISO8859"     , TYPE_INT          , CHARSET_ISO8859                       },
     { "CHARSET_CP850"       , TYPE_INT          , CHARSET_CP850                         },
