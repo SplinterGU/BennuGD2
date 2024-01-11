@@ -202,6 +202,8 @@ int gr_set_mode( int width, int height, int flags ) {
     waitvsync = ( flags & MODE_WAITVSYNC ) ? 1 : 0 ;
     fullscreen |= GLOQWORD( libbggfx, fullscreen );
 
+    int64_t current_scale_resolution_aspectratio = scale_resolution_aspectratio;
+
     scale_resolution = GLOQWORD( libbggfx, SCALE_RESOLUTION );
     scale_resolution_aspectratio = GLOQWORD( libbggfx, SCALE_RESOLUTION_ASPECTRATIO );
 
@@ -301,8 +303,8 @@ int gr_set_mode( int width, int height, int flags ) {
         if ( current.w != renderer_width || current.h != renderer_height ) {
             renderer_width = current.w;
             renderer_height = current.h;
-            if ( !scale_resolution || scale_resolution == -1 ) {
-                scale_resolution = renderer_width * 1000 + renderer_height;
+            if ( scale_resolution == -1 ) {
+                scale_resolution = renderer_width * 10000 + renderer_height;
                 scale_resolution_aspectratio = SRA_PRESERVE;
             }
         }
@@ -318,7 +320,7 @@ int gr_set_mode( int width, int height, int flags ) {
 
     scr_initialized = 1 ;
 
-    if ( scale_resolution && scale_resolution != -1 && ( renderer_width != width || renderer_height != height ) ) {
+    if ( scale_resolution != -1 && ( renderer_width != width || renderer_height != height || scale_resolution_aspectratio != current_scale_resolution_aspectratio ) ) {
         switch ( scale_resolution_aspectratio ) {
             case SRA_PRESERVE:
 #ifdef USE_SDL2
