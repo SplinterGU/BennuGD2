@@ -633,6 +633,7 @@ static int64_t __libmod_gfx_map_block_copy(
     if ( flags & B_HMIRROR ) centerx = orig->width - 1 - centerx;
     if ( flags & B_VMIRROR ) centery = orig->height - 1 - centery;
 
+#if 0
     if ( x      < 0 ) { dest_x += x; w += x;      x = 0; }
     if ( y      < 0 ) { dest_y += y; h += y;      y = 0; }
     if ( dest_x < 0 ) { x += dest_x; w += dest_x; dest_x = 0; }
@@ -642,6 +643,7 @@ static int64_t __libmod_gfx_map_block_copy(
     if ( y + h  > orig->height ) h = orig->height - y;
     if ( dest_x + w > dest->width  ) w = dest->width  - dest_x;
     if ( dest_y + h > dest->height ) h = dest->height - dest_y;
+#endif
 
     if ( w <= 0 || h <= 0 ) return 0;
 

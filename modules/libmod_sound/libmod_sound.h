@@ -48,7 +48,7 @@ enum {
 
 #define DEFAULT_SOUND_FREQ      44100
 #define DEFAULT_SOUND_MODE      MODE_STEREO
-#define DEFAULT_SOUND_CHANNELS  8               // Channels (not mono, stereo, etc.), these are sounds that can play simultaneously.
+#define DEFAULT_SOUND_CHANNELS  32              // Channels (not mono, stereo, etc.), these are sounds that can play simultaneously.
 
 /* --------------------------------------------------------------------------- */
 
