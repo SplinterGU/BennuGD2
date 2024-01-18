@@ -34,7 +34,7 @@
 
 #define STACK_RETURN_VALUE  0x8000
 #define STACK_SIZE_MASK     0x7FFF
-#define STACK_SIZE          2048
+#define STACK_SIZE          4096
 
 /* ---------------------------------------------------------------------- */
 /* Instances. An instance is created from a process, but in reality,      */

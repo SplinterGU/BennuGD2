@@ -42,9 +42,6 @@
 #include "instance.h"
 #include "xstrings.h"
 
-#undef STACK_SIZE
-#define STACK_SIZE 4096
-
 /* ---------------------------------------------------------------------- */
 /* Instance management module, with initialization and destruction        */
 /* functions, duplication, etc.                                           */
@@ -255,18 +252,14 @@ int64_t instance_getid() {
 
     if ( id <= LAST_INSTANCE_ID && !hashed_by_id[ HASH( id ) ] ) return id;
 
-    if ( instance_maxid > LAST_INSTANCE_ID ) {
-        for ( instance_maxid = FIRST_INSTANCE_ID; instance_maxid <= LAST_INSTANCE_ID; instance_maxid++ ) {
-            if ( !hashed_by_id[HASH( instance_maxid )] ) return instance_maxid++;
-        }
-    } else {
-        for (; instance_maxid <= LAST_INSTANCE_ID; instance_maxid++ ) {
-            if ( !hashed_by_id[HASH( instance_maxid )] ) return instance_maxid++;
-        }
-        for ( instance_maxid = FIRST_INSTANCE_ID; instance_maxid < id; instance_maxid++ ) {
-            if ( !hashed_by_id[HASH( instance_maxid )] ) return instance_maxid++;
-        }
+    for (; instance_maxid <= LAST_INSTANCE_ID; instance_maxid++ ) {
+        if ( !hashed_by_id[HASH( instance_maxid )] ) return instance_maxid++;
     }
+
+    for ( instance_maxid = FIRST_INSTANCE_ID; instance_maxid < id; instance_maxid++ ) {
+        if ( !hashed_by_id[HASH( instance_maxid )] ) return instance_maxid++;
+    }
+
     return -1;
 }
 
@@ -301,9 +294,9 @@ INSTANCE * instance_duplicate( INSTANCE * father ) {
     r = ( INSTANCE * ) calloc( 1, sizeof( INSTANCE ) );
     assert( r );
 
-    r->pridata          = ( int64_t * ) malloc( father->private_size + 8 );
-    r->pubdata          = ( int64_t * ) malloc( father->public_size + 8 );
-    r->locdata          = ( int64_t * ) malloc( local_size + 8 );
+    r->pridata          = ( int64_t * ) malloc( father->private_size + sizeof( int64_t ) );
+    r->pubdata          = ( int64_t * ) malloc( father->public_size + sizeof( int64_t ) );
+    r->locdata          = ( int64_t * ) malloc( local_size + sizeof( int64_t ) );
     r->code             = father->code;
     r->codeptr          = father->codeptr;
     r->exitcode         = father->exitcode;
@@ -409,9 +402,9 @@ INSTANCE * instance_new( PROCDEF * proc, INSTANCE * father ) {
     r = ( INSTANCE * ) calloc( 1, sizeof( INSTANCE ) );
     assert( r );
 
-    r->pridata          = ( int64_t * ) malloc( proc->private_size + 8 );
-    r->pubdata          = ( int64_t * ) malloc( proc->public_size + 8 );
-    r->locdata          = ( int64_t * ) malloc( local_size + 8 );
+    r->pridata          = ( int64_t * ) malloc( proc->private_size + sizeof( int64_t ) );
+    r->pubdata          = ( int64_t * ) malloc( proc->public_size + sizeof( int64_t ) );
+    r->locdata          = ( int64_t * ) malloc( local_size + sizeof( int64_t ) );
     r->code             = proc->code;
     r->codeptr          = proc->code;
     r->exitcode         = proc->exitcode;
