@@ -88,6 +88,8 @@ typedef struct _procdef {
 extern int64_t procdef_count;
 extern int64_t procdef_maxid;
 
+extern PROCDEF ** procs;
+
 extern int64_t procdef_getid();
 extern PROCDEF * procdef_new( int64_t typeid, int64_t identifier );
 extern PROCDEF * procdef_get( int64_t typeid );

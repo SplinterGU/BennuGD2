@@ -1036,8 +1036,18 @@ void compile_program() {
              if ( token.type == IDENTIFIER && token.code == identifier_import ) compile_import();
         else if ( token.type == IDENTIFIER && token.code == identifier_const ) compile_constants();
         else if ( token.type == IDENTIFIER && token.code == identifier_local ) {
-            VARSPACE * v[] = { &global, NULL };
+//            VARSPACE * v[] = { &global, NULL };
+
+            VARSPACE ** v = calloc( procdef_count + 2, sizeof( VARSPACE *) );
+            if ( !v ) compile_error( MSG_OUT_OF_MEMORY );
+            
+            v[0] = &global;
+            for ( int n = 0; n <= procdef_maxid; n++ ) v[ 1 + n ] = procs[ n ]->privars;
+            
             compile_varspace( &local, localdata, 1, 1, v, DEFAULT_ALIGNMENT, 1, 0, 0, 0 );
+            
+            free( v );
+
         } else if ( token.type == IDENTIFIER && (
                         token.code == identifier_global ||
                         ( block_var = ( identifier_is_basic_type( token.code ) || token.code == identifier_struct || procdef_search( token.code ) || segment_by_name( token.code ) ) )
