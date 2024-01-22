@@ -152,27 +152,24 @@
 
 /* --------------------------------------------------------------------------- */
 
-/* Tipos de token */
-#define IDENTIFIER 1
-#define STRING     2
-#define NUMBER     3
-#define OPERATOR   4
-#define NOTOKEN    5
-
-/* --------------------------------------------------------------------------- */
-
 static struct {
-    int type ;
+    enum { RT_ERROR, RT_VARIABLE, RT_CONSTANT, RT_CONSTANT_DOUBLE, RT_STRING } type ;
     DCB_VAR var ;
-    double value ;
+    struct {
+        int64_t int_value;
+        double double_value;
+    };
     void * data ;
-    char name[256] ;
+    char name[4096] ;
 } result, lvalue ;
 
 static struct {
-    enum { T_ERROR, T_VARIABLE, T_NUMBER, T_CONSTANT, T_STRING } type ;
-    char name[256] ;
-    double  code ;
+    enum { IDENTIFIER, STRING, NUMBER_INT, NUMBER_DOUBLE, OPERATOR, NOTOKEN } type ;
+    char name[4096] ;
+    struct {
+        int64_t code;
+        double double_value;
+    };
 } token ;
 
 static const char * token_ptr ;
@@ -224,7 +221,7 @@ console_vars[] = {
 
 static int console_scroll_pos = 0 ;
 static int console_scroll_lateral_pos = 0 ;
-static char console_input[256] ;
+static char console_input[4096] ;
 
 /* --------------------------------------------------------------------------- */
 
@@ -1352,6 +1349,15 @@ static void systext_puts( int64_t x, int64_t y, char * str ) {
 
 /* --------------------------------------------------------------------------- */
 
+static void systext_putchar( int64_t x, int64_t y, char c ) {
+    char str[2];
+    str[0] = c;
+    str[1] = '\0';
+    systext_puts( x, y, str );
+}
+
+/* --------------------------------------------------------------------------- */
+
 static void console_scroll( int direction ) {
     console_scroll_pos += direction ;
     if ( direction < 0 ) {
@@ -1449,6 +1455,9 @@ static const char * console_getcommand( int offset ) {
 
 /* --------------------------------------------------------------------------- */
 
+static int cursor_pos = 0;
+static char tmp_buffer[4096];
+
 static void console_getkey( int sym ) {
     static int history_offset = 0;
     const char * cmd;
@@ -1456,7 +1465,8 @@ static void console_getkey( int sym ) {
     if ( sym == SDLK_UP ) {
         cmd = console_getcommand( --history_offset );
         if ( cmd == NULL )  history_offset++;
-        else                    strncpy( console_input, cmd, sizeof( console_input ) - 3 );
+        else                strncpy( console_input, cmd, sizeof( console_input ) - 3 );
+        cursor_pos = strlen( console_input );
     }
 
     if ( sym == SDLK_DOWN ) {
@@ -1466,12 +1476,30 @@ static void console_getkey( int sym ) {
         } else {
             cmd = console_getcommand( ++history_offset );
             if ( cmd == NULL )  history_offset--;
-            else                    strncpy( console_input, cmd, sizeof( console_input ) - 3 );
+            else                strncpy( console_input, cmd, sizeof( console_input ) - 3 );
+        }
+        cursor_pos = strlen( console_input );
+    }
+
+    if ( sym == SDLK_BACKSPACE && *console_input ) {
+        if ( cursor_pos > 0 ) {
+            strncpy(tmp_buffer, console_input, cursor_pos - 1);
+            strcpy(&tmp_buffer[ cursor_pos - 1 ], &console_input[ cursor_pos ]);
+            strcpy(console_input, tmp_buffer);
+            cursor_pos--;
         }
     }
 
-    if ( sym == SDLK_BACKSPACE && *console_input ) console_input[strlen( console_input )-1] = 0 ;
+    if ( sym == SDLK_DELETE ) {
+        if ( cursor_pos < strlen( console_input ) ) {
+            strncpy(tmp_buffer, console_input, cursor_pos );
+            strcpy(&tmp_buffer[ cursor_pos ], &console_input[ cursor_pos + 1 ]);
+            strcpy(console_input, tmp_buffer);
+        }
+    }
+
     if ( sym == SDLK_ESCAPE ) *console_input = 0 ;
+
     if ( sym == SDLK_RETURN ) {
         console_scroll_pos = 0 ;
         console_printf( COLOR_SILVER "> %s", console_input ) ;
@@ -1480,15 +1508,36 @@ static void console_getkey( int sym ) {
             console_do( console_input ) ;
             *console_input = 0 ;
             history_offset = 0;
+            cursor_pos = 0;
         }
     }
 
-    if ( sym >= ' ' && sym <= 255 && strlen( console_input ) < sizeof( console_input ) - 3 ) {
-        char buffer[2] ;
-        buffer[0] = sym ;
-        buffer[1] = 0 ;
-        strcat( console_input, buffer ) ;
+    if ( sym >= ' ' && sym <= 255 && sym != SDLK_DELETE && strlen( console_input ) < sizeof( console_input ) - 3 ) {
+        strncpy(tmp_buffer, console_input, cursor_pos );
+        tmp_buffer[ cursor_pos ] = sym;
+        strcpy(&tmp_buffer[ cursor_pos + 1], &console_input[ cursor_pos ]);
+        strcpy(console_input, tmp_buffer);
+        cursor_pos++;
     }
+
+    if ( sym == SDLK_LEFT ) {
+        cursor_pos--;
+    }
+
+    if ( sym == SDLK_RIGHT ) {
+        cursor_pos++;
+    }
+    
+    if ( sym == SDLK_HOME ) {
+        cursor_pos = 0;
+    }
+
+    if ( sym == SDLK_END ) {
+        cursor_pos = strlen( console_input );
+    }
+
+    if ( cursor_pos < 0 ) cursor_pos = 0;
+    if ( cursor_pos > strlen( console_input ) ) cursor_pos = strlen( console_input );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -1699,12 +1748,10 @@ static void show_var( DCB_VAR var, char * name, void * data, char * title, int i
     spaces[indent] = 0 ;
 
     if ( !name ) {
-        uint64_t code ;
-
         name = "?" ;
-        for ( code = 0 ; code < dcb.data.NID ; code++ ) {
-            if ( dcb.id[code].Code == var.ID ) {
-                name = ( char * ) dcb.id[code].Name ;
+        for ( uint64_t n = 0 ; n < dcb.data.NID ; n++ ) {
+            if ( dcb.id[ n ].Code == var.ID ) {
+                name = ( char * ) dcb.id[ n ].Name ;
                 break ;
             }
         }
@@ -1725,7 +1772,6 @@ static void show_var( DCB_VAR var, char * name, void * data, char * title, int i
 
 static void get_token() {
     char * ptr ;
-    unsigned int n ;
 
     while ( isspace( *token_ptr ) ) token_ptr++ ;
 
@@ -1737,7 +1783,6 @@ static void get_token() {
     /* Numbers */
 
     if ( ISNUM( *token_ptr ) ) {
-        double num = 0;
         int base = 10;
 
         /* Hex/Bin/Octal numbers with the h/b/o sufix */
@@ -1751,6 +1796,7 @@ static void get_token() {
         if ( *ptr == 'o' || *ptr == 'O' ) base = 8;
 
         token.code = 0 ; /* for ints values */
+        token.type = NUMBER_INT;
 
         /* Calculate the number value */
 
@@ -1761,40 +1807,33 @@ static void get_token() {
             if ( base == 16 && !ISNUM( *token_ptr ) && ( TOUPPER( *token_ptr ) < 'A' || TOUPPER( *token_ptr ) > 'F' ) ) break;
 
             if ( ISNUM( *token_ptr ) ) {
-                num = num * base + ( *token_ptr - '0' );
                 token.code = token.code * base + ( *token_ptr - '0' );
                 token_ptr++;
             }
             if ( *token_ptr >= 'a' && *token_ptr <= 'f' && base > 10 ) {
-                num = num * base + ( *token_ptr - 'a' + 10 );
                 token.code = token.code * base + ( *token_ptr - 'a' + 10 );
                 token_ptr++;
             }
             if ( *token_ptr >= 'A' && *token_ptr <= 'F' && base > 10 ) {
-                num = num * base + ( *token_ptr - 'A' + 10 );
                 token.code = token.code * base + ( *token_ptr - 'A' + 10 );
                 token_ptr++;
             }
         }
-        token.type = NUMBER;
-        token.code = ( float )num;
 
-        /* We have the integer part now - convert to int/float */
+        /* We have the integer part now - convert to int/double */
 
         if ( *token_ptr == '.' && base == 10 ) {
+            token.type = NUMBER_DOUBLE;
+            token.double_value = ( double ) token.code;
             token_ptr++;
             if ( !ISNUM( *token_ptr ) )
                 token_ptr--;
             else {
-                double dec = 1.0 / ( double )base;
+                double dec = 0.1;
                 while ( ISNUM( *token_ptr ) || ( base > 100 && ISXNUM( *token_ptr ) ) ) {
-                    if ( ISNUM( *token_ptr ) ) num = num + dec * ( *token_ptr++ - '0' );
-                    if ( *token_ptr >= 'a' && *token_ptr <= 'f' && base > 10 ) num = num + dec * ( *token_ptr++ - 'a' + 10 );
-                    if ( *token_ptr >= 'A' && *token_ptr <= 'F' && base > 10 ) num = num + dec * ( *token_ptr++ - 'A' + 10 );
-                    dec /= ( double )base;
+                    if ( ISNUM( *token_ptr ) ) token.double_value = token.double_value + dec * ( *token_ptr++ - '0' );
+                    dec /= 10.0;
                 }
-                token.type  = NUMBER;
-                token.code = ( double )num;
             }
         }
 
@@ -1804,7 +1843,10 @@ static void get_token() {
         if ( base == 8  && ( *token_ptr == 'o' || *token_ptr == 'O' ) ) token_ptr++;
         if ( base == 2  && ( *token_ptr == 'b' || *token_ptr == 'B' ) ) token_ptr++;
 
-        _snprintf( token.name, sizeof( token.name ), "%g", token.code ) ;
+        if ( token.type == NUMBER_DOUBLE )
+            _snprintf( token.name, sizeof( token.name ), "%F", token.double_value ) ;
+        else
+            _snprintf( token.name, sizeof( token.name ), "%ld", token.code ) ;
         return ;
     }
 
@@ -1826,7 +1868,7 @@ static void get_token() {
     }
     *ptr = 0 ;
 
-    for ( n = 0 ; n < dcb.data.NID ; n++ ) {
+    for ( int n = 0 ; n < dcb.data.NID ; n++ ) {
         if ( strcmp( ( char * )dcb.id[n].Name, token.name ) == 0 ) {
             token.type = IDENTIFIER ;
             token.code = dcb.id[n].Code ;
@@ -1852,47 +1894,53 @@ static DCB_TYPEDEF reduce_type( DCB_TYPEDEF orig ) {
 /* --------------------------------------------------------------------------- */
 
 static void var2const() {
-    while ( result.type == T_VARIABLE && result.var.Type.BaseType[0] == TYPE_ARRAY )
+    while ( result.type == RT_VARIABLE && result.var.Type.BaseType[0] == TYPE_ARRAY )
         result.var.Type = reduce_type( result.var.Type ) ;
 
-    if ( result.type == T_VARIABLE && result.var.Type.BaseType[0] == TYPE_STRING ) {
-        result.type = T_STRING ;
+    if ( result.type == RT_VARIABLE && result.var.Type.BaseType[0] == TYPE_STRING ) {
+        result.type = RT_STRING ;
         strncpy( result.name, string_get( *( int64_t * )( result.data ) ), sizeof( result.name ) ) ;
         result.name[sizeof( result.name ) - 1] = 0 ;
     }
 
-    if ( result.type == T_VARIABLE && result.var.Type.BaseType[0] == TYPE_FLOAT ) {
-        result.type = T_CONSTANT ;
-        result.value = *( float * )( result.data ) ;
+    if ( result.type == RT_VARIABLE && result.var.Type.BaseType[0] == TYPE_FLOAT ) {
+        result.type = RT_CONSTANT_DOUBLE ;
+        result.double_value = *( float * )( result.data ) ;
+        result.int_value = ( int64_t ) result.double_value ;
     }
 
-    if ( result.type == T_VARIABLE && result.var.Type.BaseType[0] == TYPE_DOUBLE ) {
-        result.type = T_CONSTANT ;
-        result.value = *( double * )( result.data ) ;
+    if ( result.type == RT_VARIABLE && result.var.Type.BaseType[0] == TYPE_DOUBLE ) {
+        result.type = RT_CONSTANT_DOUBLE ;
+        result.double_value = *( double * )( result.data ) ;
+        result.int_value = ( int64_t ) result.double_value ;
     }
 
-    if ( result.type == T_VARIABLE && ( result.var.Type.BaseType[0] == TYPE_QWORD || result.var.Type.BaseType[0] == TYPE_INT ) ) {
-        result.type = T_CONSTANT ;
-        result.value = *( int64_t * )( result.data ) ;
+    if ( result.type == RT_VARIABLE && ( result.var.Type.BaseType[0] == TYPE_QWORD || result.var.Type.BaseType[0] == TYPE_INT ) ) {
+        result.type = RT_CONSTANT ;
+        result.int_value = *( int64_t * )( result.data ) ;
+        result.double_value = ( double ) result.int_value ;
     }
 
-    if ( result.type == T_VARIABLE && ( result.var.Type.BaseType[0] == TYPE_DWORD || result.var.Type.BaseType[0] == TYPE_INT32 ) ) {
-        result.type = T_CONSTANT ;
-        result.value = *( int32_t * )( result.data ) ;
+    if ( result.type == RT_VARIABLE && ( result.var.Type.BaseType[0] == TYPE_DWORD || result.var.Type.BaseType[0] == TYPE_INT32 ) ) {
+        result.type = RT_CONSTANT ;
+        result.int_value = *( int32_t * )( result.data ) ;
+        result.double_value = ( double ) result.int_value ;
     }
 
-    if ( result.type == T_VARIABLE && ( result.var.Type.BaseType[0] == TYPE_WORD || result.var.Type.BaseType[0] == TYPE_SHORT ) ) {
-        result.type = T_CONSTANT ;
-        result.value = *( int16_t * )( result.data ) ;
+    if ( result.type == RT_VARIABLE && ( result.var.Type.BaseType[0] == TYPE_WORD || result.var.Type.BaseType[0] == TYPE_SHORT ) ) {
+        result.type = RT_CONSTANT ;
+        result.int_value = *( int16_t * )( result.data ) ;
+        result.double_value = ( double ) result.int_value ;
     }
 
-    if ( result.type == T_VARIABLE && ( result.var.Type.BaseType[0] == TYPE_BYTE || result.var.Type.BaseType[0] == TYPE_SBYTE ) ) {
-        result.type = T_CONSTANT ;
-        result.value = *( int8_t * )( result.data ) ;
+    if ( result.type == RT_VARIABLE && ( result.var.Type.BaseType[0] == TYPE_BYTE || result.var.Type.BaseType[0] == TYPE_SBYTE ) ) {
+        result.type = RT_CONSTANT ;
+        result.int_value = *( int8_t * )( result.data ) ;
+        result.double_value = ( double ) result.int_value ;
     }
 
-    if ( result.type == T_VARIABLE && result.var.Type.BaseType[0] == TYPE_CHAR ) {
-        result.type = T_STRING ;
+    if ( result.type == RT_VARIABLE && result.var.Type.BaseType[0] == TYPE_CHAR ) {
+        result.type = RT_STRING ;
         if ( *( uint8_t * )result.data >= 32 )
             _snprintf( result.name, sizeof( result.name ), "%c", *( uint8_t * )result.data ) ;
         else
@@ -1949,7 +1997,7 @@ static void eval_local( DCB_PROC * proc, INSTANCE * i ) {
     for ( n = 0 ; n < dcb.data.NLocVars ; n++ ) {
         if ( dcb.locvar[n].ID == token.code ) {
             strcpy( result.name, token.name ) ;
-            result.type = T_VARIABLE ;
+            result.type = RT_VARIABLE ;
             result.var  = dcb.locvar[n] ;
             result.data = ( uint8_t * )i->locdata + dcb.locvar[n].Offset ;
             get_token() ;
@@ -1960,7 +2008,7 @@ static void eval_local( DCB_PROC * proc, INSTANCE * i ) {
     for ( n = 0 ; n < proc->data.NPriVars ; n++ ) {
         if ( proc->privar[n].ID == token.code ) {
             strcpy( result.name, token.name ) ;
-            result.type = T_VARIABLE ;
+            result.type = RT_VARIABLE ;
             result.var  = proc->privar[n] ;
             result.data = ( uint8_t * )i->pridata + proc->privar[n].Offset ;
             get_token() ;
@@ -1971,7 +2019,7 @@ static void eval_local( DCB_PROC * proc, INSTANCE * i ) {
     for ( n = 0 ; n < proc->data.NPubVars ; n++ ) {
         if ( proc->pubvar[n].ID == token.code ) {
             strcpy( result.name, token.name ) ;
-            result.type = T_VARIABLE ;
+            result.type = RT_VARIABLE ;
             result.var  = proc->pubvar[n] ;
             result.data = ( uint8_t * )i->pubdata + proc->pubvar[n].Offset ;
             get_token() ;
@@ -1980,7 +2028,7 @@ static void eval_local( DCB_PROC * proc, INSTANCE * i ) {
     }
 
     console_printf( COLOR_RED "Local or private or public variable not found" COLOR_SILVER ) ;
-    result.type = T_ERROR ;
+    result.type = RT_ERROR ;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -1988,15 +2036,22 @@ static void eval_local( DCB_PROC * proc, INSTANCE * i ) {
 static void eval_immediate() {
     unsigned int n ;
 
-    if ( token.type == NUMBER ) {
-        result.type = T_CONSTANT ;
-        result.value = token.code ;
+    if ( token.type == NUMBER_INT ) {
+        result.type = RT_CONSTANT ;
+        result.int_value = token.code ;
+        get_token() ;
+        return ;
+    }
+
+    if ( token.type == NUMBER_DOUBLE ) {
+        result.type = RT_CONSTANT_DOUBLE ;
+        result.double_value = token.double_value ;
         get_token() ;
         return ;
     }
 
     if ( token.type == STRING ) {
-        result.type = T_STRING ;
+        result.type = RT_STRING ;
         _snprintf( result.name, sizeof( result.name ), "%s", token.name ) ;
         get_token() ;
         return ;
@@ -2004,7 +2059,7 @@ static void eval_immediate() {
 
     if ( token.type != IDENTIFIER ) {
         console_printf( COLOR_RED "Not a valid expression" COLOR_SILVER ) ;
-        result.type = T_ERROR ;
+        result.type = RT_ERROR ;
         return ;
     }
 
@@ -2013,7 +2068,7 @@ static void eval_immediate() {
         eval_subexpression() ;
         if ( token.name[0] != ')' ) {
             console_printf( COLOR_RED "Unbalanced parens" COLOR_SILVER ) ;
-            result.type = T_ERROR ;
+            result.type = RT_ERROR ;
             return ;
         }
         get_token() ;
@@ -2024,20 +2079,33 @@ static void eval_immediate() {
         get_token() ;
         eval_immediate() ;
         var2const() ;
-        if ( result.type != T_CONSTANT ) {
-            console_printf( COLOR_RED "Operand is not a number" COLOR_SILVER ) ;
-            result.type = T_ERROR ;
-            return ;
+
+        switch ( result.type ) {
+            case RT_CONSTANT:
+                result.int_value = -result.int_value;
+                result.double_value = ( double ) result.int_value;
+                _snprintf( result.name, sizeof( result.name ), "%ld", result.int_value ) ;
+                break;
+
+            case RT_CONSTANT_DOUBLE:
+                result.double_value = -result.double_value;
+                result.int_value = ( int64_t ) result.double_value;
+                _snprintf( result.name, sizeof( result.name ), "%F", result.double_value ) ;
+                break;
+
+            default:
+                console_printf( COLOR_RED "Operand is not a number" COLOR_SILVER ) ;
+                result.type = RT_ERROR ;
+                return ;
         }
-        result.value = -result.value ;
-        _snprintf( result.name, sizeof( result.name ), "%F", result.value ) ;
+
         return ;
     }
 
     for ( n = 0 ; n < dcb.data.NGloVars ; n++ ) {
         if ( dcb.glovar[n].ID == token.code ) {
             strcpy( result.name, token.name ) ;
-            result.type = T_VARIABLE ;
+            result.type = RT_VARIABLE ;
             result.var  = dcb.glovar[n] ;
             result.data = ( uint8_t * )globaldata + dcb.glovar[n].Offset ;
 
@@ -2059,14 +2127,14 @@ static void eval_immediate() {
             }
             if ( !i ) {
                 console_printf( COLOR_RED "No instance of process %s is active" COLOR_SILVER, token.name ) ;
-                result.type = T_ERROR ;
+                result.type = RT_ERROR ;
                 return ;
             }
 
             get_token() ;
             if ( token.name[0] != '.' ) {
                 console_printf( COLOR_RED "Invalid use of a process name" COLOR_SILVER ) ;
-                result.type = T_ERROR ;
+                result.type = RT_ERROR ;
                 return ;
             }
             get_token() ;
@@ -2076,7 +2144,7 @@ static void eval_immediate() {
     }
 
     console_printf( COLOR_RED "Variable does not exist (%s)" COLOR_SILVER, token.name ) ;
-    result.type = T_ERROR ;
+    result.type = RT_ERROR ;
     return ;
 }
 
@@ -2084,7 +2152,7 @@ static void eval_immediate() {
 
 static void eval_value() {
     eval_immediate() ;
-    if ( result.type == T_ERROR ) return ;
+    if ( result.type == RT_ERROR ) return ;
 
     for ( ;; ) {
         if ( token.name[0] == '.' ) {
@@ -2093,12 +2161,12 @@ static void eval_value() {
             unsigned int n ;
 
             var2const() ;
-            if ( result.type == T_CONSTANT ) {
+            if ( result.type == RT_CONSTANT || result.type == RT_CONSTANT_DOUBLE ) {
                 INSTANCE * i ;
-                i = instance_get(( int64_t )result.value ) ;
+                i = instance_get( ( int64_t ) result.int_value ) ;
                 if ( !i ) {
-                    result.type = T_ERROR ;
-                    console_printf( COLOR_RED "Instance %"PRId64" does not exist" COLOR_SILVER, ( int64_t )result.value ) ;
+                    result.type = RT_ERROR ;
+                    console_printf( COLOR_RED "Instance %"PRId64" does not exist" COLOR_SILVER, ( int64_t )result.int_value ) ;
                     return ;
                 }
                 get_token() ;
@@ -2106,16 +2174,16 @@ static void eval_value() {
                 continue;
             }
 
-            if ( result.type != T_VARIABLE
-                    || result.var.Type.BaseType[0] != TYPE_STRUCT ) {
+            if ( result.type != RT_VARIABLE || result.var.Type.BaseType[0] != TYPE_STRUCT ) {
                 console_printf( COLOR_RED "%s is not an struct" COLOR_SILVER, result.name );
-                result.type = T_ERROR ;
+                result.type = RT_ERROR ;
                 return ;
             }
+
             get_token() ;
             if ( token.type != IDENTIFIER ) {
                 console_printf( COLOR_RED "%s is not a member" COLOR_SILVER, token.name ) ;
-                result.type = T_ERROR ;
+                result.type = RT_ERROR ;
                 return ;
             }
 
@@ -2127,11 +2195,11 @@ static void eval_value() {
             }
             if ( n == v->NVars ) {
                 console_printf( COLOR_RED "%s is not a member" COLOR_SILVER, token.name ) ;
-                result.type = T_ERROR ;
+                result.type = RT_ERROR ;
                 return ;
             }
 
-            result.type = T_VARIABLE ;
+            result.type = RT_VARIABLE ;
             result.var = var[n] ;
             result.data = ( uint8_t * )result.data + var[n].Offset ;
             strcat( result.name, "." ) ;
@@ -2143,42 +2211,44 @@ static void eval_value() {
         if ( token.name[0] == '[' ) {
             DCB_VAR i = result.var ;
             void * i_data = result.data ;
-            char name[256];
+            char name[4096];
 
-            if ( result.type != T_VARIABLE || result.var.Type.BaseType[0] != TYPE_ARRAY ) {
+            if ( result.type != RT_VARIABLE || result.var.Type.BaseType[0] != TYPE_ARRAY ) {
                 console_printf( COLOR_RED "%s is not an array" COLOR_SILVER, result.name ) ;
-                result.type = T_ERROR ;
+                result.type = RT_ERROR ;
                 return ;
             }
 
             strcpy( name, result.name ) ;
             get_token() ;
             eval_subexpression() ;
-            if ( result.type == T_ERROR ) return ;
+            if ( result.type == RT_ERROR ) return ;
             if ( token.name[0] == ']' ) get_token() ;
             var2const() ;
 
-            if ( result.type != T_CONSTANT ) {
+            if ( result.type != RT_CONSTANT ) {
                 console_printf( COLOR_RED "%s is not an integer" COLOR_SILVER, result.name ) ;
-                result.type = T_ERROR ;
-                return ;
-            }
-            if ( result.value < 0 ) {
-                console_printf( COLOR_RED "Index (%d) less than zero" COLOR_SILVER, result.value ) ;
-                result.type = T_ERROR ;
-                return ;
-            }
-            if ( result.value >= i.Type.Count[0] ) {
-                console_printf( COLOR_RED "Index (%d) out of bounds" COLOR_SILVER, result.value ) ;
-                result.type = T_ERROR ;
+                result.type = RT_ERROR ;
                 return ;
             }
 
-            result.type = T_VARIABLE ;
+            if ( result.int_value < 0 ) {
+                console_printf( COLOR_RED "Index (%d) less than zero" COLOR_SILVER, result.int_value ) ;
+                result.type = RT_ERROR ;
+                return ;
+            }
+
+            if ( result.int_value >= i.Type.Count[0] ) {
+                console_printf( COLOR_RED "Index (%d) out of bounds" COLOR_SILVER, result.int_value ) ;
+                result.type = RT_ERROR ;
+                return ;
+            }
+
+            result.type = RT_VARIABLE ;
             result.var = i ;
             result.var.Type = reduce_type( i.Type ) ;
-            result.data = ( uint8_t * )i_data + ( int64_t )result.value * type_size( result.var.Type ) ;
-            _snprintf( result.name, sizeof( result.name ), "%s[%"PRId64"]", name, ( int64_t )result.value ) ;
+            result.data = ( uint8_t * )i_data + ( int64_t )result.int_value * type_size( result.var.Type ) ;
+            _snprintf( result.name, sizeof( result.name ), "%s[%"PRId64"]", name, ( int64_t )result.int_value ) ;
             continue ;
         }
 
@@ -2189,35 +2259,68 @@ static void eval_value() {
 /* --------------------------------------------------------------------------- */
 
 static void eval_factor() {
-    double base = 1 ;
+    double double_base = 1.0 ;
+    int base = 1;
     int op = 0 ;
 
     for ( ;; ) {
         eval_value() ;
-        if ( result.type == T_ERROR ) return ;
+
+        if ( result.type == RT_ERROR ) return ;
+
         if ( ( !token.name[0] || !strchr( "*/%", token.name[0] ) ) && !op ) return ;
+
         var2const() ;
-        if ( result.type != T_CONSTANT ) {
-            result.type = T_ERROR ;
+
+        if ( result.type != RT_CONSTANT && result.type != RT_CONSTANT_DOUBLE ) {
+            result.type = RT_ERROR ;
             console_printf( COLOR_RED "Operand is not a number" COLOR_SILVER ) ;
             return ;
         }
+
         if ( !op ) op = 1 ;
-        if ( op > 1 && !result.value ) {
-            result.type = T_ERROR ;
+        
+        if ( op > 1 && !result.int_value && result.type == RT_CONSTANT ) {
+            result.type = RT_ERROR ;
             console_printf( COLOR_RED "Divide by zero" COLOR_SILVER ) ;
             return ;
         }
-        if ( op == 1 ) base *= result.value ;
-        if ( op == 2 ) base /= result.value ;
-        if ( op == 3 ) base = ( int )base % ( int )result.value ;
+        
+        switch( result.type ) {
+            case RT_CONSTANT:
+                if ( op == 1 ) base *= result.int_value ;
+                if ( op == 2 ) base /= result.int_value ;
+                if ( op == 3 ) base = ( int64_t ) base % ( int64_t ) result.int_value ;
+                double_base = ( double ) base;
+                break;
+
+            case RT_CONSTANT_DOUBLE:
+                if ( op == 1 ) double_base *= result.double_value ;
+                if ( op == 2 ) double_base /= result.double_value ;
+                if ( op == 3 ) double_base = fmod( double_base, result.double_value );
+                base = ( int64_t ) double_base;
+                break;
+        }
+
         if ( ( !token.name[0] || !strchr( "*/%", token.name[0] ) ) ) {
-            result.type = T_CONSTANT ;
-            result.value = base ;
-            _snprintf( result.name, sizeof( result.name ), "%g", base ) ;
+            switch( result.type ) {
+                case RT_CONSTANT:
+                    result.int_value = base;
+                    result.double_value = ( double ) result.int_value ;
+                    _snprintf( result.name, sizeof( result.name ), "%ld", result.int_value ) ;
+                    break;
+
+                case RT_CONSTANT_DOUBLE:
+                    result.double_value = double_base;
+                    result.int_value = ( int64_t ) result.double_value ;
+                    _snprintf( result.name, sizeof( result.name ), "%F", result.double_value ) ;
+                    break;
+            }
             return ;
         }
+
         op = ( token.name[0] == '*' ) ? 1 : ( token.name[0] == '/' ) ? 2 : 3 ;
+
         get_token() ;
     }
 }
@@ -2225,28 +2328,57 @@ static void eval_factor() {
 /* --------------------------------------------------------------------------- */
 
 static void eval_subexpression() {
-    double base = 0 ;
+    double double_base = 0 ;
+    int base = 0;
     int op = 0 ;
 
     for ( ;; ) {
         eval_factor() ;
-        if ( result.type == T_ERROR ) return ;
+
+        if ( result.type == RT_ERROR ) return ;
+
         if ( token.name[0] != '+' && token.name[0] != '-' && !op ) return ;
+
         var2const() ;
-        if ( result.type != T_CONSTANT ) {
-            result.type = T_ERROR ;
-            console_printf( COLOR_RED "Operand is not a number" COLOR_SILVER ) ;
-            return ;
-        }
+
         if ( !op ) op = 1 ;
-        base += op * result.value ;
+
+        switch ( result.type ) {
+            case RT_CONSTANT:
+                base += op * result.int_value ;
+                double_base = ( double ) base;
+                break;
+
+            case RT_CONSTANT_DOUBLE:
+                double_base += op * result.double_value ;
+                base = ( int64_t ) double_base;
+                break;
+
+            default:
+                console_printf( COLOR_RED "Operand is not a number" COLOR_SILVER ) ;
+                result.type = RT_ERROR ;
+                return ;
+        }
+
         if ( token.name[0] != '+' && token.name[0] != '-' ) {
-            result.type = T_CONSTANT ;
-            result.value = base ;
-            _snprintf( result.name, sizeof( result.name ), "%g", base ) ;
+            switch( result.type ) {
+                case RT_CONSTANT:
+                    result.int_value = base;
+                    result.double_value = ( double ) result.int_value ;
+                    _snprintf( result.name, sizeof( result.name ), "%ld", result.int_value ) ;
+                    break;
+
+                case RT_CONSTANT_DOUBLE:
+                    result.double_value = double_base;
+                    result.int_value = ( int64_t ) result.double_value ;
+                    _snprintf( result.name, sizeof( result.name ), "%F", result.double_value ) ;
+                    break;
+            }
             return ;
         }
+
         op = ( token.name[0] == '+' ) ? 1 : -1 ;
+
         get_token() ;
     }
 }
@@ -2264,9 +2396,9 @@ static char * eval_expression( const char * here, int interactive ) {
     eval_subexpression() ;
 
     if ( token.type != NOTOKEN && token.name[0] != ',' && token.name[0] != '=' ) {
-        if ( result.type != T_ERROR ) {
+        if ( result.type != RT_ERROR ) {
             console_printf( COLOR_RED "Invalid expression" COLOR_SILVER );
-            result.type = T_ERROR;
+            result.type = RT_ERROR;
         }
         return 0;
     }
@@ -2274,47 +2406,82 @@ static char * eval_expression( const char * here, int interactive ) {
     memset( part, 0, sizeof( part ) );
     strncpy( part, here, token_ptr - here - (( token.type != NOTOKEN ) ? 1 : 0 ) );
 
-    if ( result.type == T_CONSTANT ) {
-        _snprintf( buffer, sizeof( buffer ), "%s = %g", part, result.value );
+    if ( result.type == RT_CONSTANT ) {
+        _snprintf( buffer, sizeof( buffer ), "%s = %ld", part, result.int_value );
         if ( interactive ) console_printf( COLOR_SILVER "%s", buffer ) ;
-    } else if ( result.type == T_STRING ) {
+    } else
+    if ( result.type == RT_CONSTANT_DOUBLE ) {
+        _snprintf( buffer, sizeof( buffer ), "%s = %F", part, result.double_value );
+        if ( interactive ) console_printf( COLOR_SILVER "%s", buffer ) ;
+    } else
+    if ( result.type == RT_STRING ) {
         if ( interactive ) console_printf( COLOR_SILVER "%s = \"%s\"", part, result.name ) ;
-    } else if ( result.type == T_VARIABLE ) {
+    } else
+    if ( result.type == RT_VARIABLE ) {
         lvalue = result ;
 
         if ( token.name[0] == '=' ) {
-            if ( lvalue.type != T_VARIABLE ) {
+            if ( lvalue.type != RT_VARIABLE ) {
                 strcpy( buffer, "Not an lvalue" ) ;
                 if ( interactive ) console_printf( COLOR_RED "%s" COLOR_SILVER, buffer ) ;
                 return buffer ;
             }
             get_token() ;
             eval_subexpression() ;
-            if ( result.type == T_ERROR ) return "" ;
+
+            if ( result.type == RT_ERROR ) return "" ;
+
             var2const() ;
 
-            if (( lvalue.var.Type.BaseType[0] == TYPE_QWORD || lvalue.var.Type.BaseType[0] == TYPE_INT ) && result.type == T_CONSTANT )
-                *( int64_t * )( lvalue.data ) = ( int64_t )result.value ;
-            else if (( lvalue.var.Type.BaseType[0] == TYPE_DWORD || lvalue.var.Type.BaseType[0] == TYPE_INT32 ) && result.type == T_CONSTANT )
-                *( int32_t * )( lvalue.data ) = ( int32_t )result.value ;
-            else if (( lvalue.var.Type.BaseType[0] == TYPE_WORD || lvalue.var.Type.BaseType[0] == TYPE_SHORT ) && result.type == T_CONSTANT )
-                *( uint16_t * )( lvalue.data ) = ( uint16_t )result.value ;
-            else if (( lvalue.var.Type.BaseType[0] == TYPE_BYTE || lvalue.var.Type.BaseType[0] == TYPE_SBYTE ) && result.type == T_CONSTANT )
-                *( uint8_t * )( lvalue.data ) = ( uint8_t )result.value ;
-            else if ( lvalue.var.Type.BaseType[0] == TYPE_CHAR && result.type == T_STRING ) {
+            if (( lvalue.var.Type.BaseType[0] == TYPE_QWORD || lvalue.var.Type.BaseType[0] == TYPE_INT ) && result.type == RT_CONSTANT )
+                *( int64_t * )( lvalue.data ) = ( int64_t )result.int_value ;
+            else
+            if (( lvalue.var.Type.BaseType[0] == TYPE_DWORD || lvalue.var.Type.BaseType[0] == TYPE_INT32 ) && result.type == RT_CONSTANT )
+                *( int32_t * )( lvalue.data ) = ( int32_t )result.int_value ;
+            else
+            if (( lvalue.var.Type.BaseType[0] == TYPE_WORD || lvalue.var.Type.BaseType[0] == TYPE_SHORT ) && result.type == RT_CONSTANT )
+                *( uint16_t * )( lvalue.data ) = ( uint16_t )result.int_value ;
+            else
+            if (( lvalue.var.Type.BaseType[0] == TYPE_BYTE || lvalue.var.Type.BaseType[0] == TYPE_SBYTE ) && result.type == RT_CONSTANT )
+                *( uint8_t * )( lvalue.data ) = ( uint8_t )result.int_value ;
+            else
+            if ( lvalue.var.Type.BaseType[0] == TYPE_DOUBLE && result.type == RT_CONSTANT )
+                *( double * )( lvalue.data ) = ( double )result.int_value ;
+            else
+            if ( lvalue.var.Type.BaseType[0] == TYPE_FLOAT && result.type == RT_CONSTANT )
+                *( float * )( lvalue.data ) = ( float )result.int_value ;
+            else
+            if (( lvalue.var.Type.BaseType[0] == TYPE_QWORD || lvalue.var.Type.BaseType[0] == TYPE_INT ) && result.type == RT_CONSTANT_DOUBLE )
+                *( int64_t * )( lvalue.data ) = ( int64_t )result.double_value ;
+            else
+            if (( lvalue.var.Type.BaseType[0] == TYPE_DWORD || lvalue.var.Type.BaseType[0] == TYPE_INT32 ) && result.type == RT_CONSTANT_DOUBLE )
+                *( int32_t * )( lvalue.data ) = ( int32_t )result.double_value ;
+            else
+            if (( lvalue.var.Type.BaseType[0] == TYPE_WORD || lvalue.var.Type.BaseType[0] == TYPE_SHORT ) && result.type == RT_CONSTANT_DOUBLE )
+                *( uint16_t * )( lvalue.data ) = ( uint16_t )result.double_value ;
+            else
+            if (( lvalue.var.Type.BaseType[0] == TYPE_BYTE || lvalue.var.Type.BaseType[0] == TYPE_SBYTE ) && result.type == RT_CONSTANT_DOUBLE )
+                *( uint8_t * )( lvalue.data ) = ( uint8_t )result.double_value ;
+            else
+            if ( lvalue.var.Type.BaseType[0] == TYPE_DOUBLE && result.type == RT_CONSTANT_DOUBLE )
+                *( double * )( lvalue.data ) = ( double )result.double_value ;
+            else
+            if ( lvalue.var.Type.BaseType[0] == TYPE_FLOAT && result.type == RT_CONSTANT_DOUBLE )
+                *( float * )( lvalue.data ) = ( float )result.double_value ;
+            else
+            if ( lvalue.var.Type.BaseType[0] == TYPE_CHAR && result.type == RT_STRING ) {
                 if ( *result.name == '\\' && *( result.name + 1 ) == 'x' )
                     *( uint8_t * )( lvalue.data ) = ( uint8_t )strtol( result.name + 2, NULL, 16 );
                 else
                     *( uint8_t * )( lvalue.data ) = ( uint8_t ) * ( result.name );
-            } else if ( lvalue.var.Type.BaseType[0] == TYPE_DOUBLE && result.type == T_CONSTANT )
-                *( double * )( lvalue.data ) = ( double )result.value ;
-            else if ( lvalue.var.Type.BaseType[0] == TYPE_FLOAT && result.type == T_CONSTANT )
-                *( float * )( lvalue.data ) = ( float )result.value ;
-            else if ( lvalue.var.Type.BaseType[0] == TYPE_STRING && result.type == T_STRING ) {
+            } else
+            if ( lvalue.var.Type.BaseType[0] == TYPE_STRING && result.type == RT_STRING ) {
                 string_discard( *( uint32_t * ) lvalue.data ) ;
                 *( uint32_t * )( lvalue.data ) = string_new( result.name ) ;
                 string_use( *( uint32_t * ) lvalue.data ) ;
-            } else {
+            }
+            else
+            {
                 strcpy( buffer, "Invalid assignation" ) ;
                 if ( interactive ) console_printf( COLOR_RED "%s" COLOR_SILVER, buffer ) ;
                 return buffer ;
@@ -2673,7 +2840,7 @@ static INSTANCE * findproc( INSTANCE * last, char * action, char * ptr ) {
 
 static void console_do( const char * cmd ) {
     char * ptr, * aptr ;
-    char action[256] ;
+    char action[4096] ;
     unsigned int var ;
     int64_t n, procno = 0;
     PROCDEF * p = NULL ;
@@ -2793,7 +2960,7 @@ static void console_do( const char * cmd ) {
                         console_printf( COLOR_GREEN "PROCESS BREAKPOINTS" COLOR_SILVER "\n\n" );
                         f = 1;
                     }
-                    console_printf( COLOR_SILVER "%d", LOCINT64( libmod_debug, i, PROCESS_ID ) );
+                    console_printf( COLOR_SILVER "%ld", LOCINT64( libmod_debug, i, PROCESS_ID ) );
                 }
             }
             if ( f ) console_printf( "\n" );
@@ -2927,7 +3094,7 @@ static void console_do( const char * cmd ) {
         if ( *ptr ) {
             char * res = eval_expression( ptr, 0 );
 
-            if ( !res || result.type == T_STRING ) {
+            if ( !res || result.type == RT_STRING ) {
                 console_printf( COLOR_RED "Invalid argument" COLOR_SILVER );
                 return ;
             }
@@ -3059,18 +3226,28 @@ static void console_do( const char * cmd ) {
                         get_token() ;
                         eval_subexpression() ;
 
-                        if ( result.type == T_VARIABLE )
+                        if ( result.type == RT_VARIABLE )
                             var2const();
 
                         switch ( result.type ) {
-                            case T_CONSTANT:
+                            case RT_CONSTANT:
                                 switch ( type ) {
                                     case    TYPE_DOUBLE:
-                                        PRIDOUBLE( inst, 4*n ) = *( int64_t * ) & result.value ;
+                                        if ( result.type == RT_CONSTANT ) {
+                                            PRIDOUBLE( inst, 4 * n ) = *( int64_t * ) &result.int_value;
+                                        }
+                                        else {
+                                            PRIDOUBLE( inst, 4 * n ) = *( int64_t * ) &result.double_value;
+                                        }
                                         break;
 
                                     case    TYPE_FLOAT:
-                                        PRIFLOAT( inst, 4*n ) = *( int64_t * ) & result.value ;
+                                        if ( result.type == RT_CONSTANT ) {
+                                            PRIFLOAT( inst, 4 * n ) = *( int64_t * ) &result.int_value;
+                                        }
+                                        else {
+                                            PRIFLOAT( inst, 4 * n ) = *( int64_t * ) &result.double_value;
+                                        }
                                         break;
 
                                     case    TYPE_INT:
@@ -3083,7 +3260,7 @@ static void console_do( const char * cmd ) {
                                     case    TYPE_BYTE:
                                     case    TYPE_SBYTE:
                                     case    TYPE_CHAR:
-                                        PRIQWORD( inst, 4*n ) = ( int64_t ) result.value ;
+                                        PRIQWORD( inst, 4*n ) = ( int64_t ) ( result.type == RT_CONSTANT ? result.int_value : result.double_value );
                                         break;
 
                                     case    TYPE_STRING:
@@ -3094,12 +3271,12 @@ static void console_do( const char * cmd ) {
                                 }
                                 break;
 
-                            case T_STRING:
+                            case RT_STRING:
                                 PRIQWORD( inst, 4*n ) = ( int64_t ) string_new( result.name ) ;
                                 string_use( PRIQWORD( inst, 4*n ) );
                                 break;
 
-                            case T_VARIABLE:
+                            case RT_VARIABLE:
                             default:
                                 instance_destroy( inst );
                                 console_printf( COLOR_RED "Invalid argument %d" COLOR_SILVER, n );
@@ -3200,8 +3377,8 @@ static void console_do( const char * cmd ) {
                     if ( *ptr ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
-                        if ( result.type != T_ERROR )
-                            *( int64_t * )console_vars[var].value = ( int64_t ) result.value ;
+                        if ( result.type != RT_ERROR )
+                            *( int64_t * )console_vars[var].value = ( int64_t ) result.int_value ;
                     }
                     console_printf( COLOR_SILVER "%s = %"PRId64, console_vars[var].name, *( int64_t * )console_vars[var].value ) ;
                     return ;
@@ -3210,8 +3387,8 @@ static void console_do( const char * cmd ) {
                     if ( *ptr ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
-                        if ( result.type != T_ERROR )
-                            *( int64_t * )console_vars[var].value = ( int64_t ) result.value ;
+                        if ( result.type != RT_ERROR )
+                            *( int64_t * )console_vars[var].value = ( int64_t ) result.int_value ;
                     }
                     console_printf( COLOR_SILVER "%s = %016Xh\n", console_vars[var].name, *( int64_t * )console_vars[var].value ) ;
                     return ;
@@ -3220,8 +3397,8 @@ static void console_do( const char * cmd ) {
                     if ( *ptr ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
-                        if ( result.type != T_ERROR )
-                            *( int32_t * )console_vars[var].value = ( int32_t ) result.value ;
+                        if ( result.type != RT_ERROR )
+                            *( int32_t * )console_vars[var].value = ( int32_t ) result.int_value ;
                     }
                     console_printf( COLOR_SILVER "%s = %"PRId32, console_vars[var].name, *( int32_t * )console_vars[var].value ) ;
                     return ;
@@ -3230,8 +3407,8 @@ static void console_do( const char * cmd ) {
                     if ( *ptr ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
-                        if ( result.type != T_ERROR )
-                            *( int32_t * )console_vars[var].value = ( int32_t ) result.value ;
+                        if ( result.type != RT_ERROR )
+                            *( int32_t * )console_vars[var].value = ( int32_t ) result.int_value ;
                     }
                     console_printf( COLOR_SILVER "%s = %08Xh\n", console_vars[var].name, *( int32_t * )console_vars[var].value ) ;
                     return ;
@@ -3240,8 +3417,8 @@ static void console_do( const char * cmd ) {
                     if ( *ptr ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
-                        if ( result.type != T_ERROR )
-                            *( int16_t * )console_vars[var].value = ( int16_t ) result.value ;
+                        if ( result.type != RT_ERROR )
+                            *( int16_t * )console_vars[var].value = ( int16_t ) result.int_value ;
                     }
                     console_printf( COLOR_SILVER "%s = %d", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
                     return ;
@@ -3250,8 +3427,8 @@ static void console_do( const char * cmd ) {
                     if ( *ptr ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
-                        if ( result.type != T_ERROR )
-                            *( int16_t * )console_vars[var].value = ( int16_t ) result.value ;
+                        if ( result.type != RT_ERROR )
+                            *( int16_t * )console_vars[var].value = ( int16_t ) result.int_value ;
                     }
                     console_printf( COLOR_SILVER "%s = %04Xh\n", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
                     return ;
@@ -3260,8 +3437,8 @@ static void console_do( const char * cmd ) {
                     if ( *ptr ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
-                        if ( result.type != T_ERROR )
-                            *( int8_t * )console_vars[var].value = ( int8_t ) result.value ;
+                        if ( result.type != RT_ERROR )
+                            *( int8_t * )console_vars[var].value = ( int8_t ) result.int_value ;
                     }
                     console_printf( COLOR_SILVER "%s = %d", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
                     return ;
@@ -3270,8 +3447,8 @@ static void console_do( const char * cmd ) {
                     if ( *ptr ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
-                        if ( result.type != T_ERROR )
-                            *( int8_t * )console_vars[var].value = ( int8_t ) result.value ;
+                        if ( result.type != RT_ERROR )
+                            *( int8_t * )console_vars[var].value = ( int8_t ) result.int_value ;
                     }
                     console_printf( COLOR_SILVER "%s = %02Xh\n", console_vars[var].name, *( int8_t * )console_vars[var].value ) ;
                     return ;
@@ -3368,7 +3545,7 @@ static int console_keyboard_handler_cb( SDL_Keysym k ) {
                 }
 
                 if ( console_list_current_instance && console_list_current == 1 ) {
-                    char cmd[256];
+                    char cmd[4096];
 
                     if ( k.sym == SDLK_F3 ) {
                         int64_t id = LOCINT64( libmod_debug, console_list_current_instance, PROCESS_ID ) ;
@@ -3493,6 +3670,8 @@ static int console_keyboard_handler_cb( SDL_Keysym k ) {
 
 static unsigned char ansi_seq[128];
 
+static int cmd_line_start_pos = 0;
+
 static void console_draw( void * what, REGION * clip ) {
     int x, y, line, count ;
 
@@ -3528,7 +3707,7 @@ static void console_draw( void * what, REGION * clip ) {
         if ( show_expression[count] ) {
             char * res = eval_expression( show_expression[count], 0 );
 
-            if ( !res || result.type == T_ERROR ) {
+            if ( !res || result.type == RT_ERROR ) {
                 free( show_expression[count] );
                 show_expression[count] = NULL;
                 show_expression_count--;
@@ -3649,9 +3828,15 @@ static void console_draw( void * what, REGION * clip ) {
     drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
 
     systext_puts( x, y, ">" ) ;
-    strcat( console_input, "_" ) ;
-    systext_puts( x + CHARWIDTH*2, y, console_input + ( strlen( console_input ) + 2 > console_columns ? strlen( console_input ) - console_columns + 2 : 0 ) ) ;
-    console_input[strlen( console_input )-1] = 0 ;
+
+    if ( cursor_pos - cmd_line_start_pos + 3 > console_columns ) cmd_line_start_pos = cursor_pos - console_columns + 3;
+    if ( cursor_pos < cmd_line_start_pos ) cmd_line_start_pos = cursor_pos;
+
+    int remain = console_columns - 3;
+
+    for ( int i = cmd_line_start_pos; i < cursor_pos && remain >= 0; i++, remain-- ) systext_putchar( x + CHARWIDTH * ( i + 2 - cmd_line_start_pos), y, console_input[ i ] );
+    systext_putchar( x + CHARWIDTH * ( cursor_pos + 2 - cmd_line_start_pos ), y, '_' ) ; remain--;
+    for ( int i = cursor_pos; i < strlen( console_input ) && remain >= 0; i++, remain-- ) systext_putchar( x + CHARWIDTH * ( i + 3 - cmd_line_start_pos ), y, console_input[ i ] );
 
     if ( shiftstatus & 3 ) show_list_window();
 
