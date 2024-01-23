@@ -293,6 +293,7 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
 
     /* Signals & Processes */
     FUNC( "GET_ID"                  , "I"           , TYPE_INT          , libmod_misc_proc_get_id                    ),
+    FUNC( "GET_TYPE"                , "I"           , TYPE_INT          , libmod_misc_proc_get_type                  ),
     FUNC( "GET_STATUS"              , "I"           , TYPE_QWORD        , libmod_misc_proc_get_status                ),
     FUNC( "SIGNAL"                  , "II"          , TYPE_INT          , libmod_misc_proc_signal                    ),
     FUNC( "SIGNAL_ACTION"           , "II"          , TYPE_INT          , libmod_misc_proc_signal_action             ),

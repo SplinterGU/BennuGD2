@@ -79,6 +79,7 @@ extern int64_t libmod_misc_proc_signal_action3( INSTANCE * my, int64_t * params 
 extern int64_t libmod_misc_proc_let_me_alone( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_proc_get_id( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_proc_get_status( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_proc_get_type( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_proc_pause0( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_proc_pause1( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_proc_resume0( INSTANCE * my, int64_t * params );

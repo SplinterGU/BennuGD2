@@ -417,6 +417,14 @@ int64_t libmod_misc_proc_get_status( INSTANCE * my, int64_t * params ) {
 
 /* ----------------------------------------------------------------- */
 
+int64_t libmod_misc_proc_get_type( INSTANCE * my, int64_t * params ) {
+    INSTANCE * i;
+    if ( !params[0] || !( i = instance_get( params[0] ) ) ) return 0;
+    return LOCQWORD( libmod_misc, i, PROCESS_TYPE );
+}
+
+/* ----------------------------------------------------------------- */
+
 static int64_t __libmod_misc_proc_pause( INSTANCE * my, int64_t what ) {
     INSTANCE * i /*, * ctx*/;
     int64_t myid = LOCQWORD( libmod_misc, my, PROCESS_ID );
@@ -508,6 +516,7 @@ int64_t libmod_misc_proc_resume0( INSTANCE * my, int64_t * params ) {
 }
 
 /* ----------------------------------------------------------------- */
+
 #if 0
 int64_t libmod_misc_proc_pause1( INSTANCE * my, int64_t * params ) {
     return __libmod_misc_proc_pause( my, params[0] );
