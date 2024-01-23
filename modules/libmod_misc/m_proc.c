@@ -399,7 +399,7 @@ int64_t libmod_misc_proc_get_id( INSTANCE * my, int64_t * params ) {
     }
 
     while ( ( ptr = instance_get_by_type( params[0], ctx ) ) ) {
-        if ( /*ptr != my &&*/ ( LOCQWORD( libmod_misc, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_SLEEPING | STATUS_FROZEN ) ) ) {
+        if ( ptr != my && ( LOCQWORD( libmod_misc, ptr, STATUS ) & ( STATUS_RUNNING | STATUS_SLEEPING | STATUS_FROZEN ) ) ) {
             return LOCQWORD( libmod_misc, ptr, PROCESS_ID );
         }
     }
