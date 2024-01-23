@@ -160,12 +160,12 @@ static struct {
         double double_value;
     };
     void * data ;
-    char name[4096] ;
+    char name[1024] ;
 } result, lvalue ;
 
 static struct {
     enum { IDENTIFIER, STRING, NUMBER_INT, NUMBER_DOUBLE, OPERATOR, NOTOKEN } type ;
-    char name[4096] ;
+    char name[1024] ;
     struct {
         int64_t code;
         double double_value;
@@ -1822,9 +1822,10 @@ static void get_token() {
 
         /* We have the integer part now - convert to int/double */
 
+        token.double_value = ( double ) token.code;
+
         if ( *token_ptr == '.' && base == 10 ) {
             token.type = NUMBER_DOUBLE;
-            token.double_value = ( double ) token.code;
             token_ptr++;
             if ( !ISNUM( *token_ptr ) )
                 token_ptr--;
@@ -1872,6 +1873,7 @@ static void get_token() {
         if ( strcmp( ( char * )dcb.id[n].Name, token.name ) == 0 ) {
             token.type = IDENTIFIER ;
             token.code = dcb.id[n].Code ;
+            token.double_value = ( double ) token.code;
 /*            strcpy( token.name, (char *)dcb.id[n].Name ) ; */
             return ;
         }
@@ -2039,6 +2041,7 @@ static void eval_immediate() {
     if ( token.type == NUMBER_INT ) {
         result.type = RT_CONSTANT ;
         result.int_value = token.code ;
+        result.double_value = ( double ) result.int_value ;
         get_token() ;
         return ;
     }
@@ -2046,6 +2049,7 @@ static void eval_immediate() {
     if ( token.type == NUMBER_DOUBLE ) {
         result.type = RT_CONSTANT_DOUBLE ;
         result.double_value = token.double_value ;
+        result.int_value = ( int64_t ) result.double_value;
         get_token() ;
         return ;
     }
@@ -2161,6 +2165,7 @@ static void eval_value() {
             unsigned int n ;
 
             var2const() ;
+
             if ( result.type == RT_CONSTANT || result.type == RT_CONSTANT_DOUBLE ) {
                 INSTANCE * i ;
                 i = instance_get( ( int64_t ) result.int_value ) ;
@@ -2211,7 +2216,7 @@ static void eval_value() {
         if ( token.name[0] == '[' ) {
             DCB_VAR i = result.var ;
             void * i_data = result.data ;
-            char name[4096];
+            char name[1024];
 
             if ( result.type != RT_VARIABLE || result.var.Type.BaseType[0] != TYPE_ARRAY ) {
                 console_printf( COLOR_RED "%s is not an array" COLOR_SILVER, result.name ) ;
@@ -2386,8 +2391,8 @@ static void eval_subexpression() {
 /* --------------------------------------------------------------------------- */
 
 static char * eval_expression( const char * here, int interactive ) {
-    static char buffer[1088];
-    static char part[1024];
+    static char buffer[9216];
+    static char part[8192];
 
     while ( *here == ' ' ) here++;
 
