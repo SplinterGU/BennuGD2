@@ -50,6 +50,7 @@ typedef struct _text {
     int64_t y;
     int64_t z;
     int64_t alignment;
+    int64_t region;
 
     Uint8 alpha;
     Uint8 color_r;
@@ -458,6 +459,7 @@ static int info_text( void * what, REGION * bbox, int64_t * z, int64_t * drawme 
 void draw_text( void * what, REGION * clip ) {
     TEXT * text = ( TEXT * ) what;
     const char * str = get_text( text );
+    REGION region;
 
     // Splinter
     if ( !str || !*str ) return;
@@ -467,8 +469,16 @@ void draw_text( void * what, REGION * clip ) {
         return;
     }
 
+    if ( text->region > 0 && text->region < MAX_REGIONS ) {
+        region = regions[ text->region ];
+    } else {
+        region = regions[ 0 ];
+    }
+
+    if ( clip ) region_union( &region, clip );
+
     /* Draw the text */
-    if ( !gr_text_put( 0, what, clip, text->fontid, text->_x, text->_y, ( const unsigned char * ) str ) ) gr_text_destroy( text->id );
+    if ( !gr_text_put( 0, what, &region, text->fontid, text->_x, text->_y, ( const unsigned char * ) str ) ) gr_text_destroy( text->id );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -507,6 +517,7 @@ int64_t gr_text_new2( int64_t fontid, int64_t x, int64_t y, int64_t z, int64_t a
     texts[textid].z = z;
     texts[textid].alignment = alignment;
     texts[textid].text = text ? strdup( text ) : NULL;
+    texts[textid].region = GLOINT64( libbggfx, TEXT_REGIONID );
 
     texts[textid].alpha = GLOBYTE( libbggfx, TEXT_ALPHA );
     texts[textid].color_r = GLOBYTE( libbggfx, TEXT_COLORR );
@@ -943,6 +954,7 @@ void * gr_text_alloc() {
     t->z = 0;
     t->alignment = 0;
     t->text = NULL;
+    t->region = GLOINT64( libbggfx, TEXT_REGIONID );
 
     t->alpha = GLOBYTE( libbggfx, TEXT_ALPHA );
     t->color_r = GLOBYTE( libbggfx, TEXT_COLORR );

@@ -60,6 +60,7 @@ DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
     { "wm_info.focus_status"                            , NULL, -1, -1 },
     { "wm_info.mouse_status"                            , NULL, -1, -1 },
 
+    { "text.region"                                     , NULL, -1, -1 },
     { "text.z"                                          , NULL, -1, -1 },
     { "text.flags"                                      , NULL, -1, -1 },
     { "text.alpha"                                      , NULL, -1, -1 },

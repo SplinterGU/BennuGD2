@@ -60,6 +60,7 @@ enum {
     FOCUS_STATUS,
     MOUSE_STATUS,
 
+    TEXT_REGIONID,
     TEXT_Z,
     TEXT_FLAGS,
     TEXT_ALPHA,

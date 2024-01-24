@@ -279,6 +279,7 @@ char * __bgdexport( libbggfx, globals_def ) =
 
     /* text */
     "STRUCT text\n"
+    "   INT region=-1;\n"
     "   INT z=-512;\n"
     "   INT flags;\n"
     "   BYTE alpha=255;\n"
