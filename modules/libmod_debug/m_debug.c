@@ -3227,7 +3227,7 @@ static void console_do( const char * cmd ) {
                     INSTANCE * inst = instance_new( p, NULL );
     
                     for ( n = 0; n < p->params; n++ ) {
-                        int type = dcb.proc[p->type].privar[n].Type.BaseType[0];
+                        int type = dcb.proc[ p->type ].privar[ n ].Type.BaseType[0];
                         get_token() ;
                         eval_subexpression() ;
 
@@ -3239,34 +3239,55 @@ static void console_do( const char * cmd ) {
                                 switch ( type ) {
                                     case    TYPE_DOUBLE:
                                         if ( result.type == RT_CONSTANT ) {
-                                            PRIDOUBLE( inst, 4 * n ) = *( int64_t * ) &result.int_value;
+                                            double v = ( double ) result.int_value;
+                                            PRIQWORD( inst, sizeof( int64_t ) * n ) = *( int64_t * ) &v;
                                         }
                                         else {
-                                            PRIDOUBLE( inst, 4 * n ) = *( int64_t * ) &result.double_value;
+                                            PRIQWORD( inst, sizeof( int64_t ) * n ) = *( int64_t * ) &result.double_value;
                                         }
                                         break;
 
                                     case    TYPE_FLOAT:
                                         if ( result.type == RT_CONSTANT ) {
-                                            PRIFLOAT( inst, 4 * n ) = *( int64_t * ) &result.int_value;
+                                            float v = ( float ) result.int_value;
+                                            PRIQWORD( inst, sizeof( int64_t ) * n ) = *( int32_t * ) &v;
                                         }
                                         else {
-                                            PRIFLOAT( inst, 4 * n ) = *( int64_t * ) &result.double_value;
+                                            float v = ( float ) result.double_value;
+                                            PRIQWORD( inst, sizeof( int64_t ) * n ) = *( int32_t * ) &result.double_value;
                                         }
                                         break;
 
                                     case    TYPE_INT:
-                                    case    TYPE_INT32:
                                     case    TYPE_QWORD:
-                                    case    TYPE_DWORD:
                                     case    TYPE_POINTER:
+                                        PRIQWORD( inst, sizeof( int64_t ) * n ) = ( int64_t ) ( result.type == RT_CONSTANT ? result.int_value : result.double_value );
+                                        break;
+
+                                    case    TYPE_INT32:
+                                    case    TYPE_DWORD:
+                                    {
+                                        int32_t v = (int32_t) ( result.type == RT_CONSTANT ? result.int_value : result.double_value );
+                                        PRIQWORD( inst, sizeof( int64_t ) * n ) = ( int64_t ) v;
+                                        break;
+                                    }
+
                                     case    TYPE_SHORT:
                                     case    TYPE_WORD:
+                                    {
+                                        int16_t v = (int16_t) ( result.type == RT_CONSTANT ? result.int_value : result.double_value );
+                                        PRIQWORD( inst, sizeof( int64_t ) * n ) = ( int64_t ) v;
+                                        break;
+                                    }
+
                                     case    TYPE_BYTE:
                                     case    TYPE_SBYTE:
                                     case    TYPE_CHAR:
-                                        PRIQWORD( inst, 4*n ) = ( int64_t ) ( result.type == RT_CONSTANT ? result.int_value : result.double_value );
+                                    {
+                                        int8_t v = (int8_t) ( result.type == RT_CONSTANT ? result.int_value : result.double_value );
+                                        PRIQWORD( inst, sizeof( int64_t ) * n ) = ( int64_t ) v;
                                         break;
+                                    }
 
                                     case    TYPE_STRING:
                                     default:
@@ -3277,8 +3298,8 @@ static void console_do( const char * cmd ) {
                                 break;
 
                             case RT_STRING:
-                                PRIQWORD( inst, 4*n ) = ( int64_t ) string_new( result.name ) ;
-                                string_use( PRIQWORD( inst, 4*n ) );
+                                PRIQWORD( inst, sizeof( int64_t ) * n ) = ( int64_t ) string_new( result.name ) ;
+                                string_use( PRIQWORD( inst, sizeof( int64_t ) * n ) );
                                 break;
 
                             case RT_VARIABLE:
