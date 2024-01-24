@@ -50,7 +50,7 @@ void gr_clear( GRAPH * dest ) {
 
 #ifdef USE_SDL2
     SDL_SetRenderTarget( gRenderer, dest->tex );
-    SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 255 );
+    SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
     SDL_RenderClear( gRenderer );
 #endif
 #ifdef USE_SDL2_GPU
