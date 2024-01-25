@@ -82,7 +82,7 @@ process zoom()
 begin
     flags = b_nocolorkey;
     draw_cursor();
-    size = 400;
+    size = 300;
     priority = father.priority - 1;
     z = father.z - 1;
 
@@ -113,14 +113,6 @@ begin
                         255,
                         BLEND_NONE );
 
-#if 0
-        file = father.file;
-        graph = father.graph;
-        clip.h = 50;
-        clip.w = 50;
-        clip.x = mouse_point_x - center.x;
-        clip.y = mouse_point_y - center.y;
-#endif
         frame;
     end
 end
@@ -273,8 +265,8 @@ begin
         int * hex, ihex;
         string hexs;
 
-        mouse_point_x = ( mouse.x * 100 / size - ( x * 100 / size - hw ) );
-        mouse_point_y = ( mouse.y * 100 / size - ( y * 100 / size - hh ) );
+        if ( !key( _x ) ) mouse_point_x = ( mouse.x * 100 / size - ( x * 100 / size - hw ) ); end
+        if ( !key( _y ) ) mouse_point_y = ( mouse.y * 100 / size - ( y * 100 / size - hh ) ); end
 
         hex = map_get_pixel(file,graph,mouse_point_x,mouse_point_y);
 
@@ -284,7 +276,9 @@ begin
 
         rgba_get(hex, &r1, &g1, &b1, &a1);
 
-        hexs = substr(""+hex, 8, 8 ) + " ( "+r1+", "+g1+", "+b1+", "+a1+" ) ( "+ ihex +" )";
+        hex = (((int)r1) << 24 ) | (((int)g1) << 16 ) | (((int)b1) << 8 ) | a1;
+
+        hexs = substr(""+hex, 8, 8 ) + " rgba ( " + r1 + ", " + g1 +", " + b1 + ", " + a1 + " )";
 
         int cx, cy;
         point_get( file, graph, 0, &cx, &cy);
