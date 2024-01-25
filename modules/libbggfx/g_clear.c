@@ -52,6 +52,7 @@ void gr_clear( GRAPH * dest ) {
     SDL_SetRenderTarget( gRenderer, dest->tex );
     SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
     SDL_RenderClear( gRenderer );
+    SDL_SetRenderTarget( gRenderer, NULL );
 #endif
 #ifdef USE_SDL2_GPU
     GPU_Clear( dest->tex->target );
@@ -85,6 +86,7 @@ void gr_clear_as( GRAPH * dest, int color ) {
     SDL_Rect eraseRect = { 0, 0, dest->width, dest->height };
     SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_NONE );
     SDL_RenderFillRect( gRenderer, &eraseRect );
+    SDL_SetRenderTarget( gRenderer, NULL );
 #endif
 #ifdef USE_SDL2_GPU
     Uint8 r, g, b, a;
@@ -139,6 +141,7 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     SDL_Rect eraseRect = { x, y, w, h };
     SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_NONE );
     SDL_RenderFillRect( gRenderer, &eraseRect );
+    SDL_SetRenderTarget( gRenderer, NULL );
 #endif
 #ifdef USE_SDL2_GPU
     Uint8 r, g, b, a;

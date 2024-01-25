@@ -185,9 +185,11 @@ int gr_create_image_for_graph( GRAPH * gr ) {
 
         gr_update_texture(gr);
 
-        gr->type = BITMAP_TEXTURE_TARGET;
+//        gr->type = BITMAP_TEXTURE_TARGET;
     }
-    else if ( gr->type != BITMAP_TEXTURE_TARGET ) return 1;
+//    else if ( gr->type != BITMAP_TEXTURE_TARGET ) {
+//        return 1;
+//    }
 #endif
 #ifdef USE_SDL2_GPU
     if ( !gr->tex ) gr->tex = GPU_CreateImage( gr->width, gr->height, GPU_FORMAT_RGBA );
@@ -533,7 +535,7 @@ void gr_blit(   GRAPH * dest,
                     srcrect.w = w;
                     srcrect.h = h;
 #ifdef USE_SDL2
-                    gr->segments[seg].tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_STATIC, w, h );
+                    gr->segments[seg].tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET /*SDL_TEXTUREACCESS_STATIC*/, w, h );
                     if ( !gr->segments[seg].tex ) {
                         printf ("error creando multi textura RO [%s]\n", SDL_GetError() );
                         return;
@@ -600,7 +602,7 @@ void gr_blit(   GRAPH * dest,
         }
 #ifdef USE_SDL2
         else {
-            gr->tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_STATIC, gr->width, gr->height );
+            gr->tex = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET /*SDL_TEXTUREACCESS_STATIC*/, gr->width, gr->height );
             if ( !gr->tex ) {
                 printf ("error creando textura RO [%s]\n", SDL_GetError() );
                 return;
@@ -608,7 +610,8 @@ void gr_blit(   GRAPH * dest,
 
             gr_update_texture(gr);
         }
-        gr->type = BITMAP_TEXTURE_STATIC;
+//        gr->type = BITMAP_TEXTURE_STATIC;
+//        gr->type = BITMAP_TEXTURE_TARGET;
 #endif
     }
 

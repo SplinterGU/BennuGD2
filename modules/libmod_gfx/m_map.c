@@ -910,6 +910,7 @@ int64_t libmod_gfx_unload_map( INSTANCE * my, int64_t * params ) {
 extern DECLSPEC int SDLCALL IMG_SavePNG(SDL_Surface *surface, const char *file);
 extern DECLSPEC int SDLCALL IMG_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst);
 */
+
 int64_t libmod_gfx_map_save( INSTANCE * my, int64_t * params )
 {
     GRAPH * gr = bitmap_get( params[0], params[1] );
@@ -919,18 +920,46 @@ int64_t libmod_gfx_map_save( INSTANCE * my, int64_t * params )
         string_discard( params[2] );
         return -1;
     }
+
+    if ( !gr->tex ) {
 #ifdef USE_SDL2
-    if ( !gr->surface )
+        if ( !gr->surface ) {
 #endif
-#ifdef USE_SDL2_GPU
-    if ( !gr->tex )
-#endif
-    {
+            string_discard( params[2] );
+            return -1;
+#ifdef USE_SDL2
+        } else {
+            if ( gr_create_image_for_graph( gr ) ) {
+                string_discard( params[2] );
+                return -1;
+            }
+        }
+#endif  
+    }
+
+#ifdef USE_SDL2
+    SDL_Surface * surface = SDL_CreateRGBSurface( 0,
+                                                  gr->width,
+                                                  gr->height,
+                                                  gPixelFormat->BitsPerPixel,
+                                                  gPixelFormat->Rmask,
+                                                  gPixelFormat->Gmask,
+                                                  gPixelFormat->Bmask,
+                                                  gPixelFormat->Amask );
+
+    if ( !surface ) {
         string_discard( params[2] );
         return -1;
     }
-#ifdef USE_SDL2
-    r = ( int64_t ) IMG_SavePNG( gr->surface, ( char * )string_get( params[2] ) );
+
+    SDL_SetRenderTarget( gRenderer, gr->tex );
+    SDL_FillRect( surface, NULL, 0 );
+    SDL_RenderReadPixels( gRenderer, NULL, gPixelFormat->format, surface->pixels, surface->pitch );
+    SDL_SetRenderTarget( gRenderer, NULL );
+
+    r = ( int64_t ) IMG_SavePNG( surface, ( char * )string_get( params[2] ) );
+
+    SDL_FreeSurface( surface );
 #endif
 #ifdef USE_SDL2_GPU
     r = ( int64_t ) GPU_SaveImage( gr->tex, ( char * )string_get( params[2] ), GPU_FILE_AUTO );
