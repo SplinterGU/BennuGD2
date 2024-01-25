@@ -117,13 +117,12 @@ void scroll_update( int64_t n ) {
 
     if ( n < 0 || n >= MAX_SCROLLS ) return;
 
-    if ( !scrolls[n].active || !scrolls[n].region || !scrolls[n].graphid ) return;
+    if ( !scrolls[n].active || !scrolls[n].region || ( !scrolls[n].graphid && !scrolls[n].backid ) ) return;
 
     graph = scrolls[n].graphid ? bitmap_get( scrolls[n].fileid, scrolls[n].graphid ) : NULL;
     back  = scrolls[n].backid  ? bitmap_get( scrolls[n].filebackid, scrolls[n].backid )  : NULL;
 
-    if (                        !graph ) return; // El fondo de scroll no existe
-    if (  scrolls[n].backid  && !back  ) return; // Grafico no existe
+    if ( !graph && !back ) return;
 
     data = &(( SCROLL_EXTRA_DATA * ) GLOADDR( libbggfx, SCROLLS ) )[n];
 
@@ -214,8 +213,10 @@ void scroll_update( int64_t n ) {
 
     /* Scrolls no c�clicos y posici�n del background */
 
-    if ( !( scrolls[n].flags & GRAPH_HWRAP ) ) data->x0 = MAX( 0, MIN( data->x0, ( int64_t )graph->width  - w ) );
-    if ( !( scrolls[n].flags & GRAPH_VWRAP ) ) data->y0 = MAX( 0, MIN( data->y0, ( int64_t )graph->height - h ) );
+    if ( graph ) {
+        if ( !( scrolls[n].flags & GRAPH_HWRAP ) ) data->x0 = MAX( 0, MIN( data->x0, ( int64_t )graph->width  - w ) );
+        if ( !( scrolls[n].flags & GRAPH_VWRAP ) ) data->y0 = MAX( 0, MIN( data->y0, ( int64_t )graph->height - h ) );
+    }
 
     if ( scrolls[n].ratio ) {
         data->x1 = data->x0 * 100.0 / scrolls[n].ratio;
@@ -231,11 +232,12 @@ void scroll_update( int64_t n ) {
 
     scrolls[n].posx0 = data->x0;
     scrolls[n].posy0 = data->y0;
-    scrolls[n].x0 = fmod( data->x0, ( int64_t ) graph->width );
-    scrolls[n].y0 = fmod( data->y0, ( int64_t ) graph->height );
-
-    if ( scrolls[n].x0 < 0.0 ) scrolls[n].x0 += graph->width;
-    if ( scrolls[n].y0 < 0.0 ) scrolls[n].y0 += graph->height;
+    if ( graph ) {
+        scrolls[n].x0 = fmod( data->x0, ( int64_t ) graph->width );
+        scrolls[n].y0 = fmod( data->y0, ( int64_t ) graph->height );
+        if ( scrolls[n].x0 < 0.0 ) scrolls[n].x0 += graph->width;
+        if ( scrolls[n].y0 < 0.0 ) scrolls[n].y0 += graph->height;
+    }
 
     if ( back ) {
         scrolls[n].x1 = fmod( data->x1, ( int64_t ) back->width );
@@ -273,13 +275,12 @@ void scroll_draw( int64_t n, REGION * clipping ) {
 
     if ( n < 0 || n >= MAX_SCROLLS ) return;
 
-    if ( !scrolls[n].active || !scrolls[n].region || !scrolls[n].graphid ) return;
+    if ( !scrolls[n].active || !scrolls[n].region || ( !scrolls[n].graphid && !scrolls[n].backid ) ) return;
 
     graph = scrolls[n].graphid ? bitmap_get( scrolls[n].fileid, scrolls[n].graphid ) : NULL;
     back  = scrolls[n].backid  ? bitmap_get( scrolls[n].filebackid, scrolls[n].backid )  : NULL;
 
-    if (                        !graph ) return; // El fondo de scroll no existe
-    if (  scrolls[n].backid  && !back  ) return; // Grafico no existe
+    if ( !graph && !back ) return;
 
     data = &(( SCROLL_EXTRA_DATA * ) GLOADDR( libbggfx, SCROLLS ) )[n];
 
@@ -335,43 +336,45 @@ void scroll_draw( int64_t n, REGION * clipping ) {
 
     /* Dibuja el primer plano */
 
-    if ( graph->ncpoints > 0 && graph->cpoints[0].x >= 0 ) {
-        cx = graph->cpoints[0].x;
-        cy = graph->cpoints[0].y;
-    }
-    else {
-        cx = graph->width / 2.0;
-        cy = graph->height / 2.0;
-    }
-
-    shader_activate( data->shader1 );
-
-    y = scrolls[n].region->y - scrolls[n].y0;
-    while ( y < scrolls[n].region->y2 ) {
-        x = scrolls[n].region->x - scrolls[n].x0;
-        while ( x < scrolls[n].region->x2 ) {
-            gr_blit(    dest,
-                        &r,
-                        x + cx,
-                        y + cy,
-                        data->flags1,
-                        0,
-                        100,
-                        100,
-                        POINT_UNDEFINED,
-                        POINT_UNDEFINED,
-                        graph,
-                        NULL,
-                        data->alpha,
-                        data->color_r,
-                        data->color_g,
-                        data->color_b,
-                        data->blend_mode1,
-                        &data->custom_blend_mode1
-                    );
-            x += graph->width;
+    if ( graph ) {
+        if ( graph->ncpoints > 0 && graph->cpoints[0].x >= 0 ) {
+            cx = graph->cpoints[0].x;
+            cy = graph->cpoints[0].y;
         }
-        y += graph->height;
+        else {
+            cx = graph->width / 2.0;
+            cy = graph->height / 2.0;
+        }
+
+        shader_activate( data->shader1 );
+
+        y = scrolls[n].region->y - scrolls[n].y0;
+        while ( y < scrolls[n].region->y2 ) {
+            x = scrolls[n].region->x - scrolls[n].x0;
+            while ( x < scrolls[n].region->x2 ) {
+                gr_blit(    dest,
+                            &r,
+                            x + cx,
+                            y + cy,
+                            data->flags1,
+                            0,
+                            100,
+                            100,
+                            POINT_UNDEFINED,
+                            POINT_UNDEFINED,
+                            graph,
+                            NULL,
+                            data->alpha,
+                            data->color_r,
+                            data->color_g,
+                            data->color_b,
+                            data->blend_mode1,
+                            &data->custom_blend_mode1
+                        );
+                x += graph->width;
+            }
+            y += graph->height;
+        }
     }
 
     /* Crea una lista ordenada de instancias a dibujar */
