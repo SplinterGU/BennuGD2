@@ -180,7 +180,7 @@ int dcb_load( const char * filename ) {
     /* check for existence of the DCB FILE */
     if ( !file_exists( filename ) ) return 0;
 
-    fp = file_open( filename, "rb0" );
+    fp = file_open( filename, "rb" );
     if ( !fp ) {
         fprintf( stderr, "ERROR: Runtime error - Could not open file (%s)\n", filename );
         exit( 1 );

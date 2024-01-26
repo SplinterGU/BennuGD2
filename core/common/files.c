@@ -54,14 +54,6 @@ char * possible_paths[MAX_POSSIBLE_PATHS] = { NULL };
 
 int opened_files = 0;
 
-typedef struct {
-    char * stubname;
-    char * name;
-    int  offset;
-    int  size;
-    FILE * fp;
-} XFILE;
-
 XFILE * x_file = NULL;
 int max_x_files = 0;
 
@@ -81,7 +73,6 @@ void file_add_xfile( file * fp, const char * stubname, long offset, char * name,
     assert( fp->type == F_FILE );
 
     x_file[x_files_count].stubname = strdup( stubname );
-    x_file[x_files_count].fp = fp->fp;
     x_file[x_files_count].offset = offset;
     x_file[x_files_count].size = size;
     x_file[x_files_count].name = strdup( name );
@@ -101,31 +92,26 @@ int file_read( file * fp, void * buffer, int len ) {
     if ( !fp || !len ) return 0;
 
     if ( fp->type == F_XFILE ) {
-        XFILE * xf;
         int result;
 
-        xf = &x_file[fp->n];
-
-        if (( len + fp->pos ) > ( xf->offset + xf->size ) ) {
+        if (( len + fp->pos ) > ( fp->xf->offset + fp->xf->size ) ) {
             fp->eof = 1;
-            len = xf->size + xf->offset - fp->pos;
+            len = fp->xf->size + fp->xf->offset - fp->pos;
         }
 
-        fseek( fp->fp, fp->pos, SEEK_SET );
-        result = fread( buffer, 1, len, fp->fp );
-
-        fp->pos = ftell( fp->fp );
+        gzseek( fp->gz, fp->pos, SEEK_SET );
+        result = gzread( fp->gz, buffer, len );
+        fp->pos = gztell( fp->gz );
         return result;
     }
 
-#ifndef NO_ZLIB
     if ( fp->type == F_GZFILE ) {
         int result = gzread( fp->gz, buffer, len );
         fp->error = ( result < len );
         if ( result < 0 ) result = 0;
         return result;
     }
-#endif
+
     return fread( buffer, 1, len, fp->fp );
 }
 
@@ -138,7 +124,7 @@ int file_qputs( file * fp, char * buffer ) {
     ptr = buffer;
     optr = dest;
     while ( *ptr ) {
-        if ( optr > dest + 1000 ) {
+        if ( optr - dest >= 1019 ) {
             *optr++ = '\\';
             *optr++ = '\n';
             *optr   = 0;
@@ -169,38 +155,21 @@ int file_qgets( file * fp, char * buffer, int len ) {
     size_t sz;
 
     if ( fp->type == F_XFILE ) {
-        XFILE * xf;
-        int l = 0;
-
         ptr = result = buffer;
 
-        xf = &x_file[fp->n];
-
-        fseek( fp->fp, fp->pos, SEEK_SET );
-        while ( l < len ) {
-            if ( fp->pos >= xf->offset + xf->size ) {
-                fp->eof = 1;
-                break;
-            }
-            sz = fread( ptr, 1, 1, fp->fp ) ;
-            if ( !sz ) {
-                if ( feof( fp->fp ) ) fp->eof = 1;
-                break;
-            }
-            l++;
-            fp->pos++;
-            if ( *ptr++ == '\n' ) break;
+        if ( fp->pos - fp->xf->offset + len - 1 > fp->xf->size ) {
+            len = fp->xf->size - ( fp->pos - fp->xf->offset ) - 1;
+            fp->eof = 1;
         }
-        *ptr = 0;
-        fp->pos = ftell( fp->fp );
 
-        if ( !l ) return 0;
+        gzseek( fp->gz, fp->pos, SEEK_SET );
+        result = gzgets( fp->gz, buffer, len ) ;
+        fp->pos = gztell( fp->gz );
     }
-#ifndef NO_ZLIB
     else if ( fp->type == F_GZFILE ) {
         result = gzgets( fp->gz, buffer, len );
     }
-#endif
+
     else {
         result = fgets( buffer, len, fp->fp );
     }
@@ -224,6 +193,7 @@ int file_qgets( file * fp, char * buffer, int len ) {
         }
         ptr++;
     }
+
     return strlen( buffer );
 }
 
@@ -240,37 +210,21 @@ int file_gets( file * fp, char * buffer, int len ) {
     size_t sz;
 
     if ( fp->type == F_XFILE ) {
-        XFILE * xf;
-        int l = 0;
         char * ptr = result = buffer;
 
-        xf = &x_file[fp->n];
-
-        fseek( fp->fp, fp->pos, SEEK_SET );
-        while ( l < len ) {
-            if ( fp->pos >= xf->offset + xf->size ) {
-                fp->eof = 1;
-                break;
-            }
-            sz = fread( ptr, 1, 1, fp->fp ) ;
-            if ( !sz ) {
-                if ( feof( fp->fp ) ) fp->eof = 1;
-                break;
-            }
-            l++;
-            fp->pos++;
-            if ( *ptr++ == '\n' ) break;
+        if ( fp->pos - fp->xf->offset + len - 1 > fp->xf->size ) {
+            len = fp->xf->size - ( fp->pos - fp->xf->offset ) - 1;
+            fp->eof = 1;
         }
-        *ptr = 0;
-        fp->pos = ftell( fp->fp );
 
-        if ( !l ) return 0;
+        gzseek( fp->gz, fp->pos, SEEK_SET );
+        result = gzgets( fp->gz, buffer, len );
+        fp->pos = gztell( fp->gz );
     }
-#ifndef NO_ZLIB
     else if ( fp->type == F_GZFILE ) {
         result = gzgets( fp->gz, buffer, len );
     }
-#endif
+
     else {
         result = fgets( buffer, len, fp->fp );
     }
@@ -510,29 +464,13 @@ int file_readUint64A( file * fp, uint64_t * buffer, int n ) {
 /* Write a datablock to a file */
 
 int file_write( file * fp, void * buffer, int len ) {
-    if ( fp->type == F_XFILE ) {
-        XFILE * xf;
-        int result;
+    if ( fp->type == F_XFILE ) return 0; // this don't must happen
 
-        xf = &x_file[fp->n];
-
-        if (( len + fp->pos ) > ( xf->offset + xf->size ) ) {
-            fp->eof = 1;
-            len = xf->size + xf->offset - fp->pos;
-        }
-        fseek( fp->fp, fp->pos, SEEK_SET );
-        result = fwrite( buffer, 1, len, fp->fp );
-        fp->pos = ftell( fp->fp );
-        return result;
-    }
-
-#ifndef NO_ZLIB
     if ( fp->type == F_GZFILE ) {
         int result = gzwrite( fp->gz, buffer, len );
         if ( ( fp->error = ( result < 0 ) ) ) result = 0;
         return ( result < len ) ? 0 : len;
     }
-#endif
 
     return fwrite( buffer, 1, len, fp->fp );
 }
@@ -544,20 +482,12 @@ int file_size( file * fp ) {
 
     if ( !fp ) return 0;
 
-    if ( fp->type == F_XFILE ) return x_file[fp->n].size;
+    if ( fp->type == F_XFILE ) return fp->xf->size;
 
     pos = file_pos( fp );
-#ifndef NO_ZLIB
-    if ( fp->type == F_GZFILE ) {
-        char buffer[8192];
-        size = pos;
-        while ( !file_eof( fp ) ) size += file_read( fp, buffer, sizeof(buffer) );
-    } else
-#endif
-    {
-        file_seek(fp, 0, SEEK_END );
-        size = file_pos( fp );
-    }
+    file_seek(fp, 0, SEEK_END );
+    size = file_pos( fp );
+
     file_seek(fp, pos, SEEK_SET );
 
     return size;
@@ -566,11 +496,9 @@ int file_size( file * fp ) {
 /* Get current file pointer position */
 
 int file_pos( file * fp ) {
-    if ( fp->type == F_XFILE ) return fp->pos - x_file[fp->n].offset;
+    if ( fp->type == F_XFILE ) return fp->pos - fp->xf->offset;
 
-#ifndef NO_ZLIB
     if ( fp->type == F_GZFILE ) return gztell( fp->gz );
-#endif
 
     return ftell( fp->fp );
 }
@@ -578,9 +506,7 @@ int file_pos( file * fp ) {
 int file_flush( file * fp ) {
     if ( fp->type == F_XFILE ) return 0;
 
-#ifndef NO_ZLIB
     if ( fp->type == F_GZFILE ) return 0;
-#endif
 
     return fflush( fp->fp );
 }
@@ -590,23 +516,26 @@ int file_flush( file * fp ) {
 int file_seek( file * fp, int pos, int where ) {
     assert( fp );
     if ( fp->type == F_XFILE ) {
-        if ( where == SEEK_END )        pos = x_file[fp->n].size - pos + 1;
-        else if ( where == SEEK_CUR )   pos += ( fp->pos - x_file[fp->n].offset );
+        if ( where == SEEK_END )        pos = fp->xf->size - pos + 1;
+        else if ( where == SEEK_CUR )   pos += ( fp->pos - fp->xf->offset );
 
-        if ( x_file[fp->n].size < pos ) pos = x_file[fp->n].size;
+        if ( fp->xf->size < pos ) pos = fp->xf->size;
 
         if ( pos < 0 ) pos = 0;
 
-        fp->pos = pos + x_file[fp->n].offset;
+        fp->pos = pos + fp->xf->offset;
         return pos;
     }
 
-#ifndef NO_ZLIB
     if ( fp->type == F_GZFILE ) {
         assert( fp->gz );
+        if ( where == SEEK_END ) {
+            char buffer[8192];
+            while ( !file_eof( fp ) ) file_read( fp, buffer, sizeof(buffer) );
+            pos = gztell( fp->gz ) + pos;
+        }
         return gzseek( fp->gz, pos, where );
     }
-#endif
 
     assert( fp->fp );
     return fseek( fp->fp, pos, where );
@@ -617,14 +546,12 @@ void file_rewind( file * fp ) {
 
     switch ( fp->type ) {
         case F_XFILE:
-            fp->pos = x_file[fp->n].offset;
+            fp->pos = fp->xf->offset;
             break;
 
-#ifndef NO_ZLIB
         case F_GZFILE:
             gzrewind( fp->gz );
             break;
-#endif
 
         default:
             rewind( fp->fp );
@@ -637,14 +564,12 @@ static int open_raw( file * f, const char * filename, const char * mode ) {
     char    _mode[5];
     char    *p;
 
-#ifndef NO_ZLIB
     if ( !strchr( mode, '0' ) ) {
         f->type = F_GZFILE;
         f->gz = gzopen( filename, mode );
         f->eof  = 0;
         if ( f->gz ) return 1;
     }
-#endif
 
     p = _mode;
     while ( *mode ) {
@@ -700,8 +625,8 @@ file * file_open( const char * filename, char * mode ) {
                 f->eof  = 0;
                 f->pos  = x_file[i].offset;
                 f->type = F_XFILE;
-                f->n    = i;
-                f->fp = fopen( x_file[i].stubname, "rb" );
+                f->xf   = &x_file[i];
+                f->gz = gzopen( x_file[i].stubname, "rb" );
 
                 opened_files++;
                 return f;
@@ -748,10 +673,9 @@ file * file_open( const char * filename, char * mode ) {
 
 void file_close( file * fp ) {
     if ( fp == NULL ) return;
-    if ( fp->type == F_FILE || fp->type == F_XFILE ) fclose( fp->fp );
-#ifndef NO_ZLIB
-    if ( fp->type == F_GZFILE ) gzclose( fp->gz );
-#endif
+    if ( fp->type == F_FILE ) fclose( fp->fp );
+    if ( fp->type == F_GZFILE || fp->type == F_XFILE ) gzclose( fp->gz );
+
     opened_files--;
     free( fp );
 }
@@ -808,26 +732,12 @@ int file_eof( file * fp ) {
         return fp->eof ? 1 : 0;
     }
 
-#ifndef NO_ZLIB
     if ( fp->type == F_GZFILE ) {
         if ( fp->error ) return 1;
         return gzeof( fp->gz ) ? 1 : 0;
     }
-#endif
 
     return feof( fp->fp ) ? 1 : 0;
-}
-
-/* Get the FILE * of the file */
-
-FILE * file_fp( file * f ) {
-    if ( f->type == F_XFILE ) {
-//        XFILE * xf = &x_file[f->n];
-        fseek( f->fp, f->pos, SEEK_SET );
-        return f->fp;
-    }
-
-    return f->fp;
 }
 
 /* ------------------------------------------------------------------------------------ */

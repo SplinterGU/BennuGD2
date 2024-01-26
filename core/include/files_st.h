@@ -72,13 +72,19 @@
 #endif
 
 typedef struct {
+    char * stubname;
+    char * name;
+    int  offset;
+    int  size;
+} XFILE;
+
+typedef struct {
     int     type;
 
     FILE *  fp;
-#ifndef NO_ZLIB
     gzFile  gz;
-#endif
-    int     n;
+
+    XFILE * xf; // X_FILE *
     int     error;
 	char	name[__MAX_PATH];
 	long    pos;

@@ -97,7 +97,6 @@ extern int    file_move        (const char * source_file, const char * target_fi
 extern int    file_exists      (const char * filename) ;
 extern void   file_add_xfile   (file * fp, const char * stubname, long offset, char * name, int size) ;
 extern int    file_eof         (file * fp) ;
-extern FILE * file_fp          (file * fp) ;
 
 extern void   xfile_init       (int maxfiles);
 

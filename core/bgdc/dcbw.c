@@ -195,7 +195,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
     SYSPROC * s;
     int64_t NSysProcs = 0;
 
-    fp = file_open( filename, "wb0" );
+    fp = file_open( filename, "wb" );
     if ( !fp ) {
         fprintf( stdout, "ERROR: can't open %s\n", filename );
         return 0;
@@ -203,7 +203,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
 
     /* Write the stub file */
     if ( stubname ) {
-        file * stub = file_open( stubname, "rb0" );
+        file * stub = file_open( stubname, "rb" );
 
         if ( !stub ) {
             fprintf( stdout, "ERROR: can't open %s\n", stubname );
@@ -768,7 +768,7 @@ int dcb_load_lib( const char * filename ) {
     /* check for existence of the DCB FILE */
     if ( !file_exists( filename ) ) return 0 ;
 
-    fp = file_open( filename, "rb0" ) ;
+    fp = file_open( filename, "rb" ) ;
     if ( !fp ) {
         fprintf( stderr, "ERROR: Runtime error - Could not open file (%s)\n", filename ) ;
         exit( 1 );
