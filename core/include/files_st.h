@@ -74,7 +74,7 @@
 typedef struct {
     char * stubname;
     char * name;
-    int  offset;
+    long offset;
     int  size;
 } XFILE;
 

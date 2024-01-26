@@ -91,8 +91,11 @@ void dcb_add_file( const char * filename ) {
     if ( strlen( filename ) > 3 && !strncmp( filename + strlen( filename ) - 3, ".so", 3 ) )    return;
     if ( strlen( filename ) > 6 && !strncmp( filename + strlen( filename ) - 6, ".dylib", 6 ) ) return;
 */
+
     for ( i = 0; filename[i]; i++ ) if ( filename[i] == '\\' ) buffer[i] = '/'; else buffer[i] = filename[i];
     buffer[i] = '\0';
+
+    if ( i == 0 || ( i > 0 && buffer[ i - 1 ] == '/' ) ) return;
 
     filename = ( const char * ) buffer;
 
@@ -195,7 +198,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
     SYSPROC * s;
     int64_t NSysProcs = 0;
 
-    fp = file_open( filename, "wb" );
+    fp = file_open( filename, stubname ? "wb0" : "wb" );
     if ( !fp ) {
         fprintf( stdout, "ERROR: can't open %s\n", filename );
         return 0;
@@ -240,6 +243,17 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
 
     /* Save neccessary info only */
     if ( !( options & DCB_DEBUG ) ) n_files = 0;
+
+
+    /* Remove filename if exists */
+    for ( n = 0; n < dcb_filecount; n++ ) {
+        char * p;
+        if ( !strcmp( ( p = dcb_files[n].Name ), filename ) ) {
+            if ( n < dcb_filecount - 1 ) memmove( &dcb_files[n], &dcb_files[n+1], ( dcb_filecount - n - 1 ) * sizeof( DCB_FILE ) );
+            dcb_filecount--;
+            free( p );
+        }
+    }
 
     /* 1. Fill header */
 

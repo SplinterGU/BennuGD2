@@ -249,7 +249,7 @@ static int64_t load_music( const char * filename ) {
 
     if ( !audio_initialized && sound_init() ) return ( 0 );
 
-    if ( !( fp = file_open( filename, "rb0" ) ) ) return ( 0 );
+    if ( !( fp = file_open( filename, "rb" ) ) ) return ( 0 );
 
     SDL_RWops * rwops = SDL_RWFromBGDFP( fp );
     if ( !rwops ) {
@@ -975,7 +975,7 @@ static int64_t load_sound( const char * filename ) {
 
     if ( !audio_initialized && sound_init() ) return ( 0 );
 
-    if ( !( fp = file_open( filename, "rb0" ) ) ) return ( 0 );
+    if ( !( fp = file_open( filename, "rb" ) ) ) return ( 0 );
 
     SDL_RWops * rwops = SDL_RWFromBGDFP( fp );
     if ( !rwops ) {

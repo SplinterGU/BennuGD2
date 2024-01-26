@@ -477,7 +477,7 @@ int file_write( file * fp, void * buffer, int len ) {
 
 /* Return file size */
 
-int file_size( file * fp ) {
+long file_size( file * fp ) {
     long pos, size;
 
     if ( !fp ) return 0;
@@ -495,7 +495,7 @@ int file_size( file * fp ) {
 
 /* Get current file pointer position */
 
-int file_pos( file * fp ) {
+long file_pos( file * fp ) {
     if ( fp->type == F_XFILE ) return fp->pos - fp->xf->offset;
 
     if ( fp->type == F_GZFILE ) return gztell( fp->gz );
@@ -513,7 +513,7 @@ int file_flush( file * fp ) {
 
 /* Set current file pointer position */
 
-int file_seek( file * fp, int pos, int where ) {
+int file_seek( file * fp, long pos, int where ) {
     assert( fp );
     if ( fp->type == F_XFILE ) {
         if ( where == SEEK_END )        pos = fp->xf->size - pos + 1;
