@@ -5,6 +5,7 @@ import "libmod_input";
 import "libmod_gfx";
 import "libmod_misc";
 import "libmod_sound";
+
 #define clear_screen()
 
 declare PROCESS controles();
@@ -597,12 +598,16 @@ BEGIN
     set_fps( 24, 0 );
     window_set_title( "Joselkiller: El Ataque de los clones - v1.5" );
     screen.fullscreen = 0;
-    set_mode( 640, 480, 16 );
+    set_mode( 640, 480 );
     fpg_load( "fpg/juego.fpg" );
     window_set_icon( 0, 21 );
     sound.channels = 32;
     reserve_channels( 24 );
     channel_set_volume( -1, volfx );
+
+    // carga fuentes
+    fuente = fnt_load( "fnt/fuente.fnt" );
+
     // CONFIGURACION POR TXT
     if ( fexists( "controls.txt" ))
         guarda = fopen( "controls.txt", o_read );
@@ -760,6 +765,10 @@ BEGIN
         end
         fclose( guarda );
     end
+
+    write( fuente, 320, 240, ALIGN_CENTER, "Cargando... Por favor espere..." );
+
+    frame;
     // Carga sonidos
     poing = sound_load( "sound/poing.wav" );
     logo = music_load( "sound/logo.mp3" );
@@ -827,8 +836,9 @@ BEGIN
     casquete = sound_load( "sound/casquete.wav" );
     lluvia = sound_load( "sound/lluvia.wav" );
     trueno = sound_load( "sound/trueno.wav" );
-    // carga fuentes
-    fuente = fnt_load( "fnt/fuente.fnt" );
+
+    write_delete( all_text );
+
     presentacion();
     frame;
 end
