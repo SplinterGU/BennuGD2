@@ -1847,7 +1847,7 @@ static void get_token() {
         if ( token.type == NUMBER_DOUBLE )
             _snprintf( token.name, sizeof( token.name ), "%F", token.double_value ) ;
         else
-            _snprintf( token.name, sizeof( token.name ), "%ld", token.code ) ;
+            _snprintf( token.name, sizeof( token.name ), "%"PRId64, token.code ) ;
         return ;
     }
 
@@ -2088,7 +2088,7 @@ static void eval_immediate() {
             case RT_CONSTANT:
                 result.int_value = -result.int_value;
                 result.double_value = ( double ) result.int_value;
-                _snprintf( result.name, sizeof( result.name ), "%ld", result.int_value ) ;
+                _snprintf( result.name, sizeof( result.name ), "%"PRId64, result.int_value ) ;
                 break;
 
             case RT_CONSTANT_DOUBLE:
@@ -2305,6 +2305,9 @@ static void eval_factor() {
                 if ( op == 3 ) double_base = fmod( double_base, result.double_value );
                 base = ( int64_t ) double_base;
                 break;
+
+            default:
+                break;
         }
 
         if ( ( !token.name[0] || !strchr( "*/%", token.name[0] ) ) ) {
@@ -2312,13 +2315,16 @@ static void eval_factor() {
                 case RT_CONSTANT:
                     result.int_value = base;
                     result.double_value = ( double ) result.int_value ;
-                    _snprintf( result.name, sizeof( result.name ), "%ld", result.int_value ) ;
+                    _snprintf( result.name, sizeof( result.name ), "%"PRId64, result.int_value ) ;
                     break;
 
                 case RT_CONSTANT_DOUBLE:
                     result.double_value = double_base;
                     result.int_value = ( int64_t ) result.double_value ;
                     _snprintf( result.name, sizeof( result.name ), "%F", result.double_value ) ;
+                    break;
+
+                default:
                     break;
             }
             return ;
@@ -2370,13 +2376,16 @@ static void eval_subexpression() {
                 case RT_CONSTANT:
                     result.int_value = base;
                     result.double_value = ( double ) result.int_value ;
-                    _snprintf( result.name, sizeof( result.name ), "%ld", result.int_value ) ;
+                    _snprintf( result.name, sizeof( result.name ), "%"PRId64, result.int_value ) ;
                     break;
 
                 case RT_CONSTANT_DOUBLE:
                     result.double_value = double_base;
                     result.int_value = ( int64_t ) result.double_value ;
                     _snprintf( result.name, sizeof( result.name ), "%F", result.double_value ) ;
+                    break;
+
+                default:
                     break;
             }
             return ;
@@ -2412,7 +2421,7 @@ static char * eval_expression( const char * here, int interactive ) {
     strncpy( part, here, token_ptr - here - (( token.type != NOTOKEN ) ? 1 : 0 ) );
 
     if ( result.type == RT_CONSTANT ) {
-        _snprintf( buffer, sizeof( buffer ), "%s = %ld", part, result.int_value );
+        _snprintf( buffer, sizeof( buffer ), "%s = %"PRId64, part, result.int_value );
         if ( interactive ) console_printf( COLOR_SILVER "%s", buffer ) ;
     } else
     if ( result.type == RT_CONSTANT_DOUBLE ) {
@@ -2965,7 +2974,7 @@ static void console_do( const char * cmd ) {
                         console_printf( COLOR_GREEN "PROCESS BREAKPOINTS" COLOR_SILVER "\n\n" );
                         f = 1;
                     }
-                    console_printf( COLOR_SILVER "%ld", LOCINT64( libmod_debug, i, PROCESS_ID ) );
+                    console_printf( COLOR_SILVER "%"PRId64, LOCINT64( libmod_debug, i, PROCESS_ID ) );
                 }
             }
             if ( f ) console_printf( "\n" );
