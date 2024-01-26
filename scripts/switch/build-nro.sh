@@ -10,7 +10,7 @@ dir_output=$(mktemp -d)
 new_prg_file="${dir_output}/$1.new.prg"
 
 # Regular expression to find quoted strings
-#regex='"[^"]+"'
+regex='"[^"]+"'
 
 # Create the output directory if it doesn't exist
 mkdir -p "$dir_output/romfs"
@@ -31,19 +31,19 @@ if [[ -f "resources.txt" ]]; then
     done < "resources.txt"
 fi
 
-## Get the quoted strings and copy the files if they exist
-#while IFS= read -r string; do
-#    # Remove double quotes
-#    string="${string#\"}"
-#    string="${string%\"}"
-#
-#    # Check if the file exists before copying
-#    if [[ "$string" != *".prg" && "$string" != *".h" && "$string" != *".inc" && "$string" != *".c" && "$string" != *".def" && -e "$string" ]]; then
-#
-#        if [[ "$string" == ".." || "$string" == "." ]]; then
-#            continue;
-#        fi
-#
+# Get the quoted strings and copy the files if they exist
+while IFS= read -r string; do
+    # Remove double quotes
+    string="${string#\"}"
+    string="${string%\"}"
+
+    # Check if the file exists before copying
+    if [[ "$string" != *".prg" && "$string" != *".h" && "$string" != *".inc" && "$string" != *".c" && "$string" != *".def" && -e "$string" ]]; then
+
+        if [[ "$string" == ".." || "$string" == "." ]]; then
+            continue;
+        fi
+
 #        if [[ "$string" == *".."* || "$string" == /* ]]; then
 #            # Use realpath to obtain the full path of the file
 #            full_path="$(realpath "$string")"
@@ -72,13 +72,13 @@ fi
 #            cp "$string" "$dir_output/romfs/$relative_path"
 #
 #        else
-#            # Copy the file to the output folder while preserving the relative structure
-#            mkdir -p "$dir_output/romfs/$(dirname "$string")"
-#            cp "$string" "$dir_output/romfs/$string"
+            # Copy the file to the output folder while preserving the relative structure
+            mkdir -p "$dir_output/romfs/$(dirname "$string")"
+            cp "$string" "$dir_output/romfs/$string"
 #        fi
-#
-#    fi
-#done < <(grep -oE $regex "$new_prg_file")
+
+    fi
+done < <(grep -oE $regex "$new_prg_file")
 
 bgdc $new_prg_file -o ${dir_output}/romfs/game.dcb
 NAME=$(basename $1 .prg)
