@@ -42,6 +42,24 @@
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_gfx_shader_get_language( INSTANCE * my, int64_t * params ) {
+    return ( int64_t ) shader_get_language();
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_shader_get_min_version( INSTANCE * my, int64_t * params ) {
+    return ( int64_t ) shader_get_min_version();
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_shader_get_max_version( INSTANCE * my, int64_t * params ) {
+    return ( int64_t ) shader_get_max_version();
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_shader_create( INSTANCE * my, int64_t * params ) {
     BGD_SHADER * shader = shader_create(( char * ) string_get( params[ 0 ] ),
                                         ( char * ) string_get( params[ 1 ] )

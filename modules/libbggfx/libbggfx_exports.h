@@ -111,6 +111,13 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "GL_FUNC_SUBTRACT"                , TYPE_QWORD    , 0x800A                        },
     { "GL_FUNC_REVERSE_SUBTRACT"        , TYPE_QWORD    , 0x800B                        },
 
+    { "SHADER_LANGUAGE_NONE"            , TYPE_QWORD    , SHADER_LANGUAGE_NONE          },
+    { "SHADER_LANGUAGE_ARB_ASSEMBLY"    , TYPE_QWORD    , SHADER_LANGUAGE_ARB_ASSEMBLY  },
+    { "SHADER_LANGUAGE_GLSL"            , TYPE_QWORD    , SHADER_LANGUAGE_GLSL          },
+    { "SHADER_LANGUAGE_GLSLES"          , TYPE_QWORD    , SHADER_LANGUAGE_GLSLES        },
+    { "SHADER_LANGUAGE_HLSL"            , TYPE_QWORD    , SHADER_LANGUAGE_HLSL          },
+    { "SHADER_LANGUAGE_CG"              , TYPE_QWORD    , SHADER_LANGUAGE_CG            },
+
     /* Scroll */
     { "C_SCROLL"                        , TYPE_QWORD    , C_SCROLL                      },
 

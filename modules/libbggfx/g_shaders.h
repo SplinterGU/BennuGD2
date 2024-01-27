@@ -28,6 +28,13 @@
 #ifndef __G_SHADERS_H
 #define __G_SHADERS_H
 
+#define SHADER_LANGUAGE_NONE            GPU_LANGUAGE_NONE
+#define SHADER_LANGUAGE_ARB_ASSEMBLY    GPU_LANGUAGE_ARB_ASSEMBLY
+#define SHADER_LANGUAGE_GLSL            GPU_LANGUAGE_GLSL
+#define SHADER_LANGUAGE_GLSLES          GPU_LANGUAGE_GLSLES
+#define SHADER_LANGUAGE_HLSL            GPU_LANGUAGE_HLSL
+#define SHADER_LANGUAGE_CG              GPU_LANGUAGE_CG
+
 /* --------------------------------------------------------------------------- */
 
 #ifdef USE_SDL2_GPU
@@ -44,6 +51,10 @@ typedef void BGD_SHADER;
 extern BGD_SHADER * g_current_shader;
 
 /* --------------------------------------------------------------------------- */
+
+extern int shader_get_language();
+extern int shader_get_min_version();
+extern int shader_get_max_version();
 
 extern BGD_SHADER * shader_create( char * vertex, char * fragment );
 extern void shader_free( BGD_SHADER * shader );

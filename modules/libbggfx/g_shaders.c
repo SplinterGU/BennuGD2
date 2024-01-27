@@ -30,77 +30,81 @@
 #include <string.h>
 
 #include "libbggfx.h"
+#include "files.h"
 
 /* --------------------------------------------------------------------------- */
 
 BGD_SHADER * g_current_shader = NULL;
+
+/*
+    sample headers:
+
+    GPU_LANGUAGE_GLSL
+
+        #version 130
+        #version 120
+        #version 110
+
+    GPU_LANGUAGE_GLSLES
+
+        #version 300 es
+        precision mediump int
+        precision mediump float;
+
+*/
+
+int shader_get_language() {
+#ifdef USE_SDL2_GPU
+    GPU_Renderer * renderer = GPU_GetCurrentRenderer();
+    if ( !renderer ) return -1;
+    return renderer->shader_language;
+#endif
+}
+
+int shader_get_min_version() {
+#ifdef USE_SDL2_GPU
+    GPU_Renderer * renderer = GPU_GetCurrentRenderer();
+    if ( !renderer ) return -1;
+    return renderer->min_shader_version;
+#endif
+}
+
+int shader_get_max_version() {
+#ifdef USE_SDL2_GPU
+    GPU_Renderer * renderer = GPU_GetCurrentRenderer();
+    if ( !renderer ) return -1;
+    return renderer->max_shader_version;
+#endif
+}
 
 /* --------------------------------------------------------------------------- */
 
 BGD_SHADER * shader_create( char * vertex, char * fragment ) {
 #ifdef USE_SDL2_GPU
     uint32_t vertex_shader = 0, frags_shader = 0;
-    char * source = NULL, * source2 = NULL;
-    int header_size;
-    const char * header = "";
-    BGD_SHADER * shader = malloc( sizeof( BGD_SHADER ) );
-
-    if ( !shader ) return NULL;
 
     GPU_Renderer * renderer = GPU_GetCurrentRenderer();
-
-    // Get size from header
-    if ( renderer->shader_language == GPU_LANGUAGE_GLSL ) {
-        if ( renderer->max_shader_version >= 130 ) header = "#version 130\n";
-        else if ( renderer->max_shader_version >= 120 ) header = "#version 120\n";
-        else header = "#version 110\n";  // Maybe this is good enough?
-    } else if( renderer->shader_language == GPU_LANGUAGE_GLSLES ) header = "#version 100\nprecision mediump int;\nprecision mediump float;\n";
-
-    header_size = strlen( header );
-
-    // Allocate source buffer
-    source = ( char * ) malloc( header_size + strlen( vertex ) + 1 );
-    if ( !source ) {
-        free( shader );
+    if ( !renderer ) {
         return NULL;
     }
 
-    // Prepend header
-    strcpy( source, header );
-    strcat( source, vertex );
+    BGD_SHADER * shader = malloc( sizeof( BGD_SHADER ) );
+    if ( !shader ) return NULL;
 
     // Compile the shader
-    if ( !( vertex_shader = GPU_CompileShader( GPU_VERTEX_SHADER, source ) ) ) {
+    if ( !( vertex_shader = GPU_CompileShader( GPU_VERTEX_SHADER, vertex ) ) ) {
         printf("ERROR compiling vertex shader: %s\n", GPU_GetShaderMessage());
-        free( source );
         free( shader );
         return NULL;
     }
-
-    // Allocate source buffer
-    source2 = ( char * ) realloc( source, header_size + strlen( fragment ) + 1 );
-    if ( !source2 ) {
-        GPU_FreeShader( vertex_shader );
-        free( source );
-        free( shader );
-        return NULL;
-    }
-
-    // Prepend header
-    strcpy( source2, header );
-    strcat( source2, fragment );
 
     // Compile the shader
-    if ( !( frags_shader = GPU_CompileShader( GPU_FRAGMENT_SHADER, source2 ) ) ) {
+    if ( !( frags_shader = GPU_CompileShader( GPU_FRAGMENT_SHADER, fragment ) ) ) {
         printf("ERROR compiling fragment shader: %s\n", GPU_GetShaderMessage());
         GPU_FreeShader( vertex_shader );
-        free( source2 );
         free( shader );
         return NULL;
     }
-
-    // Clean up
-    free( source2 );
 
     if ( !( shader->shader = GPU_LinkShaders( vertex_shader, frags_shader ) ) ) {
         printf("ERROR linking shaders: %s\n", GPU_GetShaderMessage());
@@ -111,6 +115,7 @@ BGD_SHADER * shader_create( char * vertex, char * fragment ) {
     }
 
     shader->block = GPU_LoadShaderBlock( shader->shader, "bgd_Vertex", "bgd_TexCoord", "bgd_Color", "bgd_ModelViewProjectionMatrix" );
+
 //    GPU_ActivateShaderProgram( shader->shader, &shader->block );
 
     return shader;

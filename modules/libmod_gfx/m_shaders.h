@@ -31,6 +31,10 @@
 
 #include "bgddl.h"
 
+extern int64_t libmod_gfx_shader_get_language( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_get_min_version( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_shader_get_max_version( INSTANCE * my, int64_t * params );
+
 extern int64_t libmod_gfx_shader_create( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_shader_free(  INSTANCE * my, int64_t * params );
 

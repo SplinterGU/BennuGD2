@@ -476,6 +476,10 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     /* shaders */
 
+    FUNC( "SHADER_GET_LANGUAGE"         , ""               , TYPE_INT        , libmod_gfx_shader_get_language          ),
+    FUNC( "SHADER_GET_MIN_VERSION"      , ""               , TYPE_INT        , libmod_gfx_shader_get_min_version       ),
+    FUNC( "SHADER_GET_MAX_VERSION"      , ""               , TYPE_INT        , libmod_gfx_shader_get_max_version       ),
+
     FUNC( "SHADER_CREATE"               , "SS"             , TYPE_POINTER    , libmod_gfx_shader_create                ),
     FUNC( "SHADER_FREE"                 , "P"              , TYPE_INT        , libmod_gfx_shader_free                  ),
 
