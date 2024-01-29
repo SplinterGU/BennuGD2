@@ -276,6 +276,7 @@ char * __bgdexport( libbginput, globals_def ) =
     "   INT blendmode=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
     "   UINT * shader=NULL;\n"
+    "   INT * shader_params=NULL;"
     "END\n"
     ;
 

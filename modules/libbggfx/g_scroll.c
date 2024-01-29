@@ -305,6 +305,7 @@ void scroll_draw( int64_t n, REGION * clipping ) {
         }
 
         shader_activate( data->shader2 );
+        if ( data->shader_params2 ) shader_apply_parameters( data->shader_params2 );
 
         y = scrolls[n].region->y - scrolls[n].y1;
         while ( y < scrolls[n].region->y2 ) {
@@ -347,6 +348,7 @@ void scroll_draw( int64_t n, REGION * clipping ) {
         }
 
         shader_activate( data->shader1 );
+        if ( data->shader_params1 ) shader_apply_parameters( data->shader_params1 );
 
         y = scrolls[n].region->y - scrolls[n].y0;
         while ( y < scrolls[n].region->y2 ) {

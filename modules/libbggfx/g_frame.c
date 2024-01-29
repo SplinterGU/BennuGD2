@@ -233,6 +233,8 @@ void gr_draw_frame() {
         if ( sizex == 100.0 && sizey == 100.0 ) sizex = sizey = GLODOUBLE( libbggfx, BACKGROUND_SIZE );
 
         shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbggfx, BACKGROUND_SHADER_ID ) );
+        BGD_SHADER_PARAMETERS * shader_params = * ( BGD_SHADER_PARAMETERS ** ) GLOADDR( libbggfx, BACKGROUND_SHADER_PARAMS );
+        if ( shader_params ) shader_apply_parameters( shader_params );
 
         gr_blit( NULL,
                  NULL,

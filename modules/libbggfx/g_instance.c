@@ -175,6 +175,8 @@ void draw_instance_at( INSTANCE * i, REGION * region, double x, double y, GRAPH 
     }
 
     shader_activate( * ( BGD_SHADER ** ) LOCADDR( libbggfx, i, SHADER_ID ) );
+    BGD_SHADER_PARAMETERS * shader_params = * ( BGD_SHADER_PARAMETERS ** ) LOCADDR( libbggfx, i, SHADER_PARAMS );
+    if ( shader_params ) shader_apply_parameters( shader_params );
 
     gr_blit(    dest,
                 region,
@@ -260,6 +262,8 @@ void draw_instance( void * what, REGION * clip ) {
     }
 
     shader_activate( * ( BGD_SHADER ** ) LOCADDR( libbggfx, i, SHADER_ID ) );
+    BGD_SHADER_PARAMETERS * shader_params = * ( BGD_SHADER_PARAMETERS ** ) LOCADDR( libbggfx, i, SHADER_PARAMS );
+    if ( shader_params ) shader_apply_parameters( shader_params );
 
     gr_blit(    map_dst,
                 &region,

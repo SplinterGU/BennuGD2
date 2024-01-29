@@ -296,6 +296,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   INT blendmode=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
     "   UINT * shader=NULL;\n"
+    "   INT * shader_params=NULL;"
     "END\n"
 
     /* backgound */
@@ -313,6 +314,7 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   INT blendmode=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
     "   UINT * shader=NULL;\n"
+    "   INT * shader_params=NULL;"
     "END\n"
 
     /* scroll */
@@ -343,7 +345,9 @@ char * __bgdexport( libbggfx, globals_def ) =
     "   INT blendmode2=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode2;\n"
     "   UINT * shader1=NULL;\n"
+    "   INT * shader_params1=NULL;"
     "   UINT * shader2=NULL;\n"
+    "   INT * shader_params2=NULL;"
     "END\n"
     ;
 
@@ -390,7 +394,8 @@ char * __bgdexport( libbggfx, locals_def ) =
     "INT blendmode=" TOSTRING(BLEND_DISABLED) ";\n"
     "G_CUSTOM_BLENDMODE custom_blendmode;\n"
 
-    "UINT * shader = NULL;\n"
+    "UINT * shader=NULL;\n"
+    "INT * shader_params=NULL;"
     ;
 #endif
 

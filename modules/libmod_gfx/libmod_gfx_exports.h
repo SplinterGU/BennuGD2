@@ -133,8 +133,33 @@ DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
     { "MEDIA_TRACK_AUDIO"       , TYPE_INT      , MEDIA_TRACK_AUDIO                     },
     { "MEDIA_TRACK_VIDEO"       , TYPE_INT      , MEDIA_TRACK_VIDEO                     },
     { "MEDIA_TRACK_SUBTITLE"    , TYPE_INT      , MEDIA_TRACK_SUBTITLE                  },
-
 #endif
+
+    { "SHADER_IMAGE"            , TYPE_INT      , SHADER_IMAGE                          },
+#if 0
+    { "ATTRIBUTE_INT"           , TYPE_INT      , ATTRIBUTE_INT                         },
+    { "ATTRIBUTE_INT_ARRAY"     , TYPE_INT      , ATTRIBUTE_INT_ARRAY                   },
+    { "ATTRIBUTE_UINT"          , TYPE_INT      , ATTRIBUTE_UINT                        },
+    { "ATTRIBUTE_UINT_ARRAY"    , TYPE_INT      , ATTRIBUTE_UINT_ARRAY                  },
+    { "ATTRIBUTE_FLOAT"         , TYPE_INT      , ATTRIBUTE_FLOAT                       },
+    { "ATTRIBUTE_FLOAT_ARRAY"   , TYPE_INT      , ATTRIBUTE_FLOAT_ARRAY                 },
+#endif
+    { "UNIFORM_INT"             , TYPE_INT      , UNIFORM_INT                           },
+    { "UNIFORM_INT_ARRAY"       , TYPE_INT      , UNIFORM_INT_ARRAY                     },
+    { "UNIFORM_INT2_ARRAY"      , TYPE_INT      , UNIFORM_INT2_ARRAY                    },
+    { "UNIFORM_INT3_ARRAY"      , TYPE_INT      , UNIFORM_INT3_ARRAY                    },
+    { "UNIFORM_INT4_ARRAY"      , TYPE_INT      , UNIFORM_INT4_ARRAY                    },
+    { "UNIFORM_UINT"            , TYPE_INT      , UNIFORM_UINT                          },
+    { "UNIFORM_UINT_ARRAY"      , TYPE_INT      , UNIFORM_UINT_ARRAY                    },
+    { "UNIFORM_UINT2_ARRAY"     , TYPE_INT      , UNIFORM_UINT2_ARRAY                   },
+    { "UNIFORM_UINT3_ARRAY"     , TYPE_INT      , UNIFORM_UINT3_ARRAY                   },
+    { "UNIFORM_UINT4_ARRAY"     , TYPE_INT      , UNIFORM_UINT4_ARRAY                   },
+    { "UNIFORM_FLOAT"           , TYPE_INT      , UNIFORM_FLOAT                         },
+    { "UNIFORM_FLOAT_ARRAY"     , TYPE_INT      , UNIFORM_FLOAT_ARRAY                   },
+    { "UNIFORM_FLOAT2_ARRAY"    , TYPE_INT      , UNIFORM_FLOAT2_ARRAY                  },
+    { "UNIFORM_FLOAT3_ARRAY"    , TYPE_INT      , UNIFORM_FLOAT3_ARRAY                  },
+    { "UNIFORM_FLOAT4_ARRAY"    , TYPE_INT      , UNIFORM_FLOAT4_ARRAY                  },
+    { "UNIFORM_MATRIX"          , TYPE_INT      , UNIFORM_MATRIX                        },
 
     { NULL                  , 0                 , 0                                     }
 } ;
@@ -487,35 +512,18 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "SHADER_SELECT"               , "P"              , TYPE_INT        , libmod_gfx_shader_activate              ),
     FUNC( "SHADER_DEACTIVATE"           , ""               , TYPE_INT        , libmod_gfx_shader_deactivate            ),
 
+#if 0
     FUNC( "SHADER_GETATTRIBUTELOCATION" , "PS"             , TYPE_INT        , libmod_gfx_shader_getattributelocation  ),
-    FUNC( "SHADER_GETUNIFORMLOCATION"   , "PS"             , TYPE_INT        , libmod_gfx_shader_getuniformlocation    ),
+#endif
+    FUNC( "SHADER_GET_PARAM_LOCATION"   , "PS"             , TYPE_INT        , libmod_gfx_shader_getuniformlocation    ),
 
-    FUNC( "SHADER_SETSHADERIMAGE"       , "IIII"           , TYPE_INT        , libmod_gfx_shader_setshaderimage        ),
+    FUNC( "SHADER_CREATE_PARAMS"        , "I"              , TYPE_POINTER    , libmod_gfx_shader_create_parameters     ),
 
-    FUNC( "SHADER_SETATTRIBUTEI"        , "Ii"             , TYPE_INT        , libmod_gfx_shader_setattributei         ),
-    FUNC( "SHADER_SETATTRIBUTEIV"       , "IIP"            , TYPE_INT        , libmod_gfx_shader_setattributeiv        ),
-    FUNC( "SHADER_SETATTRIBUTEUI"       , "Ii"             , TYPE_INT        , libmod_gfx_shader_setattributeui        ),
-    FUNC( "SHADER_SETATTRIBUTEUIV"      , "IIP"            , TYPE_INT        , libmod_gfx_shader_setattributeuiv       ),
-    FUNC( "SHADER_SETATTRIBUTEF"        , "IF"             , TYPE_INT        , libmod_gfx_shader_setattributef         ),
-    FUNC( "SHADER_SETATTRIBUTEFV"       , "IIP"            , TYPE_INT        , libmod_gfx_shader_setattributefv        ),
-
-    FUNC( "SHADER_SETUNIFORMI"          , "Ii"             , TYPE_INT        , libmod_gfx_shader_setuniformi           ),
-    FUNC( "SHADER_SETUNIFORMIV"         , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniformiv          ),
-    FUNC( "SHADER_SETUNIFORM2IV"        , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform2iv         ),
-    FUNC( "SHADER_SETUNIFORM3IV"        , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform3iv         ),
-    FUNC( "SHADER_SETUNIFORM4IV"        , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform4iv         ),
-    FUNC( "SHADER_SETUNIFORMUI"         , "Ii"             , TYPE_INT        , libmod_gfx_shader_setuniformui          ),
-    FUNC( "SHADER_SETUNIFORMUIV"        , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniformuiv         ),
-    FUNC( "SHADER_SETUNIFORM2UIV"       , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform2uiv        ),
-    FUNC( "SHADER_SETUNIFORM3UIV"       , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform3uiv        ),
-    FUNC( "SHADER_SETUNIFORM4UIV"       , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform4uiv        ),
-    FUNC( "SHADER_SETUNIFORMF"          , "IF"             , TYPE_INT        , libmod_gfx_shader_setuniformf           ),
-    FUNC( "SHADER_SETUNIFORMFV"         , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniformfv          ),
-    FUNC( "SHADER_SETUNIFORM2FV"        , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform2fv         ),
-    FUNC( "SHADER_SETUNIFORM3FV"        , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform3fv         ),
-    FUNC( "SHADER_SETUNIFORM4FV"        , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniform4fv         ),
-
-    FUNC( "SHADER_SETUNIFORMMATRIX"     , "IIP"            , TYPE_INT        , libmod_gfx_shader_setuniformmatrix      ),
+    FUNC( "SHADER_SET_PARAM"            , "PIII"           , TYPE_INT        , libmod_gfx_shader_setparam              ),
+    FUNC( "SHADER_SET_PARAM"            , "PIIF"           , TYPE_INT        , libmod_gfx_shader_setparam_float        ),
+    FUNC( "SHADER_SET_PARAM"            , "PIIIII"         , TYPE_INT        , libmod_gfx_shader_setparam_image        ),
+    FUNC( "SHADER_SET_PARAM"            , "PIIIP"          , TYPE_INT        , libmod_gfx_shader_setparam_vector       ),
+    FUNC( "SHADER_SET_PARAM"            , "PIIPIIIII"      , TYPE_INT        , libmod_gfx_shader_setparam_matrix       ),
 
 #ifdef LIBVLC_ENABLED
     /* MEDIA */

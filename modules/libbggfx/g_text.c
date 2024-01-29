@@ -770,7 +770,11 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
     int64_t blend_mode = GLOQWORD( libbggfx, TEXT_BLEND_MODE );
     CUSTOM_BLENDMODE * custom_blend_mode = GLOADDR( libbggfx, TEXT_CUSTOM_BLEND_MODE );
 
-    if ( !dest )    shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbggfx, TEXT_SHADER_ID ) );
+    if ( !dest )    {
+        shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbggfx, TEXT_SHADER_ID ) );
+        BGD_SHADER_PARAMETERS * shader_params = * ( BGD_SHADER_PARAMETERS ** ) GLOADDR( libbggfx, TEXT_SHADER_PARAMS );
+        if ( shader_params ) shader_apply_parameters( shader_params );
+    }
     else            shader_deactivate();
 
     if ( f->fontmap ) {

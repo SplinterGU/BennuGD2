@@ -28,12 +28,51 @@
 #ifndef __G_SHADERS_H
 #define __G_SHADERS_H
 
+#ifdef USE_SDL2_GPU
 #define SHADER_LANGUAGE_NONE            GPU_LANGUAGE_NONE
 #define SHADER_LANGUAGE_ARB_ASSEMBLY    GPU_LANGUAGE_ARB_ASSEMBLY
 #define SHADER_LANGUAGE_GLSL            GPU_LANGUAGE_GLSL
 #define SHADER_LANGUAGE_GLSLES          GPU_LANGUAGE_GLSLES
 #define SHADER_LANGUAGE_HLSL            GPU_LANGUAGE_HLSL
 #define SHADER_LANGUAGE_CG              GPU_LANGUAGE_CG
+#else
+#define SHADER_LANGUAGE_NONE            -1
+#define SHADER_LANGUAGE_ARB_ASSEMBLY    -1
+#define SHADER_LANGUAGE_GLSL            -1
+#define SHADER_LANGUAGE_GLSLES          -1
+#define SHADER_LANGUAGE_HLSL            -1
+#define SHADER_LANGUAGE_CG              -1
+#endif
+
+
+// Define los tipos de atributo y uniforme
+enum {
+    SHADER_IMAGE,
+#if 0
+    ATTRIBUTE_INT,
+    ATTRIBUTE_INT_ARRAY,
+    ATTRIBUTE_UINT,
+    ATTRIBUTE_UINT_ARRAY,
+    ATTRIBUTE_FLOAT,
+    ATTRIBUTE_FLOAT_ARRAY,
+#endif
+    UNIFORM_INT,
+    UNIFORM_INT_ARRAY,
+    UNIFORM_INT2_ARRAY,
+    UNIFORM_INT3_ARRAY,
+    UNIFORM_INT4_ARRAY,
+    UNIFORM_UINT,
+    UNIFORM_UINT_ARRAY,
+    UNIFORM_UINT2_ARRAY,
+    UNIFORM_UINT3_ARRAY,
+    UNIFORM_UINT4_ARRAY,
+    UNIFORM_FLOAT,
+    UNIFORM_FLOAT_ARRAY,
+    UNIFORM_FLOAT2_ARRAY,
+    UNIFORM_FLOAT3_ARRAY,
+    UNIFORM_FLOAT4_ARRAY,
+    UNIFORM_MATRIX
+};
 
 /* --------------------------------------------------------------------------- */
 
@@ -42,8 +81,39 @@ typedef struct {
     uint32_t shader;
     GPU_ShaderBlock block;
 } BGD_SHADER;
+
+typedef struct {
+    int type;
+    int location;
+
+    /* for shader_image begin */
+    int image_unit;
+    /* for shader_image end */
+
+    /* for matrix begin */
+    int num_matrices;
+    int num_rows;
+    int num_columns;
+    int transpose;
+    /* for matrix end */
+
+    int n_values;
+    union {
+        int32_t value;
+        uint32_t uvalue;
+        float fvalue;
+        void * values;
+    };
+} BGD_SHADER_PARAM;
+
+typedef struct {
+    uint32_t nparams;
+    BGD_SHADER_PARAM *params;
+} BGD_SHADER_PARAMETERS;
 #else
 typedef void BGD_SHADER;
+typedef void BGD_SHADER_PARAM;
+typedef void BGD_SHADER_PARAMETERS;
 #endif
 
 /* --------------------------------------------------------------------------- */
@@ -62,33 +132,16 @@ extern void shader_free( BGD_SHADER * shader );
 extern void shader_activate( BGD_SHADER * shader );
 extern void shader_deactivate( void );
 
+#if 0
 extern int shader_getattributelocation( BGD_SHADER * shader, const char * name );
+#endif
+
 extern int shader_getuniformlocation( BGD_SHADER * shader, const char * name );
-extern void shader_setshaderimage( GRAPH * image, int location, int image_unit );
 
-extern void shader_setattributei( int location, int32_t value );
-extern void shader_setattributeiv( int location, int nvalues, int32_t * values );
-extern void shader_setattributeui( int location, uint32_t value );
-extern void shader_setattributeuiv( int location, int nvalues, uint32_t * values );
-extern void shader_setattributef( int location, float value );
-extern void shader_setattributefv( int location, int nvalues, float * values );
-
-extern void shader_setuniformi( int location, int32_t value );
-extern void shader_setuniformiv( int location, int nvalues, int32_t * values );
-extern void shader_setuniform2iv( int location, int nvalues, int32_t * values );
-extern void shader_setuniform3iv( int location, int nvalues, int32_t * values );
-extern void shader_setuniform4iv( int location, int nvalues, int32_t * values );
-extern void shader_setuniformui( int location, uint32_t value );
-extern void shader_setuniformuiv( int location, int nvalues, uint32_t * values );
-extern void shader_setuniform2uiv( int location, int nvalues, uint32_t * values );
-extern void shader_setuniform3uiv( int location, int nvalues, uint32_t * values );
-extern void shader_setuniform4uiv( int location, int nvalues, uint32_t * values );
-extern void shader_setuniformf( int location, float value );
-extern void shader_setuniformfv( int location, int nvalues, float * values );
-extern void shader_setuniform2fv( int location, int nvalues, float * values );
-extern void shader_setuniform3fv( int location, int nvalues, float * values );
-extern void shader_setuniform4fv( int location, int nvalues, float * values );
-extern void shader_setuniformmatrix( int location, int num_matrices, int num_rows, int num_columns, int transpose, float * values );
+extern int shader_set_param( BGD_SHADER_PARAMETERS * params, int type, int location, int n_values, void *values, int image_unit, int num_matrices, int num_rows, int num_columns, int transpose );
+extern BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params );
+extern void shader_free_parameters( BGD_SHADER_PARAMETERS* params );
+extern void shader_apply_parameters( BGD_SHADER_PARAMETERS* params );
 
 /* --------------------------------------------------------------------------- */
 

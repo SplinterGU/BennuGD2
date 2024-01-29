@@ -187,6 +187,8 @@ static void mouse_draw( void * what, REGION * clip ) {
     if ( sizex == 100.0 && sizey == 100.0 ) sizex = sizey = GLODOUBLE( libbginput, MOUSESIZE );
 
     shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbginput, MOUSE_SHADER_ID ) );
+    BGD_SHADER_PARAMETERS * shader_params = * ( BGD_SHADER_PARAMETERS ** ) GLOADDR( libbginput, MOUSE_SHADER_PARAMS ); 
+    if ( shader_params ) shader_apply_parameters( shader_params );
 
     gr_blit(    0,
                 &region,
