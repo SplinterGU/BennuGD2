@@ -116,6 +116,9 @@ typedef struct {
 #endif
     } * segments;
 
+    // used for get_pixel
+    int dirty; // used for get_pixel
+
 } GRAPH;
 
 /* --------------------------------------------------------------------------- */

@@ -162,6 +162,8 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
     gr->nsegments = 0;
     gr->segments = NULL;
 
+    gr->dirty = 1;
+
     return gr;
 }
 

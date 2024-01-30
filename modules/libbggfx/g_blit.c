@@ -413,7 +413,11 @@ int gr_prepare_renderer( GRAPH * dest, REGION * clip, int64_t flags, BLENDMODE *
         }
     }
 
-    if ( dest ) SDL_SetRenderTarget( gRenderer, dest->tex );
+    if ( dest ) {
+        SDL_SetRenderTarget( gRenderer, dest->tex );
+        dest->dirty = 1;
+    }
+
 //    if ( dest ) { SDL_SetRenderTarget( gRenderer, dest->tex ); SDL_SetTextureBlendMode( dest->tex, SDL_BLENDMODE_NONE ); }
 
     SDL_RenderSetClipRect( gRenderer, &rect );
@@ -733,6 +737,8 @@ void gr_blit(   GRAPH * dest,
 
             GPU_Target * dst = dest ? dest->tex->target : gRenderer;
 
+            if ( dest ) dest->dirty = 1;
+
             GPU_BlitTransformX( tex, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx - offx, ( float ) centery - offy, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
 #endif
         }
@@ -760,6 +766,8 @@ void gr_blit(   GRAPH * dest,
         if ( gr->tex->filter_mode != gr_filter_mode ) GPU_SetImageFilter( gr->tex, gr_filter_mode );
 
         GPU_Target * dst = dest ? dest->tex->target : gRenderer;
+
+        if ( dest ) dest->dirty = 1;
 
         GPU_BlitTransformX( gr->tex, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
 #endif

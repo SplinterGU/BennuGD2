@@ -44,7 +44,7 @@
  *      1, 8 or 16-bit integer with the pixel value
  *
  */
-
+#if 0
 int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
     if ( !gr ) return -1;
 
@@ -89,6 +89,77 @@ int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
     return SDL_MapRGBA( gPixelFormat, c.r, c.g, c.b, c.a );
 #endif
 }
+#else
+
+int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
+
+    if ( !gr ) return -1;
+
+    if ( x < 0 || y < 0 ) return -1;
+
+    if ( gr_create_image_for_graph( gr ) ) return -1;
+
+    if ( !gr->tex ) return -1;
+
+    if ( gr->dirty ) {
+        if ( gr->surface ) {
+            SDL_FreeSurface( gr->surface );
+            gr->surface = NULL;
+        }
+
+#ifdef USE_SDL2
+        SDL_Texture * auxTexture = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, ( int64_t ) gr->width, ( int64_t ) gr->height );
+        if ( !auxTexture ) return -1;
+        SDL_SetRenderTarget( gRenderer, auxTexture );
+
+        SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
+        SDL_RenderClear( gRenderer );
+
+        SDL_SetTextureBlendMode( auxTexture, SDL_BLENDMODE_NONE );
+
+        SDL_RenderCopy( gRenderer, gr->tex, NULL, NULL );
+
+        SDL_Surface * surface = SDL_CreateRGBSurface(0, ( int64_t ) gr->width, ( int64_t ) gr->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
+        if ( !surface ) {
+            SDL_DestroyTexture( auxTexture );
+            SDL_SetRenderTarget( gRenderer, NULL );
+            return -1;
+        }
+
+        SDL_SetColorKey( surface, SDL_FALSE, 0 );
+
+        int r = SDL_RenderReadPixels( gRenderer, NULL, gPixelFormat->format, surface->pixels, surface->pitch );
+
+        SDL_DestroyTexture( auxTexture );
+        SDL_SetRenderTarget( gRenderer, NULL );
+
+        if ( r != 0 ) {
+            SDL_FreeSurface( surface );
+            return -1;
+        }
+#endif
+#ifdef USE_SDL2_GPU
+        SDL_Surface * auxSurface = GPU_CopySurfaceFromImage( gr->tex );
+        if ( !auxSurface ) return -1;
+        SDL_PixelFormat * fmt = SDL_AllocFormat( gPixelFormat->format );
+        if ( !fmt ) {
+            SDL_FreeSurface( auxSurface );
+            return -1;
+        }
+        SDL_Surface * surface = SDL_ConvertSurface( auxSurface, fmt, 0 );
+        SDL_FreeSurface( auxSurface );
+        SDL_FreeFormat( fmt );
+        if ( !surface ) return -1;
+#endif
+        gr->surface = surface;
+        gr->dirty = 0;
+    }
+
+    if ( x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return -1;
+
+    return *( uint32_t * ) ( ( ( uint8_t * ) gr->surface->pixels ) + ( y * gr->surface->pitch + x * 4 ) );
+}
+#endif
 
 /* --------------------------------------------------------------------------- */
 /*
@@ -136,6 +207,8 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
     SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a ) ;
     // +1 for GPU_Pixel bug???
     GPU_Pixel( gr->tex->target, ( float ) x + 1, ( float ) y + 1, c );
+
+    gr->dirty = 1;
 #endif
 }
 

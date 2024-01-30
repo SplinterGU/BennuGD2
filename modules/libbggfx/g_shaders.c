@@ -159,6 +159,7 @@ int shader_set_param(   BGD_SHADER_PARAMETERS * params,
                         int num_columns,
                         int transpose )
 {
+#ifdef USE_SDL2_GPU
     BGD_SHADER_PARAM *param = NULL;
 
     for ( int i = 0; i < params->nparams; ++i ) {
@@ -186,12 +187,16 @@ int shader_set_param(   BGD_SHADER_PARAMETERS * params,
     param->transpose = transpose;
 
     return 0;
+#else
+    return 0;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 // Create and fill a BGD_SHADER_PARAMETERS structure
 BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params ) {
+#ifdef USE_SDL2_GPU
     BGD_SHADER_PARAMETERS* params = (BGD_SHADER_PARAMETERS*)malloc(sizeof(BGD_SHADER_PARAMETERS));
     if (!params) {
         // Handle memory allocation error
@@ -209,16 +214,21 @@ BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params ) {
     for ( int i = 0; i < num_params; ++i ) params->params[ i ].type = params->params[ i ].location = -1;
 
     return params;
+#else
+    return 0;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
 
 // Free the memory allocated for BGD_SHADER_PARAMETERS
 void shader_free_parameters( BGD_SHADER_PARAMETERS* params ) {
+#ifdef USE_SDL2_GPU
     if (params) {
         free(params->params);
         free(params);
     }
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
