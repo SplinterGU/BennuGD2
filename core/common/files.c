@@ -101,6 +101,10 @@ int file_read( file * fp, void * buffer, int len ) {
 
         gzseek( fp->gz, fp->pos, SEEK_SET );
         result = gzread( fp->gz, buffer, len );
+        if ( result < 0 ) {
+            fp->error = 1;
+            result = 0;
+        }
         fp->pos = gztell( fp->gz );
         return result;
     }
@@ -108,7 +112,10 @@ int file_read( file * fp, void * buffer, int len ) {
     if ( fp->type == F_GZFILE ) {
         int result = gzread( fp->gz, buffer, len );
         fp->error = ( result < len );
-        if ( result < 0 ) result = 0;
+        if ( result < 0 ) {
+            fp->error = 1;
+            result = 0;
+        }
         return result;
     }
 
@@ -169,7 +176,6 @@ int file_qgets( file * fp, char * buffer, int len ) {
     else if ( fp->type == F_GZFILE ) {
         result = gzgets( fp->gz, buffer, len );
     }
-
     else {
         result = fgets( buffer, len, fp->fp );
     }
@@ -224,7 +230,6 @@ int file_gets( file * fp, char * buffer, int len ) {
     else if ( fp->type == F_GZFILE ) {
         result = gzgets( fp->gz, buffer, len );
     }
-
     else {
         result = fgets( buffer, len, fp->fp );
     }
@@ -469,7 +474,7 @@ int file_write( file * fp, void * buffer, int len ) {
     if ( fp->type == F_GZFILE ) {
         int result = gzwrite( fp->gz, buffer, len );
         if ( ( fp->error = ( result < 0 ) ) ) result = 0;
-        return ( result < len ) ? 0 : len;
+        return result;
     }
 
     return fwrite( buffer, 1, len, fp->fp );
@@ -530,9 +535,12 @@ int file_seek( file * fp, long pos, int where ) {
     if ( fp->type == F_GZFILE ) {
         assert( fp->gz );
         if ( where == SEEK_END ) {
-            char buffer[8192];
+            char buffer[1024];
             while ( !file_eof( fp ) ) file_read( fp, buffer, sizeof(buffer) );
-            return gztell( fp->gz ) + pos;
+            fp->error = 0;
+            pos += file_pos( fp );
+            if ( pos < 0 ) pos = 0;
+            where = SEEK_SET;
         }
         return gzseek( fp->gz, pos, where );
     }
