@@ -532,7 +532,7 @@ int file_seek( file * fp, long pos, int where ) {
         if ( where == SEEK_END ) {
             char buffer[8192];
             while ( !file_eof( fp ) ) file_read( fp, buffer, sizeof(buffer) );
-            pos = gztell( fp->gz ) + pos;
+            return gztell( fp->gz ) + pos;
         }
         return gzseek( fp->gz, pos, where );
     }
