@@ -58,6 +58,7 @@ DLSYSFUNCS  __bgdexport( libmod_socks, functions_exports )[] = {
     FUNC( "TCP_WAIT"                    , "PIIP"        , TYPE_INT      , libmod_socks_tcp_wait                             ),
     FUNC( "TCP_CLOSE"                   , "I"           , TYPE_INT      , libmod_socks_tcp_close                            ),
     FUNC( "TCP_GETAVAILABLEBYTES"       , "I"           , TYPE_INT      , libmod_socks_tcp_getavailablebytes                ),
+    FUNC( "TCP_GETREMOTEADDR"           , "I"           , TYPE_STRING   , libmod_socks_tcp_getremoteaddr                    ),
 
     FUNC( 0                             , 0             , 0             , 0                                                 )
 };

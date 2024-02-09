@@ -47,6 +47,7 @@ extern int64_t libmod_socks_tcp_recv( INSTANCE *my, int64_t *params );
 extern int64_t libmod_socks_tcp_wait( INSTANCE *my, int64_t *params );
 extern int64_t libmod_socks_tcp_close( INSTANCE *my, int64_t *params );
 extern int64_t libmod_socks_tcp_getavailablebytes( INSTANCE *my, int64_t *params );
+extern int64_t libmod_socks_tcp_getremoteaddr( INSTANCE *my, int64_t *params );
 
 /* --------------------------------------------------------------------------- */
 

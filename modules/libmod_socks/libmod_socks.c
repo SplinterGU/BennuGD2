@@ -40,7 +40,7 @@ static int socks_initialized = 0;
 
 /* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_socks_tcp_listen( INSTANCE *my, int64_t *params ) {
+int64_t libmod_socks_tcp_listen( INSTANCE *my, int64_t *params ) {
     int64_t r = tcp_listen( ( char * ) string_get( params[0] ), params[ 1 ] );
     string_discard( params[0] );
     return r;
@@ -48,13 +48,13 @@ extern int64_t libmod_socks_tcp_listen( INSTANCE *my, int64_t *params ) {
 
 /* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_socks_tcp_accept( INSTANCE *my, int64_t *params ) {
+int64_t libmod_socks_tcp_accept( INSTANCE *my, int64_t *params ) {
     return tcp_accept( params[ 0 ] );
 }
 
 /* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_socks_tcp_connect( INSTANCE *my, int64_t *params ) {
+int64_t libmod_socks_tcp_connect( INSTANCE *my, int64_t *params ) {
     int64_t r = tcp_connect( ( char * ) string_get( params[0] ), params[ 1 ], params[ 2 ] );
     string_discard( params[0] );
     return r;
@@ -62,33 +62,48 @@ extern int64_t libmod_socks_tcp_connect( INSTANCE *my, int64_t *params ) {
 
 /* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_socks_tcp_send( INSTANCE *my, int64_t *params ) {
+int64_t libmod_socks_tcp_send( INSTANCE *my, int64_t *params ) {
     return tcp_send( params[ 0 ], ( char * ) params[ 1 ], params[ 2 ] );
 }
 
 /* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_socks_tcp_recv( INSTANCE *my, int64_t *params ) {
+int64_t libmod_socks_tcp_recv( INSTANCE *my, int64_t *params ) {
     return tcp_recv( params[ 0 ], ( char * ) params[ 1 ], params[ 2 ] );
 }
 
 /* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_socks_tcp_wait( INSTANCE *my, int64_t *params ) {
+int64_t libmod_socks_tcp_wait( INSTANCE *my, int64_t *params ) {
     return tcp_wait( ( SOCKET * ) params[ 0 ], params[ 1 ], params[ 2 ], ( SOCKET * ) params[ 3 ] );
 }
 
 /* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_socks_tcp_close( INSTANCE *my, int64_t *params ) {
+int64_t libmod_socks_tcp_close( INSTANCE *my, int64_t *params ) {
     tcp_close( params[ 0 ] );
     return 0;
 }
 
 /* --------------------------------------------------------------------------- */
 
-extern int64_t libmod_socks_tcp_getavailablebytes( INSTANCE *my, int64_t *params ) {
+int64_t libmod_socks_tcp_getavailablebytes( INSTANCE *my, int64_t *params ) {
     return tcp_getavailablebytes( params[ 0 ] );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_socks_tcp_getremoteaddr( INSTANCE *my, int64_t *params ) {
+    int64_t r = 0;
+    char * ip = tcp_getremoteaddr( params[ 0 ] );
+    if ( ip ) {
+        r = string_new( ip ) ;
+        free( ip );
+    } else {
+        r = string_new( "" ) ;
+    }
+    string_use( r ) ;
+    return r ;
 }
 
 /* --------------------------------------------------------------------------- */

@@ -62,6 +62,7 @@
     void tcp_close( SOCKET socket );
     int tcp_getavailablebytes( SOCKET socket );
     int tcp_getReceiveBufferSize( SOCKET socket );
+    char * tcp_getremoteaddr( SOCKET socket );
 
     /* --------------------------------------------------------------------------- */
 

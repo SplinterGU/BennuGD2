@@ -72,7 +72,7 @@ SOCKET udp_bind(char *sAddr, int nPort) {
             continue;
         }
 
-        setsockopt(udpSocket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+        setsockopt(udpSocket, SOL_SOCKET, SO_REUSEADDR, ( const char * ) &(int){1}, sizeof(int));
 
         if (!bind(udpSocket, rp->ai_addr, rp->ai_addrlen)) {
             break;  // Successful bind, exit the loop

@@ -25,6 +25,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -79,7 +80,6 @@ SOCKET tcp_listen(char *sAddr, int nPort) {
     snprintf(strPort, sizeof(strPort), "%d", nPort);
 
     if (getaddrinfo(sAddr, strPort, &hints, &result) != 0) {
-        printf("Error obtaining information about IP address or hostname\n");
         return -1;
     }
 
@@ -89,11 +89,11 @@ SOCKET tcp_listen(char *sAddr, int nPort) {
             continue;
         }
 
-        setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+        setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, ( const char * ) &(int){1}, sizeof(int));
 
         // Configure other sockopt (KEEPALIVE, NODELAY, DONTROUTE)
-        setsockopt(listenSocket, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
-        setsockopt(listenSocket, IPPROTO_TCP, TCP_NODELAY, &(int){1}, sizeof(int));
+        setsockopt(listenSocket, SOL_SOCKET, SO_KEEPALIVE, ( const char * ) &(int){1}, sizeof(int));
+        setsockopt(listenSocket, IPPROTO_TCP, TCP_NODELAY, ( const char * ) &(int){1}, sizeof(int));
 //        setsockopt(listenSocket, SOL_SOCKET, SO_DONTROUTE, &(int){1}, sizeof(int));
 
 #if _WIN32
@@ -171,7 +171,6 @@ SOCKET tcp_connect( char *sHost, int nPort, int nTimeout )
     snprintf(strPort, sizeof(strPort), "%d", nPort);
 
     if (getaddrinfo(sHost, strPort, &hints, &result) != 0) {
-        printf("Error obtaining information about IP address or hostname\n");
         return -1;
     }
 
@@ -181,11 +180,11 @@ SOCKET tcp_connect( char *sHost, int nPort, int nTimeout )
             continue;
         }
 
-        setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+        setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR, ( const char * ) &(int){1}, sizeof(int));
 
         // Configure other sockopt (KEEPALIVE, NODELAY, DONTROUTE)
-        setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
-        setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, &(int){1}, sizeof(int));
+        setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, ( const char * ) &(int){1}, sizeof(int));
+        setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, ( const char * ) &(int){1}, sizeof(int));
 //        setsockopt(clientSocket, SOL_SOCKET, SO_DONTROUTE, &(int){1}, sizeof(int));
 
         if (connect(clientSocket, rp->ai_addr, rp->ai_addrlen) != -1) {
@@ -319,30 +318,33 @@ int tcp_getReceiveBufferSize( SOCKET socket ) {
 
 /* --------------------------------------------------------------------------- */
 
-#if 0
-int tcp_getremoteaddr( SOCKET socket, int type ) {
-    // Obtén la dirección remota
+char * tcp_getremoteaddr( SOCKET socket ) {
     struct sockaddr_storage remoteAddr;
-    socklen_t remoteAddrLen = sizeof(remoteAddr);
-    getpeername(socket, (struct sockaddr*)&remoteAddr, &remoteAddrLen);
+    socklen_t remoteAddrLen = sizeof( remoteAddr );
+
+    if ( getpeername( socket, ( struct sockaddr* ) &remoteAddr, &remoteAddrLen ) == -1 ) return NULL;
+
+    char * ip = NULL, *res = NULL;
 
     if (remoteAddr.ss_family == AF_INET) {
         // IPv4
         struct sockaddr_in* ipv4 = (struct sockaddr_in*)&remoteAddr;
-        char ip[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &(ipv4->sin_addr), ip, INET_ADDRSTRLEN);
-        printf("IPv4 Address: %s\n", ip);
+        ip = malloc( INET_ADDRSTRLEN );
+        if ( !ip ) return NULL;
+        res = ( char * ) inet_ntop(AF_INET, &(ipv4->sin_addr), ip, INET_ADDRSTRLEN);
+
     } else if (remoteAddr.ss_family == AF_INET6) {
         // IPv6
         struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)&remoteAddr;
-        char ip[INET6_ADDRSTRLEN];
-        inet_ntop(AF_INET6, &(ipv6->sin6_addr), ip, INET6_ADDRSTRLEN);
-        printf("IPv6 Address: %s\n", ip);
-    } else {
-        // Otro tipo de dirección (no se espera en un contexto de socket TCP/IP estándar)
-        printf("Dirección de tipo desconocido\n");
+        ip = malloc( INET6_ADDRSTRLEN );
+        if ( !ip ) return NULL;
+        res = ( char * ) inet_ntop(AF_INET6, &(ipv6->sin6_addr), ip, INET6_ADDRSTRLEN);
+
     }
 
-    return 0;
+    if ( !res ) free( ip );
+
+    return res;
 }
-#endif
+
+/* --------------------------------------------------------------------------- */
