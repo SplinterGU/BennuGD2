@@ -101,10 +101,8 @@ int file_read( file * fp, void * buffer, int len ) {
 
         gzseek( fp->gz, fp->pos, SEEK_SET );
         result = gzread( fp->gz, buffer, len );
-        if ( result < 0 ) {
-            fp->error = 1;
-            result = 0;
-        }
+        fp->error = ( result < len );
+        if ( result < 0 ) result = 0;
         fp->pos = gztell( fp->gz );
         return result;
     }
@@ -112,10 +110,7 @@ int file_read( file * fp, void * buffer, int len ) {
     if ( fp->type == F_GZFILE ) {
         int result = gzread( fp->gz, buffer, len );
         fp->error = ( result < len );
-        if ( result < 0 ) {
-            fp->error = 1;
-            result = 0;
-        }
+        if ( result < 0 ) result = 0;
         return result;
     }
 
@@ -473,7 +468,8 @@ int file_write( file * fp, void * buffer, int len ) {
 
     if ( fp->type == F_GZFILE ) {
         int result = gzwrite( fp->gz, buffer, len );
-        if ( ( fp->error = ( result < 0 ) ) ) result = 0;
+        fp->error = ( result < len );
+        if ( result < 0 ) result = 0;
         return result;
     }
 
