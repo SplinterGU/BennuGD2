@@ -32,6 +32,9 @@
         #include <ws2tcpip.h>
         #pragma comment(lib, "ws2_32.lib")
     #else
+#ifdef __SWITCH__
+        #include <sys/socket.h>
+#endif
         #include <arpa/inet.h>
         #include <netdb.h>
         #include <unistd.h>

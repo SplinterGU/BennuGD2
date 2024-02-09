@@ -32,8 +32,12 @@
     #else
         #include <netdb.h>
         #include <netinet/tcp.h>
+#ifdef __SWITCH__
+        #include <sys/socket.h>
+#else
         #include <sys/ipc.h>
         #include <sys/msg.h>
+#endif
         #include <sys/ioctl.h>
 
         #define SOCKET_ERROR    -1
