@@ -24,6 +24,8 @@
  *
  */
 
+#include <errno.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,6 +38,10 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+#endif
+
+#ifdef __SWITCH__
+#include <switch.h>
 #endif
 
 #include "tcp.h"
@@ -54,6 +60,10 @@ int tcp_init() {
     WSAStartup( wVersionRequested, &wsaData );
     if ( wsaData.wVersion != wVersionRequested ) return -1;
 #endif
+#ifdef __SWITCH__
+    // Initialise sockets
+    socketInitialize(NULL);  
+#endif
     return 0;
 }
 
@@ -62,6 +72,9 @@ int tcp_init() {
 void tcp_exit() {
 #ifdef _WIN32
     WSACleanup();
+#endif
+#ifdef __SWITCH__
+    socketExit();
 #endif
 }
 
@@ -251,14 +264,17 @@ int tcp_wait( SOCKET *sockets, int nCount, int nTimeout, SOCKET *events ) {
     fd_set set;
     struct timeval timeout;
     int nSel;
-    int i, n;
+    int i, n, maxfd = 0;
 
     if ( nCount > FD_SETSIZE ) nCount = FD_SETSIZE;
 
     /* Initialize the file descriptor set. */
     FD_ZERO( &set );
 
-    for ( i = 0; i < nCount; i++ ) if ( sockets[i] ) FD_SET( sockets[i], &set );
+    for ( i = 0; i < nCount; i++ ) {
+        if ( sockets[ i ] > maxfd ) maxfd = sockets[ i ];
+        if ( sockets[ i ] ) FD_SET( sockets[i], &set );
+    }
 
     if ( nTimeout != -1 ) {
         /* Initialize the timeout data structure. */
@@ -266,7 +282,10 @@ int tcp_wait( SOCKET *sockets, int nCount, int nTimeout, SOCKET *events ) {
         timeout.tv_usec = ( nTimeout % 1000 ) * 1000;
     }
 
-    nSel = select( FD_SETSIZE, &set, NULL, NULL, ( nTimeout != -1 ) ? &timeout : NULL );
+    if ( maxfd >= FD_SETSIZE ) maxfd = FD_SETSIZE - 2;
+
+    nSel = select( maxfd + 1, &set, NULL, NULL, ( nTimeout != -1 ) ? &timeout : NULL );
+
     if ( nSel > 0 ) {
         n = 0;
         for ( i = 0; i < nCount; i++ ) {

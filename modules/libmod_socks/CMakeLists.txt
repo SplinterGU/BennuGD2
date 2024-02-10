@@ -21,3 +21,6 @@ target_link_libraries(mod_socks ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin bg
 if (WIN32)
     target_link_libraries(mod_socks ws2_32)
 endif()
+if (SWITCH)
+    target_link_libraries(mod_socks nx)
+endif()
