@@ -235,6 +235,9 @@ if [ "$STATIC_ENABLED" == "1" ]
 then
     EXTRA_CFLAGS+=" -D__STATIC__"
     LIBRARY_BUILD_TYPE=STATIC
+    cd core
+    ./make-fakedl.sh
+    cd -
 fi
 
 export PKG_CONFIG_PATH
