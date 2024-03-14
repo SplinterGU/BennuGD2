@@ -13,20 +13,6 @@ import "mod_misc";
 
 #include "jkeys.lib"
 
-declare process Final_boss( double x, y );
-declare process zombie( double x, y, int zombie_type, AI, speed, starting_way );
-declare process player( double x, y );
-declare process shot( double x, y, int z, shot_type, tangle, dmg );
-declare process zombie_shot( double x, y, int z, shot_type, tangle, dmg );
-declare process morter_shot( double x, y, int z, shot_type, tangle, dmg );
-declare process gilza( double x, y, int tangle, speed, gilza_type );
-declare process blood( double x, y, size );
-declare process after_flame( double x, y, size );
-declare process muzzle( double x, y, size, int z, angle, dir );
-declare process death_menu_gfx( double x, y, int z, double size, int alpha, graph );
-declare process fake_flame_scroll( double x, y, int tangle, speed );
-declare process letters( double x, y, int graph, double size );
-
 const
     maximum_number_of_zombies_on_screen = 100;
 
@@ -208,6 +194,20 @@ local
     int insert_dir;
     int weapon_refresh;
     int new_weapon;
+
+declare process Final_boss( double x, y );
+declare process zombie( double x, y, int zombie_type, AI, speed, starting_way );
+declare process player( double x, y );
+declare process shot( double x, y, int z, shot_type, tangle, dmg );
+declare process zombie_shot( double x, y, int z, shot_type, tangle, dmg );
+declare process morter_shot( double x, y, int z, shot_type, tangle, dmg );
+declare process gilza( double x, y, int tangle, speed, gilza_type );
+declare process blood( double x, y, size );
+declare process after_flame( double x, y, size );
+declare process muzzle( double x, y, size, int z, angle, dir );
+declare process death_menu_gfx( double x, y, int z, double size, int alpha, graph );
+declare process fake_flame_scroll( double x, y, int tangle, speed );
+declare process letters( double x, y, int graph, double size );
 
 private
     double axis2_x, axis2_y;

@@ -3,12 +3,13 @@ import "libmod_misc";
 import "libmod_sound";
 import "libmod_input";
 
+include "jkey.lib";
+include "data.inc";
+
 declare PROCESS key_item(control, double y);
 declare PROCESS a_card(double x,y,int base_graph);
 declare PROCESS a_die(double x,y, int tipe);
 
-include "jkey.lib";
-include "data.inc";
 include "l_s.inc";
 include "func.inc";
 include "menu.inc";

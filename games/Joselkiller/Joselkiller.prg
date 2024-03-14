@@ -596,9 +596,12 @@ GLOBAL
     int valor;
 BEGIN
     set_fps( 24, 0 );
-    window_set_title( "Joselkiller: El Ataque de los clones - v1.5" );
+
     screen.fullscreen = 0;
     set_mode( 640, 480 );
+
+    window_set_title( "Joselkiller: El Ataque de los clones - v1.5" );
+
     fpg_load( "fpg/juego.fpg" );
     window_set_icon( 0, 21 );
     sound.channels = 32;

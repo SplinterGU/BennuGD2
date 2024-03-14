@@ -66,9 +66,10 @@ PRIVATE
 	int dot_pos;
 
 BEGIN
-	window_set_title("SudoQ v0.8 - Bombergames Soft 2016");
 	set_fps (60, 1) ;
 	set_mode (320,240);
+
+	window_set_title("SudoQ v0.8 - Bombergames Soft 2016");
 
 	graficos=fpg_load("sudoq.fpg");
 	window_set_icon(graficos,18);

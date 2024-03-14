@@ -56,7 +56,6 @@ end
 
 process jkeys_controller()
 private
-    int i;
     int axis_x, axis_y;
 begin
     signal_action( s_kill, s_ign );
@@ -66,7 +65,7 @@ begin
     signal_action( s_kill, s_dfl );
 
     loop
-        for ( i = 0; i < _JKEY_LAST; i++ )
+        for ( int i = 0; i < _JKEY_LAST; i++ )
             if ( jkeys[i] )
                 jkeys_state[i] = key( jkeys[i] );
             else
