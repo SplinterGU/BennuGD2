@@ -26,12 +26,6 @@
  *
  */
 
-/* --------------------------------------------------------------------------- */
-/* Thanks Sandman for suggest on openjoys at initialization time               */
-/* --------------------------------------------------------------------------- */
-/* Credits SplinterGU/Sandman 2007-2009                                        */
-/* --------------------------------------------------------------------------- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -260,6 +254,8 @@ static void ParseMapping(int64_t joy, const char *pchString)
     char szGameButton[20];
     char szJoystickButton[20];
     SDL_bool parseButton = 1;
+
+    if ( !pchString ) return;
 
     const char *pchPos = pchString;
 
