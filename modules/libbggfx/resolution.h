@@ -30,9 +30,9 @@
 #define __RESOLUTION_H
 
 /* -------------------------------------------------------------------- */
-/* Librer�a gráfica                                                     */
+/* Libreria gráfica                                                     */
 /* -------------------------------------------------------------------- */
-
+#if 0
 #define RESOLXY(m,r,x,y)                                            \
     {                                                               \
         int64_t res = LOCINT64(m, r, RESOLUTION );                  \
@@ -66,5 +66,33 @@
             ( z ) *= -res;                                          \
         }                                                           \
     }
+#else
+#define RESOLXY(m,r,x,y)                                            \
+    {                                                               \
+        int64_t res = LOCINT64(m, r, RESOLUTION );                  \
+        if ( res > 0 ) {                                            \
+            ( x ) /= res;                                           \
+            ( y ) /= res;                                           \
+        } else if ( res < 0 ) {                                     \
+            ( x ) *= -res;                                          \
+            ( y ) *= -res;                                          \
+        }                                                           \
+    }
+
+#define RESOLXYZ(m,r,x,y,z) \
+    {                                                               \
+        int64_t res = LOCINT64(m, r, RESOLUTION );                  \
+        if ( res > 0 ) {                                            \
+            ( x ) /= res;                                           \
+            ( y ) /= res;                                           \
+            ( z ) /= res;                                           \
+        } else if ( res < 0 ) {                                     \
+            ( x ) *= -res;                                          \
+            ( y ) *= -res;                                          \
+            ( z ) *= -res;                                          \
+        }                                                           \
+    }
+#endif
+
 
 #endif

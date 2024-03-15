@@ -35,8 +35,6 @@
 
 #include "resolution.h"
 
-#include "m_resolxy.h"
-
 #include "libbggfx.h"
 #include "libmod_gfx.h"
 
