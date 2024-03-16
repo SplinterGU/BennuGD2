@@ -116,6 +116,13 @@ int64_t libmod_gfx_shader_create_parameters( INSTANCE * my, int64_t * params ) {
 
 /* --------------------------------------------------------------------------- */
 
+int64_t libmod_gfx_shader_free_parameters( INSTANCE * my, int64_t * params ) {
+    shader_free_parameters( ( BGD_SHADER_PARAMETERS * ) params[ 0 ] );
+    return 1;
+}
+
+/* --------------------------------------------------------------------------- */
+
 int64_t libmod_gfx_shader_setparam( INSTANCE * my, int64_t * params ) {
     void * param = ( void * ) params[ 0 ];
     if ( !param ) return -1;

@@ -46,6 +46,8 @@ extern int64_t libmod_gfx_shader_getuniformlocation( INSTANCE * my, int64_t * pa
 
 extern int64_t libmod_gfx_shader_create_parameters( INSTANCE * my, int64_t * params );
 
+extern int64_t libmod_gfx_shader_free_parameters( INSTANCE * my, int64_t * params );
+
 extern int64_t libmod_gfx_shader_setparam( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_shader_setparam_float( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_shader_setparam_image( INSTANCE * my, int64_t * params );

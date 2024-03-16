@@ -519,6 +519,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     FUNC( "SHADER_CREATE_PARAMS"        , "I"              , TYPE_POINTER    , libmod_gfx_shader_create_parameters     ),
 
+    FUNC( "SHADER_FREE_PARAMS"          , "P"              , TYPE_INT        , libmod_gfx_shader_free_parameters       ),
+
     FUNC( "SHADER_SET_PARAM"            , "PIII"           , TYPE_INT        , libmod_gfx_shader_setparam              ),
     FUNC( "SHADER_SET_PARAM"            , "PIIF"           , TYPE_INT        , libmod_gfx_shader_setparam_float        ),
     FUNC( "SHADER_SET_PARAM"            , "PIIIII"         , TYPE_INT        , libmod_gfx_shader_setparam_image        ),
