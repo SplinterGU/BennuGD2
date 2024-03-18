@@ -73,9 +73,6 @@ git submodule update --init --recursive
 
 cd vendor
 
-./sdl-gpu-patch-001.sh
-./sdl-gpu-patch-002.sh
-
 ./build-sdl-gpu.sh windows
 
 cd ..
