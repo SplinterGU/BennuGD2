@@ -192,7 +192,10 @@ int gr_create_image_for_graph( GRAPH * gr ) {
 //    }
 #endif
 #ifdef USE_SDL2_GPU
-    if ( !gr->tex ) gr->tex = GPU_CreateImage( gr->width, gr->height, GPU_FORMAT_RGBA );
+    if ( !gr->tex ) {
+        gr->tex = GPU_CreateImage( gr->width, gr->height, GPU_FORMAT_RGBA );
+        if ( gr->tex ) GPU_SetSnapMode( gr->tex, GPU_SNAP_NONE );
+    }
     if ( !gr->tex ) {
         printf ("error in image creation\n" );
         return 1;
@@ -565,6 +568,7 @@ void gr_blit(   GRAPH * dest,
                         printf ("error creando multi textura RO [%s]\n", SDL_GetError() );
                         return;
                     }
+                    GPU_SetSnapMode( gr->segments[seg].tex, GPU_SNAP_NONE );
 #endif
                 }
             }
@@ -739,7 +743,7 @@ void gr_blit(   GRAPH * dest,
 
             if ( dest ) dest->dirty = 1;
 
-            GPU_BlitTransformX( tex, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx - offx, ( float ) centery - offy, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
+            GPU_BlitTransformX( tex, gr_clip, dst, ( float ) ( ( int ) scrx ), ( float ) ( ( int ) scry ), ( float ) ( ( int ) ( centerx - offx ) ), ( float ) ( ( int ) ( centery - offy ) ), ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
 #endif
         }
     } else {
@@ -769,7 +773,7 @@ void gr_blit(   GRAPH * dest,
 
         if ( dest ) dest->dirty = 1;
 
-        GPU_BlitTransformX( gr->tex, gr_clip, dst, ( float ) scrx, ( float ) scry, ( float ) centerx, ( float ) centery, ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
+        GPU_BlitTransformX( gr->tex, gr_clip, dst, ( float ) ( ( int ) scrx ), ( float ) ( ( int ) scry ), ( float ) ( ( int ) centerx ), ( float ) ( ( int ) centery ), ( float ) angle / -1000.0, scalex_adjusted, scaley_adjusted );
 #endif
     }
 

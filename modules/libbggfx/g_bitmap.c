@@ -126,6 +126,7 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
                 free( gr );
                 return NULL;
             }
+            GPU_SetSnapMode( gr->tex, GPU_SNAP_NONE );
         }
 #endif
     } else {
