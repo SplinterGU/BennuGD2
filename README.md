@@ -8,7 +8,7 @@ Welcome to BennuGD2! BennuGD2 is a game development system focused on ease of us
 
 **Step 1: Build SDL_gpu**
 
-1. Go to the `vendor` directory and run the `sdl-gpu-patch-*.sh` scripts.
+1. Go to the `vendor` directory.
 2. Then run `./build-sdl-gpu.sh` with appropriate options, for example:
    ```
    ./build-sdl-gpu.sh linux clean
