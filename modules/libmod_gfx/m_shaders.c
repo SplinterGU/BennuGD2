@@ -168,7 +168,7 @@ int64_t libmod_gfx_shader_setparam_vector( INSTANCE * my, int64_t * params ) {
     if ( type != UNIFORM_INT_ARRAY  && type != UNIFORM_UINT_ARRAY  && type != UNIFORM_FLOAT_ARRAY &&
          type != UNIFORM_INT2_ARRAY && type != UNIFORM_UINT2_ARRAY && type != UNIFORM_FLOAT2_ARRAY &&
          type != UNIFORM_INT3_ARRAY && type != UNIFORM_UINT3_ARRAY && type != UNIFORM_FLOAT3_ARRAY &&
-         type != UNIFORM_INT4_ARRAY && type != UNIFORM_UINT4_ARRAY && type != UNIFORM_FLOAT3_ARRAY 
+         type != UNIFORM_INT4_ARRAY && type != UNIFORM_UINT4_ARRAY && type != UNIFORM_FLOAT4_ARRAY 
         ) return -1;
     int location = params[ 2 ];
     if ( location == -1 ) return -1;
