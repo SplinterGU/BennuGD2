@@ -38,8 +38,10 @@ extern int64_t libmod_gfx_shader_get_max_version( INSTANCE * my, int64_t * param
 extern int64_t libmod_gfx_shader_create( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_shader_free(  INSTANCE * my, int64_t * params );
 
+#if 0
 extern int64_t libmod_gfx_shader_activate( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_shader_deactivate( INSTANCE * my, int64_t * params );
+#endif
 
 extern int64_t libmod_gfx_shader_getattributelocation( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_shader_getuniformlocation( INSTANCE * my, int64_t * params );

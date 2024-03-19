@@ -76,6 +76,7 @@ int64_t libmod_gfx_shader_free(  INSTANCE * my, int64_t * params ) {
     return 1;
 }
 
+#if 0
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_activate( INSTANCE * my, int64_t * params ) {
@@ -90,7 +91,6 @@ int64_t libmod_gfx_shader_deactivate( INSTANCE * my, int64_t * params ) {
     return 1;
 }
 
-#if 0
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_getattributelocation( INSTANCE * my, int64_t * params ) {
