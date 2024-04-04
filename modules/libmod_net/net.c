@@ -181,41 +181,6 @@ _net *net_open(enum net_mode mode, enum net_proto proto, char *addr, int port) {
 
 /* --------------------------------------------------------------------------- */
 
-/** Accept a new connection.
- * This function accepts a new connection on the specified server socket.
- * \param server Pointer to the server network connection (_net structure).
- * \return Pointer to the newly accepted client network connection (_net structure), or NULL on failure.
- */
-_net *net_accept(_net *server) {
-    int client_sockfd;
-
-    if (server->mode != NET_MODE_SERVER || server->proto != NET_PROTO_TCP) {
-        fprintf(stderr, "Error: net_accept can only be used in server mode with TCP protocol\n");
-        return NULL;
-    }
-
-    client_sockfd = accept(server->sock, (struct sockaddr *)NULL, NULL);
-    if (client_sockfd == -1) {
-        perror("Error accepting incoming connection");
-        return NULL;
-    }
-
-    _net *client = malloc(sizeof(_net));
-    if (!client) {
-        perror("Error allocating memory for client _net");
-        closesocket(client_sockfd);
-        return NULL;
-    }
-
-    client->sock = client_sockfd;
-    client->mode = NET_MODE_CLIENT;
-    client->proto = NET_PROTO_TCP;
-
-    return client;
-}
-
-/* --------------------------------------------------------------------------- */
-
 /** Wait for events on multiple network connections.
  * This function waits for events on multiple network connections with optional timeout.
  * \param socks network connections List (_net structures).
@@ -237,6 +202,7 @@ int net_wait(List *socks, int timeout, List *events) {
     while( ( s = list_walk( socks, &ctx ) ) ) {
         FD_SET(s->sock, &set);
         if (s->sock > max_sock) max_sock = s->sock;
+        s->is_new_connection = 0;
     }
 
     if (max_sock >= FD_SETSIZE) max_sock = FD_SETSIZE - 2;
@@ -257,7 +223,24 @@ int net_wait(List *socks, int timeout, List *events) {
             ctx = NULL;
             while( ( s = list_walk( socks, &ctx ) ) ) {
                 if (FD_ISSET(s->sock, &set)) {
-                    list_insertItem( events, s );
+                    if (s->mode == NET_MODE_SERVER && s->proto == NET_PROTO_TCP) {
+                        SOCKET client_sockfd = accept(s->sock, (struct sockaddr *)NULL, NULL);
+                        if (client_sockfd != -1) {
+                            _net *client = malloc(sizeof(_net));
+                            if (!client) {
+                                perror("Error allocating memory for client _net");
+                                closesocket(client_sockfd);
+                                continue;
+                            }
+                            client->mode = NET_MODE_CLIENT;
+                            client->proto = NET_PROTO_TCP;
+                            client->sock = client_sockfd;
+                            client->is_new_connection = 1;
+                            list_insertItem( events, client );
+                        }
+                    } else {
+                        list_insertItem( events, s );
+                    }
                     FD_CLR(s->sock, &set);
                 }
             }
@@ -412,7 +395,19 @@ char * net_getremoteaddr(_net *neth) {
  */
 int net_is_new_connection(_net *neth) {
     if ( !neth ) return 0;
-    return ( neth->mode == NET_MODE_SERVER && neth->proto == NET_PROTO_TCP );
+    return neth->is_new_connection;
+}
+
+/* --------------------------------------------------------------------------- */
+
+/** Check if the event corresponds to an incoming message.
+ *  This function checks if the given event represents an incoming message.
+ *  \param event Pointer to the network event (_net structure).
+ *  \return 1 if the event is an incoming message, 0 otherwise.
+ */
+int net_is_message_incoming(_net *neth) {
+    if (!neth) return 0;
+    return !neth->is_new_connection;
 }
 
 /* --------------------------------------------------------------------------- */

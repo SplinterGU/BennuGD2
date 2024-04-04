@@ -49,6 +49,7 @@ extern int64_t libmod_net_getavailablebytes( INSTANCE *my, int64_t *params );
 extern int64_t libmod_net_getReceiveBufferSize( INSTANCE *my, int64_t *params );
 extern int64_t libmod_net_getremoteaddr( INSTANCE *my, int64_t *params );
 extern int64_t libmod_net_is_new_connection( INSTANCE *my, int64_t *params );
+extern int64_t libmod_net_is_message_incoming( INSTANCE *my, int64_t *params );
 
 /* --------------------------------------------------------------------------- */
 

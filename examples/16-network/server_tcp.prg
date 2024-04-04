@@ -38,12 +38,8 @@ begin
         int * ctx = NULL;
         while( ( evt = list_walk( events, &ctx ) ) )
             if ( net_is_new_connection( evt ) )
-                int * client = net_accept( evt );
-                if (!client)
-                    say("Error accepting incoming connection");
-                    continue;
-                end
-                list_insertItem( socks, client );
+                say("accept new client from " + net_getremoteaddr( evt ));
+                list_insertItem( socks, evt );
             else
                 // If the client sends a message, we print it
                 int recv_bytes = net_recv(evt, &buffer, BUFFER_SIZE);
@@ -69,6 +65,7 @@ begin
                 end
             end
         end
+        say("exit walk");
     end
 
     net_close(server);

@@ -60,7 +60,6 @@ DLCONSTANT  __bgdexport( libmod_net, constants_def )[] = {
 DLSYSFUNCS  __bgdexport( libmod_net, functions_exports )[] = {
     FUNC( "NET_OPEN"                    , "IISI"        , TYPE_POINTER  , libmod_net_open                       ),
     FUNC( "NET_WAIT"                    , "PIP"         , TYPE_INT      , libmod_net_wait                       ),
-    FUNC( "NET_ACCEPT"                  , "P"           , TYPE_POINTER  , libmod_net_accept                     ),
     FUNC( "NET_SEND"                    , "PPI"         , TYPE_INT      , libmod_net_send                       ),
     FUNC( "NET_RECV"                    , "PPI"         , TYPE_INT      , libmod_net_recv                       ),
     FUNC( "NET_CLOSE"                   , "P"           , TYPE_INT      , libmod_net_close                      ),
@@ -68,6 +67,7 @@ DLSYSFUNCS  __bgdexport( libmod_net, functions_exports )[] = {
     FUNC( "NET_GETRECEIVEBUFFERSIZE"    , "P"           , TYPE_INT      , libmod_net_getReceiveBufferSize       ),
     FUNC( "NET_GETREMOTEADDR"           , "P"           , TYPE_STRING   , libmod_net_getremoteaddr              ),
     FUNC( "NET_IS_NEW_CONNECTION"       , "P"           , TYPE_INT      , libmod_net_is_new_connection          ),
+    FUNC( "NET_IS_MESSAGE_INCOMING"     , "P"           , TYPE_INT      , libmod_net_is_message_incoming        ),
 
     FUNC( 0                             , 0             , 0             , 0                                     )
 };

@@ -55,12 +55,6 @@ int64_t libmod_net_wait( INSTANCE *my, int64_t *params ) {
 
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_net_accept( INSTANCE *my, int64_t *params ) {
-    return ( int64_t ) net_accept( ( _net * ) params[0] );
-}
-
-/* --------------------------------------------------------------------------- */
-
 int64_t libmod_net_send( INSTANCE *my, int64_t *params ) {
     return ( int64_t ) net_send( ( _net * ) params[ 0 ], ( const void * ) params[ 1 ], ( size_t ) params[ 2 ] );
 }
@@ -109,6 +103,12 @@ int64_t libmod_net_getremoteaddr( INSTANCE *my, int64_t *params ) {
 
 int64_t libmod_net_is_new_connection( INSTANCE *my, int64_t *params ) {
     return ( int64_t ) net_is_new_connection( ( _net * ) params[ 0 ] );
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_net_is_message_incoming( INSTANCE *my, int64_t *params ) {
+    return ( int64_t ) net_is_message_incoming( ( _net * ) params[ 0 ] );
 }
 
 /* --------------------------------------------------------------------------- */

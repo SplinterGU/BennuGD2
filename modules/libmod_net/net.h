@@ -86,9 +86,10 @@
     typedef struct {
         enum net_mode mode;
         enum net_proto proto;
-        int sock;
+        SOCKET sock;
         struct sockaddr_storage srcaddr;
         socklen_t srcaddrlen;
+        int is_new_connection;
     } _net;
 
     #define NET_ERROR           -1
@@ -99,7 +100,6 @@
     extern void net_exit();
     extern _net *net_open(enum net_mode mode, enum net_proto proto, char *addr, int port);
     extern int net_wait(List *socks, int timeout, List *events);
-    extern _net *net_accept(_net *server);
     extern int net_send(_net *neth, const void *buf, size_t len);
     extern int net_recv(_net *neth, void *buf, size_t len);
     extern void net_close(_net *neth);
@@ -107,5 +107,6 @@
     extern int net_getReceiveBufferSize(_net *neth);
     extern char * net_getremoteaddr(_net *neth);
     extern int net_is_new_connection(_net *neth);
+    extern int net_is_message_incoming(_net *event);
 
 #endif /* NET_H */
