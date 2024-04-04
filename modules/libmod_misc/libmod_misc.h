@@ -46,6 +46,7 @@
 #include "m_string.h"
 #include "m_sys.h"
 #include "m_time.h"
+#include "m_list.h"
 
 /* ----------------------------------------------------------------- */
 
