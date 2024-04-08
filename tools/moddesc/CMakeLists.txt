@@ -29,7 +29,7 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
     endforeach()
 endif()
 
-include_directories(../../core/include ../../tools/moddesc ${INCLUDE_DIRECTORIES})
+include_directories(../../core/include ../../core/bgdrtm ../../tools/moddesc ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES
      "../../tools/moddesc/*.c"
