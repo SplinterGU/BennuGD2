@@ -3513,8 +3513,6 @@ static int force_exit_cb( SDL_Keysym k ) {
 /* --------------------------------------------------------------------------- */
 
 static int console_keyboard_handler_cb( SDL_Keysym k ) {
-    if ( debug_sysfont == -1 ) create_debug_sysfont();
-
     if ( dcb.data.NSourceFiles ) {
         if (( k.mod & KMOD_LALT ) && k.sym == SDLK_c ) {
             if ( !debugger_show_console ) {
@@ -3711,6 +3709,8 @@ static void console_draw( void * what, REGION * clip ) {
     int x, y, line, count ;
 
     if ( break_on_next_proc ) return ;
+
+    if ( debug_sysfont == -1 ) create_debug_sysfont();
 
     int64_t __drawing_blend_mode = drawing_blend_mode;
     uint8_t __drawing_color_r = drawing_color_r;
