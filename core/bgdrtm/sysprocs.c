@@ -112,8 +112,8 @@ void * modules_hnd[512] = { 0 };
 
 /* ---------------------------------------------------------------------- */
 
-static int64_t tsize( DCB_TYPEDEF orig );
-static DCB_TYPEDEF treduce( DCB_TYPEDEF orig );
+int64_t typedef_size( DCB_TYPEDEF td );
+static DCB_TYPEDEF treduce( DCB_TYPEDEF td );
 
 /* ---------------------------------------------------------------------- */
 
@@ -173,24 +173,24 @@ static void get_token() {
 
 /* ---------------------------------------------------------------------- */
 
-static DCB_TYPEDEF treduce( DCB_TYPEDEF orig ) {
+static DCB_TYPEDEF treduce( DCB_TYPEDEF td ) {
     int n;
     for ( n = 0; n < MAX_TYPECHUNKS - 1; n++ ) {
-        orig.BaseType[n] = orig.BaseType[n+1];
-        orig.Count[n] = orig.Count[n+1];
+        td.BaseType[n] = td.BaseType[n+1];
+        td.Count[n] = td.Count[n+1];
     }
-    return orig;
+    return td;
 }
 
 /* ---------------------------------------------------------------------- */
 
-static int64_t tsize( DCB_TYPEDEF orig ) {
+int64_t typedef_size( DCB_TYPEDEF td ) {
     unsigned int n;
     int64_t total;
 
-    switch ( orig.BaseType[0] ) {
+    switch ( td.BaseType[0] ) {
         case TYPE_ARRAY:
-            return orig.Count[0] * tsize( treduce( orig ) );
+            return td.Count[0] * typedef_size( treduce( td ) );
 
         case TYPE_QWORD:
         case TYPE_INT:
@@ -215,8 +215,8 @@ static int64_t tsize( DCB_TYPEDEF orig ) {
 
         case TYPE_STRUCT:
             total = 0;
-            for ( n = 0; n < dcb.varspace[orig.Members].NVars; n++ )
-                total += tsize( dcb.varspace_vars[orig.Members][n].Type );
+            for ( n = 0; n < dcb.varspace[td.Members].NVars; n++ )
+                total += typedef_size( dcb.varspace_vars[td.Members][n].Type );
             return total;
 
         default:
@@ -289,7 +289,7 @@ static void get_var_info( DLVARFIXUP * varfixup, DCB_VAR * basevar, int nvars, c
             if ( index >= rvar.Type.Count[0] ) return; /* Index out of bounds */
 
             rvar.Type = treduce( rvar.Type );
-            rdata = ((uint8_t *) rdata ) + index * tsize( rvar.Type );
+            rdata = ((uint8_t *) rdata ) + index * typedef_size( rvar.Type );
 
             get_token();
             if ( token.name[0] == ']' ) get_token(); /* Skip ] */
@@ -299,7 +299,7 @@ static void get_var_info( DLVARFIXUP * varfixup, DCB_VAR * basevar, int nvars, c
 
         varfixup->data_offset = ( void * ) rdata;
         varfixup->elements = rvar.Type.BaseType[0] == TYPE_ARRAY ? rvar.Type.Count[0] : 1;
-        varfixup->size = tsize( rvar.Type ) / varfixup->elements;
+        varfixup->size = typedef_size( rvar.Type ) / varfixup->elements;
 /*
         printf ("varfixup: %p var: %s offset: %p elements: %d size: %d\n", varfixup, varfixup->var, varfixup->data_offset, varfixup->elements, varfixup->size);
 */
@@ -371,7 +371,7 @@ int64_t get_var_size( char * var, DCB_VAR * basevar, int nvars ) {
             continue;
         }
 
-        return tsize( rvar.Type );
+        return typedef_size( rvar.Type );
     }
     return -1;
 }
@@ -505,12 +505,16 @@ void sysproc_init() {
 
         library = NULL;
 
+#ifdef __STATIC__
+        library  = dlibopen( filename );
+#else
         spath = dlsearchpath;
         while( !library && spath && *spath ) {
             snprintf( fullsoname, sizeof( fullsoname ), "%s%s/%s", appexepath, *spath, filename );
             library  = dlibopen( fullsoname );
             spath++;
         }
+#endif
 
         if ( !library ) library  = dlibopen( filename );
 

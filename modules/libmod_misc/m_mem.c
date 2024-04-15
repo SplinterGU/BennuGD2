@@ -127,7 +127,7 @@ int64_t libmod_misc_mem_memory_free( INSTANCE * my, int64_t * params ) {
     get_system_info( &info );
     return B_PAGE_SIZE * ( info.max_pages - info.used_pages );
 
-#elif !defined(__APPLE__) && !defined(TARGET_WII) && !defined(__SWITCH__)
+#elif !defined(__APPLE__) && !defined(TARGET_WII) && !defined(__SWITCH__) && !defined(PS3_PPU)
     /* Linux and other Unix (?) */
     struct sysinfo meminf;
     int fv;
@@ -164,7 +164,7 @@ int64_t libmod_misc_mem_memory_total( INSTANCE * my, int64_t * params ) {
     get_system_info( &info );
     return  B_PAGE_SIZE * ( info.max_pages );
 
-#elif !defined(__APPLE__) && !defined(TARGET_WII) && !defined(__SWITCH__)
+#elif !defined(__APPLE__) && !defined(TARGET_WII) && !defined(__SWITCH__) && !defined(PS3_PPU)
     /* Linux and other Unix (?) */
     struct sysinfo meminf;
     int fv;

@@ -191,6 +191,93 @@ int dcb_load( const char * filename ) {
 
 /* ---------------------------------------------------------------------- */
 
+void arrange_varspace_data( DCB_VAR * basevar, int nvars, char * basedata ) {
+    unsigned int n;
+
+    /* Search for a variable */
+    for ( n = 0; n < nvars; n++ ) {
+        switch ( basevar[ n ].Type.BaseType[ 0 ] ) {
+            case TYPE_ARRAY:
+                int count = 1;
+                int i = 0;
+                for ( i = 0; i < MAX_TYPECHUNKS; i++ ) {
+                    if ( basevar[ n ].Type.BaseType[ i ] != TYPE_ARRAY ) break;
+                    count *= basevar[ n ].Type.Count[ i ];
+                }
+
+                switch( basevar[ n ].Type.BaseType[ i ] ) {
+                    case TYPE_QWORD:
+                    case TYPE_INT:
+                    case TYPE_DOUBLE:
+                    case TYPE_POINTER:
+                    case TYPE_STRING:
+                        ARRANGE_QWORDS( ( uint8_t* )basedata + basevar[ n ].Offset, count );
+                        break;
+
+                    case TYPE_DWORD:
+                    case TYPE_INT32:
+                    case TYPE_FLOAT:
+                        ARRANGE_DWORDS( ( uint8_t* )basedata + basevar[ n ].Offset, count );
+                        break;
+
+                    case TYPE_WORD:
+                    case TYPE_SHORT:
+                        ARRANGE_WORDS( ( uint8_t* )basedata + basevar[ n ].Offset, count );
+                        break;
+
+                    case TYPE_BYTE:
+                    case TYPE_SBYTE:
+                    case TYPE_CHAR:
+                        break;
+
+                    case TYPE_STRUCT:
+                        uint8_t * data = ( uint8_t* )basedata + basevar[ n ].Offset;
+                        int64_t tsize = typedef_size( basevar[ n ].Type ) / count;
+                        for ( int m = 0; m < count; m++ ) {
+                            arrange_varspace_data( dcb.varspace_vars[ basevar[ n ].Type.Members ], dcb.varspace[ basevar[ n ].Type.Members ].NVars, data );
+                            data += tsize;
+                        }
+                        break;
+
+                }
+                break;
+
+            case TYPE_QWORD:
+            case TYPE_INT:
+            case TYPE_DOUBLE:
+            case TYPE_POINTER:
+            case TYPE_STRING:
+                ARRANGE_QWORD( ( uint8_t* )basedata + basevar[ n ].Offset );
+                break;
+
+            case TYPE_DWORD:
+            case TYPE_INT32:
+            case TYPE_FLOAT:
+                ARRANGE_DWORD( ( uint8_t* )basedata + basevar[ n ].Offset );
+                break;
+
+            case TYPE_WORD:
+            case TYPE_SHORT:
+                ARRANGE_WORD( ( uint8_t* )basedata + basevar[ n ].Offset );
+                break;
+
+            case TYPE_BYTE:
+            case TYPE_SBYTE:
+            case TYPE_CHAR:
+                break;
+
+            case TYPE_STRUCT:
+                arrange_varspace_data( dcb.varspace_vars[ basevar[ n ].Type.Members ], dcb.varspace[ basevar[ n ].Type.Members ].NVars, ( uint8_t* )basedata + basevar[ n ].Offset );
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+
 DCB_VAR * read_and_arrange_varspace( file * fp, int count ) {
     int n, n1;
     DCB_VAR * vars = ( DCB_VAR * ) calloc( count, sizeof( DCB_VAR ) );
@@ -229,6 +316,8 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
     ARRANGE_QWORD( &dcb.data.NLocVars );
     ARRANGE_QWORD( &dcb.data.NLocStrings );
     ARRANGE_QWORD( &dcb.data.NGloVars );
+
+    ARRANGE_QWORD( &dcb.data.NVarSpaces );
 
     ARRANGE_QWORD( &dcb.data.SGlobal );
     ARRANGE_QWORD( &dcb.data.SLocal );
@@ -413,6 +502,9 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         }
     }
 
+    if ( dcb.data.NGloVars ) arrange_varspace_data( dcb.glovar, dcb.data.NGloVars, globaldata );
+    if ( dcb.data.NLocVars ) arrange_varspace_data( dcb.locvar, dcb.data.NLocVars, localdata );
+
     if ( dcb.data.NSourceFiles ) {
         char fname[__MAX_PATH];
 
@@ -516,11 +608,13 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         if ( dcb.proc[n].data.NPriVars ) {
             file_seek( fp, offset + dcb.proc[n].data.OPriVars, SEEK_SET );
             dcb.proc[n].privar = read_and_arrange_varspace( fp, dcb.proc[n].data.NPriVars );
+            arrange_varspace_data( dcb.proc[n].privar, dcb.proc[n].data.NPriVars, procs[n].pridata );
         }
 
         if ( dcb.proc[n].data.NPubVars ) {
             file_seek( fp, offset + dcb.proc[n].data.OPubVars, SEEK_SET );
             dcb.proc[n].pubvar = read_and_arrange_varspace( fp, dcb.proc[n].data.NPubVars );
+            arrange_varspace_data( dcb.proc[n].pubvar, dcb.proc[n].data.NPubVars, procs[n].pubdata );
         }
     }
 
@@ -537,7 +631,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         file_read( fp, &sdcb, sizeof( DCB_SYSPROC_CODE ) );
 
         ARRANGE_QWORD( &sdcb.Id );
-        ARRANGE_QWORD( &sdcb.Type );
+        ARRANGE_DWORD( &sdcb.Type );
         ARRANGE_QWORD( &sdcb.Params );
         ARRANGE_QWORD( &sdcb.Code );
 
@@ -546,6 +640,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
         sysproc_code_ref[n].Params = sdcb.Params;
         sysproc_code_ref[n].Code = sdcb.Code;
         sysproc_code_ref[n].ParamTypes = ( uint8_t * ) calloc( sdcb.Params + 1, sizeof( uint8_t ) );
+
         if ( !sysproc_code_ref[n].ParamTypes ) {
             fprintf( stderr, "ERROR: Runtime error - %s: out of memory\n", __FUNCTION__ );
             exit(2);

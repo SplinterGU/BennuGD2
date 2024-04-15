@@ -81,7 +81,9 @@ extern int64_t debugger_step;                // execute 1 sentence or 1 procedur
 
 /* --------------------------------------------------------------------------- */
 
+#ifndef PS3_PPU
 extern int strncmpi( char * str1, char * str2, int sz );
+#endif
 
 extern int dcb_load( const char * filename );
 extern int dcb_load_from( file * fp, const char * dcbname, int offset );
@@ -116,6 +118,7 @@ extern void bgdrtm_ptimer_cleanup(void);
 /* --------------------------------------------------------------------------- */
 
 extern int64_t get_var_size( char * var, DCB_VAR * basevar, int nvars );
+extern int64_t typedef_size( DCB_TYPEDEF td );
 
 /* --------------------------------------------------------------------------- */
 

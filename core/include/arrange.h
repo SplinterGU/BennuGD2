@@ -42,7 +42,8 @@
         defined(__ppc__) || \
         defined(__POWERPC__) || \
         defined(_M_PPC) || \
-        defined(__sparc__)
+        defined(__sparc__) || \
+        defined(PS3_PPU)
         #define __BYTEORDER  __BIG_ENDIAN
     #else
         #define __BYTEORDER  __LIL_ENDIAN
@@ -62,22 +63,22 @@
         #define ARRANGE_WORDS(x,c)
     #else
         static __inline__ void DO_Swap16(uint16_t * D) {
-            *D = ((*D<<8)|(*D>>8));
+            *D = (*D<<8) | (*D>>8);
         }
 
         static __inline__ void DO_Swap32(uint32_t * D) {
-            *D = ((*D<<24)|((*D<<8)&0x00FF0000)|((*D>>8)&0x0000FF00)|(*D>>24));
+            *D = (*D<<24) | ((*D<<8)&0x00FF0000LL) | ((*D>>8)&0x0000FF00LL) | (*D>>24);
         }
 
         static __inline__ void DO_Swap64(uint64_t * D) {
             uint32_t hi, lo;
             uint64_t x = *D;
-            lo = (x & 0xFFFFFFFF);
+            lo = (x & 0xFFFFFFFFLL);
             x >>= 32;
-            hi = (x & 0xFFFFFFFF);
-            SDL_Swap32(&lo);
-            SDL_Swap32(&hi);
-            *D = ( ( ( uint64_t ) lo ) << 32 ) || hi;
+            hi = (x & 0xFFFFFFFFLL);
+            DO_Swap32(&lo);
+            DO_Swap32(&hi);
+            *D = ( ( ( uint64_t ) lo ) << 32 ) | hi;
         }
 
         #define ARRANGE_QWORD(x)    DO_Swap64(x)

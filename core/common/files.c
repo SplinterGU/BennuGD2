@@ -113,7 +113,6 @@ int file_read( file * fp, void * buffer, int len ) {
         if ( result < 0 ) result = 0;
         return result;
     }
-
     return fread( buffer, 1, len, fp->fp );
 }
 

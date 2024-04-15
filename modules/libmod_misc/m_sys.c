@@ -66,7 +66,7 @@ int64_t libmod_misc_sys_exec( INSTANCE * my, int64_t * params ) {
     // Execute program
 #ifdef WIN32
     status = spawnvp( mode, filename, ( char * const * )argv );
-#elif defined( __SWITCH__ )
+#elif defined( __SWITCH__ ) || defined( PS3_PPU )
     status = -1;
 #else
     if (( child = fork() ) == -1 ) {

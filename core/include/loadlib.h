@@ -303,7 +303,7 @@ static void * dlibopen( const char * fname ) {
         fake_dl_inited = 1;
     }
 
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(PS3_PPU)
     char *pp = strrchr( fname, '.' );
     strcpy( dlname, pp ? pp : fname );
 #else

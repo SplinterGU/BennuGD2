@@ -61,6 +61,7 @@
 #define OS_IOS                  1002
 #define OS_ANDROID              1003
 #define OS_SWITCH               1004
+#define OS_PS3                  1005
 
 #endif
 

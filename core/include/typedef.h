@@ -31,6 +31,7 @@
 
 #include <typedef_st.h>
 
+#ifdef __BGDC__
 /* Data types */
 
 extern TYPEDEF      typedef_new      (BASETYPE type);
@@ -48,5 +49,7 @@ extern void         typedef_name     (TYPEDEF t, int64_t code);
 
 extern BASETYPE     typedef_basic_type_basetype_by_name( int identifier, int sign );
 extern TYPEDEF      typedef_basic_type_by_name( int identifier, int sign );
+
+#endif
 
 #endif

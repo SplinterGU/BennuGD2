@@ -27,7 +27,7 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
         set(OGL_LIB -lopengl32)
     endif()
 
-    if(LINUX)
+    if(LINUX AND NOT PS3_PPU)
         set(OGL_LIB -lGL)
     endif()
 
@@ -36,9 +36,17 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
         set(OTHER_LIBS -lpng -ljpeg -lwebp -lmpg123 -lmodplug -lopusfile -lopus -lvorbisfile -lvorbis -logg)
     endif()
 
+    if(PS3_PPU)
+        set(OTHER_LIBS -L/usr/local/ps3dev/portlibs/ppu/lib -L/usr/local/ps3dev/spu/spu/lib -L/usr/local/ps3dev/ppu/powerpc64-ps3-elf/lib -L/usr/local/ps3dev/portlibs/ppu/lib -L/usr/local/ps3dev/ppu/lib -lm -lgcm_sys -lrsx -lsysutil -lrt -llv2 -lio -laudio -lpng -lpng14 -ltiff -ljpeg)
+    endif()
+
     if(LIBVLC_ENABLED)
         set(VLC_LIB -lvlc)
     endif()
+endif()
+
+if(NOT PS3_PPU)
+    set(OTHER_LIBS ${OTHER_LIBS} -lm)
 endif()
 
 add_definitions(-D__BGDI__ -DVERSION="2.0.0")
@@ -60,4 +68,4 @@ endif()
 
 add_executable(bgdi ${SOURCES})
 
-target_link_libraries(bgdi -L../../bin bgdrtm ${EXTRA_LIBS} ${SDL2_LIBS} ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} ${OGL_LIB} ${VLC_LIB} ${OTHER_LIBS} -lm)
+target_link_libraries(bgdi -L../../bin bgdrtm ${EXTRA_LIBS} ${SDL2_LIBS} ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} ${OGL_LIB} ${VLC_LIB} ${OTHER_LIBS})

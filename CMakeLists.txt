@@ -5,6 +5,12 @@ option(BUILD_TARGET "Select the build target: compiler, interpreter, tools, or a
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
+if(${PS3_PPU})
+    set(PS3_PPU 1)
+    add_definitions(-DPS3_PPU=1)
+    include_directories(${CMAKE_INCLUDE_DIRECTORIES} $ENV{PS3DEV}/ppu/include/ $ENV{PS3DEV}/portlibs/ppu/include)
+endif()
+
 if(NINTENDO_SWITCH)
     add_definitions(-DUSE_OPENDIR)
 endif()

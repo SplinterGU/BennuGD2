@@ -149,6 +149,11 @@ int64_t system_paused = 0;
 #define _OS_ID          OS_SWITCH
 #endif
 
+#ifdef PS3_PPU
+#undef _OS_ID
+#define _OS_ID          OS_PS3
+#endif
+
 /* --------------------------------------------------------------------------- */
 
 #if defined(TARGET_GP2X_WIZ) || defined(TARGET_CAANOO)
@@ -198,6 +203,8 @@ void bgdrtm_ptimer_cleanup(void)
 
 #endif
 
+#ifndef PS3_PPU
+
 /* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : strncmpi
@@ -226,6 +233,8 @@ int strncmpi( char * str1, char * str2, int sz )
 
     return 0;
 }
+
+#endif
 
 /* --------------------------------------------------------------------------- */
 

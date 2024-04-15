@@ -229,7 +229,11 @@ int gr_set_mode( int width, int height, int flags ) {
         if ( frameless ) sdl_flags |= SDL_WINDOW_BORDERLESS;
         if ( fullscreen ) sdl_flags |= SDL_WINDOW_FULLSCREEN;
         if ( grab_input ) sdl_flags |= SDL_WINDOW_INPUT_GRABBED;
+#ifdef PS3_PPU
+        gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, renderer_width, renderer_height, SDL_WINDOW_FULLSCREEN /* | SDL_WINDOW_OPENGL */);
+#else
         gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
+#endif
         if( gWindow == NULL ) return -1;
     } else {
         SDL_SetWindowFullscreen( gWindow, fullscreen  ? SDL_WINDOW_FULLSCREEN : 0 );
@@ -239,17 +243,30 @@ int gr_set_mode( int width, int height, int flags ) {
         SDL_SetWindowPosition( gWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
     }
 
+#ifdef PS3_PPU
+//    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "PSL1GHT");
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+#else
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+#endif
 
     if ( !gRenderer ) {
         //Create renderer for window
+#ifdef PS3_PPU
+        gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_TARGETTEXTURE );
+//        gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+//        gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
+#else
         gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
+#endif
         if( gRenderer == NULL ) {
             printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
             return -1;
         }
         SDL_GetRendererInfo( gRenderer, &gRendererInfo );
+
         gMaxTextureSize = gRendererInfo.max_texture_width;
+
         show_renderer_info( &gRendererInfo );
 //        printf( "max texture size: %d x %d\n", gRendererInfo.max_texture_width, gRendererInfo.max_texture_height );
     }

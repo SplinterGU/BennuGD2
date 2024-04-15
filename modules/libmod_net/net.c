@@ -91,6 +91,7 @@ void net_exit() {
  * \return Pointer to the newly opened network connection (_net structure), or NULL on failure.
  */
 _net *net_open(enum net_mode mode, enum net_proto proto, char *addr, int port) {
+#ifndef PS3_PPU
     _net *neth = malloc(sizeof(_net));
     if (!neth) {
         perror("Error allocating memory for _net");
@@ -177,6 +178,9 @@ _net *net_open(enum net_mode mode, enum net_proto proto, char *addr, int port) {
     }
 
     return neth;
+#else
+    return NULL;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -189,6 +193,7 @@ _net *net_open(enum net_mode mode, enum net_proto proto, char *addr, int port) {
  * \return Number of network connections with events, or -1 on error.
  */
 int net_wait(List *socks, int timeout, List *events) {
+#ifndef PS3_PPU
     fd_set set;
     struct timeval tv;
     int result, max_sock = 0;
@@ -249,6 +254,9 @@ int net_wait(List *socks, int timeout, List *events) {
     }
 
     return result;
+#else
+    return -1;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -261,6 +269,7 @@ int net_wait(List *socks, int timeout, List *events) {
  * \return Number of bytes sent on success, or -1 on error.
  */
 int net_send(_net *neth, const void *buf, size_t len) {
+#ifndef PS3_PPU
     int sent_bytes;
     if (neth->proto == NET_PROTO_TCP) {
         sent_bytes = send(neth->sock, buf, len, 0);
@@ -273,6 +282,9 @@ int net_send(_net *neth, const void *buf, size_t len) {
         return -1;
     }
     return sent_bytes;
+#else
+    return -1;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -285,6 +297,7 @@ int net_send(_net *neth, const void *buf, size_t len) {
  * \return Number of bytes received on success, or -1 on error.
  */
 int net_recv(_net *neth, void *buf, size_t len) {
+#ifndef PS3_PPU
     int recv_bytes;
     if (neth->proto == NET_PROTO_TCP) {
         recv_bytes = recv(neth->sock, buf, len, 0);
@@ -297,6 +310,9 @@ int net_recv(_net *neth, void *buf, size_t len) {
         return -1;
     }
     return recv_bytes;
+#else
+    return -1;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -306,8 +322,10 @@ int net_recv(_net *neth, void *buf, size_t len) {
  * \param neth Pointer to the network connection (_net structure).
  */
 void net_close(_net *neth) {
+#ifndef PS3_PPU
     closesocket(neth->sock);
     free(neth);
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -318,6 +336,7 @@ void net_close(_net *neth) {
  *  \return Number of available bytes in the receive buffer.
  */
 int net_getavailablebytes(_net *neth) {
+#ifndef PS3_PPU
 #ifdef _WIN32
     long unsigned int availableBytes;
     ioctlsocket(neth->sock, FIONREAD, &availableBytes);
@@ -326,6 +345,9 @@ int net_getavailablebytes(_net *neth) {
     ioctl(neth->sock, FIONREAD, &availableBytes);
 #endif
     return availableBytes;
+#else
+    return 0;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -336,6 +358,7 @@ int net_getavailablebytes(_net *neth) {
  *  \return Size of the receive buffer.
  */
 int net_getReceiveBufferSize(_net *neth) {
+#ifndef PS3_PPU
     int bufferSize;
 #ifdef _WIN32
     int size = sizeof(bufferSize);
@@ -348,6 +371,9 @@ int net_getReceiveBufferSize(_net *neth) {
         return -1;
     }
     return bufferSize;
+#else
+    return 0;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -358,6 +384,7 @@ int net_getReceiveBufferSize(_net *neth) {
  *  \return Pointer to a string containing the remote IP address.
  */
 char * net_getremoteaddr(_net *neth) {
+#ifndef PS3_PPU
     struct sockaddr_storage remoteAddr;
     socklen_t remoteAddrLen = sizeof(remoteAddr);
 
@@ -384,6 +411,9 @@ char * net_getremoteaddr(_net *neth) {
     if (!res) free(ip);
 
     return res;
+#else
+    return NULL;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -394,8 +424,12 @@ char * net_getremoteaddr(_net *neth) {
  *  \return 1 if the event is a new client connection, 0 otherwise.
  */
 int net_is_new_connection(_net *neth) {
+#ifndef PS3_PPU
     if ( !neth ) return 0;
     return neth->is_new_connection;
+#else
+    return 0;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */
@@ -406,8 +440,12 @@ int net_is_new_connection(_net *neth) {
  *  \return 1 if the event is an incoming message, 0 otherwise.
  */
 int net_is_message_incoming(_net *neth) {
+#ifndef PS3_PPU
     if (!neth) return 0;
     return !neth->is_new_connection;
+#else
+    return 0;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */

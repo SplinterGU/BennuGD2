@@ -41,7 +41,7 @@
 #include <windef.h>
 #else
 #include <unistd.h>
-#ifndef __SWITCH__
+#if !defined(__SWITCH__) && !defined(PS3_PPU)
 #include <sys/utsname.h>
 #endif
 /* BeOS INCLUDES */

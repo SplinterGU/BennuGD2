@@ -25,6 +25,9 @@
  */
 
 /* --------------------------------------------------------------------------- */
+/*
+TODO: PS3
+*/
 
 #ifndef __NET_H
     #define __NET_H
@@ -50,16 +53,22 @@
         #include <netdb.h>
         #include <unistd.h>
 
-        #include <netinet/tcp.h>
+        #ifndef PS3_PPU
+            #include <netinet/tcp.h>
+        #endif
 
         #ifdef __SWITCH__
             #include <sys/socket.h>
         #else
-            #include <sys/ipc.h>
-            #include <sys/msg.h>
+            #ifndef PS3_PPU
+                #include <sys/ipc.h>
+                #include <sys/msg.h>
+            #endif
         #endif
 
-        #include <sys/ioctl.h>  
+        #ifndef PS3_PPU
+            #include <sys/ioctl.h>  
+        #endif
 
         #define SOCKET_ERROR    -1
 
@@ -87,7 +96,9 @@
         enum net_mode mode;
         enum net_proto proto;
         SOCKET sock;
+#ifndef PS3_PPU
         struct sockaddr_storage srcaddr;
+#endif
         socklen_t srcaddrlen;
         int is_new_connection;
     } _net;

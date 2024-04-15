@@ -71,6 +71,7 @@ static struct {
     { "OS_ANDROID"              , TYPE_QWORD,   OS_ANDROID          },
     { "OS_IOS"                  , TYPE_QWORD,   OS_IOS              },
     { "OS_SWITCH"               , TYPE_QWORD,   OS_SWITCH           },
+    { "OS_PS3"                  , TYPE_QWORD,   OS_PS3              },
 
     { "MIN_INT"                 , TYPE_INT,     INT64_MIN           },
     { "MAX_INT"                 , TYPE_INT,     INT64_MAX           },
