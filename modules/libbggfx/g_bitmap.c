@@ -111,7 +111,7 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
 #endif
 #ifdef USE_SDL2_GPU
         // If bitmap is largest that max texture size then copy texture for slice it in the blitter
-        if ( w > gMaxTextureSize || h > gMaxTextureSize ) {
+        if ( gMaxTextureSize && ( w > gMaxTextureSize || h > gMaxTextureSize ) ) {
             gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
             if ( !gr->surface ) {
                 free( gr );
@@ -134,7 +134,7 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
 #ifdef USE_SDL2_GPU
         gr->tex = NULL;
         // If bitmap is largest that max texture size then return with error
-        if ( width > gMaxTextureSize || height > gMaxTextureSize ) {
+        if ( gMaxTextureSize || ( width > gMaxTextureSize || height > gMaxTextureSize ) ) {
             free( gr );
             return NULL;
         }

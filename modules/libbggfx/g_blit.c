@@ -504,7 +504,7 @@ void gr_blit(   GRAPH * dest,
     /* Create segments if needed */
 
     if ( !gr->tex && !gr->segments ) {
-        if ( gr->width > gMaxTextureSize || gr->height > gMaxTextureSize ) {
+        if ( gMaxTextureSize && ( gr->width > gMaxTextureSize || gr->height > gMaxTextureSize ) ) {
             int64_t nsegx = ( gr->width - 1 ) / gMaxTextureSize + 1,
                     nsegy = ( gr->height - 1 ) / gMaxTextureSize + 1;
             int64_t x, y, offx, offy, seg, w, h;
