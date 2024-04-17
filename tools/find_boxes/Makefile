@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -pedantic -ggdb
-LDFLAGS = -lSDL2 -lSDL2_image -lpng -lz
+CFLAGS = -Wall -Wextra
+LDFLAGS = -lSDL2 -lSDL2_image
 
 all: find_boxes
 
