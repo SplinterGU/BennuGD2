@@ -198,6 +198,7 @@ void arrange_varspace_data( DCB_VAR * basevar, int nvars, char * basedata ) {
     for ( n = 0; n < nvars; n++ ) {
         switch ( basevar[ n ].Type.BaseType[ 0 ] ) {
             case TYPE_ARRAY:
+            {
                 int count = 1;
                 int i = 0;
                 for ( i = 0; i < MAX_TYPECHUNKS; i++ ) {
@@ -231,6 +232,7 @@ void arrange_varspace_data( DCB_VAR * basevar, int nvars, char * basedata ) {
                         break;
 
                     case TYPE_STRUCT:
+                    {
                         uint8_t * data = ( uint8_t* )basedata + basevar[ n ].Offset;
                         int64_t tsize = typedef_size( basevar[ n ].Type ) / count;
                         for ( int m = 0; m < count; m++ ) {
@@ -238,9 +240,11 @@ void arrange_varspace_data( DCB_VAR * basevar, int nvars, char * basedata ) {
                             data += tsize;
                         }
                         break;
+                    }
 
                 }
                 break;
+            }
 
             case TYPE_QWORD:
             case TYPE_INT:

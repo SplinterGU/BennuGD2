@@ -106,7 +106,8 @@ char* get_executable_full_path(const char* path) {
             GetCurrentDirectory(full_path_len, full_path);
             strcat(full_path, "\\");
         #else
-            if ( !getcwd(full_path, full_path_len) ); // ignore return
+            if ( !getcwd(full_path, full_path_len) )
+                ; // ignore return
             strcat(full_path, "/");
         #endif
         strcat(full_path, path);
