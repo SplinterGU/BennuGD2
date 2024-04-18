@@ -122,6 +122,9 @@ int64_t libmod_gfx_shader_free_parameters( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/* Set functions                                                               */
+
+/* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setparam( INSTANCE * my, int64_t * params ) {
     void * param = ( void * )( intptr_t ) params[ 0 ];
@@ -184,7 +187,82 @@ int64_t libmod_gfx_shader_setparam_matrix( INSTANCE * my, int64_t * params ) {
     if ( type != UNIFORM_MATRIX ) return -1;
     int location = params[ 2 ];
     if ( location == -1 ) return -1;
-    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * )( intptr_t ) params[ 3 ], params[ 4 ], params[ 5 ], params[ 6 ], params[ 7 ], params[ 8 ] );
+    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * )( intptr_t ) params[ 3 ], 0, params[ 4 ], params[ 5 ], params[ 6 ], params[ 7 ] );
+}
+
+/* --------------------------------------------------------------------------- */
+/* Get functions                                                               */
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_shader_getparam( INSTANCE *my, int64_t *params ) {
+    void *param = (void *)(intptr_t)params[0];
+    if (!param) return -1;
+    int location = params[1];
+    if (location == -1) return -1;
+
+    void *values;
+    int type;
+
+    if (shader_get_param((BGD_SHADER_PARAMETERS *)param, location, &type, NULL, &values, NULL, NULL, NULL, NULL, NULL) == 0) {
+        if ( params[2] ) *(int64_t *)(intptr_t)params[2] = type;
+        if ( type != UNIFORM_INT && type != UNIFORM_UINT && type != UNIFORM_FLOAT ) return -1;
+        *(void **)(intptr_t)params[3] = values;
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_shader_getparam_vector( INSTANCE *my, int64_t *params ) {
+    void *param = (void *)(intptr_t)params[0];
+    if (!param) return -1;
+    int location = params[1];
+    if (location == -1) return -1;
+
+    int type, n_values;
+    void *values;
+
+    if (shader_get_param((BGD_SHADER_PARAMETERS *)param, location, &type, &n_values, &values, NULL, NULL, NULL, NULL, NULL ) == 0) {
+        if ( params[2] ) *(int64_t *)(intptr_t)params[2] = type;
+        if ( type != UNIFORM_INT_ARRAY  && type != UNIFORM_UINT_ARRAY  && type != UNIFORM_FLOAT_ARRAY &&
+             type != UNIFORM_INT2_ARRAY && type != UNIFORM_UINT2_ARRAY && type != UNIFORM_FLOAT2_ARRAY &&
+             type != UNIFORM_INT3_ARRAY && type != UNIFORM_UINT3_ARRAY && type != UNIFORM_FLOAT3_ARRAY &&
+             type != UNIFORM_INT4_ARRAY && type != UNIFORM_UINT4_ARRAY && type != UNIFORM_FLOAT4_ARRAY 
+            ) return -1;
+        *(int64_t *)(intptr_t)params[3] = n_values;
+        *(void **)(intptr_t)params[4] = values;
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_shader_getparam_matrix( INSTANCE *my, int64_t *params ) {
+    void *param = (void *)(intptr_t)params[0];
+    if (!param) return -1;
+    int location = params[1];
+    if (location == -1) return -1;
+
+    int type, num_matrices, num_rows, num_columns, transpose;
+    void *values;
+
+    if (shader_get_param((BGD_SHADER_PARAMETERS *)param, location, &type, NULL, &values, NULL, &num_matrices, &num_rows, &num_columns, &transpose) == 0) {
+        if ( params[2] ) *(int64_t *)(intptr_t)params[2] = type;
+        if ( type != UNIFORM_MATRIX ) return -1;
+        *(void **)(intptr_t)params[3] = values;
+        *(int64_t *)(intptr_t)params[4] = num_matrices;
+        *(int64_t *)(intptr_t)params[5] = num_rows;
+        *(int64_t *)(intptr_t)params[6] = num_columns;
+        *(int64_t *)(intptr_t)params[7] = transpose;
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 /* --------------------------------------------------------------------------- */

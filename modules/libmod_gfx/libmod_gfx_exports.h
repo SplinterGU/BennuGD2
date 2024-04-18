@@ -525,7 +525,11 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "SHADER_SET_PARAM"            , "PIIF"           , TYPE_INT        , libmod_gfx_shader_setparam_float        ),
     FUNC( "SHADER_SET_PARAM"            , "PIIIII"         , TYPE_INT        , libmod_gfx_shader_setparam_image        ),
     FUNC( "SHADER_SET_PARAM"            , "PIIIP"          , TYPE_INT        , libmod_gfx_shader_setparam_vector       ),
-    FUNC( "SHADER_SET_PARAM"            , "PIIPIIIII"      , TYPE_INT        , libmod_gfx_shader_setparam_matrix       ),
+    FUNC( "SHADER_SET_PARAM"            , "PIIPIIII"       , TYPE_INT        , libmod_gfx_shader_setparam_matrix       ),
+
+    FUNC( "SHADER_GET_PARAM"            , "PIPP"           , TYPE_INT        , libmod_gfx_shader_getparam              ),
+    FUNC( "SHADER_GET_PARAM"            , "PIPPP"          , TYPE_INT        , libmod_gfx_shader_getparam_vector       ),
+    FUNC( "SHADER_GET_PARAM"            , "PIPPPPPP"       , TYPE_INT        , libmod_gfx_shader_getparam_matrix       ),
 
 #ifdef LIBVLC_ENABLED
     /* MEDIA */

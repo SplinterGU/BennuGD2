@@ -139,6 +139,7 @@ extern int shader_getattributelocation( BGD_SHADER * shader, const char * name )
 extern int shader_getuniformlocation( BGD_SHADER * shader, const char * name );
 
 extern int shader_set_param( BGD_SHADER_PARAMETERS * params, int type, int location, int n_values, void *values, int image_unit, int num_matrices, int num_rows, int num_columns, int transpose );
+extern int shader_get_param( BGD_SHADER_PARAMETERS * params, int location, int *type, int *n_values, void **values, int *image_unit, int *num_matrices, int *num_rows, int *num_columns, int *transpose);
 extern BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params );
 extern void shader_free_parameters( BGD_SHADER_PARAMETERS* params );
 extern void shader_apply_parameters( BGD_SHADER_PARAMETERS* params );

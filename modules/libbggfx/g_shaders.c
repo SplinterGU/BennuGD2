@@ -194,6 +194,38 @@ int shader_set_param(   BGD_SHADER_PARAMETERS * params,
 
 /* --------------------------------------------------------------------------- */
 
+int shader_get_param(   BGD_SHADER_PARAMETERS *params,
+                        int location,
+                        int *type,
+                        int *n_values,
+                        void **values,
+                        int *image_unit,
+                        int *num_matrices,
+                        int *num_rows,
+                        int *num_columns,
+                        int *transpose) {
+#ifdef USE_SDL2_GPU
+    for (int i = 0; i < params->nparams; ++i) {
+        if (params->params[i].location == location) {
+            if (type) *type = params->params[i].type;
+            if (n_values) *n_values = params->params[i].n_values;
+            if (values) *values = params->params[i].values;
+            if (image_unit) *image_unit = params->params[i].image_unit;
+            if (num_matrices) *num_matrices = params->params[i].num_matrices;
+            if (num_rows) *num_rows = params->params[i].num_rows;
+            if (num_columns) *num_columns = params->params[i].num_columns;
+            if (transpose) *transpose = params->params[i].transpose;
+            return 0;
+        }
+    }
+    return 1; // Parameter with specified location not found
+#else
+    return 0;
+#endif
+}
+
+/* --------------------------------------------------------------------------- */
+
 // Create and fill a BGD_SHADER_PARAMETERS structure
 BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params ) {
 #ifdef USE_SDL2_GPU

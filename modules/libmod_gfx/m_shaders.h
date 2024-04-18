@@ -56,4 +56,8 @@ extern int64_t libmod_gfx_shader_setparam_image( INSTANCE * my, int64_t * params
 extern int64_t libmod_gfx_shader_setparam_vector( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_shader_setparam_matrix( INSTANCE * my, int64_t * params );
 
+extern int64_t libmod_gfx_shader_getparam( INSTANCE *my, int64_t *params );
+extern int64_t libmod_gfx_shader_getparam_vector( INSTANCE *my, int64_t *params );
+extern int64_t libmod_gfx_shader_getparam_matrix( INSTANCE *my, int64_t *params );
+
 #endif
