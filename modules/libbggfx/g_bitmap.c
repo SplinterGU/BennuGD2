@@ -134,7 +134,7 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
 #ifdef USE_SDL2_GPU
         gr->tex = NULL;
         // If bitmap is largest that max texture size then return with error
-        if ( gMaxTextureSize || ( width > gMaxTextureSize || height > gMaxTextureSize ) ) {
+        if ( gMaxTextureSize && ( width > gMaxTextureSize || height > gMaxTextureSize ) ) {
             free( gr );
             return NULL;
         }
