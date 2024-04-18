@@ -111,44 +111,44 @@ int64_t libmod_gfx_shader_getuniformlocation( INSTANCE * my, int64_t * params ) 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_create_parameters( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) shader_create_parameters( params[ 0 ] );
+    return ( int64_t )( intptr_t ) shader_create_parameters( params[ 0 ] );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_free_parameters( INSTANCE * my, int64_t * params ) {
-    shader_free_parameters( ( BGD_SHADER_PARAMETERS * ) params[ 0 ] );
+    shader_free_parameters( ( BGD_SHADER_PARAMETERS * )( intptr_t ) params[ 0 ] );
     return 1;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setparam( INSTANCE * my, int64_t * params ) {
-    void * param = ( void * ) params[ 0 ];
+    void * param = ( void * )( intptr_t ) params[ 0 ];
     if ( !param ) return -1;
     int type = params[ 1 ];
     if ( type != UNIFORM_INT && type != UNIFORM_UINT ) return -1;
     int location = params[ 2 ];
     if ( location == -1 ) return -1;
-    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * ) params[ 3 ], 0, 0, 0, 0, 0 );
+    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * )( intptr_t ) params[ 3 ], 0, 0, 0, 0, 0 );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setparam_float( INSTANCE * my, int64_t * params ) {
-    void * param = ( void * ) params[ 0 ];
+    void * param = ( void * )( intptr_t ) params[ 0 ];
     if ( !param ) return -1;
     int type = params[ 1 ];
     if ( type != UNIFORM_FLOAT ) return -1;
     int location = params[ 2 ];
     if ( location == -1 ) return -1;
-    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * ) params[ 3 ], 0, 0, 0, 0, 0 );
+    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * )( intptr_t ) params[ 3 ], 0, 0, 0, 0, 0 );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setparam_image( INSTANCE * my, int64_t * params ) {
-    void * param = ( void * ) params[ 0 ];
+    void * param = ( void * )( intptr_t ) params[ 0 ];
     if ( !param ) return -1;
     int type = params[ 1 ];
     if ( type != SHADER_IMAGE ) return -1;
@@ -162,7 +162,7 @@ int64_t libmod_gfx_shader_setparam_image( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setparam_vector( INSTANCE * my, int64_t * params ) {
-    void * param = ( void * ) params[ 0 ];
+    void * param = ( void * )( intptr_t ) params[ 0 ];
     if ( !param ) return -1;
     int type = params[ 1 ];
     if ( type != UNIFORM_INT_ARRAY  && type != UNIFORM_UINT_ARRAY  && type != UNIFORM_FLOAT_ARRAY &&
@@ -172,19 +172,19 @@ int64_t libmod_gfx_shader_setparam_vector( INSTANCE * my, int64_t * params ) {
         ) return -1;
     int location = params[ 2 ];
     if ( location == -1 ) return -1;
-    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, params[ 3 ], ( void * ) params[ 4 ], 0, 0, 0, 0, 0 );
+    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, params[ 3 ], ( void * )( intptr_t ) params[ 4 ], 0, 0, 0, 0, 0 );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_shader_setparam_matrix( INSTANCE * my, int64_t * params ) {
-    void * param = ( void * ) params[ 0 ];
+    void * param = ( void * )( intptr_t ) params[ 0 ];
     if ( !param ) return -1;
     int type = params[ 1 ];
     if ( type != UNIFORM_MATRIX ) return -1;
     int location = params[ 2 ];
     if ( location == -1 ) return -1;
-    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * ) params[ 3 ], params[ 4 ], params[ 5 ], params[ 6 ], params[ 7 ], params[ 8 ] );
+    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * )( intptr_t ) params[ 3 ], params[ 4 ], params[ 5 ], params[ 6 ], params[ 7 ], params[ 8 ] );
 }
 
 /* --------------------------------------------------------------------------- */

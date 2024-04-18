@@ -887,7 +887,7 @@ int64_t joy_query_specific( int64_t joy, int64_t element, int64_t arg1 ) {
                 return joy_has_rumble_triggers_specific( joy );
 
             case JOY_QUERY_NAME:
-                return ( int64_t ) joy_name_specific( joy );
+                return ( int64_t )( intptr_t ) joy_name_specific( joy );
                 
             case JOY_QUERY_TYPE:
                 return joy_type_specific( joy );

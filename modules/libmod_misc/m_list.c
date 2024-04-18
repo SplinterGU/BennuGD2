@@ -31,39 +31,39 @@
 #include "libmod_misc.h"
 
 int64_t libmod_misc_list_create( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) list_create( -1 );
+    return ( int64_t )( intptr_t ) list_create( -1 );
 }
 
 int64_t libmod_misc_list_create2( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) list_create( params[ 0 ]);
+    return ( int64_t )( intptr_t ) list_create( params[ 0 ]);
 }
 
 int64_t libmod_misc_list_free( INSTANCE * my, int64_t * params ) {
-    list_free( ( List * )params[0], NULL );
+    list_free( ( List * )( intptr_t ) params[0], NULL );
     return 1;
 }
 
 int64_t libmod_misc_list_empty( INSTANCE * my, int64_t * params ) {
-    list_empty( ( List * )params[0], NULL );
+    list_empty( ( List * )( intptr_t ) params[0], NULL );
     return 1;
 }
 
 int64_t libmod_misc_list_insertItem( INSTANCE * my, int64_t * params ) {
-    list_insertItem( ( List * )params[0], ( void * ) params[ 1 ] );
+    list_insertItem( ( List * )( intptr_t ) params[0], ( void * )( intptr_t ) params[ 1 ] );
     return 1;
 }
 
 int64_t libmod_misc_list_removeItem( INSTANCE * my, int64_t * params ) {
-    list_removeItem( ( List * )params[0], ( void * ) params[ 1 ], NULL );
+    list_removeItem( ( List * )( intptr_t ) params[0], ( void * )( intptr_t ) params[ 1 ], NULL );
     return 1;
 }
 
 int64_t libmod_misc_list_walk( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) list_walk( ( List * ) params[0], ( void ** )params[1] );
+    return ( int64_t )( intptr_t ) list_walk( ( List * )( intptr_t ) params[0], ( void ** )( intptr_t ) params[1] );
 }
 
 int64_t libmod_misc_list_size( INSTANCE * my, int64_t * params ) {
-    return ( int64_t ) list_size( ( List * ) params[0] );
+    return ( int64_t ) list_size( ( List * )( intptr_t ) params[0] );
 }
 
 /* ----------------------------------------------------------------- */

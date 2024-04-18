@@ -548,8 +548,8 @@ int64_t libmod_misc_math_intersect( INSTANCE * my, int64_t * params ) {
 
     if ( !( x0 > MAX(x1,x2) + DBL_EPSILON || x0 < MIN(x1,x2) - DBL_EPSILON || y0 > MAX(y1,y2) + DBL_EPSILON || y0 + 0.01f < MIN(y1,y2) - DBL_EPSILON ||
             x0 > MAX(x3,x4) + DBL_EPSILON || x0 < MIN(x3,x4) - DBL_EPSILON || y0 > MAX(y3,y4) + DBL_EPSILON || y0 + 0.01f < MIN(y3,y4) - DBL_EPSILON ) ) {
-        * ( int64_t * ) params[8] = * ( int64_t * ) &x0;
-        * ( int64_t * ) params[9] = * ( int64_t * ) &y0;
+        * ( int64_t * )( intptr_t ) params[8] = * ( int64_t * ) &x0;
+        * ( int64_t * )( intptr_t ) params[9] = * ( int64_t * ) &y0;
         return 1;
     }
 
@@ -593,18 +593,18 @@ int64_t libmod_misc_math_intersect_line_circle( INSTANCE * my, int64_t * params 
     max_y = MAX(y1,y2) + DBL_EPSILON;
 
     if ( isfinite(x0_1) && isfinite(y0_1) && !( x0_1 > max_x || x0_1 < min_x || y0_1 > max_y || y0_1 < min_y ) ) {
-        * ( int64_t * ) params[7] = * ( int64_t * ) &x0_1;
-        * ( int64_t * ) params[8] = * ( int64_t * ) &y0_1;
+        * ( int64_t * )( intptr_t ) params[7] = * ( int64_t * ) &x0_1;
+        * ( int64_t * )( intptr_t ) params[8] = * ( int64_t * ) &y0_1;
         nret++;
     }
 
     if ( isfinite(x0_2) && isfinite(y0_2) && !( x0_2 > max_x || x0_2 < min_x || y0_2 > max_y || y0_2 < min_y ) ) {
         if ( nret ) {
-            * ( int64_t * ) params[9]  = * ( int64_t * ) &x0_2;
-            * ( int64_t * ) params[10] = * ( int64_t * ) &y0_2;
+            * ( int64_t * )( intptr_t ) params[9]  = * ( int64_t * ) &x0_2;
+            * ( int64_t * )( intptr_t ) params[10] = * ( int64_t * ) &y0_2;
         } else {
-            * ( int64_t * ) params[7] = * ( int64_t * ) &x0_2;
-            * ( int64_t * ) params[8] = * ( int64_t * ) &y0_2;
+            * ( int64_t * )( intptr_t ) params[7] = * ( int64_t * ) &x0_2;
+            * ( int64_t * )( intptr_t ) params[8] = * ( int64_t * ) &y0_2;
         }
         nret++;
     }
@@ -645,15 +645,15 @@ int64_t libmod_misc_math_intersect_circle( INSTANCE * my, int64_t * params ) {
 
         x0 = cx1 + cos_deg( angle + acos_a ) * r1;
         y0 = cy1 - sin_deg( angle + acos_a ) * r1;
-        * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
-        * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
+        * ( int64_t * )( intptr_t ) params[6] = * ( int64_t * ) &x0;
+        * ( int64_t * )( intptr_t ) params[7] = * ( int64_t * ) &y0;
 
         if ( acos_a == 0.0 ) return 1;
 
         x0 = cx1 + cos_deg( angle - acos_a ) * r1;
         y0 = cy1 - sin_deg( angle - acos_a ) * r1;
-        * ( int64_t * ) params[8] = * ( int64_t * ) &x0;
-        * ( int64_t * ) params[9] = * ( int64_t * ) &y0;
+        * ( int64_t * )( intptr_t ) params[8] = * ( int64_t * ) &x0;
+        * ( int64_t * )( intptr_t ) params[9] = * ( int64_t * ) &y0;
 
         return 2;
     }
@@ -687,8 +687,8 @@ int64_t libmod_misc_math_normal_projection( INSTANCE * my, int64_t * params ) {
         y0 = b2 + m1 * x0;
     }
 
-    * ( int64_t * ) ( params[6] ) = * ( int64_t * ) &x0;
-    * ( int64_t * ) ( params[7] ) = * ( int64_t * ) &y0;
+    * ( int64_t * )( intptr_t ) ( params[6] ) = * ( int64_t * ) &x0;
+    * ( int64_t * )( intptr_t ) ( params[7] ) = * ( int64_t * ) &y0;
 /*
     double dx =   ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
            s  = ( ( px - x0 ) + ( py - y0 ) ) < 0 ? -1 : 1;
@@ -727,8 +727,8 @@ int64_t libmod_misc_math_orthogonal_projection( INSTANCE * my, int64_t * params 
         y0 = b2 + m2 * x0;
     }
 
-    * ( int64_t * ) params[6] = * ( int64_t * ) &x0;
-    * ( int64_t * ) params[7] = * ( int64_t * ) &y0;
+    * ( int64_t * )( intptr_t ) params[6] = * ( int64_t * ) &x0;
+    * ( int64_t * )( intptr_t ) params[7] = * ( int64_t * ) &y0;
 /*
     double dx =   ( px - x0 ) * ( px - x0 ) + ( py - y0 ) * ( py - y0 ),
            s  = ( ( px - x0 ) + ( py - y0 ) ) < 0 ? -1 : 1;

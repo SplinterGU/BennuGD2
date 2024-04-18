@@ -336,7 +336,7 @@ int64_t modstring_string_new_array( INSTANCE * my, int64_t * params )
 
     array[0] = params[0];
 
-    return ( int64_t ) ( array + 1 );
+    return ( int64_t )( intptr_t ) ( array + 1 );
 }
 
 /* ----------------------------------------------------------------- */
@@ -349,7 +349,7 @@ int64_t modstring_string_new_array_empty( INSTANCE * my, int64_t * params )
 {
     int64_t * array = calloc( 1, sizeof( int64_t ) ) ;
     array[0] = 0;
-    return ( int64_t ) ( array + 1 );
+    return ( int64_t )( intptr_t ) ( array + 1 );
 }
 
 /* ----------------------------------------------------------------- */
@@ -359,9 +359,9 @@ int64_t modstring_string_new_array_empty( INSTANCE * my, int64_t * params )
 
 int64_t modstring_string_resize_array( INSTANCE * my, int64_t * params )
 {
-    if ( !params[0] ) return ( int64_t ) NULL;
+    if ( !params[0] ) return ( int64_t ) 0;
 
-    int64_t ** presult = ( int64_t ** ) ( params[0] );
+    int64_t ** presult = ( int64_t ** )( intptr_t ) ( params[0] );
     int64_t * current_array = ( *presult ) - 1;
     int64_t current_size = current_array[0];
     int64_t new_size = params[1];
@@ -394,7 +394,7 @@ int64_t modstring_string_delete_array( INSTANCE * my, int64_t * params )
 {
     if ( !params[0] ) return ( int64_t ) 0;
 
-    int64_t ** presult = ( int64_t ** ) ( params[0] );
+    int64_t ** presult = ( int64_t ** )( intptr_t ) ( params[0] );
     int64_t * current_array = ( *presult ) - 1;
     int64_t current_size = current_array[0];
 
@@ -418,7 +418,7 @@ int64_t modstring_string_delete_array( INSTANCE * my, int64_t * params )
 int64_t modstring_string_size_array( INSTANCE * my, int64_t * params )
 {
     if ( !params[0] ) return ( int64_t ) 0;
-    return ( ( int64_t * ) ( params[0] ) )[ -1 ];
+    return ( ( int64_t * )( intptr_t ) ( params[0] ) )[ -1 ];
 }
 
 /* ----------------------------------------------------------------- */
