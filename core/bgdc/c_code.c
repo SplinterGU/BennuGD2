@@ -3615,6 +3615,7 @@ void compile_block( PROCDEF * p ) {
                         codeblock_label_set( code, et1, code->current );
                         compile_block( p );
                         codeblock_label_set( code, et2, code->current );
+                        if ( token.code == identifier_else ) compile_error( MSG_ELSE_WOUT_IF );
                         break;
                     } else if ( token.type == IDENTIFIER && token.code == identifier_elseif ) { /* "ELSEIF" */
                         if ( dcb_options & DCB_DEBUG ) codeblock_add( code, MN_SENTENCE, line_count + ( current_file << 20 ) );
