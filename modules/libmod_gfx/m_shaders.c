@@ -145,7 +145,8 @@ int64_t libmod_gfx_shader_setparam_float( INSTANCE * my, int64_t * params ) {
     if ( type != UNIFORM_FLOAT ) return -1;
     int location = params[ 2 ];
     if ( location == -1 ) return -1;
-    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * )( intptr_t ) params[ 3 ], 0, 0, 0, 0, 0 );
+    float value = *( float * ) &params[ 3 ];
+    return shader_set_param( ( BGD_SHADER_PARAMETERS * ) param, type, location, 0, ( void * )( intptr_t ) *(( int32_t * )&value ), 0, 0, 0, 0, 0 );
 }
 
 /* --------------------------------------------------------------------------- */
