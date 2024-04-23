@@ -1,17 +1,665 @@
-??-??-2023:
+2024-04-22:
+
+- Data types and limits updated
+
+.-----------.------.--------.----------------.----------------.
+| Data Type | Bits | Signed | MIN Constant   | MAX Constant   |
+|-----------|------|--------|----------------|----------------|
+| UINT64    | 64   | No     | MIN_UINT64     | MAX_UINT64     |
+| UINT32    | 32   | No     | MIN_UINT32     | MAX_UINT32     |
+| UINT16    | 16   | No     | MIN_UINT16     | MAX_UINT16     |
+| UINT8     | 8    | No     | MIN_UINT8      | MAX_UINT8      |
+| INT64     | 64   | Yes    | MIN_INT64      | MAX_INT64      |
+| INT32     | 32   | Yes    | MIN_INT32      | MAX_INT32      |
+| INT16     | 16   | Yes    | MIN_INT16      | MAX_INT16      |
+| INT8      | 8    | Yes    | MIN_INT8       | MAX_INT8       |
+| CHAR      | 8    | Yes    | MIN_CHAR       | MAX_CHAR       |
+| ULONG     | 64   | No     | MIN_ULONG      | MAX_ULONG      |
+| QWORD     | 64   | No     | MIN_QWORD      | MAX_QWORD      |
+| DWORD     | 32   | No     | MIN_DWORD      | MAX_DWORD      |
+| WORD      | 16   | No     | MIN_WORD       | MAX_WORD       |
+| BYTE      | 8    | No     | MIN_BYTE       | MAX_BYTE       |
+| SBYTE     | 8    | Yes    | MIN_SBYTE      | MAX_SBYTE      |
+| BOOL      | 1    | No     | 0              | 1              |
+| FLOAT     | -    | -      | -              | -              |
+| DOUBLE    | -    | -      | -              | -              |
+| STRING    | -    | -      | -              | -              |
+'-----------'------'--------'----------------'----------------'
+
+2024-04-21:
+
+- Fixed shaders
+- Shaders:
+
+    /**
+     * Constants representing different shader languages.
+     */
+
+    SHADER_LANGUAGE_NONE           // Represents no specific shader language
+    SHADER_LANGUAGE_ARB_ASSEMBLY   // Represents OpenGL ARB assembly shader language
+    SHADER_LANGUAGE_GLSL           // Represents OpenGL GLSL shader language
+    SHADER_LANGUAGE_GLSLES         // Represents OpenGL ES GLSL shader language
+    SHADER_LANGUAGE_HLSL           // Represents DirectX HLSL shader language
+    SHADER_LANGUAGE_CG             // Represents NVIDIA Cg shader language
+
+    /**
+     * Constants used for shader parameter types.
+     */
+
+    SHADER_IMAGE              // Parameter type: image
+    UNIFORM_INT               // Parameter type: uniform integer
+    UNIFORM_INT_ARRAY         // Parameter type: array of uniform integers
+    UNIFORM_INT2_ARRAY        // Parameter type: array of 2-element uniform integer vectors
+    UNIFORM_INT3_ARRAY        // Parameter type: array of 3-element uniform integer vectors
+    UNIFORM_INT4_ARRAY        // Parameter type: array of 4-element uniform integer vectors
+    UNIFORM_UINT              // Parameter type: uniform unsigned integer
+    UNIFORM_UINT_ARRAY        // Parameter type: array of uniform unsigned integers
+    UNIFORM_UINT2_ARRAY       // Parameter type: array of 2-element uniform unsigned integer vectors
+    UNIFORM_UINT3_ARRAY       // Parameter type: array of 3-element uniform unsigned integer vectors
+    UNIFORM_UINT4_ARRAY       // Parameter type: array of 4-element uniform unsigned integer vectors
+    UNIFORM_FLOAT             // Parameter type: uniform float
+    UNIFORM_FLOAT_ARRAY       // Parameter type: array of uniform floats
+    UNIFORM_FLOAT2_ARRAY      // Parameter type: array of 2-element uniform float vectors
+    UNIFORM_FLOAT3_ARRAY      // Parameter type: array of 3-element uniform float vectors
+    UNIFORM_FLOAT4_ARRAY      // Parameter type: array of 4-element uniform float vectors
+    UNIFORM_MATRIX            // Parameter type: uniform matrix
+
+    /**
+     * Get the shader language being used.
+     *
+     * return:
+     *      Returns the shader language identifier.
+     */
+    int SHADER_GET_LANGUAGE();
+
+    /**
+     * Get the minimum supported shader version.
+     *
+     * return:
+     *      Returns the minimum supported shader version.
+     */
+    int SHADER_GET_MIN_VERSION();
+
+    /**
+     * Get the maximum supported shader version.
+     *
+     * return:
+     *      Returns the maximum supported shader version.
+     */
+    int SHADER_GET_MAX_VERSION();
+
+    /**
+     * Create a shader with specified vertex and fragment shaders.
+     *
+     * params:
+     *      vertex          Shader source code for the vertex shader.
+     *      fragment        Shader source code for the fragment shader.
+     *
+     * return:
+     *      Returns a pointer to the created shader.
+     */
+    int * SHADER_CREATE(string vertex, string fragment);
+
+    /**
+     * Free the memory allocated for a shader.
+     *
+     * params:
+     *      shader          Pointer to the shader to be freed.
+     *
+     * return:
+     *      Returns 1 if successful, 0 otherwise.
+     */
+    int SHADER_FREE(int *shader);
+
+    /**
+     * Get the location of a uniform in a shader.
+     *
+     * params:
+     *      shader          Pointer to the shader.
+     *      name            Name of the uniform.
+     *
+     * return:
+     *      Returns the location of the uniform in the shader.
+     */
+    int SHADER_GET_PARAM_LOCATION(int *shader, string name);
+
+    /**
+     * Create parameters for a shader.
+     *
+     * params:
+     *      num_params      Number of parameters to create.
+     *
+     * return:
+     *      Returns a pointer to the created parameters.
+     */
+    int * SHADER_CREATE_PARAMS(int num_params);
+
+    /**
+     * Free the memory allocated for shader parameters.
+     *
+     * params:
+     *      params          Pointer to the shader parameters to be freed.
+     *
+     * return:
+     *      Returns 1 if successful, 0 otherwise.
+     */
+    int SHADER_FREE_PARAMS(int *params);
+
+    /**
+     * Set a parameter for a shader.
+     *
+     * params:
+     *      params          Pointer to the shader parameters.
+     *      param_type      Type of the parameter (e.g., UNIFORM_INT).
+     *      location        Location of the parameter in the shader.
+     *      value           Value of the parameter.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int SHADER_SET_PARAM(int *params, int param_type, int location, int value);
+
+    /**
+     * Set a parameter for a shader.
+     *
+     * params:
+     *      params          Pointer to the shader parameters.
+     *      param_type      Type of the parameter (e.g., UNIFORM_FLOAT).
+     *      location        Location of the parameter in the shader.
+     *      value           Value of the parameter.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int SHADER_SET_PARAM(int *params, int param_type, int location, float value);
+
+    /**
+     * Set a parameter for a shader.
+     *
+     * params:
+     *      params          Pointer to the shader parameters.
+     *      param_type      Type of the parameter (e.g., SHADER_IMAGE).
+     *      location        Location of the parameter in the shader.
+     *      file            File ID.
+     *      graph           Graph ID.
+     *      image_unit      Image unit to use.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int SHADER_SET_PARAM(int *params, int param_type, int location, int file, int graph, int image_unit);
+
+    /**
+     * Set a parameter for a shader.
+     *
+     * params:
+     *      params          Pointer to the shader parameters.
+     *      param_type      Type of the parameter (e.g., UNIFORM_INT_ARRAY).
+     *      location        Location of the parameter in the shader.
+     *      n_values        Number of values in the vector.
+     *      values          Pointer to the values array.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int SHADER_SET_PARAM(int *params, int param_type, int location, int n_values, int *values);
+
+    /**
+     * Set a parameter for a shader.
+     *
+     * params:
+     *      params          Pointer to the shader parameters.
+     *      param_type      Type of the parameter (e.g., UNIFORM_MATRIX).
+     *      location        Location of the parameter in the shader.
+     *      num_matrices    Number of matrices.
+     *      num_rows        Number of rows in each matrix.
+     *      num_columns     Number of columns in each matrix.
+     *      transpose       Whether to transpose the matrices.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int SHADER_SET_PARAM(int *params, int param_type, int location, int num_matrices, int num_rows, int num_columns, int transpose);
+
+    /**
+     * Get a parameter from a shader.
+     *
+     * params:
+     *      params          Pointer to the shader parameters.
+     *      location        Location of the parameter in the shader.
+     *      type            Pointer to store the type of the parameter.
+     *      value           Pointer to store the value of the parameter.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int SHADER_GET_PARAM(int *params, int location, int *type, int *value);
+
+    /**
+     * Get a vector parameter from a shader.
+     *
+     * params:
+     *      params         Pointer to the shader parameters.
+     *      location       Location of the parameter in the shader.
+     *      type           Pointer to store the type of the parameter.
+     *      n_values       Pointer to store the number of values in the vector.
+     *      values         Pointer to store the values of the vector.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int SHADER_GET_PARAM(int *params, int location, int *type, int *n_values, int **values);
+
+    /**
+     * Get a matrix parameter from a shader.
+     *
+     * params:
+     *      params          Pointer to the shader parameters.
+     *      location        Location of the parameter in the shader.
+     *      type            Pointer to store the type of the parameter.
+     *      values          Pointer to store the values of the matrix.
+     *      num_matrices    Pointer to store the number of matrices.
+     *      num_rows        Pointer to store the number of rows in each matrix.
+     *      num_columns     Pointer to store the number of columns in each matrix.
+     *      transpose       Pointer to store whether the matrices are transposed.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int SHADER_GET_PARAM(int *params, int location, int *type, int **values, int *num_matrices, int *num_rows, int *num_columns, int *transpose);
+
+
+2024-04-16:
+
+- Added find_boxes tool. Tool for detect collision boxes from an image.
+
+2024-04-15:
+
+- Added make_atlas tool.
+- Added PS3 port (Experimental, with SDL2 bugs) (UNUSABLE)
+- Fixed system_font creation for debug console
+
+2024-04-04:
+
+- Added mod_net
+- Added network samples
+
+    /**
+     * Constants used for network mode.
+     */
+    NET_MODE_SERVER       // Network mode: server
+    NET_MODE_CLIENT       // Network mode: client
+
+    /**
+     * Constants used for network protocol.
+     */
+    NET_PROTO_UDP         // Network protocol: UDP
+    NET_PROTO_TCP         // Network protocol: TCP
+
+    /**
+     * Error codes.
+     */
+    NET_ERROR             // Network error
+    NET_TIMEOUT           // Network timeout
+    NET_DISCONNECTED      // Network disconnected
+
+    /**
+     * Open a network connection.
+     *
+     * params:
+     *      mode            Network mode (server/client).
+     *      proto           Network protocol (TCP/UDP).
+     *      addr            Address to connect (optional).
+     *      port            Port to connect.
+     *
+     * return:
+     *      Returns a pointer to the network connection.
+     */
+    int * NET_OPEN(int mode, int proto, string addr, int port);
+
+    /**
+     * Wait for events on network connections.
+     *
+     * params:
+     *      socks           List of sockets to wait on.
+     *      timeout         Timeout in milliseconds.
+     *      events          List of events.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int NET_WAIT(List *socks, int timeout, List *events);
+
+    /**
+     * Send data over a network connection.
+     *
+     * params:
+     *      neth            Pointer to the network connection.
+     *      buf             Data buffer to send.
+     *      len             Length of the data buffer.
+     *
+     * return:
+     *      Returns the number of bytes sent, or -1 on error.
+     */
+    int NET_SEND(int *neth, byte *buf, int len);
+
+    /**
+     * Receive data from a network connection.
+     *
+     * params:
+     *      neth            Pointer to the network connection.
+     *      buf             Buffer to store received data.
+     *      len             Length of the buffer.
+     *
+     * return:
+     *      Returns the number of bytes received, or -1 on error.
+     */
+    int NET_RECV(int *neth, byte *buf, int len);
+
+    /**
+     * Close a network connection.
+     *
+     * params:
+     *      neth            Pointer to the network connection.
+     *
+     * return:
+     *      Returns 0 if successful, -1 otherwise.
+     */
+    int NET_CLOSE(int *neth);
+
+    /**
+     * Get the number of available bytes to read from a network connection.
+     *
+     * params:
+     *      neth            Pointer to the network connection.
+     *
+     * return:
+     *      Returns the number of available bytes, or -1 on error.
+     */
+    int NET_GETAVAILABLEBYTES(int *neth);
+
+    /**
+     * Get the receive buffer size of a network connection.
+     *
+     * params:
+     *      neth            Pointer to the network connection.
+     *
+     * return:
+     *      Returns the receive buffer size, or -1 on error.
+     */
+    int NET_GETRECEIVEBUFFERSIZE(int *neth);
+
+    /**
+     * Get the remote address of a network connection.
+     *
+     * params:
+     *      neth            Pointer to the network connection.
+     *
+     * return:
+     *      Returns the remote address as a string, or an empty string if not available.
+     */
+    string NET_GETREMOTEADDR(int *neth);
+
+    /**
+     * Check if a new connection has been established.
+     *
+     * params:
+     *      neth            Pointer to the network connection.
+     *
+     * return:
+     *      Returns 1 if a new connection has been established, 0 otherwise.
+     */
+    int NET_IS_NEW_CONNECTION(int *neth);
+
+    /**
+     * Check if a message is incoming on a network connection.
+     *
+     * params:
+     *      event           Pointer to the network event.
+     *
+     * return:
+     *      Returns 1 if a message is incoming, 0 otherwise.
+     */
+    int NET_IS_MESSAGE_INCOMING(int *event);
+
+- Added List functions (use "int *" for "List *"):
+
+    /**
+     * Create a new list.
+     * 
+     * params:
+     *      max_pool_size   Max pool size, -1 is default 1024.
+     * 
+     * return:
+     *      A pointer to the newly created list, or NULL if memory allocation fails.
+     */
+    List *LIST_CREATE(int max_pool_size);
+
+    /**
+     * Create a new list with specified max pool size.
+     * 
+     * params:
+     *      max_pool_size   Max pool size.
+     * 
+     * return:
+     *      A pointer to the newly created list, or NULL if memory allocation fails.
+     */
+    List *LIST_CREATE(int max_pool_size);
+
+    /**
+     * Free memory occupied by the list.
+     * 
+     * params:
+     *      list            Pointer to the list to be freed.
+     * 
+     * return:
+     *      Returns 1 if successful, 0 otherwise.
+     */
+    int LIST_FREE(List *list);
+
+    /**
+     * Empty the list.
+     * 
+     * params:
+     *      list            Pointer to the list to be emptied.
+     * 
+     * return:
+     *      Returns 1 if successful, 0 otherwise.
+     */
+    int LIST_EMPTY(List *list);
+
+    /**
+     * Insert an item into the list.
+     * 
+     * params:
+     *      list            Pointer to the list.
+     *      data            Pointer to the data to be inserted.
+     * 
+     * return:
+     *      Returns 1 if successful, 0 otherwise.
+     */
+    int LIST_INSERTITEM(List *list, pointer data);
+
+    /**
+     * Remove an item from the list.
+     * 
+     * params:
+     *      list            Pointer to the list.
+     *      data            Pointer to the data to be removed.
+     * 
+     * return:
+     *      Returns 1 if successful, 0 otherwise.
+     */
+    int LIST_REMOVEITEM(List *list, pointer data);
+
+    /**
+     * Walk through the list.
+     * 
+     * params:
+     *      list            Pointer to the list.
+     *      context         Pointer to the context used for iteration.
+     * 
+     * return:
+     *      Returns a pointer to the data of the current node, or NULL if the end of the list is reached.
+     */
+    pointer LIST_WALK(List *list, **context);
+
+    /**
+     * Get the size of the list.
+     * 
+     * params:
+     *      list            Pointer to the list.
+     * 
+     * return:
+     *      Returns the size of the list.
+     */
+    int LIST_SIZE(List *list);
+
+2024-03-14:
+
+- Fixed resolution when x or y are < 0
+
+2024-01-29:
+
+- Speed improvement for get_pixel
+
+2024-01-26:
+
+- Save/Load compressed dcb
+- file.c refactor
+- compressed stub
+
+2024-01-25:
+
+- Support scroll with only background graph (without front graph)
+- SDL2 textures now are SDL_TEXTUREACCESS_TARGET
+- Fixed MAP_SAVE SDL2
+- Fixed MAP_CLEAR* SDL2
+- Fixed map_get_pixel and map_put_pixel in SDL2
+
+2024-01-24:
+
+- Added text.region
+
+2024-01-23:
+
+- Fixed RUN parameters in debug_console
+- Added get_type
+
+    /**
+     * Get the type of a process.
+     * 
+     * param:
+     *      process_id  The ID of the process.
+     *
+     * return:
+     *      Returns the type of the process.
+     */
+    int get_type(process_id);
+
+- ignore my instance in get_id( type )
+
+2024-01-22:
+
+- Updated mod_debug. Added cursor navigation, delete and insert on command line
+
+2024-01-21:
+
+- Changed default scroll ratio to 0
+- Added box collision sample
+
+2024-01-20:
+
+- Introduce a compilation error if a parameter variable (private to the function or process) is declared as local after the function or process has already been created or defined.
+
+2024-01-16:
+
+- fixed map_block_copy with negative coords
+- default sounds channels to 32
+- set scroll default values
+
+2024-01-11:
+
+- Fixed ScaleResolution bug
+- Removed redundante code and add Q_MIPMAP constant for SDL2
+- Fixed a bug that occurred when specifying too many parameters in the usage of functions with optional parameter
+
+2024-01-08:
+
+- Changed pointx and pointy in get_real_point(instance, pointx, pointy, &x, &y) to double
+
+2024-01-07:
+
+- Fixed short % short
+
+2024-01-02:
+
+- Added GET_BASE_PATH and GET_PREF_PATH
+
+    /**
+     * Get the base path of the application.
+     * 
+     * return:
+     *      Returns the base path of the application.
+     */
+    int GET_BASE_PATH();
+
+    /**
+     * Get the preference path for the application.
+     * 
+     * params:
+     *      company_name    The name of the company or organization.
+     *      app_name        The name of the application.
+     * 
+     * return:
+     *      Returns the preference path for the application.
+     */
+    int GET_PREF_PATH(string company_name, string app_name);
+
+2023-12-23:
+
+- Added BLEND_ALPHA_MASK
+
+2023-12-21:
+
+- Fixed char 32 size (SPACE) on font from bitmap
+
+2023-12-20:
+
+- Collision must be process in same RENDER_GRAPH
+- Fixed acos, asin, atan, atan2 (change return type to DOUBLE to allow their use in functions such as FINITE, ISNAN, ISINF).
+- Added double FMOD( double, double ) - Remains of division
+- Added double MMOD( double, double )
+        double MODULUS( double, double ) - Math module
+
+2023-12-12:
+
+- Replaced arrays blocks () by {}
+
+2023-12-03:
 
 - Added bash_completion files
 
+2023-12-01:
+
 - Added string strtok(string string, string delims)
 
+2023-11-30:
+
 - Added rfind(string, pattern [, first]) for reverse search
+
+2023-11-29:
 
 - Fixed (cast)-value and (cast)+value.
 - Fixed conversions to float and double
 
-- Added double MAG(double x, double y) which is the same as DIST(0,0,x,y)
+2023-11-28:
 
-- Added: double EXP(double), double LOG(double)
+- Added:
+    double MAG(double x, double y) which is the same as DIST(0,0,x,y)
+
+- Added:
+    double EXP(double), double LOG(double)
     double LOG10(double)
     double NORMALIZE(double value, double lo, double high)
     double NORMALIZE(int value, int lo, int hi)
@@ -42,6 +690,8 @@
 - Added CLAMP(int, int, int), BETWEEN(int, int, int)
 - Added WRAP(int value, int min, int max)
 
+2023-11-27:
+
 - Added:
     STRING_SIZE_ARRAY(string *)
     STRING_NEW_ARRAY()
@@ -59,6 +709,992 @@
 - Added:
     double TOWARDS(double from, double to, double step)
     int TOWARDS(int from, int to, int step)
+
+- Updated mod_sound:
+
+    /**
+     * Constants representing different sound modes.
+     */
+    
+    MODE_MONO           // Mono sound mode
+    MODE_STEREO         // Stereo sound mode
+    MODE_STEREO_2_1     // 2.1 stereo sound mode
+    MODE_SURROUND_4_1   // 4.1 surround sound mode
+    MODE_SURROUND_5_1   // 5.1 surround sound mode
+    MODE_SURROUND_7_1   // 7.1 surround sound mode
+    
+    /**
+     * Constants representing different music types.
+     */
+    
+    MUSIC_TYPE_NONE             // No music type
+    MUSIC_TYPE_CMD              // Command type music
+    MUSIC_TYPE_WAV              // WAV type music
+    MUSIC_TYPE_MOD              // MOD type music
+    MUSIC_TYPE_MID              // MIDI type music
+    MUSIC_TYPE_OGG              // OGG type music
+    MUSIC_TYPE_MP3              // MP3 type music
+    MUSIC_TYPE_MP3_MAD_UNUSED   // Unused MP3 type music
+    MUSIC_TYPE_FLAC             // FLAC type music
+    MUSIC_TYPE_MODPLUG_UNUSED   // Unused MODPLUG type music
+    MUSIC_TYPE_OPU              // OPUS type music
+    
+    /**
+     * Constants representing different fading effects.
+     */
+    
+    MIX_NO_FADING       // No fading effect
+    MIX_FADING_OUT      // Fading out effect
+    MIX_FADING_IN       // Fading in effect
+    
+    /**
+     * Special constant representing all sound identifiers.
+     */
+    
+    ALL_SOUND           // All sound identifier
+    
+    
+    /**
+     * Global variables for sound management.
+     */
+    
+    STRUCT sound
+        INT freq = DEFAULT_SOUND_FREQ;         // Default sound frequency
+        INT mode = DEFAULT_SOUND_MODE;         // Default sound mode
+        INT channels = DEFAULT_SOUND_CHANNELS; // Default number of sound channels
+    end
+    
+    
+    /**
+     * Initialize the sound system.
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUNDSYS_INIT();
+    
+    /**
+     * Shutdown the sound system.
+     * 
+     * Returns:
+     *      Always returns 0
+     */
+    int SOUNDSYS_QUIT();
+    
+    /**
+     * Load music from a file.
+     * 
+     * Parameters:
+     *      path: path to the music file
+     * 
+     * Returns:
+     *      the ID of the loaded music
+     */
+    int MUSIC_LOAD(string path);
+    
+    /**
+     * Loads music from a file.
+     * 
+     * Loads music from the specified file path and assigns it an ID.
+     * 
+     * params:
+     *      path        The path to the music file.
+     *      music_id    A pointer to an integer where the ID of the loaded music will be stored.
+     * 
+     * return:
+     *      Returns 0 on success, -1 on failure.
+     */
+    int MUSIC_LOAD(string path, int *music_id);
+    
+    /**
+     * Unload the music.
+     * 
+     * Parameters:
+     *      id: the ID of the music to unload
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_UNLOAD(int id);
+    
+    /**
+     * Unload the music and free resources.
+     * 
+     * Parameters:
+     *      pointer: pointer to the music
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_UNLOAD(int *pointer);
+    
+    /**
+     * Play the loaded music.
+     * 
+     * Parameters:
+     *      id: the ID of the music to play
+     *      loops: number of times to loop the music
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_PLAY(int id, int loops);
+    
+    /**
+     * Plays the loaded music in a loop.
+     * 
+     * Plays the music identified by the given ID in a loop.
+     * 
+     * params:
+     *      id      The ID of the music to play.
+     * 
+     * return:
+     *      Returns 0 on success, -1 on failure.
+     */
+    int MUSIC_PLAY(int id);
+    
+    /**
+     * Stop playing the music.
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_STOP();
+    
+    /**
+     * Pause the currently playing music.
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_PAUSE();
+    
+    /**
+     * Resume the paused music.
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_RESUME();
+    
+    /**
+     * Rewind the music to the beginning.
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_REWIND();
+    
+    /**
+     * Fade in the music over a specified duration.
+     * 
+     * Fades in the music identified by the given ID over the specified duration.
+     * 
+     * Parameters:
+     *      id: The ID of the music to fade in.
+     *      loop: Set to 1 if the music should loop, 0 otherwise.
+     *      duration: Duration of the fade-in in milliseconds.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int MUSIC_FADE_IN(int id, int loop, int duration);
+    
+    /**
+     * Fade in the music from a specified position over a specified duration.
+     * 
+     * Fades in the music identified by the given ID from the specified position over the specified duration.
+     * 
+     * Parameters:
+     *      id: The ID of the music to fade in.
+     *      loop: Set to 1 if the music should loop, 0 otherwise.
+     *      duration: Duration of the fade-in in milliseconds.
+     *      position: The position from which to start the fade-in, in seconds.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int MUSIC_FADE(int id, int loop, int duration, double position);
+    
+    /**
+     * Fade out the currently playing music over a specified duration.
+     * 
+     * Parameters:
+     *      duration: duration of the fade-out in milliseconds
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_FADE_OFF(int duration);
+    
+    /**
+     * Check if music is currently playing.
+     * 
+     * Returns:
+     *      1 if music is playing
+     *      0 if music is not playing
+     */
+    int MUSIC_IS_PLAYING();
+    
+    /**
+     * Check if music is currently paused.
+     * 
+     * Returns:
+     *      1 if music is paused
+     *      0 if music is not paused
+     */
+    int MUSIC_IS_PAUSED();
+    
+    /**
+     * Check if music is currently fading.
+     * 
+     * Returns:
+     *      1 if music is fading
+     *      0 if music is not fading
+     */
+    int MUSIC_IS_FADING();
+    
+    /**
+     * Set the volume of the currently playing music.
+     * 
+     * Parameters:
+     *      volume: volume level (0-128)
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_SET_VOLUME(int volume);
+    
+    /**
+     * Get the volume level of a specific music.
+     * 
+     * Parameters:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The volume level of the specified music, or -1 on failure.
+     */
+    int MUSIC_GET_VOLUME(int id);
+    
+    /**
+     * Set the playback position of the currently playing music.
+     * 
+     * Parameters:
+     *      position: desired playback position in seconds
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int MUSIC_SET_PLAYBACK_POSITION(double position);
+    int MUSIC_SET_TIME_POSITION(double position);
+    
+    /**
+     * Get the current playback position of a specific music.
+     * 
+     * Parameters:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The current playback position of the specified music in seconds,
+     *      or -1 on failure.
+     */
+    double MUSIC_GET_PLAYBACK_POSITION(int id);
+    double MUSIC_GET_TIME_POSITION(int id);
+    
+    /**
+     * Get the duration of the currently playing music.
+     * 
+     * Returns:
+     *      The duration of the currently playing music in seconds,
+     *      or -1 on failure.
+     */
+    double MUSIC_GET_DURATION();
+    
+    /**
+     * Get the duration of a specific music.
+     * 
+     * Parameters:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The duration of the specified music in seconds,
+     *      or -1 on failure.
+     */
+    double MUSIC_GET_DURATION(int id);
+    
+    /**
+     * Get the start time of the loop section of the specified music.
+     * 
+     * Parameters:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The start time of the loop section in seconds.
+     */
+    double MUSIC_GET_LOOP_START(int id);
+    
+    /**
+     * Get the start time of the loop section of the currently playing music.
+     * 
+     * Returns:
+     *      The start time of the loop section in seconds.
+     */
+    double MUSIC_GET_LOOP_START();
+    
+    /**
+     * Get the end time of the loop section of the specified music.
+     * 
+     * Parameters:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The end time of the loop section in seconds.
+     */
+    double MUSIC_GET_LOOP_END(int id);
+    
+    /**
+     * Get the end time of the loop section of the currently playing music.
+     * 
+     * Returns:
+     *      The end time of the loop section in seconds.
+     */
+    double MUSIC_GET_LOOP_END();
+    
+    /**
+     * Get the length of the loop section of the specified music.
+     * 
+     * Parameters:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The length of the loop section in seconds.
+     */
+    double MUSIC_GET_LOOP_LEN(int id);
+    
+    /**
+     * Get the length of the loop section of the currently playing music.
+     * 
+     * Returns:
+     *      The length of the loop section in seconds.
+     */
+    double MUSIC_GET_LOOP_LEN();
+    
+    /**
+     * Load a sound effect from a file.
+     * 
+     * Parameters:
+     *      path: path to the sound effect file
+     * 
+     * Returns:
+     *      the ID of the loaded sound effect
+     */
+    int SOUND_LOAD(string path);
+    
+    /**
+     * Load a sound file asynchronously in the background.
+     * 
+     * Parameters:
+     *      path: The path to the sound file.
+     *      sound_id: Pointer to an integer to store the loaded sound ID.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_LOAD(string path, int *sound_id);
+    
+    /**
+     * Unload a sound effect.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to unload
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_UNLOAD(int id);
+    
+    /**
+     * Unload a sound effect and free resources.
+     * 
+     * Parameters:
+     *      pointer: pointer to the sound effect
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_UNLOAD(int *pointer);
+    
+    /**
+     * Play a sound effect.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to play
+     *      loops: number of times to loop the sound effect
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_PLAY(int id, int loops);
+    
+    /**
+     * Play the specified sound once.
+     * 
+     * Parameters:
+     *      id: The ID of the sound.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_PLAY(int id);
+    
+    /**
+     * Play the specified sound on a specific channel.
+     * 
+     * Parameters:
+     *      id: The ID of the sound.
+     *      channel: The channel on which to play the sound.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_PLAY(int id, int channel);
+    
+    /**
+     * Play the specified sound on a specific channel with looping and timed playback.
+     * 
+     * Parameters:
+     *      id: The ID of the sound.
+     *      loops: The number of times to loop the sound (-1 for infinite looping).
+     *      channel: The channel on which to play the sound.
+     *      ticks: The duration in milliseconds for timed playback.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_PLAY(int id, int loops, int channel, int ticks);
+    
+    /**
+     * Stop playing a sound effect.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to stop
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_STOP(int id);
+    
+    /**
+     * Pause a playing sound effect.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to pause
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_PAUSE(int id);
+    
+    /**
+     * Resume a paused sound effect.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to resume
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_RESUME(int id);
+    
+    /**
+     * Fade in the specified sound with looping and timed playback.
+     * 
+     * Parameters:
+     *      id: The ID of the sound.
+     *      loops: The number of times to loop the sound (-1 for infinite looping).
+     *      ticks: The duration in milliseconds for timed playback.
+     *      channel: The channel on which to play the sound.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_FADE_IN(int id, int loops, int ticks, int channel);
+    
+    /**
+     * Fade in the specified sound with looping and a specified duration.
+     * 
+     * Parameters:
+     *      id: The ID of the sound.
+     *      loops: The number of times to loop the sound (-1 for infinite looping).
+     *      duration: The duration in milliseconds for the fade-in effect.
+     *      channel: The channel on which to play the sound.
+     *      ticks: The duration in milliseconds for timed playback.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_FADE_IN(int id, int loops, int duration, int channel, int ticks);
+    
+    
+    /**
+     * Fade out a playing sound effect over a specified duration.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to fade out
+     *      duration: duration of the fade-out in milliseconds
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_FADE_OFF(int id, int duration);
+    
+    /**
+     * Check if a sound effect is currently playing.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to check
+     * 
+     * Returns:
+     *      1 if the sound effect is playing
+     *      0 if the sound effect is not playing
+     */
+    int SOUND_IS_PLAYING(int id);
+    
+    /**
+     * Check if a sound effect is currently paused.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to check
+     * 
+     * Returns:
+     *      1 if the sound effect is paused
+     *      0 if the sound effect is not paused
+     */
+    int SOUND_IS_PAUSED(int id);
+    
+    /**
+     * Check if a sound effect is currently fading.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to check
+     * 
+     * Returns:
+     *      1 if the sound effect is fading
+     *      0 if the sound effect is not fading
+     */
+    int SOUND_IS_FADING(int id);
+    
+    /**
+     * Set the volume of a playing sound effect.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to set the volume for
+     *      volume: volume level (0-128)
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_SET_VOLUME(int id, int volume);
+    
+    /**
+     * Set the volume of all sound effects.
+     * 
+     * Parameters:
+     *      volume: volume level (0-128)
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SOUND_SET_VOLUME(int volume);
+    
+    /**
+     * Set the position of a sound channel.
+     * 
+     * Parameters:
+     *      channel: The channel number.
+     *      angle: The angle of the sound (0-360).
+     *      distance: The distance of the sound (0-255).
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_SET_LOCATION(int channel, int angle, int distance);
+    int SOUND_SET_SPATIAL_POSITION(int channel, int angle, int distance);
+    int SET_POSITION(int channel, int angle, int distance);
+    
+    /**
+     * Set the expiration time for a channel.
+     * 
+     * Parameters:
+     *      channel: the channel to set the expiration time for
+     *      ticks: the number of ticks until the channel expires
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int CHANNEL_SET_EXPIRE(int channel, int ticks);
+    
+    /**
+     * Set the expiration time for all channels.
+     * 
+     * Parameters:
+     *      ticks: the number of ticks until all channels expire
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int CHANNEL_SET_EXPIRE(int ticks);
+    
+    /**
+     * Set the volume of a channel.
+     * 
+     * Parameters:
+     *      channel: the channel to set the volume for
+     *      volume: volume level (0-128)
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int CHANNEL_SET_VOLUME(int channel, int volume);
+    
+    /**
+     * Set the volume of all channels.
+     * 
+     * Parameters:
+     *      volume: volume level (0-128)
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int CHANNEL_SET_VOLUME(int volume);
+    
+    /**
+     * Set the master volume.
+     * 
+     * Parameters:
+     *      volume: volume level (0-128)
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int SET_MASTER_VOLUME(int volume);
+    
+    /**
+     * Set the panning for a sound channel.
+     * 
+     * Parameters:
+     *      channel: The channel number.
+     *      leftVolume: The left volume (0-255).
+     *      rightVolume: The right volume (0-255).
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int CHANNEL_SET_PANNING(int channel, int leftVolume, int rightVolume);
+    int SET_PANNING(int channel, int leftVolume, int rightVolume);
+    
+    /**
+     * Set the distance of a channel.
+     * 
+     * Parameters:
+     *      channel: the channel to set the distance for
+     *      distance: distance value (0-255)
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int CHANNEL_SET_DISTANCE(int channel, int distance);
+    int SET_DISTANCE(int distance);
+    
+    /**
+     * Reserve channels for exclusive use.
+     * 
+     * Parameters:
+     *      channels: the number of channels to reserve
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int RESERVE_CHANNELS(int channels);
+    
+    /**
+     * Reverse the stereo channels of a sound effect.
+     * 
+     * Parameters:
+     *      id: the ID of the sound effect to reverse
+     *      reverse: 1 to reverse the stereo channels, 0 to restore the original order
+     * 
+     * Returns:
+     *      0 on success
+     *      a non-zero value on failure
+     */
+    int REVERSE_STEREO(int id, int reverse);
+    
+    /**
+     * Get the number of music decoders available.
+     * 
+     * Returns:
+     *      the number of music decoders available
+     */
+    int GET_NUM_MUSIC_DECODERS();
+    
+    /**
+     * Get the name of a music decoder.
+     * 
+     * Parameters:
+     *      index: the index of the music decoder
+     * 
+     * Returns:
+     *      the name of the music decoder
+     */
+    string GET_MUSIC_DECODER(int index);
+    
+    /**
+     * Check if a specific music decoder is available.
+     * 
+     * Parameters:
+     *      name: the name of the music decoder
+     * 
+     * Returns:
+     *      1 if the music decoder is available
+     *      0 if the music decoder is not available
+     */
+    int HAS_MUSIC_DECODER(string name);
+    
+    /**
+     * Get the type of the specified music.
+     * 
+     * Params:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The type of the specified music.
+     */
+    int MUSIC_GET_TYPE(int id);
+    
+    /**
+     * Get the title of the specified music.
+     * 
+     * Params:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The title of the specified music.
+     */
+    string MUSIC_GET_TITLE(int id);
+    
+    /**
+     * Get the title tag of the specified music.
+     * 
+     * Params:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The title tag of the specified music.
+     */
+    string MUSIC_GET_TITLE_TAG(int id);
+    
+    /**
+     * Get the artist tag of the specified music.
+     * 
+     * Params:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The artist tag of the specified music.
+     */
+    string MUSIC_GET_ARTIST_TAG(int id);
+    
+    /**
+     * Get the album tag of the specified music.
+     * 
+     * Params:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The album tag of the specified music.
+     */
+    string MUSIC_GET_ALBUM_TAG(int id);
+    
+    /**
+     * Get the copyright tag of the specified music.
+     * 
+     * Params:
+     *      id: The ID of the music.
+     * 
+     * Returns:
+     *      The copyright tag of the specified music.
+     */
+    string MUSIC_GET_COPYRIGHT_TAG(int id);
+    
+    /**
+     * Get the type of the currently loaded music.
+     * 
+     * Returns:
+     *      the type of the currently loaded music
+     */
+    int MUSIC_GET_TYPE();
+    
+    /**
+     * Get the title of the currently loaded music.
+     * 
+     * Returns:
+     *      the title of the currently loaded music
+     */
+    string MUSIC_GET_TITLE();
+    
+    /**
+     * Get the title tag of the currently loaded music.
+     * 
+     * Returns:
+     *      the title tag of the currently loaded music
+     */
+    string MUSIC_GET_TITLE_TAG();
+    
+    /**
+     * Get the artist tag of the currently loaded music.
+     * 
+     * Returns:
+     *      the artist tag of the currently loaded music
+     */
+    string MUSIC_GET_ARTIST_TAG();
+    
+    /**
+     * Get the album tag of the currently loaded music.
+     * 
+     * Returns:
+     *      the album tag of the currently loaded music
+     */
+    string MUSIC_GET_ALBUM_TAG();
+    
+    /**
+     * Get the copyright tag of the currently loaded music.
+     * 
+     * Returns:
+     *      the copyright tag of the currently loaded music
+     */
+    string MUSIC_GET_COPYRIGHT_TAG();
+    
+    /**
+     * Assigns a tag to the specified channel.
+     * 
+     * Parameters:
+     *      which: The channel to set the tag on.
+     *      tag: An arbitrary value to assign to the channel.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_GROUP_CHANNEL(int which, int tag);
+    
+    /**
+     * Assigns a tag to a range of channels.
+     * 
+     * Parameters:
+     *      from: The first channel to set the tag on.
+     *      to: The last channel to set the tag on, inclusive.
+     *      tag: An arbitrary value to assign to the channels.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_GROUP_CHANNELS(int from, int to, int tag);
+    
+    /**
+     * Finds an available channel with the specified tag.
+     * 
+     * Parameters:
+     *      tag: An arbitrary value assigned to channels to search for.
+     * 
+     * Returns:
+     *      The ID of the available channel with the specified tag, or -1 if none are available.
+     */
+    int SOUND_GROUP_AVAILABLE(int tag);
+    
+    /**
+     * Get the number of channels in a group.
+     * 
+     * Parameters:
+     *      tag: An arbitrary value assigned to channels to search for.
+     * 
+     * Returns:
+     *      the number of channels in the group
+     */
+    int SOUND_GROUP_SIZE(int tag);
+    
+    /**
+     * Finds the oldest channel with the specified tag.
+     * 
+     * Parameters:
+     *      tag: An arbitrary value assigned to channels to search for.
+     * 
+     * Returns:
+     *      The ID of the oldest channel with the specified tag, or -1 if none are found.
+     */
+    int SOUND_GROUP_OLDEST(int tag);
+    
+    /**
+     * Finds the newer channel with the specified tag.
+     * 
+     * Parameters:
+     *      tag: An arbitrary value assigned to channels to search for.
+     * 
+     * Returns:
+     *      The ID of the newer channel with the specified tag, or -1 if none are found.
+     */
+    int SOUND_GROUP_NEWER(int tag);
+    
+    /**
+     * Halts all channels with the specified tag.
+     * 
+     * Parameters:
+     *      tag: An arbitrary value assigned to channels to search for.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_GROUP_HALT(int tag);
+    
+    /**
+     * Fades out all channels with the specified tag.
+     * 
+     * Parameters:
+     *      tag: An arbitrary value assigned to channels to search for.
+     *      ticks: The number of milliseconds the fade-out will take.
+     * 
+     * Returns:
+     *      0 on success, -1 on failure.
+     */
+    int SOUND_GROUP_FADE_OUT(int tag, int ticks);
+
+2023-11-25:
 
 - Changed global names:
     sound.sound_freq
@@ -95,10 +1731,14 @@
         
     Additionally, functionality has been implemented to update the values of variables when assigning a value during their declaration. This ensures that when specifying a value during declaration, this value is maintained and updated in the variable definition.
 
+2023-11-23:
+
 - Added block sections:
     BEGIN .. END
 
 - Limited Scope Variables
+
+2023-11-17:
 
 - Added joy_query(e)
 - Added JOY_QUERY_HAS, JOY_QUERY_HAS_BUTTON, JOY_QUERY_HAS_AXIS
@@ -262,11 +1902,10 @@
 
 - Refactored get_real_point
 
-
 2019-07-23:
 
 - modsound changes:
-    rename:
+    Renamed:
         SOUND_INIT          -> SOUNDSYS_INIT
         SOUND_CLOSE         -> SOUNDSYS_QUIT
         SONG_LOAD           -> MUSIC_LOAD
@@ -365,7 +2004,7 @@
 
 
 2019-06-27:
-- Add string escape caracters
+- Added string escape caracters
     SECUENCE    HEX DESCRIPTION
     \a          07  Alert (Beep, Bell) (added in C89)[1]
     \b          08  Backspace
@@ -381,9 +2020,9 @@
     \?          3F  Question mark (used to avoid trigraphs)
     \nnn            any The byte whose numerical value is given by nnn interpreted as an octal number
     \xhh…           any The byte whose numerical value is given by hh… interpreted as a hexadecimal number
-- Add map characters to fonts from bitmap (optional)
-- Fix region issues with negative height or width
-- Add color ANSI/VT100 escape sequence for texts (only foreground colors supported)
+- Added map characters to fonts from bitmap (optional)
+- Fixed region issues with negative height or width
+- Added color ANSI/VT100 escape sequence for texts (only foreground colors supported)
     All ANSI escape sequence start with "\e[" or "\033[" or "\x1B[", then contine with:
 
         39                  Default foreground color
@@ -415,14 +2054,14 @@
 
 2019-06-25:
 
-- Fix bug if create more than 128 maps
+- Fixed bug if create more than 128 maps
 - Remove change of x, y and size as double/float
-- Change int fget_angle( double, double, double, double)
-- Change double fget_dist( double, double, double, double)
-- Change double fget_distx( int, double)
-- Change double fget_disty( int, double)
-- Add int get_angle(int, int)
-- Add int get_dist(int, int)
+- Changed int fget_angle( double, double, double, double)
+- Changed double fget_dist( double, double, double, double)
+- Changed double fget_distx( int, double)
+- Changed double fget_disty( int, double)
+- Added int get_angle(int, int)
+- Added int get_dist(int, int)
 
 2019-06-24:
 
@@ -430,52 +2069,52 @@
 - Support module operator for double/float (% and %=)
 - Locals X and Y are double (mouse, process, scroll, and others)
 - Increment regions to 256
-- Add optional region to FADE, FADE_ON, FADE_OFF (last parameter)
-- Change size, size_x and size_y to double
-- Fix mouse.size_x and mouse.size_y
-- Add UPTIME() as alias of GET_TIMER()
-- Change parameters size_x and size_y in MAP_PUT to double
-- Add global frame_info.frames_count
+- Added optional region to FADE, FADE_ON, FADE_OFF (last parameter)
+- Changed size, size_x and size_y to double
+- Fixed mouse.size_x and mouse.size_y
+- Added UPTIME() as alias of GET_TIMER()
+- Changed parameters size_x and size_y in MAP_PUT to double
+- Added global frame_info.frames_count
 - Now COLLISION(...) is alias of COLLISION_BOX(...)
 
 2019-06-23:
 
-- Add PAUSE/RESUME
+- Added PAUSE/RESUME
 
 2019-06-20:
 
-- Fix big textures issues
-- Rename screen.full_screen to screen.fullscreen
+- Fixed big textures issues
+- Renamed screen.full_screen to screen.fullscreen
 
 2019-06-19:
 
-- Add Pathfind
-- Fix window issues in Windows
+- Added Pathfind
+- Fixed window issues in Windows
 - Disable set_mode at startup
 - For fullscreen mode don't use fake fullscreen that adjust to desktop resolution
-- Fix screen_get() in scaled mode
-- Add PNG_SAVE (ATENTION: USE IT ONLY FOR SCREEN_GET() OR MANUALLY MODIFIED/CREATED MAPS!!!)
-- Add 32bits binaries version
-- Add RGB, RGBA, RGB_GET and RGBA_GET for MAP
-- rename VOLUME_SET to WAV_SET_VOLUME and VOLUME_SET_CHANNEL to CHANNEL_SET_VOLUME
-- Fix transparence issues
-- Add B_TRANSLUCENT and B_SBLEND
-- Add Sustractive blend (but doesn't work as expected)
-- Add G_DEPTH to MAP_INFO
-- Fix blit when alpha is 0
-- Add alpha opaque for returned bitmap from screen_get()
-- Fix map_block_copy flags
-- Fix screen_get()
-- Fix cast and data type convertions
+- Fixed screen_get() in scaled mode
+- Added PNG_SAVE (ATENTION: USE IT ONLY FOR SCREEN_GET() OR MANUALLY MODIFIED/CREATED MAPS!!!)
+- Added 32bits binaries version
+- Added RGB, RGBA, RGB_GET and RGBA_GET for MAP
+- Renamed VOLUME_SET to WAV_SET_VOLUME and VOLUME_SET_CHANNEL to CHANNEL_SET_VOLUME
+- Fixed transparence issues
+- Added B_TRANSLUCENT and B_SBLEND
+- Added Sustractive blend (but doesn't work as expected)
+- Added G_DEPTH to MAP_INFO
+- Fixed blit when alpha is 0
+- Added alpha opaque for returned bitmap from screen_get()
+- Fixed map_block_copy flags
+- Fixed screen_get()
+- Fixed cast and data type convertions
 - Strings in SAVE are compatibles as BGD1
-- Fix issue with variables already defined as "process" or "process type" identifier
-- Change UNSIGNED INT return in some functions to INT
-- Fix DBC windows/linux compatibility
-- Fix transparence in 8bpp and 16bpp maps
+- Fixed issue with variables already defined as "process" or "process type" identifier
+- Changed UNSIGNED INT return in some functions to INT
+- Fixed DBC windows/linux compatibility
+- Fixed transparence in 8bpp and 16bpp maps
 
 2019-06-10:
 
-- Add MAP_SET_PALETTE(fileid, graphid, first_color, ncolors, byte * RGBA_data )
+- Added MAP_SET_PALETTE(fileid, graphid, first_color, ncolors, byte * RGBA_data )
       MAP_GET_PALETTE(fileid, graphid, first_color, ncolors, byte * RGBA_data )
 
     NOTE: Only works with 8 bits surfaces, when the texture is updated the changes made in texture are lost.
@@ -491,9 +2130,9 @@
     NOTE: SRA_FIT have issues, don't adjust aspect ratio when texture rotate, use only if use non-rotate textures
 
 
-- Add CLAMP(value, min, max), CLAMPF(double value, double min, double max)
+- Added CLAMP(value, min, max), CLAMPF(double value, double min, double max)
 
-- Add TEXTURE_SET_QUALITY(quality)
+- Added TEXTURE_SET_QUALITY(quality)
     quality can be:
         Q_NEAREST   (default)
         Q_LINEAR
@@ -509,9 +2148,9 @@
 
 - Fixed timer
 
-- Fix fullscreen/window mode, grab and borderless.
+- Fixed fullscreen/window mode, grab and borderless.
 
-- Fix WRITE_VALUE
+- Fixed WRITE_VALUE
 
 - Rework FADE
 
@@ -519,7 +2158,7 @@
     FADE_ON( time_in_miliseconds )          - Fade to normal
     FADE_OFF( time_in_miliseconds )         - Fade to black
 
-- BugFix with FLOAT convertions from/to INTs types
+- BugFixed with FLOAT convertions from/to INTs types
 
 - Remove some variables
 
@@ -527,10 +2166,10 @@
 
 - Update texture if surface changed
 
-- Fix SQRT name, error was named as SIRT
+- Fixed SQRT name, error was named as SIRT
 
-- Fix map_get_pixel return color as RGBA (32bits)
+- Fixed map_get_pixel return color as RGBA (32bits)
 
-- Add vsync support and remove directdraw code
+- Added vsync support and remove directdraw code
 
 - Disable crypt support
