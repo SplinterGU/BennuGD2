@@ -53,8 +53,8 @@ static struct {
 
     { "NULL"                    , TYPE_QWORD,   0LL                 },
 
-    { "FALSE"                   , TYPE_QWORD,   0LL                 },
-    { "TRUE"                    , TYPE_QWORD,   !0LL                },
+    { "FALSE"                   , TYPE_BYTE,    0                   },
+    { "TRUE"                    , TYPE_BYTE,    !0                  },
 
     { "OS_WIN32"                , TYPE_QWORD,   OS_WIN32            },
     { "OS_LINUX"                , TYPE_QWORD,   OS_LINUX            },
@@ -114,9 +114,6 @@ static struct {
 
     { "MIN_ULONG"               , TYPE_QWORD,   0                   },
     { "MAX_ULONG"               , TYPE_QWORD,   UINT64_MAX          },
-
-    { "MIN_BOOL"                , TYPE_BYTE,    FALSE               },
-    { "MAX_BOOL"                , TYPE_BYTE,    TRUE                },
 
     { "BENNUGD_VERSION"         , TYPE_BYTE ,   0xff                },
 
@@ -189,6 +186,9 @@ static struct {
 
     { "ULONG_MIN"    , "MIN_ULONG"       },
     { "ULONG_MAX"    , "MAX_ULONG"       },
+
+    { "MIN_BOOL"     , "FALSE"           },
+    { "MAX_BOOL"     , "TRUE"            },
 
     { "BOOL_MIN"     , "MIN_BOOL"        },
     { "BOOL_MAX"     , "MAX_BOOL"        },
