@@ -1,30 +1,47 @@
-2024-04-22:
+2024-04-23:
 
 - Data types and limits updated
 
-.-----------.------.--------.----------------.----------------.
-| Data Type | Bits | Signed | MIN Constant   | MAX Constant   |
-|-----------|------|--------|----------------|----------------|
-| UINT64    | 64   | No     | MIN_UINT64     | MAX_UINT64     |
-| UINT32    | 32   | No     | MIN_UINT32     | MAX_UINT32     |
-| UINT16    | 16   | No     | MIN_UINT16     | MAX_UINT16     |
-| UINT8     | 8    | No     | MIN_UINT8      | MAX_UINT8      |
-| INT64     | 64   | Yes    | MIN_INT64      | MAX_INT64      |
-| INT32     | 32   | Yes    | MIN_INT32      | MAX_INT32      |
-| INT16     | 16   | Yes    | MIN_INT16      | MAX_INT16      |
-| INT8      | 8    | Yes    | MIN_INT8       | MAX_INT8       |
-| CHAR      | 8    | Yes    | MIN_CHAR       | MAX_CHAR       |
-| ULONG     | 64   | No     | MIN_ULONG      | MAX_ULONG      |
-| QWORD     | 64   | No     | MIN_QWORD      | MAX_QWORD      |
-| DWORD     | 32   | No     | MIN_DWORD      | MAX_DWORD      |
-| WORD      | 16   | No     | MIN_WORD       | MAX_WORD       |
-| BYTE      | 8    | No     | MIN_BYTE       | MAX_BYTE       |
-| SBYTE     | 8    | Yes    | MIN_SBYTE      | MAX_SBYTE      |
-| BOOL      | 1    | No     | 0              | 1              |
-| FLOAT     | -    | -      | -              | -              |
-| DOUBLE    | -    | -      | -              | -              |
-| STRING    | -    | -      | -              | -              |
-'-----------'------'--------'----------------'----------------'
+.-----------.------.--------.----------------.----------------.----------------------.----------------------.
+| Data Type | Bits | Signed | MIN Constant   | MAX Constant   | MIN Value            | MAX Value            |
+|-----------|------|--------|----------------|----------------|----------------------|----------------------|
+| UINT64    | 64   | No     | MIN_UINT64     | MAX_UINT64     | 0                    | 18446744073709551615 |
+|           |      |        | UINT64_MIN     | UINT64_MAX     | 0                    | 18446744073709551615 |
+| UINT32    | 32   | No     | UINT32_MIN     | UINT32_MAX     | 0                    | 4294967295           |
+|           |      |        | MIN_UINT32     | MAX_UINT32     | 0                    | 4294967295           |
+| UINT16    | 16   | No     | UINT16_MIN     | UINT16_MAX     | 0                    | 65535                |
+|           |      |        | MIN_UINT16     | MAX_UINT16     | 0                    | 65535                |
+| UINT8     | 8    | No     | UINT8_MIN      | UINT8_MAX      | 0                    | 255                  |
+|           |      |        | MIN_UINT8      | MAX_UINT8      | 0                    | 255                  |
+| INT64     | 64   | Yes    | INT64_MIN      | INT64_MAX      | -9223372036854775808 | 9223372036854775807  |
+|           |      |        | MIN_INT64      | MAX_INT64      | -9223372036854775808 | 9223372036854775807  |
+| INT32     | 32   | Yes    | INT32_MIN      | INT32_MAX      | -2147483648          | 2147483647           |
+|           |      |        | MIN_INT32      | MAX_INT32      | -2147483648          | 2147483647           |
+| INT16     | 16   | Yes    | INT16_MIN      | INT16_MAX      | -32768               | 32767                |
+|           |      |        | MIN_INT16      | MAX_INT16      | -32768               | 32767                |
+| INT8      | 8    | Yes    | INT8_MIN       | INT8_MAX       | -128                 | 128                  |
+|           |      |        | MIN_INT8       | MAX_INT8       | -128                 | 128                  |
+| CHAR      | 8    | Yes    | CHAR_MIN       | CHAR_MAX       | 0                    | 255                  |
+|           |      |        | MIN_CHAR       | MAX_CHAR       | 0                    | 255                  |
+| ULONG     | 64   | No     | ULONG_MIN      | ULONG_MAX      | 0                    | 18446744073709551615 |
+|           |      |        | MIN_ULONG      | MAX_ULONG      | 0                    | 18446744073709551615 |
+| QWORD     | 64   | No     | QWORD_MIN      | QWORD_MAX      | 0                    | 18446744073709551615 |
+|           |      |        | MIN_QWORD      | MAX_QWORD      | 0                    | 18446744073709551615 |
+| DWORD     | 32   | No     | DWORD_MIN      | DWORD_MAX      | 0                    | 4294967295           |
+|           |      |        | MIN_DWORD      | MAX_DWORD      | 0                    | 4294967295           |
+| WORD      | 16   | No     | WORD_MIN       | WORD_MAX       | 0                    | 65535                |
+|           |      |        | MIN_WORD       | MAX_WORD       | 0                    | 65535                |
+| BYTE      | 8    | No     | BYTE_MIN       | BYTE_MAX       | 0                    | 255                  |
+|           |      |        | MIN_BYTE       | MAX_BYTE       | 0                    | 255                  |
+| SBYTE     | 8    | Yes    | SBYTE_MIN      | SBYTE_MAX      | -128                 | 128                  |
+|           |      |        | MIN_SBYTE      | MAX_SBYTE      | -128                 | 128                  |
+| BOOL      | 8    | No     | FALSE          | TRUE           | 0                    | 1                    |
+|           |      |        | MIN_BOOL       | MAX_BOOL       | 0                    | 1                    |
+|           |      |        | BOOL_MIN       | BOOL_MAX       | 0                    | 1                    |
+| FLOAT     | -    | -      | -              | -              | -                    | -                    |
+| DOUBLE    | -    | -      | -              | -              | -                    | -                    |
+| STRING    | -    | -      | -              | -              | -                    | -                    |
+'-----------'------'--------'----------------'----------------'----------------------'----------------------'
 
 2024-04-21:
 
