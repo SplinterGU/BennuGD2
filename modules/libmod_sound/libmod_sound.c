@@ -3116,7 +3116,7 @@ static int64_t libmod_sound_set_channel_volume( INSTANCE * my, int64_t * params 
 
 /* --------------------------------------------------------------------------- */
 /*
- *  FUNCTION : libmod_sound_set_channel_volume
+ *  FUNCTION : libmod_sound_set_channel_volume_all
  *
  *  Set the volume for all channels (0-128)
  *
