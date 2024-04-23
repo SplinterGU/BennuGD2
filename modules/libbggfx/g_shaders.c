@@ -53,6 +53,13 @@ BGD_SHADER * g_current_shader = NULL;
 
 */
 
+/* --------------------------------------------------------------------------- */
+/**
+ * @brief Retrieves the shader language used by the current renderer.
+ *
+ * @return An integer representing the shader language. Returns -1 if the renderer is not available.
+ */
+
 int shader_get_language() {
 #ifdef USE_SDL2_GPU
     GPU_Renderer * renderer = GPU_GetCurrentRenderer();
@@ -61,6 +68,13 @@ int shader_get_language() {
 #endif
 }
 
+/* --------------------------------------------------------------------------- */
+/**
+ * @brief Retrieves the minimum supported shader version by the current renderer.
+ *
+ * @return An integer representing the minimum shader version. Returns -1 if the renderer is not available.
+ */
+
 int shader_get_min_version() {
 #ifdef USE_SDL2_GPU
     GPU_Renderer * renderer = GPU_GetCurrentRenderer();
@@ -68,6 +82,13 @@ int shader_get_min_version() {
     return renderer->min_shader_version;
 #endif
 }
+
+/* --------------------------------------------------------------------------- */
+/**
+ * @brief Retrieves the maximum supported shader version by the current renderer.
+ *
+ * @return An integer representing the maximum shader version. Returns -1 if the renderer is not available.
+ */
 
 int shader_get_max_version() {
 #ifdef USE_SDL2_GPU
@@ -78,6 +99,14 @@ int shader_get_max_version() {
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Creates a shader program from provided vertex and fragment shaders.
+ *
+ * @param vertex A string containing the source code of the vertex shader.
+ * @param fragment A string containing the source code of the fragment shader.
+ *
+ * @return A pointer to the created shader program. Returns NULL if creation fails.
+ */
 
 BGD_SHADER * shader_create( char * vertex, char * fragment ) {
 #ifdef USE_SDL2_GPU
@@ -125,6 +154,11 @@ BGD_SHADER * shader_create( char * vertex, char * fragment ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Activates the specified shader program for rendering.
+ *
+ * @param shader A pointer to the shader program to activate.
+ */
 
 void shader_activate( BGD_SHADER * shader ) {
 #ifdef USE_SDL2_GPU
@@ -138,6 +172,9 @@ void shader_activate( BGD_SHADER * shader ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Deactivates the currently active shader program.
+ */
 
 void shader_deactivate( void ) {
 #ifdef USE_SDL2_GPU
@@ -147,6 +184,22 @@ void shader_deactivate( void ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Sets a parameter for a shader program.
+ *
+ * @param params A pointer to the BGD_SHADER_PARAMETERS structure containing the parameters.
+ * @param type The type of parameter to set.
+ * @param location The location of the parameter in the shader program.
+ * @param n_values The number of values in the parameter.
+ * @param values A pointer to the values of the parameter.
+ * @param image_unit The image unit of the parameter (for image parameters).
+ * @param num_matrices The number of matrices (for matrix parameters).
+ * @param num_rows The number of rows in each matrix (for matrix parameters).
+ * @param num_columns The number of columns in each matrix (for matrix parameters).
+ * @param transpose Whether the matrices should be transposed (for matrix parameters).
+ *
+ * @return Returns 0 on success, 1 if the parameter is not found.
+ */
 
 int shader_set_param(   BGD_SHADER_PARAMETERS * params,
                         int type,
@@ -193,6 +246,24 @@ int shader_set_param(   BGD_SHADER_PARAMETERS * params,
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Retrieves the parameter information for a shader program.
+ *
+ * This function retrieves the parameter information for a shader program.
+ *
+ * @param params A pointer to the BGD_SHADER_PARAMETERS structure containing the parameters.
+ * @param location The location of the parameter to retrieve.
+ * @param type Pointer to store the type of the parameter.
+ * @param n_values Pointer to store the number of values in the parameter.
+ * @param values Pointer to store the values of the parameter.
+ * @param image_unit Pointer to store the image unit of the parameter (for image parameters).
+ * @param num_matrices Pointer to store the number of matrices (for matrix parameters).
+ * @param num_rows Pointer to store the number of rows in each matrix (for matrix parameters).
+ * @param num_columns Pointer to store the number of columns in each matrix (for matrix parameters).
+ * @param transpose Pointer to store whether the matrices should be transposed (for matrix parameters).
+ *
+ * @return Returns 0 on success, 1 if the parameter with the specified location is not found.
+ */
 
 int shader_get_param(   BGD_SHADER_PARAMETERS *params,
                         int location,
@@ -225,8 +296,16 @@ int shader_get_param(   BGD_SHADER_PARAMETERS *params,
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Creates and initializes a BGD_SHADER_PARAMETERS structure.
+ *
+ * This function creates and initializes a BGD_SHADER_PARAMETERS structure.
+ *
+ * @param num_params The number of parameters to allocate space for.
+ *
+ * @return A pointer to the created BGD_SHADER_PARAMETERS structure, or NULL if memory allocation fails.
+ */
 
-// Create and fill a BGD_SHADER_PARAMETERS structure
 BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params ) {
 #ifdef USE_SDL2_GPU
     BGD_SHADER_PARAMETERS* params = (BGD_SHADER_PARAMETERS*)malloc(sizeof(BGD_SHADER_PARAMETERS));
@@ -252,8 +331,14 @@ BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Frees the memory allocated for a BGD_SHADER_PARAMETERS structure.
+ *
+ * This function frees the memory allocated for a BGD_SHADER_PARAMETERS structure.
+ *
+ * @param params A pointer to the BGD_SHADER_PARAMETERS structure to free.
+ */
 
-// Free the memory allocated for BGD_SHADER_PARAMETERS
 void shader_free_parameters( BGD_SHADER_PARAMETERS* params ) {
 #ifdef USE_SDL2_GPU
     if (params) {
@@ -264,19 +349,16 @@ void shader_free_parameters( BGD_SHADER_PARAMETERS* params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-
-#if 0
-int shader_getattributelocation( BGD_SHADER * shader, const char * name ) {
-#ifdef USE_SDL2_GPU
-    if ( !shader ) return -1;
-    return ( int ) GPU_GetAttributeLocation( shader->shader, name );
-#else
-    return -1;
-#endif
-}
-#endif
-
-/* --------------------------------------------------------------------------- */
+/**
+ * @brief Retrieves the location of a uniform variable in the specified shader program.
+ *
+ * This function retrieves the location of a uniform variable in the specified shader program.
+ *
+ * @param shader A pointer to the shader program.
+ * @param name The name of the uniform variable.
+ *
+ * @return The location of the uniform variable, or -1 if the variable is not found.
+ */
 
 int shader_getuniformlocation( BGD_SHADER * shader, const char * name ) {
 #ifdef USE_SDL2_GPU
@@ -288,6 +370,13 @@ int shader_getuniformlocation( BGD_SHADER * shader, const char * name ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Frees the memory allocated for a shader program.
+ *
+ * This function frees the memory allocated for a shader program.
+ *
+ * @param shader A pointer to the shader program to free.
+ */
 
 void shader_free( BGD_SHADER * shader ) {
 #ifdef USE_SDL2_GPU
@@ -298,8 +387,14 @@ void shader_free( BGD_SHADER * shader ) {
 }
 
 /* --------------------------------------------------------------------------- */
+/**
+ * @brief Applies settings using BGD_SHADER_PARAMETERS to a shader program.
+ *
+ * This function applies settings using BGD_SHADER_PARAMETERS to a shader program.
+ *
+ * @param params A pointer to the BGD_SHADER_PARAMETERS structure containing the settings.
+ */
 
-// Apply settings using BGD_SHADER_PARAMETERS
 void shader_apply_parameters( BGD_SHADER_PARAMETERS* params ) {
 #ifdef USE_SDL2_GPU
     // Handle case of null parameters
