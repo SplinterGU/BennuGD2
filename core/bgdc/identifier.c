@@ -189,13 +189,13 @@ int identifier_is_basic_type(int64_t id) {
 	return (
         id == identifier_int64 		||
 		id == identifier_int32 		||
-		id == identifier_short 		||
+		id == identifier_int16 		||
 		id == identifier_int8 		||
 		id == identifier_char 		||
-        id == identifier_qword 		||
-		id == identifier_dword 		||
-		id == identifier_word 		||
-		id == identifier_byte 		||
+        id == identifier_uint64 		||
+		id == identifier_uint32 		||
+		id == identifier_uint16 		||
+		id == identifier_uint8 		||
 		id == identifier_signed 	||
 		id == identifier_unsigned 	||
         id == identifier_double 	||

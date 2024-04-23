@@ -564,17 +564,17 @@ uint64_t compile_sizeof( VARSPACE * here, int64_t * content_size, int64_t * cont
 
     /* Base datatypes */
 
-         if ( token.code == identifier_qword )    base = 8;
-    else if ( token.code == identifier_int64 )    base = 8;
-    else if ( token.code == identifier_double )   base = 8;
-    else if ( token.code == identifier_string )   base = 8;
-    else if ( token.code == identifier_dword )    base = 4;
-    else if ( token.code == identifier_int32 )    base = 4;
-    else if ( token.code == identifier_float )    base = 4;
-    else if ( token.code == identifier_short )    base = 2;
-    else if ( token.code == identifier_word )     base = 2;
-    else if ( token.code == identifier_char )     base = 1;
-    else if ( token.code == identifier_byte )     base = 1;
+         if ( token.code == identifier_uint64 )     base = 8;
+    else if ( token.code == identifier_int64 )      base = 8;
+    else if ( token.code == identifier_double )     base = 8;
+    else if ( token.code == identifier_string )     base = 8;
+    else if ( token.code == identifier_uint32 )     base = 4;
+    else if ( token.code == identifier_int32 )      base = 4;
+    else if ( token.code == identifier_float )      base = 4;
+    else if ( token.code == identifier_int16 )      base = 2;
+    else if ( token.code == identifier_uint16 )     base = 2;
+    else if ( token.code == identifier_char )       base = 1;
+    else if ( token.code == identifier_uint8 )      base = 1;
     else {
         usertype = typedef_by_name( token.code );
         if ( usertype ) base = typedef_size( *usertype );

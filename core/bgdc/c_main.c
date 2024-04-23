@@ -59,9 +59,9 @@ int64_t imports[512] = { 0 } ;      /* Modules */
 
 /* Types */
 
-int64_t identifier_qword,       identifier_int64,       identifier_double,
-        identifier_dword,       identifier_word,        identifier_byte,
-        identifier_int32,       identifier_short,       identifier_int8,
+int64_t identifier_uint64,      identifier_int64,       identifier_double,
+        identifier_uint32,      identifier_uint16,      identifier_uint8,
+        identifier_int32,       identifier_int16,       identifier_int8,
         identifier_char,        identifier_dollar,
         identifier_unsigned,    identifier_signed,      identifier_string,
         identifier_float,       identifier_struct,      identifier_type,
@@ -117,33 +117,40 @@ void compile_init() {
 
     /* Initialize reserved words */
 
-    identifier_qword        = identifier_add( "QWORD" );
-    identifier_dword        = identifier_add( "DWORD" );
-    identifier_word         = identifier_add( "WORD" );
-    identifier_byte         = identifier_add( "BYTE" );
-    identifier_int64        = identifier_add( "INT" );
+    identifier_uint64       = identifier_add( "UINT64" );
+    identifier_uint32       = identifier_add( "UINT32" );
+    identifier_uint16       = identifier_add( "UINT16" );
+    identifier_uint8        = identifier_add( "UINT8" );
+
+    identifier_int64        = identifier_add( "INT64" );
     identifier_int32        = identifier_add( "INT32" );
-    identifier_short        = identifier_add( "SHORT" );
+    identifier_int16        = identifier_add( "INT16" );
     identifier_int8         = identifier_add( "INT8" );
+
     identifier_char         = identifier_add( "CHAR" );
     identifier_dollar       = identifier_add( "$");
+
     identifier_unsigned     = identifier_add( "UNSIGNED" );
     identifier_signed       = identifier_add( "SIGNED" );
+
     identifier_float        = identifier_add( "FLOAT" );
     identifier_double       = identifier_add( "DOUBLE" );
+
     identifier_string       = identifier_add( "STRING" );
     identifier_struct       = identifier_add( "STRUCT" );
 
-    identifier_add_as( "BOOL", identifier_byte );
     identifier_add_as( "LONG", identifier_int64 );
+    identifier_add_as( "INT", identifier_int64 );
+    identifier_add_as( "SHORT", identifier_int16 );
+    identifier_add_as( "SBYTE", identifier_int8 );
 
-    identifier_add_as( "UINT",      identifier_qword );
-    identifier_add_as( "UINT32",    identifier_dword );
-    identifier_add_as( "UINT16",    identifier_word );
-    identifier_add_as( "UINT8",     identifier_byte );
+    identifier_add_as( "ULONG", identifier_uint64 );
+    identifier_add_as( "QWORD", identifier_uint64 );
+    identifier_add_as( "DWORD", identifier_uint32 );
+    identifier_add_as( "WORD", identifier_uint16 );
+    identifier_add_as( "BYTE", identifier_uint8 );
 
-    identifier_add_as( "INT16", identifier_short );
-//    identifier_add_as( "INT8",  identifier_char );
+    identifier_add_as( "BOOL", identifier_uint8 );
 
     identifier_declare      = identifier_add( "DECLARE" );
 

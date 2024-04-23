@@ -258,14 +258,14 @@ BASETYPE typedef_basic_type_basetype_by_name( int identifier, int sign ) {
         BASETYPE basetype_unsigned;
     }  i2b[] = 
             {
-                { .identifier = identifier_qword,   .basetype = TYPE_QWORD        , .basetype_signed = TYPE_INT          , .basetype_unsigned = TYPE_QWORD        },
-                { .identifier = identifier_dword,   .basetype = TYPE_DWORD        , .basetype_signed = TYPE_INT32        , .basetype_unsigned = TYPE_DWORD        },
-                { .identifier = identifier_word,    .basetype = TYPE_WORD         , .basetype_signed = TYPE_SHORT        , .basetype_unsigned = TYPE_WORD         },
-                { .identifier = identifier_byte,    .basetype = TYPE_BYTE         , .basetype_signed = TYPE_SBYTE        , .basetype_unsigned = TYPE_BYTE         },
+                { .identifier = identifier_uint64,  .basetype = TYPE_QWORD        , .basetype_signed = TYPE_INT          , .basetype_unsigned = TYPE_QWORD        },
+                { .identifier = identifier_uint32,  .basetype = TYPE_DWORD        , .basetype_signed = TYPE_INT32        , .basetype_unsigned = TYPE_DWORD        },
+                { .identifier = identifier_uint16,  .basetype = TYPE_WORD         , .basetype_signed = TYPE_SHORT        , .basetype_unsigned = TYPE_WORD         },
+                { .identifier = identifier_uint8,   .basetype = TYPE_BYTE         , .basetype_signed = TYPE_SBYTE        , .basetype_unsigned = TYPE_BYTE         },
                 { .identifier = identifier_int8,    .basetype = TYPE_SBYTE        , .basetype_signed = TYPE_SBYTE        , .basetype_unsigned = TYPE_BYTE         },
                 { .identifier = identifier_int64,   .basetype = TYPE_INT          , .basetype_signed = TYPE_INT          , .basetype_unsigned = TYPE_QWORD        },
                 { .identifier = identifier_int32,   .basetype = TYPE_INT32        , .basetype_signed = TYPE_INT32        , .basetype_unsigned = TYPE_DWORD        },
-                { .identifier = identifier_short,   .basetype = TYPE_SHORT        , .basetype_signed = TYPE_SHORT        , .basetype_unsigned = TYPE_WORD         },
+                { .identifier = identifier_int16,   .basetype = TYPE_SHORT        , .basetype_signed = TYPE_SHORT        , .basetype_unsigned = TYPE_WORD         },
                 { .identifier = identifier_char,    .basetype = TYPE_CHAR         , .basetype_signed = TYPE_UNDEFINED    , .basetype_unsigned = TYPE_UNDEFINED    },
                 { .identifier = identifier_double,  .basetype = TYPE_DOUBLE       , .basetype_signed = TYPE_UNDEFINED    , .basetype_unsigned = TYPE_UNDEFINED    },
                 { .identifier = identifier_float,   .basetype = TYPE_FLOAT        , .basetype_signed = TYPE_UNDEFINED    , .basetype_unsigned = TYPE_UNDEFINED    },
