@@ -73,27 +73,52 @@ static struct {
     { "OS_SWITCH"               , TYPE_QWORD,   OS_SWITCH           },
     { "OS_PS3"                  , TYPE_QWORD,   OS_PS3              },
 
+    { "MIN_INT64"               , TYPE_INT,     INT64_MIN           },
+    { "MAX_INT64"               , TYPE_INT,     INT64_MAX           },
+    { "MIN_INT32"               , TYPE_INT32,   INT32_MIN           },
+    { "MAX_INT32"               , TYPE_INT32,   INT32_MAX           },
+    { "MIN_INT16"               , TYPE_SHORT,   INT16_MIN           },
+    { "MAX_INT16"               , TYPE_SHORT,   INT16_MAX           },
+    { "MIN_INT8"                , TYPE_SBYTE,   INT8_MIN            },
+    { "MAX_INT8"                , TYPE_SBYTE,   INT8_MAX            },
+
+    { "MIN_UINT64"              , TYPE_QWORD,   0                   },
+    { "MAX_UINT64"              , TYPE_QWORD,   UINT64_MAX          },
+    { "MIN_UINT32"              , TYPE_DWORD,   0                   },
+    { "MAX_UINT32"              , TYPE_DWORD,   UINT32_MAX          },
+    { "MIN_UINT16"              , TYPE_WORD ,   0                   },
+    { "MAX_UINT16"              , TYPE_WORD ,   UINT16_MAX          },
+    { "MIN_UINT8"               , TYPE_BYTE ,   0                   },
+    { "MAX_UINT8"               , TYPE_BYTE ,   UINT8_MAX           },
+
+    { "MIN_LONG"                , TYPE_INT,     INT64_MIN           },
+    { "MAX_LONG"                , TYPE_INT,     INT64_MAX           },
+
     { "MIN_INT"                 , TYPE_INT,     INT64_MIN           },
     { "MAX_INT"                 , TYPE_INT,     INT64_MAX           },
 
-    { "MIN_INT64"               , TYPE_INT,     INT64_MIN           },
-    { "MAX_INT64"               , TYPE_INT,     INT64_MAX           },
-    { "MIN_LONG"                , TYPE_INT,     INT64_MIN           },
-    { "MAX_LONG"                , TYPE_INT,     INT64_MAX           },
-    { "MAX_QWORD"               , TYPE_QWORD,   UINT64_MAX          },
-
-    { "MIN_INT32"               , TYPE_INT32,   INT32_MIN           },
-    { "MAX_INT32"               , TYPE_INT32,   INT32_MAX           },
-    { "MAX_DWORD"               , TYPE_DWORD,   UINT32_MAX          },
-
     { "MIN_SHORT"               , TYPE_SHORT,   INT16_MIN           },
     { "MAX_SHORT"               , TYPE_SHORT,   INT16_MAX           },
-    { "MAX_WORD"                , TYPE_WORD ,   UINT16_MAX          },
 
     { "MIN_SBYTE"               , TYPE_SBYTE,   INT8_MIN            },
     { "MAX_SBYTE"               , TYPE_SBYTE,   INT8_MAX            },
+
+    { "MIN_ULONG"               , TYPE_QWORD,   0                   },
+    { "MAX_ULONG"               , TYPE_QWORD,   UINT64_MAX          },
+
+    { "MIN_QWORD"               , TYPE_QWORD,   0                   },
+    { "MAX_QWORD"               , TYPE_QWORD,   UINT64_MAX          },
+
+    { "MIN_DWORD"               , TYPE_DWORD,   0                   },
+    { "MAX_DWORD"               , TYPE_DWORD,   UINT32_MAX          },
+
+    { "MIN_WORD"                , TYPE_WORD ,   0                   },
+    { "MAX_WORD"                , TYPE_WORD ,   UINT16_MAX          },
+
+    { "MIN_BYTE"                , TYPE_BYTE ,   0                   },
     { "MAX_BYTE"                , TYPE_BYTE ,   UINT8_MAX           },
 
+    { "MIN_CHAR"                , TYPE_BYTE ,   0                   },
     { "MAX_CHAR"                , TYPE_BYTE ,   UINT8_MAX           },
 
     { "BENNUGD_VERSION"         , TYPE_BYTE ,   0xff                },
