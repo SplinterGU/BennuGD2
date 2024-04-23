@@ -144,6 +144,7 @@ void compile_init() {
     identifier_add_as( "SHORT", identifier_int16 );
     identifier_add_as( "SBYTE", identifier_int8 );
 
+    identifier_add_as( "UINT", identifier_uint64 );
     identifier_add_as( "ULONG", identifier_uint64 );
     identifier_add_as( "QWORD", identifier_uint64 );
     identifier_add_as( "DWORD", identifier_uint32 );
