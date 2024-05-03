@@ -136,6 +136,8 @@ extern CBOX * bitmap_get_cbox( GRAPH * map, int64_t code );
 extern void bitmap_remove_cbox( GRAPH * map, int64_t code );
 extern CBOX * bitmap_get_cbox_by_pos( GRAPH * map, int64_t pos );
 
+extern void bitmap_update_surface( GRAPH * gr );
+
 /* --------------------------------------------------------------------------- */
 
 #endif

@@ -101,59 +101,7 @@ int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
 
     if ( !gr->tex ) return -1;
 
-    if ( gr->dirty ) {
-        if ( gr->surface ) {
-            SDL_FreeSurface( gr->surface );
-            gr->surface = NULL;
-        }
-
-#ifdef USE_SDL2
-        SDL_Texture * auxTexture = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, ( int64_t ) gr->width, ( int64_t ) gr->height );
-        if ( !auxTexture ) return -1;
-        SDL_SetRenderTarget( gRenderer, auxTexture );
-
-        SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
-        SDL_RenderClear( gRenderer );
-
-        SDL_SetTextureBlendMode( auxTexture, SDL_BLENDMODE_NONE );
-
-        SDL_RenderCopy( gRenderer, gr->tex, NULL, NULL );
-
-        SDL_Surface * surface = SDL_CreateRGBSurface(0, ( int64_t ) gr->width, ( int64_t ) gr->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
-        if ( !surface ) {
-            SDL_DestroyTexture( auxTexture );
-            SDL_SetRenderTarget( gRenderer, NULL );
-            return -1;
-        }
-
-        SDL_SetColorKey( surface, SDL_FALSE, 0 );
-
-        int r = SDL_RenderReadPixels( gRenderer, NULL, gPixelFormat->format, surface->pixels, surface->pitch );
-
-        SDL_DestroyTexture( auxTexture );
-        SDL_SetRenderTarget( gRenderer, NULL );
-
-        if ( r != 0 ) {
-            SDL_FreeSurface( surface );
-            return -1;
-        }
-#endif
-#ifdef USE_SDL2_GPU
-        SDL_Surface * auxSurface = GPU_CopySurfaceFromImage( gr->tex );
-        if ( !auxSurface ) return -1;
-        SDL_PixelFormat * fmt = SDL_AllocFormat( gPixelFormat->format );
-        if ( !fmt ) {
-            SDL_FreeSurface( auxSurface );
-            return -1;
-        }
-        SDL_Surface * surface = SDL_ConvertSurface( auxSurface, fmt, 0 );
-        SDL_FreeSurface( auxSurface );
-        SDL_FreeFormat( fmt );
-        if ( !surface ) return -1;
-#endif
-        gr->surface = surface;
-        gr->dirty = 0;
-    }
+    bitmap_update_surface( gr );
 
     if ( x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return -1;
 

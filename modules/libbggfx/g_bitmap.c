@@ -170,13 +170,70 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
 
 /* --------------------------------------------------------------------------- */
 
+void bitmap_update_surface( GRAPH * gr ) {
+    if ( gr->tex && gr->dirty ) {
+        if ( gr->surface ) {
+            SDL_FreeSurface( gr->surface );
+            gr->surface = NULL;
+        }
+
+#ifdef USE_SDL2
+        SDL_Texture * auxTexture = SDL_CreateTexture( gRenderer, gPixelFormat->format, SDL_TEXTUREACCESS_TARGET, ( int64_t ) gr->width, ( int64_t ) gr->height );
+        if ( !auxTexture ) return;
+        SDL_SetRenderTarget( gRenderer, auxTexture );
+
+        SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
+        SDL_RenderClear( gRenderer );
+
+        SDL_SetTextureBlendMode( auxTexture, SDL_BLENDMODE_NONE );
+
+        SDL_RenderCopy( gRenderer, gr->tex, NULL, NULL );
+
+        SDL_Surface * surface = SDL_CreateRGBSurface(0, ( int64_t ) gr->width, ( int64_t ) gr->height, gPixelFormat->BitsPerPixel, gPixelFormat->Rmask, gPixelFormat->Gmask, gPixelFormat->Bmask, gPixelFormat->Amask );
+        if ( !surface ) {
+            SDL_DestroyTexture( auxTexture );
+            SDL_SetRenderTarget( gRenderer, NULL );
+            return;
+        }
+
+        SDL_SetColorKey( surface, SDL_FALSE, 0 );
+
+        int r = SDL_RenderReadPixels( gRenderer, NULL, gPixelFormat->format, surface->pixels, surface->pitch );
+
+        SDL_DestroyTexture( auxTexture );
+        SDL_SetRenderTarget( gRenderer, NULL );
+
+        if ( r != 0 ) {
+            SDL_FreeSurface( surface );
+            return;
+        }
+#endif
+#ifdef USE_SDL2_GPU
+        SDL_Surface * auxSurface = GPU_CopySurfaceFromImage( gr->tex );
+        if ( !auxSurface ) return;
+        SDL_PixelFormat * fmt = SDL_AllocFormat( gPixelFormat->format );
+        if ( !fmt ) {
+            SDL_FreeSurface( auxSurface );
+            return;
+        }
+        SDL_Surface * surface = SDL_ConvertSurface( auxSurface, fmt, 0 );
+        SDL_FreeSurface( auxSurface );
+        SDL_FreeFormat( fmt );
+        if ( !surface ) return;
+#endif
+        gr->surface = surface;
+        gr->dirty = 0;
+    }
+}
+
+/* --------------------------------------------------------------------------- */
+
 GRAPH * bitmap_clone( GRAPH * map ) {
     GRAPH * gr;
 
+    bitmap_update_surface( map );
+
     if ( !( gr = bitmap_new( 0, map->width, map->height, map->surface ) ) ) return NULL;
-#ifdef USE_SDL2_GPU
-    if ( map->tex ) gr->tex = GPU_CopyImage( map->tex );
-#endif
 
     if ( map->cpoints ) {
         gr->cpoints = malloc( sizeof( CPOINT ) * map->ncpoints );
