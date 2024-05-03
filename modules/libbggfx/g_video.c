@@ -77,6 +77,7 @@ int renderer_height = 0;
 SDL_Window * gWindow = NULL;
 
 #ifdef USE_SDL2
+// shaders -> SDL_GLContext glContext = NULL;
 SDL_Renderer * gRenderer = NULL;
 #else
 GPU_Target * gRenderer = NULL;
@@ -242,6 +243,21 @@ int gr_set_mode( int width, int height, int flags ) {
         SDL_SetWindowSize( gWindow, renderer_width, renderer_height );
         SDL_SetWindowPosition( gWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
     }
+
+#if 0 // USE_SDL2
+    if ( !glContext ) {
+        glContext = SDL_GL_CreateContext(gWindow);
+        if (!glContext) return -1;
+
+        GLenum glewError = glewInit();
+        if (glewError != GLEW_OK) {
+            printf("Error: Failed to initialize GLEW: %s\n", glewGetErrorString(glewError));
+            SDL_GL_DeleteContext(glContext);
+            glContext = NULL;
+            return -1;
+        }
+    }
+#endif
 
 #ifndef PS3_PPU
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");

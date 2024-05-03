@@ -26,6 +26,7 @@
 /* --------------------------------------------------------------------------- */
 
 #include <SDL.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -65,7 +66,21 @@ int shader_get_language() {
     GPU_Renderer * renderer = GPU_GetCurrentRenderer();
     if ( !renderer ) return -1;
     return renderer->shader_language;
+#elif 0 // USE_SDL2
+    SDL_RendererInfo info;
+    if (SDL_GetRendererInfo(SDL_GetRenderer(SDL_GetWindowFromID(0)), &info) != 0) return -1;
+    
+    if (info.name && strcmp(info.name, "opengl") == 0) {
+        SDL_GLContext glContext = SDL_GL_CreateContext(SDL_GetWindowFromID(0));
+        if (glContext) {
+            const char* versionStr = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+            SDL_GL_DeleteContext(glContext);
+            if (versionStr)
+                return 0; // Assuming OpenGL shader language
+        }
+    }
 #endif
+    return -1;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -80,7 +95,25 @@ int shader_get_min_version() {
     GPU_Renderer * renderer = GPU_GetCurrentRenderer();
     if ( !renderer ) return -1;
     return renderer->min_shader_version;
+#elif 0 // USE_SDL2
+    SDL_RendererInfo info;
+    if (SDL_GetRendererInfo(SDL_GetRenderer(SDL_GetWindowFromID(0)), &info) != 0) return -1;
+    
+    if (info.name && strcmp(info.name, "opengl") == 0) {
+        SDL_GLContext glContext = SDL_GL_CreateContext(SDL_GetWindowFromID(0));
+        if (glContext) {
+            const char* versionStr = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+            SDL_GL_DeleteContext(glContext);
+            if (versionStr) {
+                int major, minor;
+                if (sscanf(versionStr, "%d.%d", &major, &minor) == 2) {
+                    return major * 100 + minor * 10;
+                }
+            }
+        }
+    }    
 #endif
+    return -1;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -95,7 +128,9 @@ int shader_get_max_version() {
     GPU_Renderer * renderer = GPU_GetCurrentRenderer();
     if ( !renderer ) return -1;
     return renderer->max_shader_version;
+#elif 0 // USE_SDL2
 #endif
+    return -1;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -148,9 +183,78 @@ BGD_SHADER * shader_create( char * vertex, char * fragment ) {
 //    GPU_ActivateShaderProgram( shader->shader, &shader->block );
 
     return shader;
-#else
-    return NULL;
+#elif 0 // USE_SDL2
+    GLuint programID = glCreateProgram();
+
+    // Create and compile vertex shader
+    GLuint vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShaderID, 1, (const GLchar**)&vertex, NULL);
+    glCompileShader(vertexShaderID);
+
+    // Check vertex shader
+    GLint success = 0;
+    glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(vertexShaderID, 512, NULL, infoLog);
+        printf("ERROR compiling vertex shader: %s\n", infoLog);
+        glDeleteShader(vertexShaderID);
+        glDeleteProgram(programID);
+        return NULL;
+    }
+
+    // Create and compile fragment shader
+    GLuint fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShaderID, 1, (const GLchar**)&fragment, NULL);
+    glCompileShader(fragmentShaderID);
+
+    // Check fragment shader
+    glGetShaderiv(fragmentShaderID, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(fragmentShaderID, 512, NULL, infoLog);
+        printf("ERROR compiling fragment shader: %s\n", infoLog);
+        glDeleteShader(vertexShaderID);
+        glDeleteShader(fragmentShaderID);
+        glDeleteProgram(programID);
+        return NULL;
+    }
+
+    // Attach shaders to program and link
+    glAttachShader(programID, vertexShaderID);
+    glAttachShader(programID, fragmentShaderID);
+    glLinkProgram(programID);
+
+    // Check linking
+    glGetProgramiv(programID, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(programID, 512, NULL, infoLog);
+        printf("ERROR linking shaders: %s\n", infoLog);
+        glDeleteShader(vertexShaderID);
+        glDeleteShader(fragmentShaderID);
+        glDeleteProgram(programID);
+        return NULL;
+    }
+
+    // Clean up shaders
+    glDeleteShader(vertexShaderID);
+    glDeleteShader(fragmentShaderID);
+
+    // Allocate memory for shader structure
+    BGD_SHADER* shader = malloc(sizeof(BGD_SHADER));
+    if (!shader) {
+        printf("ERROR allocating memory for shader\n");
+        glDeleteProgram(programID);
+        return NULL;
+    }
+
+    // Set shader program ID
+    shader->shader = programID;
+
+    return shader;
 #endif
+    return NULL;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -168,6 +272,11 @@ void shader_activate( BGD_SHADER * shader ) {
         GPU_ActivateShaderProgram( shader ? shader->shader : 0, shader ? &shader->block : NULL );
         g_current_shader = shader;
     }
+#elif 0 // USE_SDL2
+    if (shader && shader->shader) {
+        glUseProgram(shader->shader);
+        g_current_shader = shader;
+    }
 #endif
 }
 
@@ -179,6 +288,9 @@ void shader_activate( BGD_SHADER * shader ) {
 void shader_deactivate( void ) {
 #ifdef USE_SDL2_GPU
     GPU_DeactivateShaderProgram();
+    g_current_shader = NULL;
+#elif 0 // USE_SDL2
+    glUseProgram(0);
     g_current_shader = NULL;
 #endif
 }
@@ -212,7 +324,7 @@ int shader_set_param(   BGD_SHADER_PARAMETERS * params,
                         int num_columns,
                         int transpose )
 {
-#ifdef USE_SDL2_GPU
+#if defined( USE_SDL2_GPU ) // || defined( USE_SDL2 )
     BGD_SHADER_PARAM *param = NULL;
 
     for ( int i = 0; i < params->nparams; ++i ) {
@@ -238,11 +350,8 @@ int shader_set_param(   BGD_SHADER_PARAMETERS * params,
     param->num_rows = num_rows;
     param->num_columns = num_columns;
     param->transpose = transpose;
-
-    return 0;
-#else
-    return 0;
 #endif
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -275,7 +384,7 @@ int shader_get_param(   BGD_SHADER_PARAMETERS *params,
                         int *num_rows,
                         int *num_columns,
                         int *transpose) {
-#ifdef USE_SDL2_GPU
+#if defined( USE_SDL2_GPU ) // || defined( USE_SDL2 )
     for (int i = 0; i < params->nparams; ++i) {
         if (params->params[i].location == location) {
             if (type) *type = params->params[i].type;
@@ -290,9 +399,8 @@ int shader_get_param(   BGD_SHADER_PARAMETERS *params,
         }
     }
     return 1; // Parameter with specified location not found
-#else
-    return 0;
 #endif
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -307,7 +415,7 @@ int shader_get_param(   BGD_SHADER_PARAMETERS *params,
  */
 
 BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params ) {
-#ifdef USE_SDL2_GPU
+#if defined( USE_SDL2_GPU ) // || defined( USE_SDL2 )
     BGD_SHADER_PARAMETERS* params = (BGD_SHADER_PARAMETERS*)malloc(sizeof(BGD_SHADER_PARAMETERS));
     if (!params) {
         // Handle memory allocation error
@@ -325,9 +433,8 @@ BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params ) {
     for ( int i = 0; i < num_params; ++i ) params->params[ i ].type = params->params[ i ].location = -1;
 
     return params;
-#else
-    return 0;
 #endif
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -340,7 +447,7 @@ BGD_SHADER_PARAMETERS * shader_create_parameters( int num_params ) {
  */
 
 void shader_free_parameters( BGD_SHADER_PARAMETERS* params ) {
-#ifdef USE_SDL2_GPU
+#if defined( USE_SDL2_GPU ) // || defined( USE_SDL2 )
     if (params) {
         free(params->params);
         free(params);
@@ -364,6 +471,9 @@ int shader_getuniformlocation( BGD_SHADER * shader, const char * name ) {
 #ifdef USE_SDL2_GPU
     if ( !shader ) return -1;
     return ( int ) GPU_GetUniformLocation( shader->shader, name );
+#elif 0 // USE_SDL2
+    if (!shader) return -1;
+    return glGetUniformLocation(shader->shader, name);
 #else
     return -1;
 #endif
@@ -383,6 +493,10 @@ void shader_free( BGD_SHADER * shader ) {
     if ( !shader ) return;
     GPU_FreeShaderProgram( shader->shader );
     free( shader );
+#elif 0 // USE_SDL2
+    if (!shader) return;
+    glDeleteProgram(shader->shader);
+    free(shader);
 #endif
 }
 
@@ -495,6 +609,83 @@ void shader_apply_parameters( BGD_SHADER_PARAMETERS* params ) {
 
             case UNIFORM_MATRIX:
                 GPU_SetUniformMatrixfv( param->location, param->num_matrices, param->num_rows, param->num_columns, ( GPU_bool ) param->transpose, param->values );
+                break;
+
+            default:
+                // Handle invalid parameter type
+                break;
+        }
+    }
+#elif 0 // USE_SDL2
+    // Handle case of null parameters
+    if (!params) return;
+
+    for (uint32_t i = 0; i < params->nparams; ++i) {
+        BGD_SHADER_PARAM* param = &params->params[i];
+
+        switch (param->type) {
+            case UNIFORM_INT:
+                glUniform1i(param->location, param->value);
+                break;
+
+            case UNIFORM_INT_ARRAY:
+                glUniform1iv(param->location, param->n_values, (const GLint*)param->values);
+                break;
+
+            case UNIFORM_INT2_ARRAY:
+                glUniform2iv(param->location, param->n_values, (const GLint*)param->values);
+                break;
+
+            case UNIFORM_INT3_ARRAY:
+                glUniform3iv(param->location, param->n_values, (const GLint*)param->values);
+                break;
+
+            case UNIFORM_INT4_ARRAY:
+                glUniform4iv(param->location, param->n_values, (const GLint*)param->values);
+                break;
+
+            case UNIFORM_UINT:
+                glUniform1ui(param->location, param->uvalue);
+                break;
+
+            case UNIFORM_UINT_ARRAY:
+                glUniform1uiv(param->location, param->n_values, (const GLuint*)param->values);
+                break;
+
+            case UNIFORM_UINT2_ARRAY:
+                glUniform2uiv(param->location, param->n_values, (const GLuint*)param->values);
+                break;
+
+            case UNIFORM_UINT3_ARRAY:
+                glUniform3uiv(param->location, param->n_values, (const GLuint*)param->values);
+                break;
+
+            case UNIFORM_UINT4_ARRAY:
+                glUniform4uiv(param->location, param->n_values, (const GLuint*)param->values);
+                break;
+
+            case UNIFORM_FLOAT:
+                glUniform1f(param->location, param->fvalue);
+                break;
+
+            case UNIFORM_FLOAT_ARRAY:
+                glUniform1fv(param->location, param->n_values, (const GLfloat*)param->values);
+                break;
+
+            case UNIFORM_FLOAT2_ARRAY:
+                glUniform2fv(param->location, param->n_values, (const GLfloat*)param->values);
+                break;
+
+            case UNIFORM_FLOAT3_ARRAY:
+                glUniform3fv(param->location, param->n_values, (const GLfloat*)param->values);
+                break;
+
+            case UNIFORM_FLOAT4_ARRAY:
+                glUniform4fv(param->location, param->n_values, (const GLfloat*)param->values);
+                break;
+
+            case UNIFORM_MATRIX:
+                glUniformMatrix4fv(param->location, param->num_matrices, param->transpose, (const GLfloat*)param->values);
                 break;
 
             default:

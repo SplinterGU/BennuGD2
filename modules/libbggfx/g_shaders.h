@@ -28,6 +28,11 @@
 #ifndef __G_SHADERS_H
 #define __G_SHADERS_H
 
+#if USE_SDL2
+#include <GL/glew.h>
+#include <SDL_opengl.h>
+#endif
+
 #ifdef USE_SDL2_GPU
 #define SHADER_LANGUAGE_NONE            GPU_LANGUAGE_NONE
 #define SHADER_LANGUAGE_ARB_ASSEMBLY    GPU_LANGUAGE_ARB_ASSEMBLY
@@ -76,10 +81,13 @@ enum {
 
 /* --------------------------------------------------------------------------- */
 
-#ifdef USE_SDL2_GPU
 typedef struct {
+#ifdef USE_SDL2_GPU
     uint32_t shader;
     GPU_ShaderBlock block;
+#elif 0 // USE_SDL2
+    GLuint shader;
+#endif
 } BGD_SHADER;
 
 typedef struct {
@@ -110,11 +118,6 @@ typedef struct {
     uint32_t nparams;
     BGD_SHADER_PARAM *params;
 } BGD_SHADER_PARAMETERS;
-#else
-typedef void BGD_SHADER;
-typedef void BGD_SHADER_PARAM;
-typedef void BGD_SHADER_PARAMETERS;
-#endif
 
 /* --------------------------------------------------------------------------- */
 
