@@ -79,20 +79,6 @@ int64_t libmod_gfx_shader_free(  INSTANCE * my, int64_t * params ) {
 #if 0
 /* --------------------------------------------------------------------------- */
 
-int64_t libmod_gfx_shader_activate( INSTANCE * my, int64_t * params ) {
-    shader_activate( ( BGD_SHADER * ) ( intptr_t ) params[ 0 ] );
-    return 1;
-}
-
-/* --------------------------------------------------------------------------- */
-
-int64_t libmod_gfx_shader_deactivate( INSTANCE * my, int64_t * params ) {
-    shader_deactivate();
-    return 1;
-}
-
-/* --------------------------------------------------------------------------- */
-
 int64_t libmod_gfx_shader_getattributelocation( INSTANCE * my, int64_t * params ) {
     int loc = shader_getattributelocation( ( BGD_SHADER * ) ( intptr_t ) params[ 0 ], ( char * ) string_get( params[ 1 ] ) );
     string_discard( params[ 1 ] );

@@ -754,7 +754,6 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
         current_color[ 1 ] = * ( g = &( ( TEXT * ) ptext )->color_g );
         current_color[ 2 ] = * ( b = &( ( TEXT * ) ptext )->color_b );
         working_watch = ( ( TEXT * ) ptext )->watch_colors;
-
     } else {
         alpha = GLOBYTE( libbggfx, TEXT_ALPHA );
         current_color[ 0 ] = * ( r = GLOADDR( libbggfx, TEXT_COLORR ) );
@@ -770,12 +769,13 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
     int64_t blend_mode = GLOQWORD( libbggfx, TEXT_BLEND_MODE );
     CUSTOM_BLENDMODE * custom_blend_mode = GLOADDR( libbggfx, TEXT_CUSTOM_BLEND_MODE );
 
-    if ( !dest )    {
+    if ( !dest ) {
         shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbggfx, TEXT_SHADER_ID ) );
         BGD_SHADER_PARAMETERS * shader_params = * ( BGD_SHADER_PARAMETERS ** ) GLOADDR( libbggfx, TEXT_SHADER_PARAMS );
         if ( shader_params ) shader_apply_parameters( shader_params );
     }
-    else            shader_deactivate();
+    else
+        shader_deactivate();
 
     if ( f->fontmap ) {
         switch ( f->charset ) {

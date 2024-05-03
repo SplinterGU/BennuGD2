@@ -507,11 +507,7 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
 
     FUNC( "SHADER_CREATE"               , "SS"             , TYPE_POINTER    , libmod_gfx_shader_create                ),
     FUNC( "SHADER_FREE"                 , "P"              , TYPE_INT        , libmod_gfx_shader_free                  ),
-#if 0
-    FUNC( "SHADER_ACTIVATE"             , "P"              , TYPE_INT        , libmod_gfx_shader_activate              ),
-    FUNC( "SHADER_SELECT"               , "P"              , TYPE_INT        , libmod_gfx_shader_activate              ),
-    FUNC( "SHADER_DEACTIVATE"           , ""               , TYPE_INT        , libmod_gfx_shader_deactivate            ),
-#endif
+
 #if 0
     FUNC( "SHADER_GETATTRIBUTELOCATION" , "PS"             , TYPE_INT        , libmod_gfx_shader_getattributelocation  ),
 #endif
