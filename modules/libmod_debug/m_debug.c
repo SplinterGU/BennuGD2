@@ -1500,7 +1500,7 @@ static void console_getkey( int sym ) {
 
     if ( sym == SDLK_ESCAPE ) *console_input = 0 ;
 
-    if ( sym == SDLK_RETURN ) {
+    if ( sym == SDLK_RETURN || sym == SDLK_KP_ENTER ) {
         console_scroll_pos = 0 ;
         console_printf( COLOR_SILVER "> %s", console_input ) ;
         if ( * console_input ) {
