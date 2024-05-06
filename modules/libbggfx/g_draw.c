@@ -72,7 +72,6 @@ float drawing_thickness = 1.0f;
     #define DRAW_RELEASE_RENDERER()
 #endif
 
-
 /* --------------------------------------------------------------------------- */
 
 void draw_set_blend( BLENDMODE blend_mode, CUSTOM_BLENDMODE * custom_blendmode ) {

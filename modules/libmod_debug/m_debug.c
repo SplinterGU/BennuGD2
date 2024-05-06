@@ -2861,7 +2861,7 @@ static void console_do( const char * cmd ) {
     INSTANCE * i = NULL ;
 
     ptr = ( char * ) cmd ;
-    while ( *ptr && *ptr != ' ' ) ptr++ ;
+    while ( *ptr && *ptr != ' ' && *ptr != '=' ) ptr++ ;
     strncpy( action, cmd, ptr - cmd ) ;
     action[ptr - cmd] = 0 ;
     while ( *ptr == ' ' ) ptr++ ;
@@ -3433,7 +3433,7 @@ static void console_do( const char * cmd ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
                         if ( result.type != RT_ERROR )
-                            *( int32_t * )console_vars[var].value = ( int32_t ) result.int_value ;
+                            *( int32_t * )console_vars[var].value = ( int32_t ) ( result.int_value < 0 ? 0 : result.int_value > 4294967295LL ? 4294967295LL : result.int_value ); ;
                     }
                     console_printf( COLOR_SILVER "%s = %"PRId32, console_vars[var].name, *( int32_t * )console_vars[var].value ) ;
                     return ;
@@ -3443,7 +3443,7 @@ static void console_do( const char * cmd ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
                         if ( result.type != RT_ERROR )
-                            *( int32_t * )console_vars[var].value = ( int32_t ) result.int_value ;
+                            *( int32_t * )console_vars[var].value = ( int32_t ) ( result.int_value < 0 ? 0 : result.int_value > 1674294967295LL ? 4294967295LL : result.int_value ); ;
                     }
                     console_printf( COLOR_SILVER "%s = %08Xh\n", console_vars[var].name, *( int32_t * )console_vars[var].value ) ;
                     return ;
@@ -3453,7 +3453,7 @@ static void console_do( const char * cmd ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
                         if ( result.type != RT_ERROR )
-                            *( int16_t * )console_vars[var].value = ( int16_t ) result.int_value ;
+                            *( int16_t * )console_vars[var].value = ( int16_t ) ( result.int_value < 0 ? 0 : result.int_value > 65535 ? 65535 : result.int_value ); ;
                     }
                     console_printf( COLOR_SILVER "%s = %d", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
                     return ;
@@ -3463,7 +3463,7 @@ static void console_do( const char * cmd ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
                         if ( result.type != RT_ERROR )
-                            *( int16_t * )console_vars[var].value = ( int16_t ) result.int_value ;
+                            *( int16_t * )console_vars[var].value = ( int16_t ) ( result.int_value < 0 ? 0 : result.int_value > 65535 ? 65535 : result.int_value ); ;
                     }
                     console_printf( COLOR_SILVER "%s = %04Xh\n", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
                     return ;
@@ -3473,7 +3473,7 @@ static void console_do( const char * cmd ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
                         if ( result.type != RT_ERROR )
-                            *( int8_t * )console_vars[var].value = ( int8_t ) result.int_value ;
+                            *( int8_t * )console_vars[var].value = ( int8_t ) ( result.int_value < 0 ? 0 : result.int_value > 255 ? 255 : result.int_value );
                     }
                     console_printf( COLOR_SILVER "%s = %d", console_vars[var].name, *( int16_t * )console_vars[var].value ) ;
                     return ;
@@ -3483,7 +3483,7 @@ static void console_do( const char * cmd ) {
                         while ( *ptr == '=' || *ptr == ' ' ) ptr++;
                         eval_expression( ptr, 0 );
                         if ( result.type != RT_ERROR )
-                            *( int8_t * )console_vars[var].value = ( int8_t ) result.int_value ;
+                            *( int8_t * )console_vars[var].value = ( int8_t ) ( result.int_value < 0 ? 0 : result.int_value > 255 ? 255 : result.int_value );
                     }
                     console_printf( COLOR_SILVER "%s = %02Xh\n", console_vars[var].name, *( int8_t * )console_vars[var].value ) ;
                     return ;
@@ -3729,12 +3729,14 @@ static void console_draw( void * what, REGION * clip ) {
         if ( console_y < 0 ) console_y = 0 ;
     }
 
+    if ( console_y > 0 ) shader_deactivate();
+
     x = ( scr_width - console_columns * CHARWIDTH ) / 2 ;
     y = -console_lines * CHARHEIGHT + console_y ;
 
-    drawing_blend_mode = 0; drawing_color_r = 0; drawing_color_g = 0; drawing_color_b = 0x20; drawing_color_a = console_alpha;
-    draw_rectangle_filled( NULL, NULL, x, y, console_columns * CHARWIDTH, console_lines * CHARHEIGHT );
-    drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
+    uint8_t __console_alpha = console_alpha;
+
+    console_alpha = 255;
 
     int current_show = 0;
 
@@ -3771,10 +3773,12 @@ static void console_draw( void * what, REGION * clip ) {
         }
     }
 
-    if ( console_y <= 0 ) {
-        drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
-        return ;
-    }
+    console_alpha = __console_alpha;
+
+    if ( console_y <= 0 ) return ;
+
+    drawing_blend_mode = 0; drawing_color_r = 0; drawing_color_g = 0; drawing_color_b = 0x20; drawing_color_a = console_alpha;
+    draw_rectangle_filled( NULL, NULL, x, y, console_columns * CHARWIDTH, console_lines * CHARHEIGHT );
 
     int64_t shiftstatus = GLOINT64( libmod_debug, SHIFTSTATUS ) ;
 
@@ -3857,10 +3861,8 @@ static void console_draw( void * what, REGION * clip ) {
     }
 
     systext_color( 0xFFFFFF ) ;
-
     drawing_blend_mode = 0; drawing_color_r = 0x40; drawing_color_g = 0x40; drawing_color_b = 0x40; drawing_color_a = console_alpha;
     draw_rectangle_filled( NULL, NULL, x, y, console_columns * CHARWIDTH, CHARHEIGHT );
-    drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
 
     systext_puts( x, y, ">" ) ;
 
@@ -3878,7 +3880,6 @@ static void console_draw( void * what, REGION * clip ) {
     systext_color( 0x404040 ) ;
     drawing_blend_mode = 0; drawing_color_r = 0x00; drawing_color_g = 0xC0; drawing_color_b = 0xC0; drawing_color_a = console_alpha;
     draw_rectangle_filled( NULL, NULL, x, y + CHARHEIGHT, console_columns * CHARWIDTH, CHARHEIGHT );
-    drawing_blend_mode = __drawing_blend_mode; drawing_color_r = __drawing_color_r; drawing_color_g = __drawing_color_g; drawing_color_b = __drawing_color_b; drawing_color_a = __drawing_color_a;
 
     if ( !( shiftstatus & 3 ) )
         systext_puts( x, y + CHARHEIGHT, HOTKEYHELP1 ) ;
