@@ -2085,10 +2085,17 @@ expresion_result compile_value() {
 
 }
 
+static int compile_factor_recursion_level = 0;
+
 /* Step 14 */
 expresion_result compile_factor() {
     expresion_result res, part;
     BASETYPE t;
+
+    compile_factor_recursion_level++;
+
+    if ( compile_factor_recursion_level > 2048 ) compile_error( MSG_TOO_COMPLEX );
+
 
     token_next();
 
@@ -2116,6 +2123,7 @@ expresion_result compile_factor() {
                 } else {
                     res.fvalue   = -part.fvalue;
                 }
+                compile_factor_recursion_level--;
                 return res;
             }
             compile_error( MSG_NUMBER_REQUIRED );
@@ -2132,6 +2140,7 @@ expresion_result compile_factor() {
                 res.value    = !part.value;
                 res.fvalue   = ( double )!part.fvalue;
                 res.type     = part.type;
+                compile_factor_recursion_level--;
                 return res;
             }
             compile_error( MSG_NUMBER_REQUIRED );
@@ -2151,6 +2160,7 @@ expresion_result compile_factor() {
                 res.constant = part.constant;
                 res.value    = ~part.value;
                 res.type     = part.type /*typedef_new( TYPE_INT )*/;
+                compile_factor_recursion_level--;
                 return res;
             }
             compile_error( MSG_NUMBER_REQUIRED );
@@ -2164,6 +2174,7 @@ expresion_result compile_factor() {
             res.asignation = 1;
             res.lvalue = 1;
             res.type = part.type;
+            compile_factor_recursion_level--;
             return res;
         } else if ( token.type == IDENTIFIER && token.code == identifier_minusminus ) { /* "--" */
             part = compile_factor();
@@ -2174,6 +2185,7 @@ expresion_result compile_factor() {
             res.asignation = 1;
             res.lvalue = 1;
             res.type = part.type;
+            compile_factor_recursion_level--;
             return res;
         }
     }
@@ -2202,6 +2214,7 @@ expresion_result compile_factor() {
                     VARSPACE * v = typedef_members( part.type );
                     if ( !v->vars ) {
                         compile_error( MSG_STRUCT_REQUIRED );
+                        compile_factor_recursion_level--;
                         return res; /* Avoid scan-build warning */
                     }
                     part = compile_sublvalue( v, v->vars[0].offset, NULL );
@@ -2274,6 +2287,8 @@ expresion_result compile_factor() {
     }
 
     token_back();
+
+    compile_factor_recursion_level--;
 
     return part;
 }
