@@ -72,6 +72,28 @@ build_app() {
     cd -
 }
 
+#!/bin/bash
+
+# Function to search for the library in the given paths
+search_lib() {
+    local -n result=$1
+    local paths=("${!2}")
+
+    # Initialize the result
+    result=""
+
+    # Iterate through the list of paths and search for the library
+    for path in "${paths[@]}"; do
+        # Search for the corresponding library in the path
+        result=$(find "${path}" -name "$4" 2>/dev/null)
+
+        # If the library is found, assign the result and exit the loop
+        if [[ -n "${result}" ]]; then
+            break
+        fi
+    done
+}
+
 BUILD_TYPE=Release
 STATIC_ENABLED=0
 LIBRARY_BUILD_TYPE=SHARED
@@ -149,9 +171,21 @@ do
 
         linux32)
             TARGET=i386-linux-gnu
+
             if [ "$MSYSTEM" = "" ]; then
+                paths=(
+                    "/usr/lib/${TARGET}"
+                    "/usr/lib32"
+                    # Add more paths if necessary
+                )
+
+                # Call the function to search for each library
+                search_lib SDL2_LIBRARY paths[@] x86_64 "libSDL2.so"
+                search_lib SDL2_IMAGE_LIBRARY paths[@] x86_64 "libSDL2_image.so"
+                search_lib SDLMIXER_LIBRARY paths[@] x86_64 "libSDL2_mixer.so"
+
                 # linux
-                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/linux_i686.toolchain.cmake -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=/usr/lib/${TARGET}/libSDL2-2.0.so.0 -DSDL2_IMAGE_LIBRARY=/usr/lib/${TARGET}/libSDL2_image-2.0.so.0 -DSDLMIXER_LIBRARY=/usr/lib/${TARGET}/libSDL2_mixer-2.0.so.0"
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/linux_i686.toolchain.cmake -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=${SDL2_LIBRARY} -DSDL2_IMAGE_LIBRARY=${SDL2_IMAGE_LIBRARY} -DSDLMIXER_LIBRARY=${SDLMIXER_LIBRARY}"
             fi
             ;;
 
