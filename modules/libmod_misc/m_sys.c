@@ -137,3 +137,13 @@ int64_t libmod_misc_sys_get_pref_language( INSTANCE * my, int64_t * params ) {
 }
 
 /* ----------------------------------------------------------------- */
+
+int64_t libmod_misc_sys_set_process_dpi_aware( INSTANCE * my, int64_t * params ) {
+#if WIN32
+    SetProcessDPIAware();
+#endif
+
+    return 1;
+}
+
+/* ----------------------------------------------------------------- */
