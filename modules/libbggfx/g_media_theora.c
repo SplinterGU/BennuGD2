@@ -136,7 +136,7 @@ THR_ID* thr_open(const char *fname, const uint32_t timeout) {
     ctx->paused = 1;
     ctx->playms = 0;
 
-    const int MAX_FRAMES = 60;
+    const int MAX_FRAMES = 64;
 
     ctx->decoder = THEORAPLAY_startDecodeFile(fname, MAX_FRAMES, THEORAPLAY_VIDFMT_BGRA, NULL, 1);
     if (!ctx->decoder) {
@@ -171,8 +171,9 @@ THR_ID* thr_open(const char *fname, const uint32_t timeout) {
     while ((ctx->video = THEORAPLAY_getVideo(ctx->decoder)) == NULL) SDL_Delay(0);
 
     if (ctx->has_audio) {
+        startticks = SDL_GetTicks();
         while ((ctx->audio = THEORAPLAY_getAudio(ctx->decoder)) == NULL) {
-            if (THEORAPLAY_availableVideo(ctx->decoder) >= MAX_FRAMES) break;
+            if (THEORAPLAY_availableVideo(ctx->decoder) >= MAX_FRAMES || ( timeout > 0 && SDL_GetTicks() >= startticks + timeout ) ) break;
             SDL_Delay(0);
         }
     }
