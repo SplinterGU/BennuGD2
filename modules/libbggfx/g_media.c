@@ -42,7 +42,8 @@
 /* --------------------------------------------------------------------------- */
 
 static int __media_info( void * what, REGION * bbox, int64_t * z, int64_t * drawme ) {
-/*
+    MEDIA * mh = ( MEDIA * ) what;
+
     int hold = debugger_show_console || system_paused;
     if ( hold != mh->in_hold_state ) {
         if ( hold ) {
@@ -55,11 +56,8 @@ static int __media_info( void * what, REGION * bbox, int64_t * z, int64_t * draw
         }
         mh->in_hold_state = hold;
     }
-*/
 
-    MEDIA * mh = ( MEDIA * ) what;
-
-    int ret = thr_update( mh->m );
+    int ret = !hold && thr_update( mh->m );
     if ( ret || mh->texture_must_update ) {
 #ifdef USE_SDL2_GPU
         GPU_UpdateImage( mh->graph->tex, NULL, mh->surface, NULL );
