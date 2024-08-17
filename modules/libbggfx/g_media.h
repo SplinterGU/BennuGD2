@@ -66,6 +66,8 @@
         // Used for interaction with debbuger && system paused
         int in_hold_state;
         int is_paused;
+        int is_muted;
+        int volume;
 
         char * media;
         int timeout;

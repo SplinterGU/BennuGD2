@@ -125,16 +125,6 @@ THR_ID* thr_open(const char *fname, const uint32_t timeout) {
         return NULL;
     }
 
-    const int MAX_FRAMES = 60;
-
-    ctx->decoder = THEORAPLAY_startDecodeFile(fname, MAX_FRAMES, THEORAPLAY_VIDFMT_BGRA, NULL, 1);
-    if (!ctx->decoder) {
-        fprintf(stderr, "Failed to start decoding '%s'!\n", fname);
-        free(ctx);
-        return NULL;
-    }
-
-    Uint32 startticks = SDL_GetTicks();
     ctx->has_audio = 0;
     ctx->has_video = 0;
     ctx->opened_audio = 0;
@@ -145,6 +135,17 @@ THR_ID* thr_open(const char *fname, const uint32_t timeout) {
     ctx->volume = 128;
     ctx->paused = 1;
     ctx->playms = 0;
+
+    const int MAX_FRAMES = 60;
+
+    ctx->decoder = THEORAPLAY_startDecodeFile(fname, MAX_FRAMES, THEORAPLAY_VIDFMT_BGRA, NULL, 1);
+    if (!ctx->decoder) {
+        fprintf(stderr, "Failed to start decoding '%s'!\n", fname);
+        free(ctx);
+        return NULL;
+    }
+
+    Uint32 startticks = SDL_GetTicks();
 
     // Wait until the decoder has parsed out some basic truths from the
     //  file. In a video game, you could choose not to block on this, and
@@ -303,7 +304,7 @@ int thr_get_mute( THR_ID *ctx ) {
 /* --------------------------------------------------------------------------- */
 
 void thr_set_mute( THR_ID *ctx, int status ) {
-    if ( ctx ) ctx->muted = ( status == 1 );
+    if ( ctx ) ctx->muted = ( status != 0 );
 }
 
 /* --------------------------------------------------------------------------- */

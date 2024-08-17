@@ -198,16 +198,18 @@ void __bgdexport( libbggfx, instance_destroy_hook )( INSTANCE * r ) {
 /* --------------------------------------------------------------------------- */
 
 void __bgdexport( libbggfx, module_initialize )() {
-    grlib_init() ;
+    grlib_init();
     gr_video_init();
     gr_font_init();
     frame_init();
     gr_fade_initalize();
+    media_init();
 }
 
 /* --------------------------------------------------------------------------- */
 
 void __bgdexport( libbggfx, module_finalize )() {
+    media_exit();
     frame_exit();
     gr_video_exit();
 }

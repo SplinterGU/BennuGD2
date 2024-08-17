@@ -71,11 +71,13 @@ static int __media_info( void * what, REGION * bbox, int64_t * z, int64_t * draw
 /* --------------------------------------------------------------------------- */
 
 void media_init() {
+    if ( !SDL_WasInit( SDL_INIT_AUDIO ) ) SDL_InitSubSystem( SDL_INIT_AUDIO );
 }
 
 /* --------------------------------------------------------------------------- */
 
 void media_exit() {
+    if ( SDL_WasInit( SDL_INIT_AUDIO ) ) SDL_QuitSubSystem( SDL_INIT_AUDIO );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -101,11 +103,13 @@ MEDIA * media_load( const char * media, int64_t * graph_id, int timeout ) {
         return NULL;
     }
 
+    mh->volume = thr_get_volume( mh->m );
+    mh->is_muted = thr_get_mute( mh->m );
+
     if ( thr_get_video_size( mh->m, &vw, &vh ) != -1 ) {
         mh->video_width = vw;
         mh->video_height = vh;
 
-//        mh->surface = SDL_CreateRGBSurface(0, mh->video_width, mh->video_height, 32, 0xff, 0xff00, 0xff0000, 0 /* Force alpha to opaque */ );
         mh->surface = SDL_CreateRGBSurface(0, mh->video_width, mh->video_height, 32, 0, 0, 0, 0 /* Force alpha to opaque */ );
         if ( !mh->surface ) {
             thr_close( mh->m );
@@ -163,6 +167,8 @@ int media_play( MEDIA * mh ) {
         mh->m = thr_open( mh->media, mh->timeout);
         if ( !mh->m ) return -1;
         thr_set_shadow_surface( mh->m, mh->surface );
+        thr_set_volume( mh->m, mh->volume );
+        thr_set_mute( mh->m, mh->is_muted );
     }
     thr_pause( mh->m, 0 );
     return 0;
@@ -231,6 +237,7 @@ int media_get_mute( MEDIA * mh ) {
 void media_set_mute( MEDIA * mh, int status ) {
     if ( !mh ) return;
     thr_set_mute( mh->m, status );
+    mh->is_muted = ( status != 0 );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -244,6 +251,7 @@ int media_get_volume( MEDIA * mh ) {
 
 int media_set_volume( MEDIA * mh, int volume ) {
     if ( !mh ) return -1;
+    mh->volume = volume;
     return thr_set_volume( mh->m, volume );
 }
 
