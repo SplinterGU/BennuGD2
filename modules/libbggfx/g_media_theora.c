@@ -210,7 +210,7 @@ int thr_update(THR_ID *ctx) {
                 spec.callback = audio_callback;
                 spec.userdata = ctx;
 
-                ctx->audio_devid = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+                ctx->audio_devid = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
                 if (ctx->audio_devid) {
                     ctx->opened_audio = 1;
                     queue_audio(ctx, ctx->audio);
