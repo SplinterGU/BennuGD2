@@ -31,14 +31,10 @@
 #ifndef __M_MEDIA_H
 #define __M_MEDIA_H
 
-#ifdef LIBVLC_ENABLED
-
 #include "bgddl.h"
 
 extern int64_t libmod_gfx_media_load( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_load2( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_load3( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_load4( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_unload( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_play( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_pause_action( INSTANCE * my, int64_t * params );
@@ -46,42 +42,13 @@ extern int64_t libmod_gfx_media_pause( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_resume( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_stop( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_get_time( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_time( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_get_duration( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_get_status( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_rate( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_rate( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_next_frame( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_get_mute( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_set_mute( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_get_volume( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_media_set_volume( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_track( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_track( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_add_subtitle( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_subtitle( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_subtitle( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_subtitle_delay( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_subtitle_delay( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_add_audio( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_audio( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_audio( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_audio_delay( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_audio_delay( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_audio_channel( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_audio_channel( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_track_list( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_track_list_release( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_chapter( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_set_chapter( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_chapter_count( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_prev_chapter( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_next_chapter( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_get_chapter_list( INSTANCE * my, int64_t * params );
-extern int64_t libmod_gfx_media_chapter_list_release( INSTANCE * my, int64_t * params );
 
 /* --------------------------------------------------------------------------- */
-
-#endif
 
 #endif

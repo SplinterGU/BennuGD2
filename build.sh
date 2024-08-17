@@ -143,12 +143,10 @@ do
 
         linux)
             TARGET=linux-gnu
-            LIBVLC=1
             ;;
 
         ps3)
             TARGET=powerpc64-ps3-elf
-            LIBVLC=0
             STATIC_ENABLED=1
             USE_SDL2=1
             USE_SDL2_GPU=0
@@ -254,7 +252,6 @@ then
 
         linux)
             TARGET=linux-gnu
-            LIBVLC=1
             ;;
     esac
 
@@ -262,12 +259,6 @@ then
     then
         show_help
     fi
-fi
-
-if [ "$LIBVLC" == "1" ]
-then
-    EXTRA_CFLAGS+=" -DLIBVLC_ENABLED=1"
-    MISC_FLAGS+=" -DLIBVLC_ENABLED=1"
 fi
 
 if [ "$USE_SDL2" == "1" ]

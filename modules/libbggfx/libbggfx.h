@@ -180,10 +180,7 @@ enum {
 #include "g_draw.h"
 #include "g_screen.h"
 #include "g_pathfind.h"
-
-#ifdef LIBVLC_ENABLED
 #include "g_media.h"
-#endif
 
 /* --------------------------------------------------------------------------- */
 
