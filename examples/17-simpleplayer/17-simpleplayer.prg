@@ -137,7 +137,7 @@ begin
     fontmap = map_load("osd1.png");
     font = fnt_new(0,fontmap,CHARSET_ISO8859,24,28,0,0,NFB_FIXEDWIDTH,"./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^-" );
 
-    set_fps(60,0);
+    set_fps(0,0);
 
     mh = media_load( "sample.ogg", &video_graph, 0 );
 

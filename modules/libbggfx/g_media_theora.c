@@ -136,7 +136,7 @@ THR_ID* thr_open(const char *fname, const uint32_t timeout) {
     ctx->paused = 1;
     ctx->playms = 0;
 
-    const int MAX_FRAMES = 64;
+    const int MAX_FRAMES = 120;
 
     ctx->decoder = THEORAPLAY_startDecodeFile(fname, MAX_FRAMES, THEORAPLAY_VIDFMT_BGRA, NULL, 1);
     if (!ctx->decoder) {

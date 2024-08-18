@@ -29,4 +29,4 @@ endif()
 
 add_library(bggfx ${LIBRARY_BUILD_TYPE} ${SOURCES_LIBBGGFX})
 
-target_link_libraries(bggfx ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDL_GPU_LIBRARY} -L../../bin bgdrtm ${OGL_LIB} -logg -lvorbis -ltheoradec)
+target_link_libraries(bggfx ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDL_GPU_LIBRARY} -L../../bin bgdrtm ${OGL_LIB} ${STDLIBSFLAGS} -logg -lvorbis -ltheoradec)
