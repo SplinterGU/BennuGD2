@@ -326,7 +326,7 @@ int64_t gr_font_new( int64_t charset ) {
 
     if ( !fonts[ fontid ] ) return -1; // No memory
 
-    memset( fonts[ fontid ], 0, sizeof( FONT ) );
+    //memset( fonts[ fontid ], 0, sizeof( FONT ) );
     fonts[ fontid ]->charset = charset; // CHARSET_ISO8859
     fonts[ fontid ]->maxwidth = 0;
     fonts[ fontid ]->maxheight = 0;
@@ -705,7 +705,10 @@ void gr_font_destroy( int64_t fontid ) {
 
 FONT * gr_font_get( int64_t id ) {
     if ( id < 0 || id >= MAX_FONTS ) return NULL;
-    if ( !id && ( fonts[ 0 ] == ( FONT * ) 0 || fonts[ 0 ] == ( FONT * ) -1 ) ) gr_font_systemfont();
+    if ( !id && ( fonts[ 0 ] == ( FONT * ) 0 || fonts[ 0 ] == ( FONT * ) -1 ) ) {
+        gr_font_systemfont();
+        if ( fonts[ 0 ] == ( FONT * ) -1 ) return NULL;
+    }
     return fonts[ id ];
 }
 
