@@ -1,0 +1,82 @@
+name: Build and Release BennuGD2 Packages
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    strategy:
+      matrix:
+        env: [linux]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up enviroment
+        run: |
+          sudo apt update
+          #if [ "${{ matrix.env }}" == "windows" ]; then
+          #  # Instalar dependencias para MinGW-w64
+          #  sudo apt install -y mingw-w64
+          #else
+            # Instalar dependencias para Linux
+            sudo apt install -y binutils git cmake build-essential zlib1g-dev libsdl2-dev libglu1-mesa-dev libsdl2-image-dev libsdl2-mixer-dev libtheora-dev libogg-dev libvorbis-dev
+          #fi
+
+      - name: Update submodules and Build
+        run: |
+          git submodule update --init --recursive
+          cd vendor
+          ./build-sdl-gpu.sh ${{ matrix.env }}
+          cd ..
+          ./build.sh ${{ matrix.env }}
+          ./build.sh packages
+
+      - name: Set artifact path
+        id: set-path
+        run: |
+          echo "path=$(find packages -name 'bgd2-*.tgz' -o -name 'bgd2-*.rar')" >> $GITHUB_ENV
+
+      - name: Upload BennuGD2 artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: BennuGD2-${{ matrix.env }}
+          path: ${{ env.path }}
+
+  create-release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: success()
+
+    strategy:
+      matrix:
+        platform:
+          - linux
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download BennuGD2 Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: BennuGD2-${{ matrix.platform }}
+          path: ./dist/${{ matrix.platform }}
+
+      - name: Upload BennuGD2 Artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./dist/${{ matrix.platform }}/*
+          tag_name: ${{ github.ref_name }}
+          name: ${{ matrix.platform }}-artifact-${{ github.run_id }}.tgz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
