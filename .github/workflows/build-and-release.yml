@@ -232,25 +232,25 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y wget git cmake clang pkg-config tar xz-utils
-          mkdir -p $PWD/opt/osxcross
-          cd $PWD/opt
+          mkdir -p /opt/osxcross
+          cd /opt
           git clone https://github.com/tpoechtrager/osxcross.git
           cd osxcross
           wget -nc https://github.com/joseluisq/macosx-sdks/releases/download/10.10/MacOSX10.10.sdk.tar.xz
           mv MacOSX10.10.sdk.tar.xz tarballs/
-          ./tools/get_dependencies.sh
-          UNATTENDED=yes ./build.sh
+          sudo ./tools/get_dependencies.sh
+          UNATTENDED=yes sudo ./build.sh
           echo "#### Setup done ####"
 
       - name: Set up macOS environment
         run: |
-          /opt/osxcross/target/bin/osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
+          sudo /opt/osxcross/target/bin/osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
 
       - name: Update submodules and Build
         run: |
           export OSX_VERSION_MIN=10.7
-          export PATH=$PWD/opt/osxcross/target/bin:$PATH
-          export SDKROOT=$PWD/opt/osxcross/target/SDK/MacOSX10.10.sdk
+          export PATH=/opt/osxcross/target/bin:$PATH
+          export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
           export MACOSX_DEPLOYMENT_TARGET=10.10
           git submodule update --init --recursive
           cd vendor
