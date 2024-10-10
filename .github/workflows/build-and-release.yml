@@ -249,7 +249,7 @@ jobs:
           export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
           export MACOSX_DEPLOYMENT_TARGET=10.10
 
-          UNATTENDED=yes /opt/osxcross/target/bin/osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
+          UNATTENDED=yes /opt/osxcross/target/bin/osxcross-macports -k install libsdl2_image libsdl2_mixer libsdl2
 
           ## Download and compile SDL2-2.28.4
           #wget https://www.libsdl.org/release/SDL2-2.28.4.tar.gz
