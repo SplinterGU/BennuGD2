@@ -237,9 +237,12 @@ jobs:
           git clone https://github.com/tpoechtrager/osxcross.git
           cd osxcross
           wget -nc https://github.com/joseluisq/macosx-sdks/releases/download/10.10/MacOSX10.10.sdk.tar.xz
+          echo "#### Step 1 ####"
           mv MacOSX10.10.sdk.tar.xz tarballs/
+          echo "#### Step 2 ####"
           sudo ./tools/get_dependencies.sh
-          UNATTENDED=yes sudo ./build.sh
+          echo "#### Step 3 ####"
+          UNATTENDED=yes ./build.sh
           echo "#### Setup done ####"
 
       - name: Set up macOS environment
