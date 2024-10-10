@@ -197,6 +197,7 @@ jobs:
                         build/i686-w64-mingw32/bin/*.exe \
                         build/i686-w64-mingw32/bin/*.dll \
                         dependencies/i686-w64-mingw32/libSDL2_gpu.dll \
+                        /usr/i686-w64-mingw32/bin/libgcc_s_dw2-1.dll \
                         /usr/i686-w64-mingw32/bin/libogg*.dll \
                         /usr/i686-w64-mingw32/bin/libvorbis*.dll \
                         /usr/i686-w64-mingw32/bin/SDL2.dll \
