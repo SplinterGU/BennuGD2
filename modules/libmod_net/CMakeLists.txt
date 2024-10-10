@@ -19,6 +19,7 @@ add_library(mod_net ${LIBRARY_BUILD_TYPE} ${SOURCES_LIBMOD_net})
 
 target_link_libraries(mod_net ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L../../bin bgdrtm)
 if (WIN32)
+    add_definitions(-D_WIN32_WINNT=0x0600)
     target_link_libraries(mod_net ws2_32)
 endif()
 if (SWITCH)
