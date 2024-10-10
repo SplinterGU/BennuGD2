@@ -10,12 +10,12 @@ fix_install_name() {
     directory=$1
     find "$directory" -type f -print0 | while IFS= read -r -d '' file; do
         if [[ $(file "$file") == *"Mach-O"* ]]; then
-            paths=$(x86_64-apple-darwin14-otool -l "$file" | grep -E '(\/opt\/local\/lib|@rpath)' | awk '{print $2}')                        
+            paths=$(x86_64-apple-darwin14-otool -l "$file" | grep -E '(/opt/local/lib|@rpath)' | awk '{print $2}')
             while IFS= read -r path; do
                 if [[ "$path" == *"@rpath/SDL2_gpu.framework/Versions/A/SDL2_gpu"* ]]; then
                     x86_64-apple-darwin14-install_name_tool -change "$path" "@executable_path/../Frameworks/SDL2_gpu" "$file"
                 elif [[ "$path" == *"/opt/local/lib"* ]]; then
-                    x86_64-apple-darwin14-install_name_tool -change "$path" "@executable_path/../Libraries$(echo "$path" | sed 's/\/opt\/local\/lib//')" "$file"
+                    x86_64-apple-darwin14-install_name_tool -change "$path" "@executable_path/../Libraries$(echo "$path" | sed 's,/opt/local/lib,,')" "$file"
                 elif [[ "$path" == *@rpath* ]]; then
                     x86_64-apple-darwin14-install_name_tool -change "$path" "@executable_path/$(basename "$path")" "$file"
                 fi
@@ -153,8 +153,8 @@ do
             COMPILER="-mcpu=cell"
             CMAKE_EXTRA="-DPS3_PPU=1 -DSDL2_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2.a -DSDL2_IMAGE_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_IMAGE_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_image.a -DSDL2_MIXER_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDLMIXER_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_mixer.a -DZLIB_LIBRARY=-lz -DZLIB_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include -DCMAKE_INCLUDE_PATH=${PS3DEV}/portlibs/ppu/include
                 -DBUILD_TARGET=interpreter"
-#            -I${PS3DEV}/portlibs/ppu/include 
-#            -L${PS3DEV}/portlibs/ppu/lib 
+#            -I${PS3DEV}/portlibs/ppu/include
+#            -L${PS3DEV}/portlibs/ppu/lib
 #            -lSDL2_image -lSDL2 -lm -lgcm_sys -lrsx -lsysutil -lrt -llv2 -lio -laudio
             ;;
 
@@ -215,16 +215,16 @@ do
             echo "#### Building packages ####"
             mkdir -p packages 2>/dev/null
             rm -f packages/*
-            if [[ -d build/linux-gnu/bin  ]]; then  tar -zcvf packages/bgd2-linux-gnu-$(date +"%Y-%m-%d").tgz build/linux-gnu/bin/* dependencies/linux-gnu/* WhatsNew.txt --transform='s/[^\/]*\///g'; fi
-            if [[ -d build/i386-linux-gnu/bin ]]; then  tar -zcvf packages/bgd2-i386-linux-gnu-$(date +"%Y-%m-%d").tgz build/i386-linux-gnu/bin/* dependencies/i386-linux-gnu/* WhatsNew.txt --transform='s/[^\/]*\///g'; fi
+            if [[ -d build/linux-gnu/bin  ]]; then  tar -zcvf packages/bgd2-linux-gnu-$(date +"%Y-%m-%d").tgz build/linux-gnu/bin/* dependencies/linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g'; fi
+            if [[ -d build/i386-linux-gnu/bin ]]; then  tar -zcvf packages/bgd2-i386-linux-gnu-$(date +"%Y-%m-%d").tgz build/i386-linux-gnu/bin/* dependencies/i386-linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g'; fi
             if [[ -d build/i686-w64-mingw32/bin ]]; then  rar a -ep1 packages/bgd2-i686-w64-mingw32-$(date +"%Y-%m-%d").rar build/i686-w64-mingw32/bin/*.exe build/i686-w64-mingw32/bin/*.dll dependencies/i686-w64-mingw32/* WhatsNew.txt; fi
             if [[ -d build/x86_64-w64-mingw32/bin ]]; then  rar a -ep1 packages/bgd2-x86_64-w64-mingw32-$(date +"%Y-%m-%d").rar build/x86_64-w64-mingw32/bin/*.exe build/x86_64-w64-mingw32/bin/*.dll dependencies/x86_64-w64-mingw32/* WhatsNew.txt; fi
-            if [[ -d build/aarch64-none-elf/bin ]]; then  tar -zcvf packages/bgd2-aarch64-none-elf-$(date +"%Y-%m-%d").tgz build/aarch64-none-elf/bin/bgdi.elf WhatsNew.txt  --transform='s/[^\/]*\///g'; fi
+            if [[ -d build/aarch64-none-elf/bin ]]; then  tar -zcvf packages/bgd2-aarch64-none-elf-$(date +"%Y-%m-%d").tgz build/aarch64-none-elf/bin/bgdi.elf WhatsNew.txt  --transform='s,[^/]*/,,g'; fi
             if [[ -d build/x86_64-apple-darwin14/bin ]]; then
                 build_app bgdc
                 build_app bgdi
                 build_app moddesc
-            fi        
+            fi
             exit 0
             ;;
 

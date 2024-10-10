@@ -242,14 +242,13 @@ jobs:
           UNATTENDED=yes ./build.sh
           echo "#### Setup done ####"
 
-      - name: Compile SDL2 and dependencies
+      - name: Install dependencies
         run: |
           export OSX_VERSION_MIN=10.7
           export PATH=/opt/osxcross/target/bin:$PATH
           export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
           export MACOSX_DEPLOYMENT_TARGET=10.10
-
-          UNATTENDED=yes /opt/osxcross/target/bin/osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
+          UNATTENDED=yes /opt/osxcross/target/bin/osxcross-macports install libtheora libsdl2 libsdl2_image libsdl2_mixer
 
       - name: Update submodules and Build
         run: |
