@@ -33,7 +33,8 @@
 #include <unistd.h>
 
 #ifdef _WIN32
-#ifndef _WIN32_WINNT
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600  // Define Windows Vista o superior
 #endif
 #include <winsock2.h>
