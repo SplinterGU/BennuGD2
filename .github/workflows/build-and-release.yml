@@ -227,6 +227,7 @@ jobs:
       matrix:
         platform:
           - linux
+          - linux32
           - windows
           - windows32
 
