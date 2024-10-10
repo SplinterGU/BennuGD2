@@ -231,7 +231,7 @@ jobs:
       - name: Set up osxcross
         run: |
           sudo apt update
-          sudo apt install -y wget git cmake clang pkg-config tar xz-utils
+          sudo apt install -y wget git cmake clang pkg-config tar xz-utils gobjc gobjc++ libobjc-9-dev
           mkdir -p /opt/osxcross
           cd /opt
           git clone https://github.com/tpoechtrager/osxcross.git
