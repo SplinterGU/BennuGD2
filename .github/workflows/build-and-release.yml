@@ -248,7 +248,7 @@ jobs:
           export PATH=/opt/osxcross/target/bin:$PATH
           export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
           export MACOSX_DEPLOYMENT_TARGET=10.10
-          UNATTENDED=yes /opt/osxcross/target/bin/osxcross-macports -v install libtheora libsdl2 libsdl2_image libsdl2_mixer
+          UNATTENDED=yes echo 2 | /opt/osxcross/target/bin/osxcross-macports --select-mirror -v install libtheora libsdl2 libsdl2_image libsdl2_mixer
 
       - name: Update submodules and Build
         run: |
