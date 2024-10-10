@@ -35,7 +35,7 @@
 #ifdef _WIN32
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600  // Define Windows Vista o superior
+#define _WIN32_WINNT 0x0600  // Define Windows Vista or higher
 #endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
