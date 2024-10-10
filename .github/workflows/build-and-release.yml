@@ -221,13 +221,6 @@ jobs:
 
   build-macosx:
     runs-on: ubuntu-latest
-
-    env:
-      OSX_VERSION_MIN: 10.7
-      PATH: /opt/osxcross/target/bin:$PATH
-      SDKROOT: /opt/osxcross/target/SDK/MacOSX10.10.sdk
-      MACOSX_DEPLOYMENT_TARGET: 10.10
-
     permissions:
       contents: write
 
@@ -251,10 +244,18 @@ jobs:
 
       - name: Set up macOS environment
         run: |
+          export OSX_VERSION_MIN=10.7
+          export PATH=/opt/osxcross/target/bin:$PATH
+          export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
+          export MACOSX_DEPLOYMENT_TARGET=10.10
           /opt/osxcross/target/bin/osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
 
       - name: Update submodules and Build
         run: |
+          export OSX_VERSION_MIN=10.7
+          export PATH=/opt/osxcross/target/bin:$PATH
+          export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
+          export MACOSX_DEPLOYMENT_TARGET=10.10
           git submodule update --init --recursive
           cd vendor
           ./build-sdl-gpu.sh macosx
