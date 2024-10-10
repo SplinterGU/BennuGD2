@@ -134,7 +134,6 @@ jobs:
           name: BennuGD2-windows
           path: ${{ env.path }}
 
-jobs:
   build-windows:
     runs-on: ubuntu-latest
     permissions:
@@ -302,8 +301,6 @@ jobs:
         with:
           name: BennuGD2-windows32
           path: ${{ env.path }}
-
-
 
   create-release:
     needs: [build, build-windows, build-windows-32bit]
