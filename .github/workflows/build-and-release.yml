@@ -219,8 +219,60 @@ jobs:
           name: BennuGD2-windows32
           path: ${{ env.path }}
 
+  build-macosx:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up osxcross
+        run: |
+          sudo apt update
+          sudo apt install -y wget git cmake clang pkg-config tar xz-utils
+          mkdir -p /opt/osxcross
+          cd /opt
+          git clone https://github.com/tpoechtrager/osxcross.git
+          cd osxcross
+          wget -nc https://github.com/joseluisq/macosx-sdks/releases/download/10.10/MacOSX10.10.sdk.tar.xz
+          mv MacOSX10.10.sdk.tar.xz tarballs/
+          ./tools/get_dependencies.sh
+          UNATTENDED=yes ./build.sh
+          echo "#### Setup done ####"
+
+      - name: Set up macOS environment
+        run: |
+          /opt/osxcross/target/bin/osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
+
+      - name: Update submodules and Build
+        run: |
+          export OSX_VERSION_MIN=10.7
+          export PATH=/opt/osxcross/target/bin:$PATH
+          export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
+          export MACOSX_DEPLOYMENT_TARGET=10.10
+          git submodule update --init --recursive
+          cd vendor
+          ./build-sdl-gpu.sh macosx
+          cd ..
+          ./build.sh macosx
+          ./build.sh packages
+
+      - name: Set artifact path
+        id: set-path
+        run: |
+          echo "path=$(find packages -name 'x86_64-apple-darwin14-*.tgz')" >> $GITHUB_ENV
+
+      - name: Upload BennuGD2 artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: BennuGD2-macosx
+          path: ${{ env.path }}
+
+
   create-release:
-    needs: [build, build-windows, build-windows-32bit]
+    needs: [build, build-windows, build-windows-32bit, build-macosx]
     runs-on: ubuntu-latest
     if: success()
 
@@ -231,6 +283,7 @@ jobs:
           - linux32
           - windows
           - windows32
+          - macosx
 
     steps:
       - name: Checkout code
