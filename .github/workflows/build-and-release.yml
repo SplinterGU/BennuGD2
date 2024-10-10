@@ -248,7 +248,8 @@ jobs:
           export PATH=/opt/osxcross/target/bin:$PATH
           export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
           export MACOSX_DEPLOYMENT_TARGET=10.10
-          UNATTENDED=yes /opt/osxcross/target/bin/osxcross-macports install libsdl2_image libsdl2_mixer libsdl2 --without-ssl
+          sudo port selfupdate
+          UNATTENDED=yes /opt/osxcross/target/bin/osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
 
       - name: Update submodules and Build
         run: |
