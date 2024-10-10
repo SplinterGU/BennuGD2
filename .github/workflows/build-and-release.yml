@@ -232,7 +232,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y wget git cmake clang pkg-config tar xz-utils gobjc gobjc++ libobjc-9-dev openssl
-          mkdir -p /opt/osxcross
+          mkdir -p /opt
           cd /opt
           git clone https://github.com/tpoechtrager/osxcross.git
           cd osxcross
