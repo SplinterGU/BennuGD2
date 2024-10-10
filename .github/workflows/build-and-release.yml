@@ -39,16 +39,11 @@ jobs:
           ./build.sh ${{ matrix.env }}
           ./build.sh packages
 
-      - name: Set artifact path
-        id: set-path
-        run: |
-          echo "path=$(find packages -name 'bgd2-*.tgz')" >> $GITHUB_ENV
-
       - name: Upload BennuGD2 artifacts
         uses: actions/upload-artifact@v3
         with:
           name: BennuGD2-${{ matrix.env }}
-          path: ${{ env.path }}
+          path: packages/bgd2-*.tgz
 
   build-windows:
     runs-on: ubuntu-latest
@@ -123,16 +118,11 @@ jobs:
                         WhatsNew.txt; \
           fi
 
-      - name: Set artifact path
-        id: set-path
-        run: |
-          echo "path=$(find packages -name 'bgd2-x86_64-w64-mingw32-*.rar')" >> $GITHUB_ENV
-
       - name: Upload BennuGD2 artifacts
         uses: actions/upload-artifact@v3
         with:
           name: BennuGD2-windows
-          path: ${{ env.path }}
+          path: packages/bgd2-x86_64-w64-mingw32-*.rar
 
   build-windows-32bit:
     runs-on: ubuntu-latest
@@ -208,19 +198,64 @@ jobs:
                         WhatsNew.txt; \
           fi
 
-      - name: Set artifact path for 32-bit
-        id: set-path
-        run: |
-          echo "path=$(find packages -name 'bgd2-i686-w64-mingw32-*.rar')" >> $GITHUB_ENV
-
       - name: Upload BennuGD2 artifacts for 32-bit
         uses: actions/upload-artifact@v3
         with:
           name: BennuGD2-windows32
-          path: ${{ env.path }}
+          path: packages/bgd2-i686-w64-mingw32-*.rar
+
+  build-macosx:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up osxcross
+        run: |
+          sudo apt update
+          sudo apt install -y wget git cmake clang pkg-config tar xz-utils gobjc gobjc++ libobjc-9-dev openssl
+          mkdir -p /opt
+          cd /opt
+          git clone https://github.com/tpoechtrager/osxcross.git
+          cd osxcross
+          wget -nc https://github.com/joseluisq/macosx-sdks/releases/download/10.10/MacOSX10.10.sdk.tar.xz
+          mv MacOSX10.10.sdk.tar.xz tarballs/
+          sudo ./tools/get_dependencies.sh
+          UNATTENDED=yes ./build.sh
+          echo "#### Setup done ####"
+
+      - name: Install dependencies
+        run: |
+          sudo mkdir -p /opt/osxcross/target/macports/
+          sudo echo "http://www.mirrorservice.org/sites/packages.macports.org" > /opt/osxcross/target/macports/MIRROR
+          echo "### patch osxcross-macports ###"
+          sudo sed -i '/^verifyFileIntegrity()/,/^}/cverifyFileIntegrity() {\n  local file="$1"\n  echo "Skipping integrity check for $file. Returning success."\n  return 0\n}' /opt/osxcross/target/bin/osxcross-macports
+          sudo UNATTENDED=yes OSX_VERSION_MIN=10.7 PATH=/opt/osxcross/target/bin:$PATH SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk MACOSX_DEPLOYMENT_TARGET=10.10 /opt/osxcross/target/bin/osxcross-macports -v install libtheora libsdl2 libsdl2_image libsdl2_mixer
+
+      - name: Update submodules and Build
+        run: |
+          export OSX_VERSION_MIN=10.7
+          export PATH=/opt/osxcross/target/bin:$PATH
+          export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
+          export MACOSX_DEPLOYMENT_TARGET=10.10
+          git submodule update --init --recursive
+          cd vendor
+          ./build-sdl-gpu.sh macosx
+          cd ..
+          ./build.sh macosx
+          ./build.sh packages
+
+      - name: Upload BennuGD2 artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: BennuGD2-macosx
+          path: packages/x86_64-apple-darwin14-*.tgz
 
   create-release:
-    needs: [build, build-windows, build-windows-32bit]
+    needs: [build, build-windows, build-windows-32bit, build-macosx]
     runs-on: ubuntu-latest
     if: success()
 
@@ -231,6 +266,7 @@ jobs:
           - linux32
           - windows
           - windows32
+          - macosx
 
     steps:
       - name: Checkout code

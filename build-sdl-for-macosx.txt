@@ -12,4 +12,4 @@ export PATH=/opt/osxcross/target/bin:$PATH
 export SDKROOT=/opt/osxcross/target/SDK/MacOSX10.10.sdk
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
-osxcross-macports install libsdl2_image libsdl2_mixer libsdl2
+osxcross-macports install libtheora libsdl2 libsdl2_image libsdl2_mixer
