@@ -24,14 +24,45 @@ fix_install_name() {
     done
 }
 
+# Function to copy dependencies recursively
+copy_dependencies() {
+    # Get the dependencies of the target file using otool -L
+    for dylib in $(x86_64-apple-darwin14-otool -L $* | grep -v : | sort -u | awk '{print $1}')
+    do
+        # Only process if the dependency starts with /opt/local/lib/
+        if [[ "$dylib" == /opt/local/lib/* ]]; then
+            # Search for the file in the macports pkg directory
+            found_dylib=$(find $SDKROOT/../../macports/pkgs/ -name $(basename "$dylib") 2>/dev/null | head -n 1)
+
+            # If the file is found, copy it and process its dependencies recursively
+            if [ -n "$found_dylib" ]; then
+                target_lib_path="packages/$app.app/Contents/Libraries/$(basename "$found_dylib")"
+
+                if [ ! -f "$target_lib_path" ]; then
+                    echo "Copying $found_dylib to $target_lib_path"
+                    cp -f "$found_dylib" "$target_lib_path"
+
+                    # Recursively check and copy dependencies for the copied dylib
+                    copy_dependencies "$target_lib_path"
+                fi
+            else
+                echo "Warning: Could not find $dylib in $SDKROOT/../../macports/pkgs/"
+            fi
+        fi
+    done
+}
+
 build_app() {
     app=$1
     mkdir -p packages/$app.app/Contents/Frameworks
     mkdir -p packages/$app.app/Contents/Libraries
     mkdir -p packages/$app.app/Contents/MacOS
-    cp -f dependencies/x86_64-apple-darwin14/*.dylib packages/$app.app/Contents/Libraries
+
     cp -f dependencies/x86_64-apple-darwin14/SDL2_gpu.framework/Versions/Current/SDL2_gpu packages/$app.app/Contents/Frameworks
     cp -f build/x86_64-apple-darwin14/bin/*.dylib build/x86_64-apple-darwin14/bin/$app packages/$app.app/Contents/MacOS
+
+    # Recursively copy dependencies for the main ELF executable
+    copy_dependencies "build/x86_64-apple-darwin14/bin/$app" "build/x86_64-apple-darwin14/bin/*.dylib"
 
     echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
@@ -215,11 +246,21 @@ do
             echo "#### Building packages ####"
             mkdir -p packages 2>/dev/null
             rm -f packages/*
-            if [[ -d build/linux-gnu/bin  ]]; then  tar -zcvf packages/bgd2-linux-gnu-$(date +"%Y-%m-%d").tgz build/linux-gnu/bin/* dependencies/linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g'; fi
-            if [[ -d build/i386-linux-gnu/bin ]]; then  tar -zcvf packages/bgd2-i386-linux-gnu-$(date +"%Y-%m-%d").tgz build/i386-linux-gnu/bin/* dependencies/i386-linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g'; fi
-            if [[ -d build/i686-w64-mingw32/bin ]]; then  rar a -ep1 packages/bgd2-i686-w64-mingw32-$(date +"%Y-%m-%d").rar build/i686-w64-mingw32/bin/*.exe build/i686-w64-mingw32/bin/*.dll dependencies/i686-w64-mingw32/* WhatsNew.txt; fi
-            if [[ -d build/x86_64-w64-mingw32/bin ]]; then  rar a -ep1 packages/bgd2-x86_64-w64-mingw32-$(date +"%Y-%m-%d").rar build/x86_64-w64-mingw32/bin/*.exe build/x86_64-w64-mingw32/bin/*.dll dependencies/x86_64-w64-mingw32/* WhatsNew.txt; fi
-            if [[ -d build/aarch64-none-elf/bin ]]; then  tar -zcvf packages/bgd2-aarch64-none-elf-$(date +"%Y-%m-%d").tgz build/aarch64-none-elf/bin/bgdi.elf WhatsNew.txt  --transform='s,[^/]*/,,g'; fi
+            if [[ -d build/linux-gnu/bin  ]]; then
+                tar -zcvf packages/bgd2-linux-gnu-$(date +"%Y-%m-%d").tgz build/linux-gnu/bin/* dependencies/linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g';
+            fi
+            if [[ -d build/i386-linux-gnu/bin ]]; then
+                tar -zcvf packages/bgd2-i386-linux-gnu-$(date +"%Y-%m-%d").tgz build/i386-linux-gnu/bin/* dependencies/i386-linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g';
+            fi
+            if [[ -d build/i686-w64-mingw32/bin ]]; then
+                rar a -ep1 packages/bgd2-i686-w64-mingw32-$(date +"%Y-%m-%d").rar build/i686-w64-mingw32/bin/*.exe build/i686-w64-mingw32/bin/*.dll dependencies/i686-w64-mingw32/* WhatsNew.txt;
+            fi
+            if [[ -d build/x86_64-w64-mingw32/bin ]]; then
+                rar a -ep1 packages/bgd2-x86_64-w64-mingw32-$(date +"%Y-%m-%d").rar build/x86_64-w64-mingw32/bin/*.exe build/x86_64-w64-mingw32/bin/*.dll dependencies/x86_64-w64-mingw32/* WhatsNew.txt;
+            fi
+            if [[ -d build/aarch64-none-elf/bin ]]; then
+                tar -zcvf packages/bgd2-aarch64-none-elf-$(date +"%Y-%m-%d").tgz build/aarch64-none-elf/bin/bgdi.elf WhatsNew.txt  --transform='s,[^/]*/,,g';
+            fi
             if [[ -d build/x86_64-apple-darwin14/bin ]]; then
                 build_app bgdc
                 build_app bgdi
