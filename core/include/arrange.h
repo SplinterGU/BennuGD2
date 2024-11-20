@@ -81,9 +81,9 @@
             *D = ( ( ( uint64_t ) lo ) << 32 ) | hi;
         }
 
-        #define ARRANGE_QWORD(x)    DO_Swap64(x)
-        #define ARRANGE_DWORD(x)    DO_Swap32(x)
-        #define ARRANGE_WORD(x)     DO_Swap16(x)
+        #define ARRANGE_QWORD(x)    DO_Swap64((uint64_t *)(x))
+        #define ARRANGE_DWORD(x)    DO_Swap32((uint32_t *)(x))
+        #define ARRANGE_WORD(x)     DO_Swap16((uint16_t *)(x))
 
         #define ARRANGE_QWORDS(x,c) {               \
             int __n;                                \
