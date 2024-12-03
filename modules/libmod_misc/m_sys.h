@@ -50,5 +50,6 @@
 extern int64_t libmod_misc_sys_exec( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_sys_getenv( INSTANCE * my, int64_t * params );
 extern int64_t libmod_misc_sys_get_pref_language( INSTANCE * my, int64_t * params );
+extern int64_t libmod_misc_sys_set_process_dpi_aware( INSTANCE * my, int64_t * params );
 
 #endif
