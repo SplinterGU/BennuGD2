@@ -360,7 +360,10 @@ DLSYSFUNCS  __bgdexport( libmod_misc, functions_exports)[] =
 
     FUNC( "GETENV"                  , "S"           , TYPE_STRING       , libmod_misc_sys_getenv                    ),
     FUNC( "EXEC"                    , "ISIP"        , TYPE_INT          , libmod_misc_sys_exec                      ),
-	FUNC( "GET_PREF_LANGUAGE"       , ""            , TYPE_STRING       , libmod_misc_sys_get_pref_language         ),
+    FUNC( "GET_PREF_LANGUAGE"       , ""            , TYPE_STRING       , libmod_misc_sys_get_pref_language         ),
+
+    /* WIN32 only */
+    FUNC( "WIN32_SET_PROCESS_DPI_AWARE" , ""        , TYPE_UNDEFINED    , libmod_misc_sys_set_process_dpi_aware     ),
 
     /* Date/Time & Timers */
     FUNC( "UPTIME"                  , ""            , TYPE_QWORD        , libmod_misc_get_timer                     ),
