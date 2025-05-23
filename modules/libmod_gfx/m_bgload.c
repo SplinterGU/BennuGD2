@@ -44,21 +44,21 @@
  **/
 
 int64_t libmod_gfx_bgload_fpg( INSTANCE * my, int64_t * params ) {
-    bgload( gr_load_fpg, params );
+    bgload( ( int64_t ( * )( void * ) )gr_load_fpg, params );
     return 0 ;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_bgload_map( INSTANCE * my, int64_t * params ) {
-    bgload( gr_load_img, params );
+    bgload( ( int64_t ( * )( void * ) )gr_load_img, params );
     return 0 ;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_bgload_fnt( INSTANCE * my, int64_t * params ) {
-    bgload( gr_font_load, params );
+    bgload( ( int64_t ( * )( void * ) )gr_font_load, params );
     return 0 ;
 }
 
@@ -66,7 +66,7 @@ int64_t libmod_gfx_bgload_fnt( INSTANCE * my, int64_t * params ) {
 
 /*
 int64_t libmod_gfx_bgload_bdf( INSTANCE * my, int64_t * params ) {
-    bgload( gr_load_bdf, params ) ;
+    bgload( ( int64_t ( * )( void * ) )gr_load_bdf, params ) ;
     return 0 ;
 }
 */

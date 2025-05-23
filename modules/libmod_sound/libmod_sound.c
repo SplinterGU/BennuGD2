@@ -168,9 +168,9 @@ static void sound_quit() {
 
 static int sound_init() {
     sound_quit();
-    
+
     /* Initialize variables: but limit quality to some fixed options */
-    
+
     int audio_rate = GLOQWORD( libmod_sound, SOUND_FREQ );
 
          if ( audio_rate > 44100 )  audio_rate = 48000;
@@ -1800,7 +1800,7 @@ static int64_t libmod_sound_load_music( INSTANCE * my, int64_t * params ) {
  */
 
 static int64_t libmod_sound_bgload_music( INSTANCE * my, int64_t * params ) {
-    bgload( load_music, params );
+    bgload( ( int64_t ( * )( void * ) )load_music, params );
     return 0;
 }
 
@@ -2760,7 +2760,7 @@ static int64_t libmod_sound_load_sound( INSTANCE * my, int64_t * params ) {
  */
 
 static int64_t libmod_sound_bgload_sound( INSTANCE * my, int64_t * params ) {
-    bgload( load_sound, params );
+    bgload( ( int64_t ( * )( void * ) )load_sound, params );
     return 0;
 }
 
@@ -3301,7 +3301,7 @@ static int64_t libmod_sound_set_master_volume( INSTANCE * my, int64_t * params )
  *  The channel will halt after the 'ticks' milliseconds have elapsed, or
  *  remove the expiration if 'ticks' is -1.
  *
- *  This overrides the value passed to the fourth parameter of 
+ *  This overrides the value passed to the fourth parameter of
  *  libmod_sound_play_sound_timed().
  *
  *  Specifying a channel of -1 will set an expiration for _all_ channels.
@@ -3337,7 +3337,7 @@ static int64_t libmod_sound_expire_channel( INSTANCE *my, int64_t *params ) {
  *  The channel will halt after the 'ticks' milliseconds have elapsed, or
  *  remove the expiration if 'ticks' is -1.
  *
- *  This overrides the value passed to the fourth parameter of 
+ *  This overrides the value passed to the fourth parameter of
  *  libmod_sound_play_sound_timed().
  *
  *  Any halted channels will have any currently-registered effects

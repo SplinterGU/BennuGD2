@@ -35,8 +35,8 @@
 
 /* Number of arguments */
 
-#define MN_0_PARAMS     (0x0000)
-#define MN_1_PARAMS     (0x0080)
+#define MN_0_PARAMS     0x0000
+#define MN_1_PARAMS     0x0080
 
 #define MN_PARAMS(code) (((code) & 0x080) >> 7)
 
@@ -46,14 +46,14 @@
 
 /* Data type */
 
-#define MN_QWORD        (0x0000)
-#define MN_DWORD        (0x1000)
-#define MN_WORD         (0x2000)
-#define MN_BYTE         (0x3000)
-#define MN_STRING       (0x4000)
-#define MN_FLOAT        (0x5000)
-#define MN_DOUBLE       (0x6000)
-#define MN_UNSIGNED     (0x8000)
+#define MN_QWORD        0x0000
+#define MN_DWORD        0x1000
+#define MN_WORD         0x2000
+#define MN_BYTE         0x3000
+#define MN_STRING       0x4000
+#define MN_FLOAT        0x5000
+#define MN_DOUBLE       0x6000
+#define MN_UNSIGNED     0x8000
 
 #define MN_TYPEOF(code) ((code) & 0xF000)
 

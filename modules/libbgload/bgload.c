@@ -78,7 +78,7 @@ static int bgDoLoad( void *d ) {
 
 /* --------------------------------------------------------------------------- */
 
-int bgload( int64_t ( *fn )(), int64_t *params ) {
+int bgload( int64_t ( *fn )( void * ), int64_t *params ) {
     bgdata *t = prep( params );
     if ( !t ) return -1;
     t->fn = fn;
