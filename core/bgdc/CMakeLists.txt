@@ -33,5 +33,9 @@ file(GLOB SOURCES
      "../../core/common/*.c"
      )
 
+if(MINGW)
+   set(SOURCES ${SOURCES} bgdc.rc)
+endif()
+
 add_executable(bgdc ${SOURCES})
 target_link_libraries(bgdc -lz -lm ${extra_libs})

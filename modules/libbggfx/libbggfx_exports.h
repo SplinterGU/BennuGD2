@@ -89,6 +89,7 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "BLEND_NORMAL_FACTOR_ALPHA"       , TYPE_INT      , BLEND_NORMAL_FACTOR_ALPHA     },
     { "BLEND_ALPHA_MASK"                , TYPE_INT      , BLEND_ALPHA_MASK              },
 
+#ifdef USE_SDL2
     { "GL_ZERO"                         , TYPE_QWORD    , 0                             },
     { "GL_ONE"                          , TYPE_QWORD    , 1                             },
     { "GL_SRC_COLOR"                    , TYPE_QWORD    , 0x0300                        },
@@ -110,6 +111,30 @@ DLCONSTANT  __bgdexport( libbggfx, constants_def )[] = {
     { "GL_MAX"                          , TYPE_QWORD    , 0x8008                        },
     { "GL_FUNC_SUBTRACT"                , TYPE_QWORD    , 0x800A                        },
     { "GL_FUNC_REVERSE_SUBTRACT"        , TYPE_QWORD    , 0x800B                        },
+#endif
+#ifdef USE_SDL2_GPU
+    { "GL_ZERO"                         , TYPE_QWORD    , GPU_FUNC_ZERO                 },
+    { "GL_ONE"                          , TYPE_QWORD    , GPU_FUNC_ONE                  },
+    { "GL_SRC_COLOR"                    , TYPE_QWORD    , GPU_FUNC_SRC_COLOR            },
+    { "GL_ONE_MINUS_SRC_COLOR"          , TYPE_QWORD    , GPU_FUNC_ONE_MINUS_SRC        },
+    { "GL_SRC_ALPHA"                    , TYPE_QWORD    , GPU_FUNC_SRC_ALPHA            },
+    { "GL_ONE_MINUS_SRC_ALPHA"          , TYPE_QWORD    , GPU_FUNC_ONE_MINUS_SRC_ALPHA  },
+    { "GL_DST_ALPHA"                    , TYPE_QWORD    , GPU_FUNC_DST_ALPHA            },
+    { "GL_ONE_MINUS_DST_ALPHA"          , TYPE_QWORD    , GPU_FUNC_ONE_MINUS_DST_ALPHA  },
+    { "GL_DST_COLOR"                    , TYPE_QWORD    , GPU_FUNC_DST_COLOR            },
+    { "GL_ONE_MINUS_DST_COLOR"          , TYPE_QWORD    , GPU_FUNC_ONE_MINUS_DST        },
+    { "GL_SRC_ALPHA_SATURATE"           , TYPE_QWORD    , 0x0308                        },
+    { "GL_CONSTANT_COLOR"               , TYPE_QWORD    , 0x8001                        },
+    { "GL_ONE_MINUS_CONSTANT_COLOR"     , TYPE_QWORD    , 0x8002                        },
+    { "GL_CONSTANT_ALPHA"               , TYPE_QWORD    , 0x8003                        },
+    { "GL_ONE_MINUS_CONSTANT_ALPHA"     , TYPE_QWORD    , 0x8004                        },
+
+    { "GL_FUNC_ADD"                     , TYPE_QWORD    , GPU_EQ_ADD                    },
+    { "GL_MIN"                          , TYPE_QWORD    , 0x8007                        },
+    { "GL_MAX"                          , TYPE_QWORD    , 0x8008                        },
+    { "GL_FUNC_SUBTRACT"                , TYPE_QWORD    , GPU_EQ_SUBTRACT               },
+    { "GL_FUNC_REVERSE_SUBTRACT"        , TYPE_QWORD    , GPU_EQ_REVERSE_SUBTRACT       },
+#endif
 
     { "SHADER_LANGUAGE_NONE"            , TYPE_QWORD    , SHADER_LANGUAGE_NONE          },
     { "SHADER_LANGUAGE_ARB_ASSEMBLY"    , TYPE_QWORD    , SHADER_LANGUAGE_ARB_ASSEMBLY  },

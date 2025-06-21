@@ -66,6 +66,10 @@ file(GLOB SOURCES
      )
 endif()
 
+if(MINGW)
+   set(SOURCES ${SOURCES} bgdi.rc)
+endif()
+
 add_executable(bgdi ${SOURCES})
 
 target_link_libraries(bgdi -L../../bin bgdrtm ${EXTRA_LIBS} ${SDL2_LIBS} ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} ${OGL_LIB} ${VLC_LIB} ${OTHER_LIBS})

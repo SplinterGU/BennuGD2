@@ -1,3 +1,6 @@
 [submodule "vendor/sdl-gpu"]
 	path = vendor/sdl-gpu
 	url = https://github.com/SplinterGU/sdl-gpu
+[submodule "vendor/theoraplay"]
+	path = vendor/theoraplay
+	url = https://github.com/SplinterGU/theoraplay

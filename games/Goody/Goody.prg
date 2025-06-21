@@ -7691,7 +7691,7 @@ begin
     fade_off(2000); While(fade_info.fading) Frame; End
 
     file=0;
-    mid = media_load( "data2/final.gdm", &graph, 640, 360 );
+    mid = media_load( "data2/final.gdm", &graph, 0 );
     map_clear(0,graph,rgba(0,0,0,0));
     x=320; y=240;
 

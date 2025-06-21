@@ -27,148 +27,224 @@
 #ifndef __MEDIA_H
 #define __MEDIA_H
 
-#ifdef LIBVLC_ENABLED
-
 #include <SDL.h>
 #ifdef USE_SDL2_GPU
     #include <SDL_gpu.h>
 #endif
 #include <stdlib.h>
 #include <string.h>
-#include <vlc/vlc.h>
 
+#include "g_media_theora.h"
 #include "libbggfx.h"
 
 /* --------------------------------------------------------------------------- */
 
+/**
+ * @brief Enumeration of media playback status codes.
+ *
+ * This enumeration defines the possible states of media playback.
+ */
 enum {
-    MEDIA_STATUS_CLOSE = 0,
-    MEDIA_STATUS_OPENING,
-    MEDIA_STATUS_PLAYING,
-    MEDIA_STATUS_PAUSED,
-    MEDIA_STATUS_STOPPING,
-    MEDIA_STATUS_ENDED,
-    MEDIA_STATUS_ERROR
+    MEDIA_STATUS_ERROR = -1,    /**< Error state. */
+    MEDIA_STATUS_STOPPED = 0,  /**< Media is stopped. */
+    MEDIA_STATUS_PLAYING,      /**< Media is currently playing. */
+    MEDIA_STATUS_PAUSED,       /**< Media is paused. */
+    MEDIA_STATUS_ENDED         /**< Media playback has ended. */
 };
 
-enum {
-    MEDIA_TRACK_UNKNOWN = -1,
-    MEDIA_TRACK_AUDIO,
-    MEDIA_TRACK_VIDEO,
-    MEDIA_TRACK_SUBTITLE
-};
-
+/**
+ * @brief Structure representing media data and state.
+ *
+ * This structure holds information about the media being played, including
+ * playback state, video dimensions, and related resources.
+ */
 typedef struct media {
-    libvlc_media_t *m;
-    libvlc_media_player_t *mp;
+    THR_ID *m;                 /**< Pointer to the media decoder and state. */
 
-    int video_width;
-    int video_height;
-
-    GRAPH * graph;
+    GRAPH * graph;             /**< Pointer to the associated graphics data. */
 
 #if defined(USE_SDL2_GPU) || defined(USE_SDL2)
-    SDL_Surface * surface;
-    int texture_must_update;
+    SDL_Surface * surface;     /**< Surface for rendering the video. */
+    int texture_must_update;   /**< Flag indicating if the texture needs updating. */
 #endif
 
-    int64_t objectid;
+    int64_t objectid;          /**< Identifier for the media object. */
 
-    // Used for interaction with debbuger && system paused
-    int in_hold_state;
-    int is_paused;
+    int in_hold_state;         /**< Flag indicating if the media is in hold state. */
+    int is_paused;             /**< Flag indicating if the media is paused. */
+    int is_muted;              /**< Flag indicating if the media is muted. */
+    int volume;                /**< Volume level of the media. */
+
+    char * media;              /**< File name or identifier for the media. */
+    int timeout;               /**< Timeout value for media operations. */
+
 } MEDIA;
-
-typedef struct media_track_t {
-    int id;
-    int type;
-    char * language;
-    char * description;
-} media_track_t;
-
-typedef struct media_chapter_t {
-    int64_t time_offset;
-    int64_t duration;
-    char *name;
-} media_chapter_t;
 
 /* --------------------------------------------------------------------------- */
 /* General                                                                     */
 /* --------------------------------------------------------------------------- */
 
+/**
+ * @brief Initializes the media subsystem.
+ *
+ * This function initializes the necessary components for media playback, such
+ * as the SDL audio subsystem.
+ */
 extern void media_init();
+
+/**
+ * @brief Cleans up and shuts down the media subsystem.
+ *
+ * This function cleans up resources used by the media subsystem and shuts down
+ * any subsystems that were initialized.
+ */
 extern void media_exit();
 
-extern MEDIA * media_load( const char * media, int64_t * graph_id, int w, int h, int timeout );
-extern void media_unload( MEDIA * mh );
+/**
+ * @brief Loads media and prepares it for playback.
+ *
+ * This function initializes a new MEDIA structure and prepares it for playback
+ * by opening the media file and setting up necessary resources.
+ *
+ * @param media Pointer to a string containing the media file name or identifier.
+ * @param graph_id Pointer to a variable that will receive the graph identifier.
+ * @param timeout Timeout value for media operations.
+ * @return Pointer to a MEDIA structure if successful, or NULL if an error occurs.
+ */
+extern MEDIA * media_load(const char *media, int64_t *graph_id, int timeout);
 
-extern int media_play( MEDIA * mh );
-extern void media_pause_action( MEDIA * mh, int do_pause );
-extern void media_pause( MEDIA * mh );
-extern void media_resume( MEDIA * mh );
-extern void media_stop( MEDIA * mh );
+/**
+ * @brief Unloads and frees resources associated with the media.
+ *
+ * This function releases any resources associated with the MEDIA structure and
+ * deallocates it.
+ *
+ * @param mh Pointer to the MEDIA structure to be unloaded.
+ */
+extern void media_unload(MEDIA *mh);
 
-extern int64_t media_get_time( MEDIA * mh );
-extern void media_set_time( MEDIA * mh, int64_t i_time);
-extern int64_t media_get_duration( MEDIA * mh );
+/**
+ * @brief Starts media playback.
+ *
+ * This function starts playing the media. If the media was previously stopped
+ * or ended, it will be reopened.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @return 0 if successful, or -1 if an error occurs.
+ */
+extern int media_play(MEDIA *mh);
 
-extern int media_get_status( MEDIA * mh );
+/**
+ * @brief Pauses or resumes media playback.
+ *
+ * This function sets the media playback to paused or resumed based on the provided
+ * action flag.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @param do_pause Flag indicating whether to pause (non-zero) or resume (zero) playback.
+ */
+extern void media_pause_action(MEDIA *mh, int do_pause);
 
-extern float media_get_rate( MEDIA * mh );
-extern int media_set_rate( MEDIA * mh, float rate );
-extern void media_next_frame( MEDIA * mh );
+/**
+ * @brief Pauses media playback.
+ *
+ * This function pauses the media playback.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ */
+extern void media_pause(MEDIA *mh);
 
-extern int media_get_mute( MEDIA * mh );
-extern void media_set_mute( MEDIA * mh, int status );
-extern int media_get_volume( MEDIA * mh );
-extern int media_set_volume( MEDIA * mh, int volume );
+/**
+ * @brief Resumes media playback.
+ *
+ * This function resumes the media playback if it was paused.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ */
+extern void media_resume(MEDIA *mh);
 
-extern int media_get_track( MEDIA * mh );
-extern int media_set_track( MEDIA * mh, int i_track );
+/**
+ * @brief Stops media playback.
+ *
+ * This function stops the media playback and releases the media resources.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ */
+extern void media_stop(MEDIA *mh);
 
-/* --------------------------------------------------------------------------- */
-/* Subtitles                                                                   */
-/* --------------------------------------------------------------------------- */
+/**
+ * @brief Retrieves the current playback time of the media.
+ *
+ * This function returns the current playback time in milliseconds.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @return Current playback time in milliseconds. Returns -1 if the MEDIA structure is NULL.
+ */
+extern int64_t media_get_time(MEDIA *mh);
 
-extern int media_add_subtitle( MEDIA * mh, const char * uri );
-extern int media_get_subtitle( MEDIA * mh );
-extern int media_set_subtitle( MEDIA * mh, int id );
-extern int64_t media_get_subtitle_delay( MEDIA * mh );
-extern int media_set_subtitle_delay( MEDIA * mh, int64_t d );
+/**
+ * @brief Retrieves the duration of the media.
+ *
+ * This function returns the total duration of the media in milliseconds. If the
+ * duration cannot be determined, it returns -1.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @return Duration of the media in milliseconds. Returns -1 if the duration cannot
+ *         be determined or if the MEDIA structure is NULL.
+ */
+extern int64_t media_get_duration(MEDIA *mh);
 
-/* --------------------------------------------------------------------------- */
-/* Audio                                                                       */
-/* --------------------------------------------------------------------------- */
+/**
+ * @brief Retrieves the current playback status of the media.
+ *
+ * This function returns the current playback status of the media.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @return Playback status code, one of MEDIA_STATUS_ERROR, MEDIA_STATUS_STOPPED,
+ *         MEDIA_STATUS_PLAYING, MEDIA_STATUS_PAUSED, or MEDIA_STATUS_ENDED. Returns
+ *         MEDIA_STATUS_ERROR if the MEDIA structure is NULL.
+ */
+extern int media_get_status(MEDIA *mh);
 
-extern int media_add_audio( MEDIA * mh, const char * uri );
-extern int media_get_audio( MEDIA * mh );
-extern int media_set_audio( MEDIA * mh, int id );
-extern int64_t media_get_audio_delay( MEDIA * mh );
-extern int media_set_audio_delay( MEDIA * mh, int64_t d );
-extern int media_get_audio_channel( MEDIA * mh );
-extern int media_set_audio_channel( MEDIA * mh, int channel );
+/**
+ * @brief Retrieves the mute status of the media.
+ *
+ * This function returns the current mute status of the media.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @return Mute status, 1 if muted, 0 if not muted. Returns -1 if the MEDIA structure is NULL.
+ */
+extern int media_get_mute(MEDIA *mh);
 
-/* --------------------------------------------------------------------------- */
-/* Tracks                                                                      */
-/* --------------------------------------------------------------------------- */
+/**
+ * @brief Sets the mute status of the media.
+ *
+ * This function sets the mute status of the media.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @param status Mute status, 1 to mute, 0 to unmute.
+ */
+extern void media_set_mute(MEDIA *mh, int status);
 
-extern int media_get_track_list( MEDIA * mh, media_track_t **tracks );
-extern void media_track_list_release( media_track_t **tracks, int count );
+/**
+ * @brief Retrieves the volume level of the media.
+ *
+ * This function returns the current volume level of the media.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @return Volume level of the media. Returns -1 if the MEDIA structure is NULL.
+ */
+extern int media_get_volume(MEDIA *mh);
 
-/* --------------------------------------------------------------------------- */
-/* Chapters                                                                    */
-/* --------------------------------------------------------------------------- */
-
-extern int media_get_chapter( MEDIA * mh );
-extern void media_set_chapter( MEDIA * mh, int i_chapter );
-extern int media_get_chapter_count( MEDIA * mh );
-extern void media_prev_chapter( MEDIA * mh );
-extern void media_next_chapter( MEDIA * mh );
-extern int media_get_chapter_list( MEDIA * mh, media_chapter_t **chapters );
-extern void media_chapter_list_release( media_chapter_t **chapters, int count );
-
-/* --------------------------------------------------------------------------- */
-
-#endif
+/**
+ * @brief Sets the volume level of the media.
+ *
+ * This function sets the volume level of the media.
+ *
+ * @param mh Pointer to the MEDIA structure.
+ * @param volume Volume level to set.
+ * @return Volume level set. Returns -1 if the MEDIA structure is NULL.
+ */
+extern int media_set_volume(MEDIA *mh, int volume);
 
 #endif

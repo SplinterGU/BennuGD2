@@ -327,11 +327,7 @@ void fake_dl_init()
     __fake_dl[4].dlname                       = "libmod_gfx";
 #ifdef __BGDC__
     __fake_dl[4].constants_def                = libmod_gfx_constants_def;
-#ifdef LIBVLC_ENABLED
-    __fake_dl[4].types_def                    = &libmod_gfx_types_def;
-#else
     __fake_dl[4].types_def                    = NULL;
-#endif
     __fake_dl[4].globals_def                  = NULL;
     __fake_dl[4].locals_def                   = &libmod_gfx_locals_def;
     __fake_dl[4].globals_fixup                = NULL;

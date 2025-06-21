@@ -207,7 +207,7 @@ int gr_create_image_for_graph( GRAPH * gr ) {
 
 /* --------------------------------------------------------------------------- */
 
-void gr_set_blend( 
+void gr_set_blend(
 #ifdef USE_SDL2
         SDL_Texture * tex
 #endif
@@ -356,8 +356,8 @@ maybe we must do a custom and try this
                     break;
 
                 case BLEND_ALPHA_MASK:
-                    GPU_SetBlendFunction( tex, 0, 1, 0, 0x0303 ); // GL_ZERO, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA
-                    GPU_SetBlendEquation( tex, 0x8006, 0x8006 ); // GL_FUNC_ADD, GL_FUNC_ADD
+                    GPU_SetBlendFunction( tex, GPU_FUNC_ZERO, GPU_FUNC_ONE, GPU_FUNC_ZERO, GPU_FUNC_ONE_MINUS_SRC_ALPHA ); // GL_ZERO, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA
+                    GPU_SetBlendEquation( tex, GPU_EQ_ADD, GPU_EQ_ADD ); // GL_FUNC_ADD, GL_FUNC_ADD
                     break;
 
             }

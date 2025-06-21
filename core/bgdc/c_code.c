@@ -178,9 +178,10 @@ static int64_t check_integer_type( expresion_result *exp ) {
             case TYPE_CHAR      : // <<< ????
                 return MN_BYTE;
 
-            case TYPE_UNDEFINED :
             case TYPE_INT       :
             case TYPE_QWORD     :
+
+            case TYPE_UNDEFINED :
             case TYPE_DOUBLE    :
             case TYPE_STRING    :
             case TYPE_ARRAY     :
@@ -206,38 +207,40 @@ static int64_t check_integer_types( expresion_result *left, expresion_result *ri
         right->type = typedef_new( TYPE_QWORD );
     }
 
-    if ( typedef_is_integer( left->type ) ) {
-        if ( typedef_is_integer( right->type ) ) {
-            if ( typedef_base( left->type ) == typedef_base( right->type ) ) {
-                BASETYPE t = typedef_base( left->type );
-                switch (t) {
-                    case TYPE_INT32     :
-                    case TYPE_DWORD     :
-                    case TYPE_FLOAT     :
-                        return MN_DWORD;
+    if ( typedef_is_integer( left->type ) && typedef_is_integer( right->type ) ) {
+        if ( typedef_base( left->type ) == typedef_base( right->type ) ) {
+            BASETYPE t = typedef_base( left->type );
+            switch (t) {
+                case TYPE_INT32     :
+                case TYPE_DWORD     :
+                case TYPE_FLOAT     :
+                    return MN_DWORD;
 
-                    case TYPE_SHORT	    :
-                    case TYPE_WORD	    :
-                        return MN_WORD;
+                case TYPE_SHORT	    :
+                case TYPE_WORD	    :
+                    return MN_WORD;
 
-                    case TYPE_SBYTE	    :
-                    case TYPE_BYTE	    :
-                    case TYPE_CHAR      : // <<< ????
-                        return MN_BYTE;
+                case TYPE_SBYTE	    :
+                case TYPE_BYTE	    :
+                case TYPE_CHAR      : // <<< ????
+                    return MN_BYTE;
 
-                    case TYPE_UNDEFINED :
-                    case TYPE_INT       :
-                    case TYPE_QWORD     :
-                    case TYPE_DOUBLE    :
-                    case TYPE_STRING    :
-                    case TYPE_ARRAY     :
-                    case TYPE_STRUCT    :
-                    case TYPE_POINTER   :
-                        break;
-                }
+                case TYPE_INT       :
+                case TYPE_QWORD     :
+                    return MN_QWORD;
+
+                case TYPE_UNDEFINED :
+                case TYPE_DOUBLE    :
+                case TYPE_STRING    :
+                case TYPE_ARRAY     :
+                case TYPE_STRUCT    :
+                case TYPE_POINTER   :
+                    break;
             }
-            return MN_QWORD;
         }
+        if ( typedef_base( left->type ) > typedef_base( right->type ) ) return mntype( left->type, 0 );
+        return mntype( right->type, 0 );
+//        return MN_QWORD;
     }
 
     compile_error( MSG_INTEGER_REQUIRED );
@@ -271,10 +274,9 @@ static int64_t check_numeric_types( expresion_result *left, expresion_result *ri
         if ( typedef_is_float( right->type ) ) return MN_FLOAT;
 
         if ( typedef_is_double( right->type ) ) {
-            codeblock_add( code, MN_DOUBLE2FLOAT, 0 );
-            left->type = typedef_new( TYPE_FLOAT );
-//            right->value = ( float )right->fvalue;
-            return MN_FLOAT;
+            codeblock_add( code, MN_FLOAT2DOUBLE, 1 );
+            left->type = typedef_new( TYPE_DOUBLE );
+            return MN_DOUBLE;
         }
 
         if ( typedef_is_integer( right->type ) ) {
@@ -312,9 +314,14 @@ static int64_t check_numeric_types( expresion_result *left, expresion_result *ri
             return MN_FLOAT;
         }
 
-        if ( typedef_is_integer( right->type ) || typedef_is_pointer( right->type ) ) {
+        if ( typedef_is_pointer( right->type ) ) {
+            left->type = typedef_new( TYPE_POINTER );
+            return MN_QWORD;
+        }
+
+        if ( typedef_is_integer( right->type ) ) {
             if ( typedef_base( left->type ) <= typedef_base( right->type ) ) return mntype( left->type, 0 );
-//            if ( typedef_base( left->type ) < typedef_base( right->type ) ) return mntype( left->type, 0 );
+            left->type = right->type;
             return mntype( right->type, 0 );
         }
     }
@@ -1415,7 +1422,7 @@ expresion_result compile_cast_cstr() {
         }
         codeblock_add( code, MN_A2STR, 0 );
         res.type = typedef_new( TYPE_STRING );
-    } 
+    }
     else
         compile_error( MSG_CONVERSION );
 

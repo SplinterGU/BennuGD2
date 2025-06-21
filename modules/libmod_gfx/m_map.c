@@ -677,7 +677,7 @@ static int64_t __libmod_gfx_map_block_copy(
 }
 
 /* --------------------------------------------------------------------------- */
-/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA, BLEND_MODE, SRC_RGB, DST_RGB, SRC_ALPHA, DST_ALPHA, EQUATION_RGB, EQUATION_ALPHA)
+/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS)
 */
 
 int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
@@ -703,7 +703,7 @@ int64_t libmod_gfx_map_block_copy( INSTANCE * my, int64_t * params ) {
 }
 
 /* --------------------------------------------------------------------------- */
-/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA )
+/** MAP_BLOCK_COPY(FILE_DST, GRAPH_DST, X_DST, Y_DST, FILE_SRC, GRAPH_SRC, X_SRC, Y_SRC, W, H, FLAGS, R, G, B, ALPHA)
 */
 
 int64_t libmod_gfx_map_block_copy2( INSTANCE * my, int64_t * params ) {
@@ -934,7 +934,7 @@ int64_t libmod_gfx_map_save( INSTANCE * my, int64_t * params )
                 return -1;
             }
         }
-#endif  
+#endif
     }
 
 #ifdef USE_SDL2
