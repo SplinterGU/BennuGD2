@@ -129,7 +129,7 @@ int main( int argc, char *argv[] ) {
         appexepath = calloc( 1, ptr - appexefullpath + 1 );
         strncpy( appexepath, appexefullpath, ptr - appexefullpath );
     }
-    
+
     printf( BGDC_VERSION "\n"
             "Bennu Game Development Compiler\n\n"
             MSG_COPYRIGHT "\n" );
@@ -225,6 +225,8 @@ int main( int argc, char *argv[] ) {
                 if ( argv[i][j] == 'a' ) autoinclude = 1;
 
                 if ( argv[i][j] == 'g' ) dcb_options |= DCB_DEBUG;
+
+                if ( argv[i][j] == 'z' ) dcb_options |= DCB_COMPRESSED;
 
                 if ( argv[i][j] == 'p' ) autodeclare = 0 ;
 

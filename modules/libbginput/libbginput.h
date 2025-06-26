@@ -34,6 +34,8 @@
 #include "i_key.h"
 #include "i_mouse.h"
 #include "i_joy.h"
+#include "i_touch.h"
+#include "i_sensors.h"
 
 /* ---------------------------------------------------------------------- */
 
@@ -85,7 +87,11 @@ enum {
     MOUSE_EQUATION_RGB,
     MOUSE_EQUATION_ALPHA,
     MOUSE_SHADER_ID,
-    MOUSE_SHADER_PARAMS
+    MOUSE_SHADER_PARAMS,
+
+    TOUCHES,
+
+    SENSORS
 };
 
 #endif

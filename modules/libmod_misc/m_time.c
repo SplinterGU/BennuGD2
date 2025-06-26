@@ -33,6 +33,7 @@
 #include <string.h>
 #include <time.h>
 
+
 #include <SDL.h>
 
 #include "bgdrtm.h"

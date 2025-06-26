@@ -29,7 +29,9 @@
 #define __G_SHADERS_H
 
 #if USE_SDL2
+#ifndef __ANDROID__
 #include <GL/glew.h>
+#endif
 #include <SDL_opengl.h>
 #endif
 

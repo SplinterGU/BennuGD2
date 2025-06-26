@@ -50,6 +50,7 @@
                                                 "   -l lang         Specify locale settings\n" \
                                                 "   -s stub         Generate a stubbed executable from the given stub\n" \
                                                 "   -g              Stores debugging information at the DCB\n" \
+                                                "   -z              Generate a compressed DCB\n" \
                                                 "   -D macro=text   Set a macro\n" \
                                                 "   -p|--pedantic   Don't use automatic declare\n" \
                                                 "   --libmode       Build a library\n" \
@@ -76,7 +77,7 @@
 #define MSG_UNEXPECTED_TOKEN                    "Unexpected token (too many ENDs?)"
 #define MSG_UNEXPECTED_TOKEN_GENERIC            "Unexpected token"
 #define MSG_NO_MAIN                             "Main procedure was not defined"
-#define MSG_DEFAULT_REQUIRED                    "Default value required" 
+#define MSG_DEFAULT_REQUIRED                    "Default value required"
 #define MSG_INTEGER_REQUIRED                    "Integer type required"
 #define MSG_NUMBER_REQUIRED                     "Numeric type required"
 #define MSG_INCOMP_TYPES                        "Data types not compatible with operation"

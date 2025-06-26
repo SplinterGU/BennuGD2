@@ -48,6 +48,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#ifdef __ANDROID__
+#include "SDL.h"
+#include "jni.h"
+#include <android/log.h>
+#define LOG_TAG "bgdi-native"
+#endif
+
 #include "bgdi.h"
 #include "bgdrtm.h"
 #include "xstrings.h"
@@ -58,7 +65,7 @@
 
 static char * dcb_exts[] = { ".dcb", ".dat", ".bin", NULL };
 
-#if !defined( __SWITCH__ ) && !defined( PS3_PPU )
+#if !defined( __SWITCH__ ) && !defined( PS3_PPU ) && !defined( __ANDROID__ )
 static int standalone  = 0;  /* 1 only if this is an standalone interpreter   */
 static int embedded    = 0;  /* 1 only if this is a stub with an embedded DCB */
 #endif
@@ -202,7 +209,7 @@ int main( int argc, char *argv[] ) {
     chdir("romfs:/");
 #endif
 
-    char * filename = NULL, dcbname[ __MAX_PATH ], *ptr;
+    char * filename = NULL, dcbname[ __MAX_PATH ];
     int i, j, ret = -1;
     file * fp = NULL;
     dcb_signature dcb_signature = { 0 };
@@ -211,7 +218,7 @@ int main( int argc, char *argv[] ) {
     setvbuf( stdout, NULL, _IONBF, BUFSIZ );
 
     /* get executable full pathname  */
-#if defined ( __SWITCH__ ) || defined ( PS3_PPU )
+#if defined ( __SWITCH__ ) || defined ( PS3_PPU ) || defined ( __ANDROID__ )
     appexefullpath = strdup( argv[0] );
 #else
     appexefullpath = get_executable_full_path( argv[ 0 ] );
@@ -219,7 +226,7 @@ int main( int argc, char *argv[] ) {
 
     appexename = get_executable_name( appexefullpath );
 
-#if !defined ( __SWITCH__ ) && !defined ( PS3_PPU )
+#if !defined ( __SWITCH__ ) && !defined ( PS3_PPU ) && !defined( __ANDROID__ )
     if ( ( !strchr( appexefullpath, '\\' ) && !strchr( appexefullpath, '/' ) ) ) {
         struct stat st;
         if ( stat( appexefullpath, &st ) || !S_ISREG( st.st_mode ) ) {
@@ -242,7 +249,7 @@ int main( int argc, char *argv[] ) {
     /* add binary path */
     file_addp( appexepath );
 
-#if !defined( __SWITCH__ ) && !defined( PS3_PPU )
+#if !defined( __SWITCH__ ) && !defined( PS3_PPU ) && !defined( __ANDROID__ )
     standalone = strncmpi( appexename, "bgdi", 4 );
     if ( standalone ) {
         /* Hand-made interpreter: search for DCB at EOF */
@@ -313,7 +320,7 @@ int main( int argc, char *argv[] ) {
 
     /* Init application title for windowed modes */
 
-#if defined ( __SWITCH__ ) || defined ( PS3_PPU )
+#if defined ( __SWITCH__ ) || defined ( PS3_PPU ) || defined( __ANDROID__ )
     filename = "game.dcb";
 #endif
 
@@ -323,8 +330,7 @@ int main( int argc, char *argv[] ) {
     appname = remove_extension( en );
     free( en );
 
-
-#if !defined ( __SWITCH__ ) && !defined ( PS3_PPU )
+#if !defined ( __SWITCH__ ) && !defined ( PS3_PPU ) && !defined( __ANDROID__ )
     if ( !embedded ) {
 #endif
         /* First try to load directly (we expect myfile.dcb) */
@@ -341,10 +347,13 @@ int main( int argc, char *argv[] ) {
 
             if ( !dcbloaded ) {
                 fprintf( stderr, MSG_DCB_ERROR "\n", filename, DCB_VERSION >> 8 ) ;
+#ifdef __ANDROID__
+                __android_log_print(ANDROID_LOG_INFO, LOG_TAG, MSG_DCB_ERROR, filename, DCB_VERSION >> 8);
+#endif
                 return -1 ;
             }
         }
-#if !defined ( __SWITCH__ ) && !defined ( PS3_PPU )
+#if !defined ( __SWITCH__ ) && !defined ( PS3_PPU ) && !defined( __ANDROID__ )
     } else {
         dcb_load_from( fp, ( const char * ) dcbname, dcb_signature.dcb_offset );
     }
@@ -389,3 +398,4 @@ int main( int argc, char *argv[] ) {
 
     return ret;
 }
+

@@ -44,115 +44,126 @@
 /* ----------------------------------------------------------------- */
 
 DLCONSTANT __bgdexport( libmod_gfx, constants_def )[] = {
-    { "G_WIDE"              , TYPE_INT          , G_WIDE                                },    /* Obsolete */
-    { "G_WIDTH"             , TYPE_INT          , G_WIDTH                               },
-    { "G_HEIGHT"            , TYPE_INT          , G_HEIGHT                              },
-    { "G_CENTER_X"          , TYPE_INT          , G_CENTER_X                            },
-    { "G_X_CENTER"          , TYPE_INT          , G_X_CENTER                            },
-    { "G_CENTER_Y"          , TYPE_INT          , G_CENTER_Y                            },
-    { "G_Y_CENTER"          , TYPE_INT          , G_Y_CENTER                            },
-    { "G_PITCH"             , TYPE_INT          , G_PITCH                               },
-    { "G_DEPTH"             , TYPE_INT          , G_DEPTH                               },
+    { "G_WIDE"                          , TYPE_INT      , G_WIDE                                },    /* Obsolete */
+    { "G_WIDTH"                         , TYPE_INT      , G_WIDTH                               },
+    { "G_HEIGHT"                        , TYPE_INT      , G_HEIGHT                              },
+    { "G_CENTER_X"                      , TYPE_INT      , G_CENTER_X                            },
+    { "G_X_CENTER"                      , TYPE_INT      , G_X_CENTER                            },
+    { "G_CENTER_Y"                      , TYPE_INT      , G_CENTER_Y                            },
+    { "G_Y_CENTER"                      , TYPE_INT      , G_Y_CENTER                            },
+    { "G_PITCH"                         , TYPE_INT      , G_PITCH                               },
+    { "G_DEPTH"                         , TYPE_INT      , G_DEPTH                               },
 
-    { "B_CLEAR"             , TYPE_INT          , B_CLEAR                               },
+    { "B_CLEAR"                         , TYPE_INT      , B_CLEAR                               },
 
-    { "Q_NEAREST"           , TYPE_INT          , Q_NEAREST                             },
-    { "Q_LINEAR"            , TYPE_INT          , Q_LINEAR                              },
-    { "Q_BEST"              , TYPE_INT          , Q_BEST                                },
+    { "Q_NEAREST"                       , TYPE_INT      , Q_NEAREST                             },
+    { "Q_LINEAR"                        , TYPE_INT      , Q_LINEAR                              },
+    { "Q_BEST"                          , TYPE_INT      , Q_BEST                                },
 #ifdef USE_SDL2_GPU
-    { "Q_MIPMAP"            , TYPE_INT          , Q_MIPMAP                              },
+    { "Q_MIPMAP"                        , TYPE_INT      , Q_MIPMAP                              },
 #else
-    { "Q_MIPMAP"            , TYPE_INT          , -1                                    },
+    { "Q_MIPMAP"                        , TYPE_INT      , -1                                    },
 #endif
-    { "CHARSET_ISO8859"     , TYPE_INT          , CHARSET_ISO8859                       },
-    { "CHARSET_CP850"       , TYPE_INT          , CHARSET_CP850                         },
+    { "CHARSET_ISO8859"                 , TYPE_INT      , CHARSET_ISO8859                       },
+    { "CHARSET_CP850"                   , TYPE_INT      , CHARSET_CP850                         },
 
-    { "NFB_VARIABLEWIDTH"   , TYPE_INT          , NFB_VARIABLEWIDTH                     },
-    { "NFB_FIXEDWIDTH"      , TYPE_INT          , NFB_FIXEDWIDTH                        },
-    { "NFB_FIXEDWIDTHCENTER", TYPE_INT          , NFB_FIXEDWIDTHCENTER                  },
+    { "NFB_VARIABLEWIDTH"               , TYPE_INT      , NFB_VARIABLEWIDTH                     },
+    { "NFB_FIXEDWIDTH"                  , TYPE_INT      , NFB_FIXEDWIDTH                        },
+    { "NFB_FIXEDWIDTHCENTER"            , TYPE_INT      , NFB_FIXEDWIDTHCENTER                  },
 
     /* Text */
-    { "ALL_TEXT"            , TYPE_INT          , 0                                     },
+
+    { "ALL_TEXT"                        , TYPE_INT      , 0                                     },
 
     /* Texts align */
-    { "ALIGN_TOP_LEFT"      , TYPE_INT          , ALIGN_TOP_LEFT                        },
-    { "ALIGN_TOP"           , TYPE_INT          , ALIGN_TOP                             },
-    { "ALIGN_TOP_RIGHT"     , TYPE_INT          , ALIGN_TOP_RIGHT                       },
-    { "ALIGN_CENTER_LEFT"   , TYPE_INT          , ALIGN_CENTER_LEFT                     },
-    { "ALIGN_CENTER"        , TYPE_INT          , ALIGN_CENTER                          },
-    { "ALIGN_CENTER_RIGHT"  , TYPE_INT          , ALIGN_CENTER_RIGHT                    },
-    { "ALIGN_BOTTOM_LEFT"   , TYPE_INT          , ALIGN_BOTTOM_LEFT                     },
-    { "ALIGN_BOTTOM"        , TYPE_INT          , ALIGN_BOTTOM                          },
-    { "ALIGN_BOTTOM_RIGHT"  , TYPE_INT          , ALIGN_BOTTOM_RIGHT                    },
+
+    { "ALIGN_TOP_LEFT"                  , TYPE_INT      , ALIGN_TOP_LEFT                        },
+    { "ALIGN_TOP"                       , TYPE_INT      , ALIGN_TOP                             },
+    { "ALIGN_TOP_RIGHT"                 , TYPE_INT      , ALIGN_TOP_RIGHT                       },
+    { "ALIGN_CENTER_LEFT"               , TYPE_INT      , ALIGN_CENTER_LEFT                     },
+    { "ALIGN_CENTER"                    , TYPE_INT      , ALIGN_CENTER                          },
+    { "ALIGN_CENTER_RIGHT"              , TYPE_INT      , ALIGN_CENTER_RIGHT                    },
+    { "ALIGN_BOTTOM_LEFT"               , TYPE_INT      , ALIGN_BOTTOM_LEFT                     },
+    { "ALIGN_BOTTOM"                    , TYPE_INT      , ALIGN_BOTTOM                          },
+    { "ALIGN_BOTTOM_RIGHT"              , TYPE_INT      , ALIGN_BOTTOM_RIGHT                    },
 
     /* Pathfind */
-    { "PF_DIAG"             , TYPE_INT          , PF_DIAG                               }, /* Allow the pathfinding from using diagonal paths. */
 
-    { "PF_MANHATTAN"        , TYPE_INT          , PF_HEURISTIC_MANHATTAN                },
-    { "PF_EUCLIDEAN"        , TYPE_INT          , PF_HEURISTIC_EUCLIDEAN                },
-    { "PF_OCTILE"           , TYPE_INT          , PF_HEURISTIC_OCTILE                   },
-    { "PF_CHEBYSHEV"        , TYPE_INT          , PF_HEURISTIC_CHEBYSHEV                },
+    { "PF_DIAG"                         , TYPE_INT      , PF_DIAG                               }, /* Allow the pathfinding from using diagonal paths. */
 
-    { "TEXT_TEXT"           , TYPE_INT          , TEXT_TEXT                             },
-    { "TEXT_STRING"         , TYPE_INT          , TEXT_STRING                           },
-    { "TEXT_INT"            , TYPE_INT          , TEXT_INT                              },
-    { "TEXT_QWORD"          , TYPE_INT          , TEXT_QWORD                            },
-    { "TEXT_INT32"          , TYPE_INT          , TEXT_INT32                            },
-    { "TEXT_DWORD"          , TYPE_INT          , TEXT_DWORD                            },
-    { "TEXT_SHORT"          , TYPE_INT          , TEXT_SHORT                            },
-    { "TEXT_WORD"           , TYPE_INT          , TEXT_WORD                             },
-    { "TEXT_SBYTE"          , TYPE_INT          , TEXT_SBYTE                            },
-    { "TEXT_BYTE"           , TYPE_INT          , TEXT_BYTE                             },
-    { "TEXT_CHAR"           , TYPE_INT          , TEXT_CHAR                             },
-    { "TEXT_DOUBLE"         , TYPE_INT          , TEXT_DOUBLE                           },
-    { "TEXT_FLOAT"          , TYPE_INT          , TEXT_FLOAT                            },
-    { "TEXT_POINTER"        , TYPE_INT          , TEXT_POINTER                          },
-    { "TEXT_CHARARRAY"      , TYPE_INT          , TEXT_CHARARRAY                        },
+    { "PF_MANHATTAN"                    , TYPE_INT      , PF_HEURISTIC_MANHATTAN                },
+    { "PF_EUCLIDEAN"                    , TYPE_INT      , PF_HEURISTIC_EUCLIDEAN                },
+    { "PF_OCTILE"                       , TYPE_INT      , PF_HEURISTIC_OCTILE                   },
+    { "PF_CHEBYSHEV"                    , TYPE_INT      , PF_HEURISTIC_CHEBYSHEV                },
 
-    { "SHAPE_BOX"           , TYPE_INT          , BITMAP_CB_SHAPE_BOX                   },
-    { "SHAPE_CIRCLE"        , TYPE_INT          , BITMAP_CB_SHAPE_CIRCLE                },
-    { "GRAPH_SIZE"          , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_SIZE           },
-    { "GRAPH_WIDTH"         , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_WIDTH          },
-    { "GRAPH_HEIGHT"        , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_HEIGHT         },
-    { "GRAPH_MIN_SIZE"      , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_MIN_SIZE       },
-    { "GRAPH_MAX_SIZE"      , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE       },
-    { "GRAPH_AVERAGE_SIZE"  , TYPE_INT          , BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE   },
+    { "TEXT_TEXT"                       , TYPE_INT      , TEXT_TEXT                             },
+    { "TEXT_STRING"                     , TYPE_INT      , TEXT_STRING                           },
+    { "TEXT_INT"                        , TYPE_INT      , TEXT_INT                              },
+    { "TEXT_QWORD"                      , TYPE_INT      , TEXT_QWORD                            },
+    { "TEXT_INT32"                      , TYPE_INT      , TEXT_INT32                            },
+    { "TEXT_DWORD"                      , TYPE_INT      , TEXT_DWORD                            },
+    { "TEXT_SHORT"                      , TYPE_INT      , TEXT_SHORT                            },
+    { "TEXT_WORD"                       , TYPE_INT      , TEXT_WORD                             },
+    { "TEXT_SBYTE"                      , TYPE_INT      , TEXT_SBYTE                            },
+    { "TEXT_BYTE"                       , TYPE_INT      , TEXT_BYTE                             },
+    { "TEXT_CHAR"                       , TYPE_INT      , TEXT_CHAR                             },
+    { "TEXT_DOUBLE"                     , TYPE_INT      , TEXT_DOUBLE                           },
+    { "TEXT_FLOAT"                      , TYPE_INT      , TEXT_FLOAT                            },
+    { "TEXT_POINTER"                    , TYPE_INT      , TEXT_POINTER                          },
+    { "TEXT_CHARARRAY"                  , TYPE_INT      , TEXT_CHARARRAY                        },
+
+    { "SHAPE_BOX"                       , TYPE_INT      , BITMAP_CB_SHAPE_BOX                   },
+    { "SHAPE_CIRCLE"                    , TYPE_INT      , BITMAP_CB_SHAPE_CIRCLE                },
+    { "GRAPH_SIZE"                      , TYPE_INT      , BITMAP_CB_CIRCLE_GRAPH_SIZE           },
+    { "GRAPH_WIDTH"                     , TYPE_INT      , BITMAP_CB_CIRCLE_GRAPH_WIDTH          },
+    { "GRAPH_HEIGHT"                    , TYPE_INT      , BITMAP_CB_CIRCLE_GRAPH_HEIGHT         },
+    { "GRAPH_MIN_SIZE"                  , TYPE_INT      , BITMAP_CB_CIRCLE_GRAPH_MIN_SIZE       },
+    { "GRAPH_MAX_SIZE"                  , TYPE_INT      , BITMAP_CB_CIRCLE_GRAPH_MAX_SIZE       },
+    { "GRAPH_AVERAGE_SIZE"              , TYPE_INT      , BITMAP_CB_CIRCLE_GRAPH_AVERAGE_SIZE   },
 
     /* MEDIA */
 
-    { "MEDIA_STATUS_ERROR"      , TYPE_INT      , MEDIA_STATUS_ERROR                    },
-    { "MEDIA_STATUS_PLAYING"    , TYPE_INT      , MEDIA_STATUS_PLAYING                  },
-    { "MEDIA_STATUS_PAUSED"     , TYPE_INT      , MEDIA_STATUS_PAUSED                   },
-    { "MEDIA_STATUS_STOPPED"    , TYPE_INT      , MEDIA_STATUS_STOPPED                  },
-    { "MEDIA_STATUS_ENDED"      , TYPE_INT      , MEDIA_STATUS_ENDED                    },
- 
-    { "SHADER_IMAGE"            , TYPE_INT      , SHADER_IMAGE                          },
-#if 0
-    { "ATTRIBUTE_INT"           , TYPE_INT      , ATTRIBUTE_INT                         },
-    { "ATTRIBUTE_INT_ARRAY"     , TYPE_INT      , ATTRIBUTE_INT_ARRAY                   },
-    { "ATTRIBUTE_UINT"          , TYPE_INT      , ATTRIBUTE_UINT                        },
-    { "ATTRIBUTE_UINT_ARRAY"    , TYPE_INT      , ATTRIBUTE_UINT_ARRAY                  },
-    { "ATTRIBUTE_FLOAT"         , TYPE_INT      , ATTRIBUTE_FLOAT                       },
-    { "ATTRIBUTE_FLOAT_ARRAY"   , TYPE_INT      , ATTRIBUTE_FLOAT_ARRAY                 },
-#endif
-    { "UNIFORM_INT"             , TYPE_INT      , UNIFORM_INT                           },
-    { "UNIFORM_INT_ARRAY"       , TYPE_INT      , UNIFORM_INT_ARRAY                     },
-    { "UNIFORM_INT2_ARRAY"      , TYPE_INT      , UNIFORM_INT2_ARRAY                    },
-    { "UNIFORM_INT3_ARRAY"      , TYPE_INT      , UNIFORM_INT3_ARRAY                    },
-    { "UNIFORM_INT4_ARRAY"      , TYPE_INT      , UNIFORM_INT4_ARRAY                    },
-    { "UNIFORM_UINT"            , TYPE_INT      , UNIFORM_UINT                          },
-    { "UNIFORM_UINT_ARRAY"      , TYPE_INT      , UNIFORM_UINT_ARRAY                    },
-    { "UNIFORM_UINT2_ARRAY"     , TYPE_INT      , UNIFORM_UINT2_ARRAY                   },
-    { "UNIFORM_UINT3_ARRAY"     , TYPE_INT      , UNIFORM_UINT3_ARRAY                   },
-    { "UNIFORM_UINT4_ARRAY"     , TYPE_INT      , UNIFORM_UINT4_ARRAY                   },
-    { "UNIFORM_FLOAT"           , TYPE_INT      , UNIFORM_FLOAT                         },
-    { "UNIFORM_FLOAT_ARRAY"     , TYPE_INT      , UNIFORM_FLOAT_ARRAY                   },
-    { "UNIFORM_FLOAT2_ARRAY"    , TYPE_INT      , UNIFORM_FLOAT2_ARRAY                  },
-    { "UNIFORM_FLOAT3_ARRAY"    , TYPE_INT      , UNIFORM_FLOAT3_ARRAY                  },
-    { "UNIFORM_FLOAT4_ARRAY"    , TYPE_INT      , UNIFORM_FLOAT4_ARRAY                  },
-    { "UNIFORM_MATRIX"          , TYPE_INT      , UNIFORM_MATRIX                        },
+    { "MEDIA_STATUS_ERROR"              , TYPE_INT      , MEDIA_STATUS_ERROR                    },
+    { "MEDIA_STATUS_PLAYING"            , TYPE_INT      , MEDIA_STATUS_PLAYING                  },
+    { "MEDIA_STATUS_PAUSED"             , TYPE_INT      , MEDIA_STATUS_PAUSED                   },
+    { "MEDIA_STATUS_STOPPED"            , TYPE_INT      , MEDIA_STATUS_STOPPED                  },
+    { "MEDIA_STATUS_ENDED"              , TYPE_INT      , MEDIA_STATUS_ENDED                    },
 
-    { NULL                  , 0                 , 0                                     }
+    { "SHADER_IMAGE"                    , TYPE_INT      , SHADER_IMAGE                          },
+#if 0
+    { "ATTRIBUTE_INT"                   , TYPE_INT      , ATTRIBUTE_INT                         },
+    { "ATTRIBUTE_INT_ARRAY"             , TYPE_INT      , ATTRIBUTE_INT_ARRAY                   },
+    { "ATTRIBUTE_UINT"                  , TYPE_INT      , ATTRIBUTE_UINT                        },
+    { "ATTRIBUTE_UINT_ARRAY"            , TYPE_INT      , ATTRIBUTE_UINT_ARRAY                  },
+    { "ATTRIBUTE_FLOAT"                 , TYPE_INT      , ATTRIBUTE_FLOAT                       },
+    { "ATTRIBUTE_FLOAT_ARRAY"           , TYPE_INT      , ATTRIBUTE_FLOAT_ARRAY                 },
+#endif
+    { "UNIFORM_INT"                     , TYPE_INT      , UNIFORM_INT                           },
+    { "UNIFORM_INT_ARRAY"               , TYPE_INT      , UNIFORM_INT_ARRAY                     },
+    { "UNIFORM_INT2_ARRAY"              , TYPE_INT      , UNIFORM_INT2_ARRAY                    },
+    { "UNIFORM_INT3_ARRAY"              , TYPE_INT      , UNIFORM_INT3_ARRAY                    },
+    { "UNIFORM_INT4_ARRAY"              , TYPE_INT      , UNIFORM_INT4_ARRAY                    },
+    { "UNIFORM_UINT"                    , TYPE_INT      , UNIFORM_UINT                          },
+    { "UNIFORM_UINT_ARRAY"              , TYPE_INT      , UNIFORM_UINT_ARRAY                    },
+    { "UNIFORM_UINT2_ARRAY"             , TYPE_INT      , UNIFORM_UINT2_ARRAY                   },
+    { "UNIFORM_UINT3_ARRAY"             , TYPE_INT      , UNIFORM_UINT3_ARRAY                   },
+    { "UNIFORM_UINT4_ARRAY"             , TYPE_INT      , UNIFORM_UINT4_ARRAY                   },
+    { "UNIFORM_FLOAT"                   , TYPE_INT      , UNIFORM_FLOAT                         },
+    { "UNIFORM_FLOAT_ARRAY"             , TYPE_INT      , UNIFORM_FLOAT_ARRAY                   },
+    { "UNIFORM_FLOAT2_ARRAY"            , TYPE_INT      , UNIFORM_FLOAT2_ARRAY                  },
+    { "UNIFORM_FLOAT3_ARRAY"            , TYPE_INT      , UNIFORM_FLOAT3_ARRAY                  },
+    { "UNIFORM_FLOAT4_ARRAY"            , TYPE_INT      , UNIFORM_FLOAT4_ARRAY                  },
+    { "UNIFORM_MATRIX"                  , TYPE_INT      , UNIFORM_MATRIX                        },
+
+    /* Display orientation */
+
+    { "ORIENTATION_UNKNOWN"             , TYPE_INT      , SDL_ORIENTATION_UNKNOWN               },
+    { "ORIENTATION_LANDSCAPE"           , TYPE_INT      , SDL_ORIENTATION_LANDSCAPE             },
+    { "ORIENTATION_LANDSCAPE_FLIPPED"   , TYPE_INT      , SDL_ORIENTATION_LANDSCAPE_FLIPPED     },
+    { "ORIENTATION_PORTRAIT"            , TYPE_INT      , SDL_ORIENTATION_PORTRAIT              },
+    { "ORIENTATION_PORTRAIT_FLIPPED"    , TYPE_INT      , SDL_ORIENTATION_PORTRAIT_FLIPPED      },
+
+    { NULL                              , 0             , 0                                     }
 } ;
 
 /* --------------------------------------------------------------------------- */
@@ -251,6 +262,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "WINDOW_MAXIMIZE"     , ""                , TYPE_INT        , libmod_gfx_maximize             ),
     FUNC( "WINDOW_RAISE"        , ""                , TYPE_INT        , libmod_gfx_raise_window         ),
     FUNC( "WINDOW_RESTORE"      , ""                , TYPE_INT        , libmod_gfx_restore_window       ),
+
+    FUNC( "DISPLAY_GET_ORIENTATION", ""             , TYPE_INT        , libmod_gfx_get_display_orientation  ),
 
     /* Texts */
     FUNC( "WRITE"               , "IIIIS"           , TYPE_INT        , libmod_gfx_text_write           ),

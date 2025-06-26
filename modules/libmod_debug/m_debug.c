@@ -1278,14 +1278,14 @@ static uint8_t sysfont[] = {
                             };
 
 // static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|&$-><_,\\/+*!¡?¿~^\"'`\x01\x02\x03ÁÉÍÓÚÑáéíóúñ\xffº" ;
-static uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|&$-><_,\\/+*!\xA1?\xBF~^\"'`\x01\x02\x03\xC1\xC9\xCD\xD3\xDA\xD1\xE1\xE9\xED\xF3\xFA\xF1\xFF\xBA";
+static const uint8_t * letters = ( uint8_t * ) " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:;=%@#abcdefghijklmnopqrstuvwxyz[](){}|&$-><_,\\/+*!\xA1?\xBF~^\"'`\x01\x02\x03\xC1\xC9\xCD\xD3\xDA\xD1\xE1\xE9\xED\xF3\xFA\xF1\xFF\xBA";
 
 static int64_t debug_sysfont = -1;
 
 /* --------------------------------------------------------------------------- */
 
 static void create_debug_sysfont() {
-    int nchars = strlen( letters );
+    int nchars = strlen( ( const char * ) letters );
     Uint32 * pixels = malloc( 8 * 8 * nchars * sizeof( Uint32 ) );
     if ( !pixels ) return;
 
@@ -1344,7 +1344,7 @@ static void systext_puts( int64_t x, int64_t y, char * str ) {
     gr_text_getrgba_ptext( text_foreground_color, &r, &g, &b, NULL );
     gr_text_setrgba_ptext( text_foreground_color, r, g, b, console_alpha );
 
-    gr_text_put( NULL, text_foreground_color, NULL, debug_sysfont, x, y, str );
+    gr_text_put( NULL, text_foreground_color, NULL, debug_sysfont, x, y, ( unsigned char * ) str );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -1527,7 +1527,7 @@ static void console_getkey( int sym ) {
     if ( sym == SDLK_RIGHT ) {
         cursor_pos++;
     }
-    
+
     if ( sym == SDLK_HOME ) {
         cursor_pos = 0;
     }
@@ -1901,7 +1901,7 @@ static void var2const() {
 
     if ( result.type == RT_VARIABLE && result.var.Type.BaseType[0] == TYPE_STRING ) {
         result.type = RT_STRING ;
-        strncpy( result.name, string_get( *( int64_t * )( result.data ) ), sizeof( result.name ) ) ;
+        strncpy( result.name, ( const char * ) string_get( *( int64_t * )( result.data ) ), sizeof( result.name ) ) ;
         result.name[sizeof( result.name ) - 1] = 0 ;
     }
 
@@ -2284,13 +2284,13 @@ static void eval_factor() {
         }
 
         if ( !op ) op = 1 ;
-        
+
         if ( op > 1 && !result.int_value && result.type == RT_CONSTANT ) {
             result.type = RT_ERROR ;
             console_printf( COLOR_RED "Divide by zero" COLOR_SILVER ) ;
             return ;
         }
-        
+
         switch( result.type ) {
             case RT_CONSTANT:
                 if ( op == 1 ) base *= result.int_value ;
@@ -2491,7 +2491,7 @@ static char * eval_expression( const char * here, int interactive ) {
             } else
             if ( lvalue.var.Type.BaseType[0] == TYPE_STRING && result.type == RT_STRING ) {
                 string_discard( *( uint32_t * ) lvalue.data ) ;
-                *( uint32_t * )( lvalue.data ) = string_new( result.name ) ;
+                *( uint32_t * )( lvalue.data ) = string_new( ( const unsigned char * ) result.name ) ;
                 string_use( *( uint32_t * ) lvalue.data ) ;
             }
             else
@@ -3234,7 +3234,7 @@ static void console_do( const char * cmd ) {
                     token_ptr = ptr ;
                     console_printf( COLOR_SILVER "%s", ptr );
                     INSTANCE * inst = instance_new( p, NULL );
-    
+
                     for ( n = 0; n < p->params; n++ ) {
                         int type = dcb.proc[ p->type ].privar[ n ].Type.BaseType[0];
                         get_token() ;
@@ -3307,7 +3307,7 @@ static void console_do( const char * cmd ) {
                                 break;
 
                             case RT_STRING:
-                                PRIQWORD( inst, sizeof( int64_t ) * n ) = ( int64_t ) string_new( result.name ) ;
+                                PRIQWORD( inst, sizeof( int64_t ) * n ) = ( int64_t ) string_new( ( const unsigned char * ) result.name ) ;
                                 string_use( PRIQWORD( inst, sizeof( int64_t ) * n ) );
                                 break;
 
@@ -3806,7 +3806,7 @@ static void console_draw( void * what, REGION * clip ) {
                     }
                     ansi_seq[ i ] = '\0';
                     diff+=i;
-                    systext_puts( x, y, ansi_seq ) ;
+                    systext_puts( x, y, ( char * ) ansi_seq ) ;
                 } else {
                     chars++;
                     pos++;

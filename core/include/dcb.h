@@ -40,6 +40,7 @@
 #include "typedef.h"
 
 #define DCB_DEBUG 1
+#define DCB_COMPRESSED 2
 
 #ifdef _MSC_VER
 #pragma pack(push, 1)
@@ -69,8 +70,6 @@ typedef struct {
     uint8_t     Name[60];
     uint64_t    Code;
 } __PACKED DCB_ID;
-
-#define DCB_FILE_COMPRESSED 1
 
 typedef struct {
     union {

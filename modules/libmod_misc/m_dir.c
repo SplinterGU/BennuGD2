@@ -59,6 +59,7 @@
 
 #include "libmod_misc.h"
 
+
 #include "SDL.h"
 
 /* ----------------------------------------------------------------- */
@@ -255,7 +256,7 @@ int64_t libmod_misc_dir_get_prefpath( INSTANCE *my, int64_t *params ) {
                     path = NULL;
                 }
             }
-        } 
+        }
     }
 #endif
     if ( path ) {

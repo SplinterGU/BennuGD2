@@ -3625,6 +3625,7 @@ static int64_t libmod_sound_quit( INSTANCE * my, int64_t * params ) {
 /* Module/Plugin Initialization Functions                                      */
 
 void  __bgdexport( libmod_sound, module_initialize )() {
+    
     if ( !SDL_WasInit( SDL_INIT_AUDIO ) ) SDL_InitSubSystem( SDL_INIT_AUDIO );
     Mix_Init( MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_MID );
 }

@@ -30,11 +30,18 @@
 
 #include <SDL.h>
 
+#ifdef __ANDROID__
+#include "jni.h"
+#include <android/log.h>
+#define LOG_TAG "bgdi-native"
+#endif
+
 #include "bgddl.h"
 #include "dlvaracc.h"
 
 #include "libbggfx.h"
 #include "libbginput.h"
+#include "libsdlhandler.h"
 
 /* --------------------------------------------------------------------------- */
 
@@ -79,8 +86,8 @@ void process_mouse_events() {
                 GLOINT64( libbginput, MOUSEY ) = e.motion.y;
 #endif
 #ifdef USE_SDL2_GPU
-                GLOINT64( libbginput, MOUSEX ) = e.motion.x * scr_width / renderer_width;
-                GLOINT64( libbginput, MOUSEY ) = e.motion.y * scr_height / renderer_height;
+                GLOINT64(libbginput, MOUSEX) = ( e.motion.x - renderer_offset_x ) / renderer_scale_factor_width;
+                GLOINT64(libbginput, MOUSEY) = ( e.motion.y - renderer_offset_y ) / renderer_scale_factor_height;
 #endif
                 break;
 
@@ -187,7 +194,7 @@ static void mouse_draw( void * what, REGION * clip ) {
     if ( sizex == 100.0 && sizey == 100.0 ) sizex = sizey = GLODOUBLE( libbginput, MOUSESIZE );
 
     shader_activate( * ( BGD_SHADER ** ) GLOADDR( libbginput, MOUSE_SHADER_ID ) );
-    BGD_SHADER_PARAMETERS * shader_params = * ( BGD_SHADER_PARAMETERS ** ) GLOADDR( libbginput, MOUSE_SHADER_PARAMS ); 
+    BGD_SHADER_PARAMETERS * shader_params = * ( BGD_SHADER_PARAMETERS ** ) GLOADDR( libbginput, MOUSE_SHADER_PARAMS );
     if ( shader_params ) shader_apply_parameters( shader_params );
 
     gr_blit(    0,
@@ -214,6 +221,7 @@ static void mouse_draw( void * what, REGION * clip ) {
 /* --------------------------------------------------------------------------- */
 
 void mouse_init() {
+    enableSDLEventRange(SDL_MOUSEMOTION, SDL_MOUSEWHEEL);
     gr_new_object( GLOINT64( libbginput, MOUSEZ ), mouse_info, mouse_draw, 0 );
 }
 

@@ -43,15 +43,15 @@
 #include <windef.h>
 #include <direct.h>
 #else
-#ifdef TARGET_ANDROID
-#include <diet-glob.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#else
+//#ifdef TARGET_ANDROID
+//#include <diet-glob.h>
+//#include <sys/stat.h>
+//#include <unistd.h>
+//#else
 #include <glob.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#endif
+//#endif
 #endif
 
 #ifdef USE_OPENDIR

@@ -198,7 +198,7 @@ int dcb_save( const char * filename, int options, const char * stubname ) {
     SYSPROC * s;
     int64_t NSysProcs = 0;
 
-    fp = file_open( filename, stubname ? "wb0" : "wb" );
+    fp = file_open( filename, ( stubname || !( options & DCB_COMPRESSED ) ) ? "wb0" : "wb" );
     if ( !fp ) {
         fprintf( stdout, "ERROR: can't open %s\n", filename );
         return 0;

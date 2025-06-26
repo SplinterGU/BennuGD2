@@ -73,6 +73,10 @@
 #include <ctype.h>
 #endif
 
+#ifdef __ANDROID__
+#include "strings.h"
+#endif
+
 #include "bgddl.h"
 
 #include "libmod_misc.h"

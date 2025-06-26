@@ -36,7 +36,7 @@
 #include "dlvaracc.h"
 
 #include "libbginput.h"
-
+#include "libsdlhandler.h"
 
 /* ---------------------------------------------------------------------- */
 
@@ -501,6 +501,9 @@ void key_init() {
     if ( !SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_InitSubSystem( SDL_INIT_VIDEO );
 
     SDL_EventState(SDL_TEXTEDITING, SDL_DISABLE);
+
+    enableSDLEventRange(SDL_KEYDOWN, SDL_KEYUP);
+    enableSDLEvent(SDL_TEXTINPUT);
 
     memset( sdlkey_table, 0, sizeof( sdlkey_table ) );
     memset( key_table, 0, sizeof( key_table ) );

@@ -232,13 +232,24 @@ DLCONSTANT  __bgdexport( libbginput, constants_def )[] = {
     { "JOY_QUERY_HAS_BUTTON"            , TYPE_QWORD    , JOY_QUERY_HAS_BUTTON              },
     { "JOY_QUERY_HAS_AXIS"              , TYPE_QWORD    , JOY_QUERY_HAS_AXIS                },
 
-
     { "JOY_SET_RUMBLE"                  , TYPE_QWORD    , JOY_SET_RUMBLE                    },
     { "JOY_SET_RUMBLE_TRIGGERS"         , TYPE_QWORD    , JOY_SET_RUMBLE_TRIGGERS           },
     { "JOY_SET_LED"                     , TYPE_QWORD    , JOY_SET_LED                       },
 #ifdef JOY_SEND_EFFECT_ENABLED
     { "JOY_SET_SEND_EFFECT"             , TYPE_QWORD    , JOY_SET_SEND_EFFECT               },
 #endif
+
+    { "MAX_SENSORS"                     , TYPE_QWORD    , MAX_SENSORS                       },
+    { "MAX_SENSORS_VALUES"              , TYPE_QWORD    , MAX_SENSORS_VALUES                },
+
+    { "SENSOR_INVALID"                  , TYPE_QWORD    , SDL_SENSOR_INVALID                },
+    { "SENSOR_UNKNOWN"                  , TYPE_QWORD    , SDL_SENSOR_UNKNOWN                },
+    { "SENSOR_ACCEL"                    , TYPE_QWORD    , SDL_SENSOR_ACCEL                  },
+    { "SENSOR_GYRO"                     , TYPE_QWORD    , SDL_SENSOR_GYRO                   },
+    { "SENSOR_ACCEL_L"                  , TYPE_QWORD    , SDL_SENSOR_ACCEL_L                },
+    { "SENSOR_GYRO_L"                   , TYPE_QWORD    , SDL_SENSOR_GYRO_L                 },
+    { "SENSOR_ACCEL_R"                  , TYPE_QWORD    , SDL_SENSOR_ACCEL_R                },
+    { "SENSOR_GYRO_R"                   , TYPE_QWORD    , SDL_SENSOR_GYRO_R                 },
 
     { NULL                              , 0             , 0                                 }
 } ;
@@ -276,9 +287,25 @@ char * __bgdexport( libbginput, globals_def ) =
     "   INT blendmode=" TOSTRING(BLEND_DISABLED) ";\n"
     "   G_CUSTOM_BLENDMODE custom_blendmode;\n"
     "   UINT * shader=NULL;\n"
-    "   INT * shader_params=NULL;"
+    "   INT * shader_params=NULL;\n"
     "END\n"
-    ;
+
+    "STRUCT touches[" TOSTRING(MAX_TOUCHES-1) "]\n"
+    "   BOOL active = FALSE;\n"
+    "   INT64 touchId = -1;\n"
+    "   INT64 fingerId = -1;\n"
+    "   FLOAT x = 0.0;\n"
+    "   FLOAT y = 0.0;\n"
+    "   FLOAT pressure = 0.0;\n"
+    "END\n"
+
+    "STRUCT sensors[" TOSTRING(MAX_SENSORS-1) "]\n"
+    "    INT8 active = 0;\n"
+    "    INT8 type = SENSOR_INVALID;\n"
+    "    INT64 instance_id = -1;\n"
+    "    CHAR name[63] = "";\n"
+    "    FLOAT values[" TOSTRING(MAX_SENSORS_VALUES-1) "];\n"
+    "END\n";
 
 #endif
 

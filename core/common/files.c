@@ -50,6 +50,44 @@
 
 #define MAX_POSSIBLE_PATHS  128
 
+#ifdef __ANDROID__
+#ifdef __BGDRTM__
+#include "SDL.h"
+#include "SDL_rwops.h"
+#define FILE SDL_RWops
+#define fopen(fname, mode) SDL_RWFromFile(fname, mode)
+#define fread(ptr, size, nmemb, stream) SDL_RWread(stream, ptr, size, nmemb)
+#define fwrite(ptr, size, nmemb, stream) SDL_RWwrite(stream, ptr, size, nmemb)
+#define fclose(stream) SDL_RWclose(stream)
+#define fseek(stream, offset, whence) SDL_RWseek(stream, offset, whence)
+#define ftell(stream) SDL_RWtell(stream)
+#define rewind(stream) SDL_RWseek(stream, 0, RW_SEEK_SET)
+#define feof(stream) (SDL_RWtell(stream) >= SDL_RWsize(stream))
+static char *sdl_fgets(char *s, int size, SDL_RWops *stream) {
+    int i = 0;
+    while (i < size - 1) {
+        char c;
+        if (SDL_RWread(stream, &c, 1, 1) != 1) {
+            // No más datos
+            break;
+        }
+        s[i++] = c;
+        if (c == '\n') {
+            break;
+        }
+    }
+
+    if (i == 0) {
+        return NULL; // EOF
+    }
+
+    s[i] = '\0';
+    return s;
+}
+#define fgets(ptr, size, stream) sdl_fgets(ptr, size, stream)
+#endif
+#endif
+
 char * possible_paths[MAX_POSSIBLE_PATHS] = { NULL };
 
 int opened_files = 0;
@@ -617,7 +655,6 @@ file * file_open( const char * filename, char * mode ) {
         opened_files++;
         return f;
     }
-
 
     /* if real file don't exists in disk */
     if (  strchr( mode, 'r' ) &&  strchr( mode, 'b' ) &&  /* Only read-only files */

@@ -29,6 +29,7 @@
 #ifndef __G_VIDEO_H
 #define __G_VIDEO_H
 
+
 #include <SDL.h>
 
 #ifdef USE_SDL2_GPU
@@ -78,6 +79,13 @@ extern int64_t scale_resolution_orientation;
 
 extern int renderer_width;
 extern int renderer_height;
+
+extern double renderer_scale_factor_width;
+extern double renderer_scale_factor_height;
+extern double renderer_offset_x;
+extern double renderer_offset_y;
+extern double renderer_scaled_width;
+extern double renderer_scaled_height;
 
 extern int64_t gMaxTextureSize;
 

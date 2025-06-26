@@ -44,10 +44,10 @@ declare PROCESS HIT(double X,Y, int Z);
 declare PROCESS PAUSA();
 declare PROCESS sound(SFX);
 declare PROCESS GAMEOVER(modojuego);
-declare PROCESS CHECK(); 
-declare PROCESS CHECK_GLASS(); 
-declare PROCESS combo(grafico,TIPO,INCREMENTO); 
-declare PROCESS comboRUSH(grafico,TIPO); 
+declare PROCESS CHECK();
+declare PROCESS CHECK_GLASS();
+declare PROCESS combo(grafico,TIPO,INCREMENTO);
+declare PROCESS comboRUSH(grafico,TIPO);
 declare PROCESS FLY(double X,Y,int Z,FLY_NUM,LOL);
 declare PROCESS SPEAKER(NAME);
 declare PROCESS FLYS(double X,Y,int Z,FLYSCORE);
@@ -261,6 +261,8 @@ process MAIN();
 	END// SWITCH
 
 
+	if(os_id==OS_ANDROID) saved[4].option=5; end
+
 	if(os_id==OS_GP2X_WIZ) screen.scale_resolution = -1; screen.scale_resolution_aspectratio = SRA_PRESERVE; set_mode(320,240); set_fps(75,3);gtm=0;
 	ELSEIF(saved[4].option==1) set_fps(75,0); screen.scale_resolution = -1; screen.scale_resolution_aspectratio = SRA_PRESERVE; set_mode(320,240); MOUSE.LEFT=0;
 	ELSEIF(saved[4].option==3) set_fps(75,0); screen.scale_resolution = 06400480; screen.scale_resolution_aspectratio = SRA_PRESERVE; set_mode(320,240); MOUSE.LEFT=0;
@@ -416,7 +418,7 @@ Process MENU(MODO) //--> EL PROCESO PRINCIPAL. ACTUALMENTE SOLO SIRVE DE LANZADO
 
 		CASE 0: //-->
 			music_stop();
-			music=music_load("music/musicintro.mp3");
+			music=music_load("music/musicintro.ogg");
 			music_play(music,-1);
 			tiempo_juego=GTM;
 			INTRO(0);
@@ -425,7 +427,7 @@ Process MENU(MODO) //--> EL PROCESO PRINCIPAL. ACTUALMENTE SOLO SIRVE DE LANZADO
 
 		CASE 1: //--> QUOTA MODE
 			music_stop();
-			music_unload(music); music=music_load("music/musicquota.mp3");music_play(music,-1);
+			music_unload(music); music=music_load("music/musicquota.ogg");music_play(music,-1);
 			RELOJ+=75;
 			NIVEL_GLOBAL=1;
 			firstime=0;
@@ -439,7 +441,7 @@ Process MENU(MODO) //--> EL PROCESO PRINCIPAL. ACTUALMENTE SOLO SIRVE DE LANZADO
 
 		CASE 2: //--> GLASS MODE
 		    music_stop();
-			music_unload(music);music= music_load("music/musicglass.mp3");music_play(music,-1);
+			music_unload(music);music= music_load("music/musicglass.ogg");music_play(music,-1);
 			reloj=75;
 			QJ1=0; QJ2=0; QJ3=0; QJ4=0;
 			NIVEL_GLOBAL=1;
@@ -449,7 +451,7 @@ Process MENU(MODO) //--> EL PROCESO PRINCIPAL. ACTUALMENTE SOLO SIRVE DE LANZADO
 
 		END
 		CASE 3: //--> RUSH MODE
-			music_stop();music_unload(music);music=music_load("music/musicrush.mp3");music_play(music,-1);
+			music_stop();music_unload(music);music=music_load("music/musicrush.ogg");music_play(music,-1);
 			RUSH_LEVEL=4;
 			LEVEL_RUSH();
 			PUNTERO();
@@ -1169,32 +1171,33 @@ IF(MOUSE.LEFT AND MOUSE.X>130 AND MOUSE.X<190 AND MOUSE.Y>160 AND MOUSE.Y<175 AN
 	CONTADOR4++;IF(CONTADOR4>33) CONTADOR4=0; END
 	END//--> GTM
 
-	// OPTION 6
-	IF(MOUSE.LEFT AND os_id<>8 AND MOUSE.X>92 AND MOUSE.X<128 AND MOUSE.Y>224 AND MOUSE.Y<239 OR saved[4].option==1); //--> NORMAL
-	   screen.scale_resolution = -1; screen.scale_resolution_aspectratio = SRA_PRESERVE; OPCIONES[5].RESPUESTA[0]=Rhiscore;OPCIONES[5].RESPUESTA[1]=Qhiscore;OPCIONES[5].RESPUESTA[2]=Qhiscore;CAMBIO=0; set_mode(320,240,0); MOUSE.LEFT=0;saved[4].option=2;
-    END
-	IF(MOUSE.LEFT AND os_id<>8 AND MOUSE.X>140 AND MOUSE.X<182 AND MOUSE.Y>224 AND MOUSE.Y<239 OR saved[4].option==3); //--> 2XSCALE
-	   screen.scale_resolution = 06400480; screen.scale_resolution_aspectratio = SRA_PRESERVE; OPCIONES[5].RESPUESTA[0]=Qhiscore;OPCIONES[5].RESPUESTA[1]=Rhiscore;OPCIONES[5].RESPUESTA[2]=Qhiscore;CAMBIO=0; set_mode(320,240); MOUSE.LEFT=0; saved[4].option=4;
-    END
-	IF(MOUSE.LEFT AND os_id<>8 AND MOUSE.X>195 AND MOUSE.X<255 AND MOUSE.Y>224 AND MOUSE.Y<239 OR saved[4].option==5); //--> FULLSCREEN
-	   screen.scale_resolution = -1; screen.scale_resolution_aspectratio = SRA_PRESERVE; OPCIONES[5].RESPUESTA[0]=Qhiscore;OPCIONES[5].RESPUESTA[1]=Qhiscore;OPCIONES[5].RESPUESTA[2]=Rhiscore;CAMBIO=0; set_mode(320,240,mode_fullscreen); MOUSE.LEFT=0; saved[4].option=6;
-    END
+	if(os_id!=OS_ANDROID)
+		// OPTION 6
+		IF(MOUSE.LEFT AND os_id<>8 AND MOUSE.X>92 AND MOUSE.X<128 AND MOUSE.Y>224 AND MOUSE.Y<239 OR saved[4].option==1); //--> NORMAL
+		   screen.scale_resolution = -1; screen.scale_resolution_aspectratio = SRA_PRESERVE; OPCIONES[5].RESPUESTA[0]=Rhiscore;OPCIONES[5].RESPUESTA[1]=Qhiscore;OPCIONES[5].RESPUESTA[2]=Qhiscore;CAMBIO=0; set_mode(320,240,0); MOUSE.LEFT=0;saved[4].option=2;
+	    END
+		IF(MOUSE.LEFT AND os_id<>8 AND MOUSE.X>140 AND MOUSE.X<182 AND MOUSE.Y>224 AND MOUSE.Y<239 OR saved[4].option==3); //--> 2XSCALE
+		   screen.scale_resolution = 06400480; screen.scale_resolution_aspectratio = SRA_PRESERVE; OPCIONES[5].RESPUESTA[0]=Qhiscore;OPCIONES[5].RESPUESTA[1]=Rhiscore;OPCIONES[5].RESPUESTA[2]=Qhiscore;CAMBIO=0; set_mode(320,240); MOUSE.LEFT=0; saved[4].option=4;
+	    END
+		IF(MOUSE.LEFT AND os_id<>8 AND MOUSE.X>195 AND MOUSE.X<255 AND MOUSE.Y>224 AND MOUSE.Y<239 OR saved[4].option==5); //--> FULLSCREEN
+		   screen.scale_resolution = -1; screen.scale_resolution_aspectratio = SRA_PRESERVE; OPCIONES[5].RESPUESTA[0]=Qhiscore;OPCIONES[5].RESPUESTA[1]=Qhiscore;OPCIONES[5].RESPUESTA[2]=Rhiscore;CAMBIO=0; set_mode(320,240,mode_fullscreen); MOUSE.LEFT=0; saved[4].option=6;
+	    END
+	 end
 
 
-
-		IF(MOUSE.LEFT AND MOUSE.X>10 AND MOUSE.X<43 AND MOUSE.Y>14 AND MOUSE.Y<30) //--> OPTIONS EXIT
-			sound(208);
-			graph=61;
-			FRAME(1000);
-			GRAPH=60;
-			fade_off(1000);
-			FRAME(10000);
-			saved[0].option--;
-			saved[4].option--;
-			save(get_pref_path("bennugd.org", "puzsion") + "options.file",saved);
-			SPEAKER(saved[0].option);
-			INTRO(0); RETURN;
-		END
+	IF(MOUSE.LEFT AND MOUSE.X>10 AND MOUSE.X<43 AND MOUSE.Y>14 AND MOUSE.Y<30) //--> OPTIONS EXIT
+		sound(208);
+		graph=61;
+		FRAME(1000);
+		GRAPH=60;
+		fade_off(1000);
+		FRAME(10000);
+		saved[0].option--;
+		saved[4].option--;
+		save(get_pref_path("bennugd.org", "puzsion") + "options.file",saved);
+		SPEAKER(saved[0].option);
+		INTRO(0); RETURN;
+	END
 
 	FRAME;
 
@@ -2837,7 +2840,7 @@ BEGIN
 		END
 
 		FRAME;
-	
+
 		joy = joy_query( JOY_QUERY_FIRST_ATTACHED );
 
 	UNTIL (KEY(_space) OR ( joy != -1 AND joy_query( joy, JOY_BUTTON_RIGHTSHOULDER ) ) )
@@ -2952,7 +2955,7 @@ BEGIN
 	NOMBRE=0;
 	music_stop();
 	music_unload(music);
-	music=music_load("music/musicgameover.mp3");
+	music=music_load("music/musicgameover.ogg");
 	music_play(music,-1);
 	signal(type puntero,s_sleep);
 	file=joyas;
@@ -2977,7 +2980,7 @@ BEGIN
 
 	switch(modojuego)
 
-		case 1:		
+		case 1:
 			IF(SCORE>qhighscore[0].hscore)
 				qhighscore[0].hscore=score;
 				qhighscore[0].hfase=num_nivel;
@@ -3164,7 +3167,7 @@ BEGIN
 	FRAME(10000);
 
 	music_unload(music);
-	music=music_load("music/musicintro.mp3");
+	music=music_load("music/musicintro.ogg");
 
 	music_stop();
 	music_play(music,-1);

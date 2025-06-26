@@ -37,6 +37,7 @@
 #include "bgdrtm.h"
 
 #include "libbginput.h"
+#include "libsdlhandler.h"
 
 /* --------------------------------------------------------------------------- */
 
@@ -175,7 +176,7 @@ static void parseElement(int64_t joy, const char *szGameButton, const char *szJo
     if (*szJoystickButton == '+' || *szJoystickButton == '-') {
         half_axis_in = *szJoystickButton++;
     }
-    
+
     if (szJoystickButton[strlen(szJoystickButton) - 1] == '~') {
         invert_in = 1;
     }
@@ -876,10 +877,10 @@ int64_t joy_query_specific( int64_t joy, int64_t element, int64_t arg1 ) {
         switch( element ) {
             case JOY_QUERY_ATTACHED:
                 return joy_is_attached_specific( joy );
-                
+
             case JOY_QUERY_HAS_LED:
                 return joy_has_led_specific( joy );
-                
+
             case JOY_QUERY_HAS_RUMBLE:
                 return joy_has_rumble_specific( joy );
 
@@ -888,10 +889,10 @@ int64_t joy_query_specific( int64_t joy, int64_t element, int64_t arg1 ) {
 
             case JOY_QUERY_NAME:
                 return ( int64_t )( intptr_t ) joy_name_specific( joy );
-                
+
             case JOY_QUERY_TYPE:
                 return joy_type_specific( joy );
-                
+
             case JOY_QUERY_POWERLEVEL:
                 return joy_powerlevel_specific( joy );
 
@@ -929,7 +930,7 @@ int64_t joy_query_specific( int64_t joy, int64_t element, int64_t arg1 ) {
             case JOY_BUTTON_PADDLE4:
             case JOY_BUTTON_TOUCHPAD:
                 return _joy_query_button( joy, element );
-    
+
             case JOY_AXIS_LEFTX:
             case JOY_AXIS_LEFTY:
             case JOY_AXIS_RIGHTX:
@@ -960,6 +961,8 @@ void joy_init() {
         SDL_InitSubSystem( SDL_INIT_JOYSTICK );
         SDL_JoystickEventState( SDL_ENABLE );
     }
+
+    enableSDLEventRange(SDL_JOYDEVICEADDED, SDL_JOYDEVICEREMOVED);
 
     int max_joys = SDL_NumJoysticks();
 

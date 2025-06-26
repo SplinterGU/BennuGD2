@@ -11,7 +11,7 @@ if(${PS3_PPU})
     include_directories(${CMAKE_INCLUDE_DIRECTORIES} $ENV{PS3DEV}/ppu/include/ $ENV{PS3DEV}/portlibs/ppu/include)
 endif()
 
-if(NINTENDO_SWITCH)
+if(NINTENDO_SWITCH OR ANDROID)
     add_definitions(-DUSE_OPENDIR)
 endif()
 

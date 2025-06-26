@@ -25,7 +25,7 @@
  */
 
 #ifndef __MEDIA_THEORA_H
-#define __MEDIA_THEORA_H   
+#define __MEDIA_THEORA_H
 
 #include "SDL.h"
 

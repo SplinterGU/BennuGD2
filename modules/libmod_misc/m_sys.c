@@ -120,7 +120,7 @@ int64_t libmod_misc_sys_getenv( INSTANCE * my, int64_t * params ) {
 int64_t libmod_misc_sys_get_pref_language( INSTANCE * my, int64_t * params ) {
     int64_t str;
     SDL_Locale *locales = SDL_GetPreferredLocales();
-	
+
     if (locales == NULL) {
         str = string_new( "" );
     } else {

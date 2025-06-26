@@ -103,8 +103,6 @@ build_app() {
     cd -
 }
 
-#!/bin/bash
-
 # Function to search for the library in the given paths
 search_lib() {
     local -n result=$1
@@ -125,241 +123,345 @@ search_lib() {
     done
 }
 
-BUILD_TYPE=Release
-STATIC_ENABLED=0
-LIBRARY_BUILD_TYPE=SHARED
-USE_SDL2=0
-USE_SDL2_GPU=1
-EXTRA_CFLAGS=
-MISC_FLAGS=
-ONE_JOB=0
 
-args=$@
+build_target() {
+    local BUILD_TYPE=Release
+    local STATIC_ENABLED=0
+    local LIBRARY_BUILD_TYPE=SHARED
+    local USE_SDL2=0
+    local USE_SDL2_GPU=1
+    local EXTRA_CFLAGS=
+    local MISC_FLAGS=
+    local ONE_JOB=0
 
-for i in $args
-do
-    case $i in
-        use_sdl2)
-            USE_SDL2=1
-            USE_SDL2_GPU=0
-            ;;
+    args=$@
 
-        use_sdl2_gpu)
-            USE_SDL2=0
-            USE_SDL2_GPU=1
-            ;;
+    for i in $args
+    do
+        case $i in
+            use_sdl2)
+                USE_SDL2=1
+                USE_SDL2_GPU=0
+                ;;
 
-        windows|win)
-            TARGET=x86_64-w64-mingw32
-            COMPILER="-MINGW"
-            SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
-            if [ "$MSYSTEM" = "" ]; then
-                # linux
-                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/${TARGET}/include/SDL2"
-            fi
-            ;;
+            use_sdl2_gpu)
+                USE_SDL2=0
+                USE_SDL2_GPU=1
+                ;;
 
-        switch)
-            TARGET=aarch64-none-elf
-            COMPILER=""
-            SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
-            STATIC_ENABLED=1 # force STATIC
-            if [ "$MSYSTEM" = "" ]; then
-                # linux
-                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DBUILD_TARGET=interpreter"
-            fi
-            INCLUDE_DIRECTORIES="$DEVKITPRO/portlibs/switch/include;$DEVKITPRO/libnx/include;$DEVKITPRO/devkitA64/include"
-            export INCLUDE_DIRECTORIES
-            ;;
+            windows|win)
+                TARGET=x86_64-w64-mingw32
+                COMPILER="-MINGW"
+                SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
+                if [ "$MSYSTEM" = "" ]; then
+                    # linux
+                    CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/${TARGET}/include/SDL2"
+                fi
+                ;;
 
-        linux)
-            TARGET=linux-gnu
-            ;;
+            switch)
+                TARGET=aarch64-none-elf
+                COMPILER=""
+                SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
+                STATIC_ENABLED=1 # force STATIC
+                if [ "$MSYSTEM" = "" ]; then
+                    # linux
+                    CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DBUILD_TARGET=interpreter"
+                fi
+                INCLUDE_DIRECTORIES="$DEVKITPRO/portlibs/switch/include;$DEVKITPRO/libnx/include;$DEVKITPRO/devkitA64/include"
+                export INCLUDE_DIRECTORIES
+                ;;
 
-#        ps3)
-#            TARGET=powerpc64-ps3-elf
-#            STATIC_ENABLED=1
-#            USE_SDL2=1
-#            USE_SDL2_GPU=0
-#            COMPILER="-mcpu=cell"
-#            CMAKE_EXTRA="-DPS3_PPU=1 -DSDL2_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2.a -DSDL2_IMAGE_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_IMAGE_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_image.a -DSDL2_MIXER_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDLMIXER_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_mixer.a -DZLIB_LIBRARY=-lz -DZLIB_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include -DCMAKE_INCLUDE_PATH=${PS3DEV}/portlibs/ppu/include
-#                -DBUILD_TARGET=interpreter"
-#            export AS=ppu-as
-#            export CC=ppu-gcc
-#            export CXX=ppu-g++
-#            export AR=ppu-ar
-#            export LD=ppu-gcc
-#            export STRIP=ppu-strip
-#            export OBJCOPY=ppu-objcopy
-#            export PATH=$PS3DEV/bin:$PS3DEV/ppu/bin:$PATH
-#            export PORTLIBS=$PS3DEV/portlibs/ppu
-#            CFLAGS_INIT=""
-#            CXXFLAGS_INIT="-D_GLIBCX11_USE_C99_STDIO"
-#            CMAKE_INCLUDE_DIRECTORIES=$PS3DEV/ppu/include:$PS3DEV/ppu/include/simdmath
-#            CMAKE_LIBRARY_DIRECTORIES=$PS3DEV/ppu/lib
-#            CMAKE_PREFIX_PATH=$PS3DEV/ppu
-#            ;;
+            linux)
+                TARGET=linux-gnu
+                ;;
 
-        windows32|win32)
-            TARGET=i686-w64-mingw32
-            COMPILER="-MINGW"
-            if [ "$MSYSTEM" = "" ]; then
-                # linux
-                CMAKE_EXTRA="-DBUILD_WIN32=ON -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/${TARGET}/include/SDL2 -DSDL2_LIBRARY=/usr/${TARGET}/bin/SDL2.dll -DSDL2_IMAGE_LIBRARY=/usr/${TARGET}/bin/SDL2_image.dll -DSDLMIXER_LIBRARY=/usr/${TARGET}/bin/SDL2_mixer.dll -DSDL2_IMAGE_INCLUDE_DIR=/usr/${TARGET}/include/"
-            fi
-            ;;
+    #        ps3)
+    #            TARGET=powerpc64-ps3-elf
+    #            STATIC_ENABLED=1
+    #            USE_SDL2=1
+    #            USE_SDL2_GPU=0
+    #            COMPILER="-mcpu=cell"
+    #            CMAKE_EXTRA="-DPS3_PPU=1 -DSDL2_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2.a -DSDL2_IMAGE_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_IMAGE_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_image.a -DSDL2_MIXER_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDLMIXER_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_mixer.a -DZLIB_LIBRARY=-lz -DZLIB_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include -DCMAKE_INCLUDE_PATH=${PS3DEV}/portlibs/ppu/include
+    #                -DBUILD_TARGET=interpreter"
+    #            export AS=ppu-as
+    #            export CC=ppu-gcc
+    #            export CXX=ppu-g++
+    #            export AR=ppu-ar
+    #            export LD=ppu-gcc
+    #            export STRIP=ppu-strip
+    #            export OBJCOPY=ppu-objcopy
+    #            export PATH=$PS3DEV/bin:$PS3DEV/ppu/bin:$PATH
+    #            export PORTLIBS=$PS3DEV/portlibs/ppu
+    #            CFLAGS_INIT=""
+    #            CXXFLAGS_INIT="-D_GLIBCX11_USE_C99_STDIO"
+    #            CMAKE_INCLUDE_DIRECTORIES=$PS3DEV/ppu/include:$PS3DEV/ppu/include/simdmath
+    #            CMAKE_LIBRARY_DIRECTORIES=$PS3DEV/ppu/lib
+    #            CMAKE_PREFIX_PATH=$PS3DEV/ppu
+    #            ;;
 
-        linux32)
-            TARGET=i386-linux-gnu
+            windows32|win32)
+                TARGET=i686-w64-mingw32
+                COMPILER="-MINGW"
+                if [ "$MSYSTEM" = "" ]; then
+                    # linux
+                    CMAKE_EXTRA="-DBUILD_WIN32=ON -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/${TARGET}/include/SDL2 -DSDL2_LIBRARY=/usr/${TARGET}/bin/SDL2.dll -DSDL2_IMAGE_LIBRARY=/usr/${TARGET}/bin/SDL2_image.dll -DSDLMIXER_LIBRARY=/usr/${TARGET}/bin/SDL2_mixer.dll -DSDL2_IMAGE_INCLUDE_DIR=/usr/${TARGET}/include/"
+                fi
+                ;;
 
-            if [ "$MSYSTEM" = "" ]; then
-                paths=(
-                    "/usr/lib/${TARGET}"
-                    "/usr/lib32"
-                    # Add more paths if necessary
-                )
+            linux32)
+                TARGET=i386-linux-gnu
 
-                # Call the function to search for each library
-                search_lib SDL2_LIBRARY paths[@] x86_64 "libSDL2.so"
-                search_lib SDL2_IMAGE_LIBRARY paths[@] x86_64 "libSDL2_image.so"
-                search_lib SDLMIXER_LIBRARY paths[@] x86_64 "libSDL2_mixer.so"
+                if [ "$MSYSTEM" = "" ]; then
+                    paths=(
+                        "/usr/lib/${TARGET}"
+                        "/usr/lib32"
+                        # Add more paths if necessary
+                    )
 
-                # linux
-                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/linux_i686.toolchain.cmake -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=${SDL2_LIBRARY} -DSDL2_IMAGE_LIBRARY=${SDL2_IMAGE_LIBRARY} -DSDLMIXER_LIBRARY=${SDLMIXER_LIBRARY}"
-            fi
-            ;;
+                    # Call the function to search for each library
+                    search_lib SDL2_LIBRARY paths[@] x86_64 "libSDL2.so"
+                    search_lib SDL2_IMAGE_LIBRARY paths[@] x86_64 "libSDL2_image.so"
+                    search_lib SDLMIXER_LIBRARY paths[@] x86_64 "libSDL2_mixer.so"
 
-        macosx)
-            TARGET=x86_64-apple-darwin14
-            CMAKE_EXTRA="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.10 -DSDL2_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_LIBRARIES=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib -DSDL2_IMAGE_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDL2_IMAGE_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_image.dylib -DSDL2_Mixer_INCLUDE_DIRS=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 -DSDLMIXER_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_mixer.dylib -DCMAKE_C_COMPILER=${SDKROOT}/../../bin/o64-clang -DCMAKE_CXX_COMPILER=${SDKROOT}/../../bin/o64-clang++  -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=${SDKROOT}/../../SDK/MacOSX10.10.sdk"
-            CMAKE_EXTRA+=" -DCMAKE_C_FLAGS=-Wno-pointer-sign"
-            EXTRA_CFLAGS+="-I${SDKROOT}/../../macports/pkgs/opt/local/include"
-            STDLIBSFLAGS="-L${SDKROOT}/../../macports/pkgs/opt/local/lib"
-            ;;
+                    # linux
+                    CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/linux_i686.toolchain.cmake -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=${SDL2_LIBRARY} -DSDL2_IMAGE_LIBRARY=${SDL2_IMAGE_LIBRARY} -DSDLMIXER_LIBRARY=${SDLMIXER_LIBRARY}"
+                fi
+                ;;
 
-        static)
-            STATIC_ENABLED=1
-            ;;
+            macosx)
+                TARGET=x86_64-apple-darwin14
+                CMAKE_EXTRA="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.10 \
+                    -DSDL2_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 \
+                    -DSDL2_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib \
+                    -DSDL2_LIBRARIES=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2.dylib \
+                    -DSDL2_IMAGE_INCLUDE_DIR=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 \
+                    -DSDL2_IMAGE_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_image.dylib \
+                    -DSDL2_Mixer_INCLUDE_DIRS=${SDKROOT}/../../macports/pkgs/opt/local/include/SDL2 \
+                    -DSDLMIXER_LIBRARY=${SDKROOT}/../../macports/pkgs/opt/local/lib/libSDL2_mixer.dylib \
+                    -DCMAKE_C_COMPILER=${SDKROOT}/../../bin/o64-clang \
+                    -DCMAKE_CXX_COMPILER=${SDKROOT}/../../bin/o64-clang++ \
+                    -DCMAKE_SYSTEM_NAME=Darwin \
+                    -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+                    -DCMAKE_OSX_SYSROOT=${SDKROOT}/../../SDK/MacOSX10.10.sdk"
+                CMAKE_EXTRA+=" -DCMAKE_C_FLAGS=-Wno-pointer-sign"
+                EXTRA_CFLAGS+="-I${SDKROOT}/../../macports/pkgs/opt/local/include"
+                STDLIBSFLAGS="-L${SDKROOT}/../../macports/pkgs/opt/local/lib"
+                ;;
 
-        debug)
-            BUILD_TYPE=RelWithDebInfo
-            ;;
+            android)
+                filtered_args=()
+                for arg in "$@"; do
+                    [[ "$arg" != "android" ]] && filtered_args+=("$arg")
+                done
 
-        clean)
-            CLEAN=1
-            ;;
+                build_target armv7a-linux-androideabi "${filtered_args[@]}"
+                build_target aarch64-linux-android "${filtered_args[@]}"
+                build_target i686-linux-android "${filtered_args[@]}"
+                build_target x86_64-linux-android "${filtered_args[@]}"
 
-        verbose)
-            VERBOSE="-DCMAKE_VERBOSE_MAKEFILE=ON"
-            ;;
+                exit 0
+                ;;
 
-        packages)
-            echo "#### Building packages ####"
-            mkdir -p packages 2>/dev/null
-            rm -f packages/*
-            if [[ -d build/linux-gnu/bin  ]]; then
-                tar -zcvf packages/bgd2-linux-gnu-$(date +"%Y-%m-%d").tgz build/linux-gnu/bin/* dependencies/linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g';
-            fi
-            if [[ -d build/i386-linux-gnu/bin ]]; then
-                tar -zcvf packages/bgd2-i386-linux-gnu-$(date +"%Y-%m-%d").tgz build/i386-linux-gnu/bin/* dependencies/i386-linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g';
-            fi
-            if [[ -d build/i686-w64-mingw32/bin ]]; then
-                rar a -ep1 packages/bgd2-i686-w64-mingw32-$(date +"%Y-%m-%d").rar build/i686-w64-mingw32/bin/*.exe build/i686-w64-mingw32/bin/*.dll dependencies/i686-w64-mingw32/* WhatsNew.txt;
-            fi
-            if [[ -d build/x86_64-w64-mingw32/bin ]]; then
-                rar a -ep1 packages/bgd2-x86_64-w64-mingw32-$(date +"%Y-%m-%d").rar build/x86_64-w64-mingw32/bin/*.exe build/x86_64-w64-mingw32/bin/*.dll dependencies/x86_64-w64-mingw32/* WhatsNew.txt;
-            fi
-            if [[ -d build/aarch64-none-elf/bin ]]; then
-                tar -zcvf packages/bgd2-aarch64-none-elf-$(date +"%Y-%m-%d").tgz build/aarch64-none-elf/bin/bgdi.elf WhatsNew.txt  --transform='s,[^/]*/,,g';
-            fi
-            if [[ -d build/x86_64-apple-darwin14/bin ]]; then
-                build_app bgdc
-                build_app bgdi
-                build_app moddesc
-            fi
-            exit 0
-            ;;
+            armv7a-linux-androideabi)
+                TARGET=armv7a-linux-androideabi
+                ABI=armeabi-v7a
+                API=21
+                PREFIX_JNI=$PWD/vendor/android/$TARGET/$ABI
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+                    -DANDROID_ABI=$ABI \
+                    -DANDROID_PLATFORM=android-$API \
+                    -DPREFIX_JNI=$PREFIX_JNI \
+                    -DSDL2_INCLUDE_DIR=$PREFIX_JNI/include/SDL2 \
+                    -DSDL2_IMAGE_INCLUDE_DIR=$PREFIX_JNI/include \
+                    -DSDL2_LIBRARY=$PREFIX_JNI/lib/libSDL2.so \
+                    -DSDL2_IMAGE_LIBRARY=$PREFIX_JNI/lib/libSDL2_image.so \
+                    -DSDL2_MIXER_INCLUDE_DIR=$PREFIX_JNI/include/SDL2 \
+                    -DSDLMIXER_LIBRARY=$PREFIX_JNI/lib/libSDL2_mixer.so \
+                    -DBUILD_TARGET=interpreter"
+                ;;
 
-        one-job)
-            ONE_JOB=1
-            ;;
+            aarch64-linux-android)
+                TARGET=aarch64-linux-android
+                ABI=arm64-v8a
+                API=21
+                PREFIX_JNI=$PWD/vendor/android/$TARGET/$ABI
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+                    -DANDROID_ABI=$ABI \
+                    -DANDROID_PLATFORM=android-$API \
+                    -DPREFIX_JNI=$PREFIX_JNI \
+                    -DSDL2_INCLUDE_DIR=$PREFIX_JNI/include/SDL2 \
+                    -DSDL2_IMAGE_INCLUDE_DIR=$PREFIX_JNI/include \
+                    -DSDL2_LIBRARY=$PREFIX_JNI/lib/libSDL2.so \
+                    -DSDL2_IMAGE_LIBRARY=$PREFIX_JNI/lib/libSDL2_image.so \
+                    -DSDL2_MIXER_INCLUDE_DIR=$PREFIX_JNI/include/SDL2 \
+                    -DSDLMIXER_LIBRARY=$PREFIX_JNI/lib/libSDL2_mixer.so \
+                    -DBUILD_TARGET=interpreter"
+                ;;
 
-        *)
-            # unknown option
-            show_help
-            ;;
-    esac
-done
+            i686-linux-android)
+                TARGET=i686-linux-android
+                ABI=x86
+                API=21
+                PREFIX_JNI=$PWD/vendor/android/$TARGET/$ABI
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+                    -DANDROID_ABI=$ABI \
+                    -DANDROID_PLATFORM=android-$API \
+                    -DPREFIX_JNI=$PREFIX_JNI \
+                    -DSDL2_INCLUDE_DIR=$PREFIX_JNI/include/SDL2 \
+                    -DSDL2_IMAGE_INCLUDE_DIR=$PREFIX_JNI/include \
+                    -DSDL2_LIBRARY=$PREFIX_JNI/lib/libSDL2.so \
+                    -DSDL2_IMAGE_LIBRARY=$PREFIX_JNI/lib/libSDL2_image.so \
+                    -DSDL2_MIXER_INCLUDE_DIR=$PREFIX_JNI/include/SDL2 \
+                    -DSDLMIXER_LIBRARY=$PREFIX_JNI/lib/libSDL2_mixer.so \
+                    -DBUILD_TARGET=interpreter"
+                ;;
 
-if [ "$TARGET" == "" ]
-then
-    case $(uname -s|tr '[:upper:]' '[:lower:]') in
-        mingw64*)
-            TARGET=x86_64-w64-mingw32
-            COMPILER="-MINGW"
-            SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
-            if [ "$MSYSTEM" = "" ]; then
-                # linux
-                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2"
-            fi
-            ;;
+            x86_64-linux-android)
+                TARGET=x86_64-linux-android
+                ABI=x86_64
+                API=21
+                PREFIX_JNI=$PWD/vendor/android/$TARGET/$ABI
+                CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+                    -DANDROID_ABI=$ABI \
+                    -DANDROID_PLATFORM=android-$API \
+                    -DPREFIX_JNI=$PREFIX_JNI \
+                    -DSDL2_INCLUDE_DIR=$PREFIX_JNI/include/SDL2 \
+                    -DSDL2_IMAGE_INCLUDE_DIR=$PREFIX_JNI/include \
+                    -DSDL2_LIBRARY=$PREFIX_JNI/lib/libSDL2.so \
+                    -DSDL2_IMAGE_LIBRARY=$PREFIX_JNI/lib/libSDL2_image.so \
+                    -DSDL2_MIXER_INCLUDE_DIR=$PREFIX_JNI/include/SDL2 \
+                    -DSDLMIXER_LIBRARY=$PREFIX_JNI/lib/libSDL2_mixer.so \
+                    -DBUILD_TARGET=interpreter"
+                ;;
 
-        linux)
-            TARGET=linux-gnu
-            ;;
-    esac
+            static)
+                STATIC_ENABLED=1
+                ;;
+
+            debug)
+                BUILD_TYPE=RelWithDebInfo
+                ;;
+
+            clean)
+                CLEAN=1
+                ;;
+
+            verbose)
+                VERBOSE="-DCMAKE_VERBOSE_MAKEFILE=ON"
+                ;;
+
+            packages)
+                echo "#### Building packages ####"
+                mkdir -p packages 2>/dev/null
+                rm -f packages/*
+                if [[ -d build/linux-gnu/bin  ]]; then
+                    tar -zcvf packages/bgd2-linux-gnu-$(date +"%Y-%m-%d").tgz build/linux-gnu/bin/* dependencies/linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g';
+                fi
+                if [[ -d build/i386-linux-gnu/bin ]]; then
+                    tar -zcvf packages/bgd2-i386-linux-gnu-$(date +"%Y-%m-%d").tgz build/i386-linux-gnu/bin/* dependencies/i386-linux-gnu/* WhatsNew.txt --transform='s,[^/]*/,,g';
+                fi
+                if [[ -d build/i686-w64-mingw32/bin ]]; then
+                    rar a -ep1 packages/bgd2-i686-w64-mingw32-$(date +"%Y-%m-%d").rar build/i686-w64-mingw32/bin/*.exe build/i686-w64-mingw32/bin/*.dll dependencies/i686-w64-mingw32/* WhatsNew.txt;
+                fi
+                if [[ -d build/x86_64-w64-mingw32/bin ]]; then
+                    rar a -ep1 packages/bgd2-x86_64-w64-mingw32-$(date +"%Y-%m-%d").rar build/x86_64-w64-mingw32/bin/*.exe build/x86_64-w64-mingw32/bin/*.dll dependencies/x86_64-w64-mingw32/* WhatsNew.txt;
+                fi
+                if [[ -d build/aarch64-none-elf/bin ]]; then
+                    tar -zcvf packages/bgd2-aarch64-none-elf-$(date +"%Y-%m-%d").tgz build/aarch64-none-elf/bin/bgdi.elf WhatsNew.txt  --transform='s,[^/]*/,,g';
+                fi
+                if [[ -d build/x86_64-apple-darwin14/bin ]]; then
+                    build_app bgdc
+                    build_app bgdi
+                    build_app moddesc
+                fi
+                exit 0
+                ;;
+
+            one-job)
+                ONE_JOB=1
+                ;;
+
+            *)
+                # unknown option
+                show_help
+                ;;
+        esac
+    done
 
     if [ "$TARGET" == "" ]
     then
-        show_help
+        case $(uname -s|tr '[:upper:]' '[:lower:]') in
+            mingw64*)
+                TARGET=x86_64-w64-mingw32
+                COMPILER="-MINGW"
+                SDL2GPUDIR="../../vendor/sdl-gpu/build/$ENV{TARGET}"
+                if [ "$MSYSTEM" = "" ]; then
+                    # linux
+                    CMAKE_EXTRA="-DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/Toolchain-cross-mingw32-linux.cmake -DSDL2_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/SDL2"
+                fi
+                ;;
+
+            linux)
+                TARGET=linux-gnu
+                ;;
+        esac
+
+        if [ "$TARGET" == "" ]
+        then
+            show_help
+        fi
     fi
-fi
 
-if [ "$USE_SDL2" == "1" ]
-then
-    EXTRA_CFLAGS+=" -DUSE_SDL2=1"
-else
-    EXTRA_CFLAGS+=" -DUSE_SDL2_GPU=1"
-    MISC_FLAGS+=" -DUSE_SDL2_GPU=1"
-    export USE_SDL2_GPU
-fi
-
-if [ "$STATIC_ENABLED" == "1" ]
-then
-    EXTRA_CFLAGS+=" -D__STATIC__"
-    LIBRARY_BUILD_TYPE=STATIC
-    cd core
-    ./make-fakedl.sh
-    cd -
-fi
-
-export PKG_CONFIG_PATH
-export TARGET
-export SDL2GPUDIR
-export SDL2GPULIBDIR
-export COMPILER
-export LIBRARY_BUILD_TYPE
-
-if [ "$CLEAN" == "1" ]
-then
-    echo "### Cleaning previous build ($TARGET) ###"
-    rm -rf build/$TARGET
-fi
-
-echo "### Building BennuGD ($TARGET) ###"
-mkdir -p build/$TARGET 2>/dev/null
-cd build/$TARGET
-cmake ../.. $DEBUG ${CMAKE_CXX_COMPILER} -DINCLUDE_DIRECTORIES="${INCLUDE_DIRECTORIES}" -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DEXTRA_CFLAGS="$EXTRA_CFLAGS" $MISC_FLAGS -DLIBRARY_BUILD_TYPE=$LIBRARY_BUILD_TYPE -DSTDLIBSFLAGS="${STDLIBSFLAGS}"
-if grep -q "CMAKE_GENERATOR:INTERNAL=Ninja" CMakeCache.txt; then
-    ninja
-elif grep -q "CMAKE_GENERATOR:INTERNAL=Unix Makefiles" CMakeCache.txt; then
-    if [ $ONE_JOB -eq 0 ]; then
-        make -j
+    if [ "$USE_SDL2" == "1" ]
+    then
+        EXTRA_CFLAGS+=" -DUSE_SDL2=1"
     else
-        make
+        EXTRA_CFLAGS+=" -DUSE_SDL2_GPU=1"
+        MISC_FLAGS+=" -DUSE_SDL2_GPU=1"
+        export USE_SDL2_GPU
     fi
-fi
-cd -
+
+    if [ "$STATIC_ENABLED" == "1" ]
+    then
+        EXTRA_CFLAGS+=" -D__STATIC__"
+        LIBRARY_BUILD_TYPE=STATIC
+        cd core
+        ./make-fakedl.sh
+        cd -
+    fi
+
+    export PKG_CONFIG_PATH
+    export TARGET
+    export SDL2GPUDIR
+    export SDL2GPULIBDIR
+    export COMPILER
+    export LIBRARY_BUILD_TYPE
+
+    if [ "$CLEAN" == "1" ]
+    then
+        echo "### Cleaning previous build ($TARGET) ###"
+        rm -rf build/$TARGET
+    fi
+
+    echo "### Building BennuGD ($TARGET) ###"
+    mkdir -p build/$TARGET 2>/dev/null
+    cd build/$TARGET
+    cmake ../.. $DEBUG ${CMAKE_CXX_COMPILER} -DTARGET=${TARGET} -DINCLUDE_DIRECTORIES="${INCLUDE_DIRECTORIES}" -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CMAKE_EXTRA $VERBOSE -DEXTRA_CFLAGS="$EXTRA_CFLAGS" $MISC_FLAGS -DLIBRARY_BUILD_TYPE=$LIBRARY_BUILD_TYPE -DSTDLIBSFLAGS="${STDLIBSFLAGS}"
+    if grep -q "CMAKE_GENERATOR:INTERNAL=Ninja" CMakeCache.txt; then
+        ninja
+    elif grep -q "CMAKE_GENERATOR:INTERNAL=Unix Makefiles" CMakeCache.txt; then
+        if [ $ONE_JOB -eq 0 ]; then
+            make -j
+        else
+            make
+        fi
+    fi
+    cd -
+
+}
+
+build_target "$@"
 
 echo "### Build done! ###"
 

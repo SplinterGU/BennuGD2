@@ -28,6 +28,7 @@
 
 /* --------------------------------------------------------------------------- */
 
+
 #include <SDL.h>
 #include <SDL_syswm.h>
 
@@ -160,6 +161,17 @@ int64_t libmod_gfx_get_desktop_size( INSTANCE * my, int64_t * params ) {
     if ( params[1] ) *(( int64_t * )( intptr_t )( params[1] ) ) = mode.h;
 
     return 1 ;
+}
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_get_display_orientation( INSTANCE *my, int64_t *params ) {
+    if ( !gWindow ) return SDL_ORIENTATION_UNKNOWN;
+
+    int display_index = SDL_GetWindowDisplayIndex( gWindow );
+    if ( display_index < 0 ) return SDL_ORIENTATION_UNKNOWN;
+
+    return ( int64_t ) SDL_GetDisplayOrientation( display_index );
 }
 
 /* --------------------------------------------------------------------------- */

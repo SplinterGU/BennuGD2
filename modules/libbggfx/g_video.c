@@ -46,9 +46,17 @@
 #ifdef USE_SDL2_GPU
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
+#elif __ANDROID__
+#include <GLES2/gl2.h>
 #else
 #include <GL/gl.h>
 #endif
+#endif
+
+#ifdef __ANDROID__
+#include "jni.h"
+#include <android/log.h>
+#define LOG_TAG "bgdi-native"
 #endif
 
 /* --------------------------------------------------------------------------- */
@@ -87,6 +95,16 @@ SDL_RendererInfo gRendererInfo = { 0 };
 SDL_PixelFormat * gPixelFormat = NULL;
 SDL_Surface * gIcon = NULL;
 int64_t gMaxTextureSize = 0;
+
+double renderer_scale_factor_width = 1.0,
+       renderer_scale_factor_height = 1.0,
+       renderer_offset_x = 0.0,
+       renderer_offset_y = 0.0,
+       renderer_scaled_width = 0.0,
+       renderer_scaled_height = 0.0;
+
+
+static int fullscreen_last = 0;
 
 /*
 SDL_RendererInfo
@@ -230,11 +248,12 @@ int gr_set_mode( int width, int height, int flags ) {
         if ( frameless ) sdl_flags |= SDL_WINDOW_BORDERLESS;
         if ( fullscreen ) sdl_flags |= SDL_WINDOW_FULLSCREEN;
         if ( grab_input ) sdl_flags |= SDL_WINDOW_INPUT_GRABBED;
-#ifdef PS3_PPU
+  #ifdef PS3_PPU
         gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, renderer_width, renderer_height, sdl_flags );
-#else
+  #else
         gWindow = SDL_CreateWindow( apptitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
-#endif
+  #endif
+
         if( gWindow == NULL ) return -1;
     } else {
         SDL_SetWindowFullscreen( gWindow, fullscreen  ? SDL_WINDOW_FULLSCREEN : 0 );
@@ -244,33 +263,19 @@ int gr_set_mode( int width, int height, int flags ) {
         SDL_SetWindowPosition( gWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
     }
 
-#if 0 // USE_SDL2
-    if ( !glContext ) {
-        glContext = SDL_GL_CreateContext(gWindow);
-        if (!glContext) return -1;
-
-        GLenum glewError = glewInit();
-        if (glewError != GLEW_OK) {
-            printf("Error: Failed to initialize GLEW: %s\n", glewGetErrorString(glewError));
-            SDL_GL_DeleteContext(glContext);
-            glContext = NULL;
-            return -1;
-        }
-    }
-#endif
-
-#ifndef PS3_PPU
+  #ifndef PS3_PPU
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-#endif
+  #endif
+
+    SDL_SetHint(SDL_HINT_RENDER_BATCHING, "1");
 
     if ( !gRenderer ) {
         //Create renderer for window
-#ifdef PS3_PPU
+  #ifdef PS3_PPU
         gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_TARGETTEXTURE );
-//        gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
-#else
+  #else
         gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
-#endif
+  #endif
         if( gRenderer == NULL ) {
             printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
             return -1;
@@ -285,6 +290,11 @@ int gr_set_mode( int width, int height, int flags ) {
 #endif
 #ifdef USE_SDL2_GPU
     if ( !gRenderer ) {
+
+
+#ifdef __ANDROID__
+        __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "CreateRenderer render %dx%d", renderer_width, renderer_height );
+#endif
         // Create Renderer
         int sdl_flags = SDL_WINDOW_SHOWN;
         if ( frameless ) sdl_flags |= SDL_WINDOW_BORDERLESS;
@@ -298,20 +308,25 @@ int gr_set_mode( int width, int height, int flags ) {
         gRenderer = GPU_Init( renderer_width, renderer_height, sdl_flags | SDL_WINDOW_OPENGL );
         if( gRenderer == NULL ) return -1;
         gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
-
         gr_set_caption( apptitle );
 
         GLint params = 0;
         glGetIntegerv( GL_MAX_TEXTURE_SIZE, &params );
         gMaxTextureSize = ( int64_t ) params;
+
     } else {
-        if ( !fullscreen && GPU_GetFullscreen() ) GPU_SetWindowResolution( 1, 1 ); // Force Update when go to window mode (dirty fix)
+#ifdef __ANDROID__
+        __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "ResizeWindowResolution render %dx%d fs %ld %d", renderer_width, renderer_height, fullscreen, fullscreen_last );
+#endif
+        if ( /* !fullscreen && GPU_GetFullscreen() */ fullscreen_last != fullscreen ) GPU_SetWindowResolution( 1, 1 ); // Force Update when go to window mode (dirty fix)
+
         GPU_SetFullscreen( fullscreen ? GPU_TRUE : GPU_FALSE, GPU_FALSE );
         GPU_SetWindowResolution( renderer_width, renderer_height );
-        GPU_Clear( gRenderer );
 
         GPU_SetViewport( gRenderer, GPU_MakeRect(0, 0, renderer_width, renderer_height) );
         GPU_SetVirtualResolution( gRenderer, renderer_width, renderer_height );
+
+        GPU_Clear( gRenderer );
 
         gWindow = SDL_GetWindowFromID( gRenderer->context->windowID );
 
@@ -327,18 +342,19 @@ int gr_set_mode( int width, int height, int flags ) {
         SDL_GL_SetSwapInterval( 0 );
     }
 
+#endif
+
     if ( fullscreen ) {
         SDL_GetCurrentDisplayMode( 0, &current );
         if ( current.w != renderer_width || current.h != renderer_height ) {
             renderer_width = current.w;
             renderer_height = current.h;
             if ( scale_resolution == -1 ) {
-                scale_resolution = renderer_width * 10000 + renderer_height;
-                scale_resolution_aspectratio = SRA_PRESERVE;
+                scale_resolution = renderer_width * 10000L + renderer_height;
+                //scale_resolution_aspectratio = SRA_PRESERVE;
             }
         }
     }
-#endif
 
 #ifdef USE_SDL2
     //Initialize renderer color
@@ -349,75 +365,61 @@ int gr_set_mode( int width, int height, int flags ) {
 
     scr_initialized = 1 ;
 
+    renderer_scale_factor_width = ( double ) renderer_width / ( double ) width;
+    renderer_scale_factor_height = ( double ) renderer_height / ( double ) height;
+    renderer_offset_x = 0.0;
+    renderer_offset_y = 0.0;
+    renderer_scaled_width = renderer_width;
+    renderer_scaled_height = renderer_height;
+
     if ( scale_resolution != -1 && ( renderer_width != width || renderer_height != height || scale_resolution_aspectratio != current_scale_resolution_aspectratio ) ) {
-        switch ( scale_resolution_aspectratio ) {
-            case SRA_PRESERVE:
+
 #ifdef USE_SDL2
-                SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "letterbox");
-                SDL_RenderSetLogicalSize( gRenderer, width, height );
+        // Issues with rotated textures (FIX ONLY ON SRA_FIT ?)
+        SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, scale_resolution_aspectratio == SRA_PRESERVE ? "letterbox" : "overscan");
+        SDL_RenderSetLogicalSize( gRenderer, width, height );
+        if ( scale_resolution_aspectratio == SRA_FIT ) {
+            SDL_RenderSetScale( gRenderer, renderer_scale_factor_width, renderer_scale_factor_height );
+            SDL_RenderSetViewport(gRenderer, NULL); // Fix SDL_RenderSetScale issue
+        }
 #endif
 #ifdef USE_SDL2_GPU
-            {
-                double relw = ( double ) renderer_width / ( double ) width,
-                       relh = ( double ) renderer_height / ( double ) height,
-                       vp, vp_offset;
-
-                if ( relw > relh ) {
-                    vp = width * renderer_height / ( double ) height;
-                    vp_offset = ( renderer_width - vp ) / 2.0;
-                    GPU_SetViewport( gRenderer, GPU_MakeRect( vp_offset, 0.0, vp, renderer_height ) );
-                } else if ( relw < relh ) {
-                    vp = height * renderer_width / ( double ) width;
-                    vp_offset = ( renderer_height - vp ) / 2.0;
-                    GPU_SetViewport( gRenderer, GPU_MakeRect( 0.0, vp_offset, renderer_width, vp ) );
-                }
-            }
-
-                GPU_SetVirtualResolution( gRenderer, width, height );
-#endif
+        int adjust_on_x = 0, adjust_on_y = 0;
+        switch ( scale_resolution_aspectratio ) {
+            case SRA_PRESERVE:
+                if ( renderer_scale_factor_width > renderer_scale_factor_height ) adjust_on_x = 1;
+                else if ( renderer_scale_factor_width < renderer_scale_factor_height ) adjust_on_y = 1;
                 break;
 
             case SRA_OVERSCAN:
-#ifdef USE_SDL2
-                SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "overscan");
-                SDL_RenderSetLogicalSize( gRenderer, width, height );
-#endif
-#ifdef USE_SDL2_GPU
-            {
-                double relw = ( double ) renderer_width / ( double ) width,
-                       relh = ( double ) renderer_height / ( double ) height,
-                       vp, vp_offset;
-
-                if ( relw < relh ) {
-                    vp = width * renderer_height / ( double ) height;
-                    vp_offset = ( renderer_width - vp ) / 2.0;
-                    GPU_SetViewport( gRenderer, GPU_MakeRect( vp_offset, 0.0, vp, renderer_height ) );
-                } else if ( relw > relh ) {
-                    vp = height * renderer_width / ( double ) width;
-                    vp_offset = ( renderer_height - vp ) / 2.0;
-                    GPU_SetViewport( gRenderer, GPU_MakeRect( 0.0, vp_offset, renderer_width, vp ) );
-                }
-                GPU_SetVirtualResolution( gRenderer, width, height );
-            }
-#endif
+                if ( renderer_scale_factor_width < renderer_scale_factor_height ) adjust_on_x = 1;
+                else if ( renderer_scale_factor_width > renderer_scale_factor_height ) adjust_on_y = 1;
                 break;
 
             case SRA_FIT:
-#ifdef USE_SDL2
-                // Issues with rotated textures
-                SDL_SetHint( SDL_HINT_RENDER_LOGICAL_SIZE_MODE, "overscan");
-                SDL_RenderSetLogicalSize( gRenderer, width, height );
-                SDL_RenderSetScale( gRenderer, (float) renderer_width / (float) width, (float) renderer_height / (float) height );
-                SDL_RenderSetViewport(gRenderer, NULL); // Fix SDL_RenderSetScale issue
-#endif
-#ifdef USE_SDL2_GPU
-                GPU_SetViewport( gRenderer, GPU_MakeRect(0, 0, renderer_width, renderer_height) );
-                GPU_SetVirtualResolution( gRenderer, width, height );
-#endif
                 break;
         }
 
+        if ( adjust_on_x ) {
+            renderer_scaled_width = width * renderer_scale_factor_height;
+            renderer_offset_x = ( renderer_width - renderer_scaled_width ) / 2.0;
+        } else if ( adjust_on_y ) {
+            renderer_scaled_height = height * renderer_scale_factor_width;
+            renderer_offset_y = ( renderer_height - renderer_scaled_height ) / 2.0;
+        }
+
+        // Update factos
+        renderer_scale_factor_width = ( double ) renderer_scaled_width / ( double ) width;
+        renderer_scale_factor_height = ( double ) renderer_scaled_height / ( double ) height;
+
+        GPU_SetViewport( gRenderer, GPU_MakeRect( renderer_offset_x, renderer_offset_y, renderer_scaled_width, renderer_scaled_height ) );
+        GPU_SetVirtualResolution( gRenderer, width, height );
+#endif
     }
+
+#ifdef __ANDROID__
+        __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "video %ldx%ld render %dx%d offset %f,%f scaled %fx%f", scr_width, scr_height, renderer_width, renderer_height, renderer_offset_x, renderer_offset_y, renderer_scaled_width, renderer_scaled_height );
+#endif
 
     scr_width = width;
     scr_height = height;
@@ -426,6 +428,8 @@ int gr_set_mode( int width, int height, int flags ) {
     regions[0].y  = 0 ;
     regions[0].x2 = scr_width - 1 ;
     regions[0].y2 = scr_height - 1 ;
+
+    fullscreen_last = fullscreen;
 
     return 0;
 }

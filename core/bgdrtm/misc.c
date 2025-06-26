@@ -134,7 +134,7 @@ int64_t system_paused = 0;
 #define _OS_ID          OS_WII
 #endif
 
-#ifdef TARGET_ANDROID
+#ifdef __ANDROID__
 #undef _OS_ID
 #define _OS_ID          OS_ANDROID
 #endif

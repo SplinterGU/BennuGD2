@@ -89,6 +89,10 @@ DLVARFIXUP  __bgdexport( libbginput, globals_fixup )[] = {
     { "mouse.shader"                            , NULL, -1, -1 },
     { "mouse.shader_params"                     , NULL, -1, -1 },
 
+    { "touches"                                 , NULL, -1, -1 },
+
+    { "sensors"                                 , NULL, -1, -1 },
+
     { NULL                                      , NULL, -1, -1 }
 };
 
@@ -100,8 +104,10 @@ DLVARFIXUP  __bgdexport( libbginput, globals_fixup )[] = {
 HOOK __bgdexport( libbginput, handler_hooks )[] =
 {
     { 4900, process_key_events      },
-    { 4850, process_mouse_events    },
-    { 4800, process_joy_events      },
+    { 4890, process_mouse_events    },
+    { 4880, process_touch_events    },
+    { 4870, process_joy_events      },
+    { 4860, process_sensors_events  },
     {    0, NULL                    }
 } ;
 
@@ -111,13 +117,17 @@ HOOK __bgdexport( libbginput, handler_hooks )[] =
 void __bgdexport( libbginput, module_initialize )() {
     key_init();
     mouse_init();
+    touch_init();
     joy_init();
+    sensors_init();
 }
 
 /* ---------------------------------------------------------------------- */
 
 void __bgdexport( libbginput, module_finalize )() {
+    sensors_exit();
     joy_exit();
+//    touch_exit();
 //    mouse_exit();
     key_exit();
 }

@@ -1667,7 +1667,9 @@ case case_value: \
 
             case MN_DEBUG:
                 if ( dcb.data.NSourceFiles ) {
-                    if ( debug > 0 ) printf( "\n::: DEBUG from %s(%" PRId64 ")\n", r->proc->name, LOCQWORD( r, PROCESS_ID ) );
+                    if ( debug > 0 ) {
+                        printf( "\n::: DEBUG from %s(%" PRId64 ")\n", r->proc->name, LOCQWORD( r, PROCESS_ID ) );
+                    }
                     trace_sentence = -1;
                     debugger_show_console = 1;
                 }

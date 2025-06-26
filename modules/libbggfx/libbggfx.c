@@ -36,6 +36,7 @@
 #include "dlvaracc.h"
 
 #include "libbggfx.h"
+#include "libsdlhandler.h"
 
 /* --------------------------------------------------------------------------- */
 /* Son las variables que se desea acceder.                           */
@@ -204,6 +205,8 @@ void __bgdexport( libbggfx, module_initialize )() {
     frame_init();
     gr_fade_initalize();
     media_init();
+
+    enableSDLEvent(SDL_WINDOWEVENT);
 }
 
 /* --------------------------------------------------------------------------- */

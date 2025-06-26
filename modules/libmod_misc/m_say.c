@@ -35,12 +35,22 @@
 
 #include "libmod_misc.h"
 
+#ifdef __ANDROID__
+#include "jni.h"
+#include <android/log.h>
+#define LOG_TAG "bgdi-native"
+#endif
+
 /* ---------------------------------------------------------------------- */
 
 int64_t libmod_misc_say_say( INSTANCE * my, int64_t * params ) {
     /* Show debugging info also in stdout */
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "%s", string_get( params[0] ) );
+#else
     printf( "%s\n", string_get( params[0] ) );
     fflush( stdout );
+#endif
     string_discard( params[0] ) ;
     return 1 ;
 }
@@ -49,7 +59,11 @@ int64_t libmod_misc_say_say( INSTANCE * my, int64_t * params ) {
 
 int64_t libmod_misc_say_say_fast( INSTANCE * my, int64_t * params ) {
     /* Show debugging info also in stdout */
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "%s", string_get( params[0] ) );
+#else
     printf( "%s\n", string_get( params[0] ) );
+#endif
     string_discard( params[0] ) ;
     return 1 ;
 }

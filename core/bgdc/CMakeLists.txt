@@ -1,5 +1,5 @@
 project(bgdc)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../bin/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${TARGET}/bin/")
 
 find_package(ZLIB REQUIRED)
 
@@ -11,7 +11,7 @@ if (USE_CRYPT)
 endif ()
 
 if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
-    file(GLOB MODULE_HEADERS "../../modules/*")
+    file(GLOB MODULE_HEADERS "${CMAKE_SOURCE_DIR}/modules/*")
 
     find_package(SDL2 REQUIRED)
     find_package(SDL2_mixer REQUIRED)
@@ -20,17 +20,17 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
         find_package(SDL_GPU REQUIRED)
     endif()
 
-    include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDL_GPU_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ../bgdrtm ${MODULE_HEADERS})
+    include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDL_GPU_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/core/bgdrtm ${MODULE_HEADERS})
 endif()
 
 add_definitions(-D__BGDC__ -DVERSION="2.0.0" ${extra_cflags})
 add_definitions(${EXTRA_CFLAGS})
 
-include_directories(../../core/include ../../core/bgdc ${INCLUDE_DIRECTORIES})
+include_directories(${CMAKE_SOURCE_DIR}/core/include ${CMAKE_SOURCE_DIR}/core/bgdc ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES
-     "../../core/bgdc/*.c"
-     "../../core/common/*.c"
+     "${CMAKE_SOURCE_DIR}/core/bgdc/*.c"
+     "${CMAKE_SOURCE_DIR}/core/common/*.c"
      )
 
 if(MINGW)

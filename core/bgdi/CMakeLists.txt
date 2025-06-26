@@ -1,10 +1,12 @@
 project(bgdi)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../bin/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${TARGET}/bin/")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${TARGET}/bin/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${TARGET}/bin/")
 
 find_package(ZLIB REQUIRED)
 
 if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
-    file(GLOB MODULE_HEADERS "../../modules/*")
+    file(GLOB MODULE_HEADERS "${CMAKE_SOURCE_DIR}/modules/*")
 
     find_package(SDL2 REQUIRED)
     find_package(SDL2_mixer REQUIRED)
@@ -13,7 +15,7 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
         find_package(SDL_GPU REQUIRED)
     endif()
 
-    include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDL_GPU_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ../bgdrtm ${MODULE_HEADERS})
+    include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDL_GPU_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/core/bgdrtm ${MODULE_HEADERS})
 
     foreach(module ${MODULE_HEADERS})
         get_filename_component(lib_name ${module} NAME)
@@ -43,6 +45,9 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
     if(LIBVLC_ENABLED)
         set(VLC_LIB -lvlc)
     endif()
+
+    list(APPEND EXTRA_LIBS ${SDL2_LIBS} ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} ${OGL_LIB} ${VLC_LIB})
+
 endif()
 
 if(NOT PS3_PPU)
@@ -53,16 +58,16 @@ add_definitions(-D__BGDI__ -DVERSION="2.0.0")
 add_definitions($ENV{EXTRA_CFLAGS})
 add_definitions(${SDL2_CFLAGS})
 
-include_directories(../../core/include ../../core/bgdi ../../core/bgdrtm ${INCLUDE_DIRECTORIES})
+include_directories(${CMAKE_SOURCE_DIR}/core/include ${CMAKE_SOURCE_DIR}/core/bgdi ${CMAKE_SOURCE_DIR}/core/bgdrtm ${INCLUDE_DIRECTORIES})
 
 if(NINTENDO_SWITCH)
 file(GLOB SOURCES
-     "../../core/bgdi/*.cpp"
-     "../../core/bgdi/*.c"
+     "${CMAKE_SOURCE_DIR}/core/bgdi/*.cpp"
+     "${CMAKE_SOURCE_DIR}/core/bgdi/*.c"
      )
 else()
 file(GLOB SOURCES
-     "../../core/bgdi/*.c"
+     "${CMAKE_SOURCE_DIR}/core/bgdi/*.c"
      )
 endif()
 
@@ -70,6 +75,21 @@ if(MINGW)
    set(SOURCES ${SOURCES} bgdi.rc)
 endif()
 
-add_executable(bgdi ${SOURCES})
+if(ANDROID)
+    find_package(SDL2 REQUIRED)
 
-target_link_libraries(bgdi -L../../bin bgdrtm ${EXTRA_LIBS} ${SDL2_LIBS} ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} ${SDL2_IMAGE_LIBRARY} ${SDL2_image_LIBRARIES} ${SDL_GPU_LIBRARY} ${OGL_LIB} ${VLC_LIB} ${OTHER_LIBS})
+    include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS})
+
+    add_definitions(-D__ANDROID__ -DUSE_GLES2)
+    include_directories(${CMAKE_SOURCE_DIR}/vendor/android/include)
+    set(ANDROID_PATH_LIB -L${CMAKE_SOURCE_DIR}/vendor/android/lib)
+    set(OGL_LIB GLESv1_CM GLESv2 OpenSLES log android)
+
+    add_library(main SHARED ${SOURCES})
+    list(APPEND OTHER_LIBS log)
+    target_link_libraries(main  ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L${CMAKE_SOURCE_DIR}/bin bgdrtm ${OGL_LIB} ${STDLIBSFLAGS} ${ANDROID_PATH_LIB} ${EXTRA_LIBS} ${OTHER_LIBS})
+else()
+    add_executable(bgdi ${SOURCES})
+    target_link_libraries(bgdi -L${CMAKE_SOURCE_DIR}/bin bgdrtm ${EXTRA_LIBS} ${OTHER_LIBS})
+endif()
+

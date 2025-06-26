@@ -28,18 +28,50 @@
 
 #include <SDL.h>
 
+#define MAX_EVENT_ID    0x1200
+#define EVENT_MASK_BITS (MAX_EVENT_ID)
+#define EVENT_MASK_BYTES ((EVENT_MASK_BITS + 7) >> 3)
+
+static uint8_t sdl_event_mask[EVENT_MASK_BYTES] = {0};
+
+/**
+ * Enable a single SDL event type.
+ */
+void enableSDLEvent(Uint32 type) {
+    if (type > 0 && type <= MAX_EVENT_ID) {
+        sdl_event_mask[(type - 1) >> 3] |= (1 << ((type - 1) & 7));
+    }
+}
+
+/**
+ * Enable a range of SDL event types (inclusive).
+ */
+void enableSDLEventRange(Uint32 first, Uint32 last) {
+    if (first == 0) first = 1;
+    if (last > MAX_EVENT_ID) last = MAX_EVENT_ID;
+
+    for (Uint32 type = first; type <= last; ++type) {
+        sdl_event_mask[(type - 1) >> 3] |= (1 << ((type - 1) & 7));
+    }
+}
+
+/**
+ * SDL event filter function to be passed to SDL_SetEventFilter().
+ */
+static int libsdlhandler_event_filter(void *userdata, SDL_Event *event) {
+    Uint32 type = event->type;
+    if (type > 0 && type <= MAX_EVENT_ID) {
+        return (sdl_event_mask[(type - 1) / 8] & (1 << ((type - 1) % 8))) != 0;
+    }
+    return SDL_FALSE;
+}
+
 /* ----------------------------------------------------------------- */
 /* Public functions                                                  */
 
-static void  dump_new_events() {
-    SDL_FlushEvents( SDL_FIRSTEVENT, SDL_LASTEVENT );
-
-
-//    SDL_Event event;
+static void dump_new_events() {
     /* Remove all pendings events */
-
-    /* We can't return -1, just return 0 (no event) on error */
-//    while ( SDL_PeepEvents( &event, 1, SDL_GETEVENT, SDL_ALLEVENTS ) > 0 );
+//    SDL_FlushEvents( SDL_FIRSTEVENT, SDL_LASTEVENT );
 
     /* Get new events */
     SDL_PumpEvents();
@@ -50,6 +82,7 @@ static void  dump_new_events() {
 
 void __bgdexport( libsdlhandler, module_initialize )() {
     if ( !SDL_WasInit( SDL_INIT_EVENTS ) ) SDL_InitSubSystem( SDL_INIT_EVENTS );
+    SDL_SetEventFilter( libsdlhandler_event_filter, NULL );
 }
 
 /* ----------------------------------------------------------------- */

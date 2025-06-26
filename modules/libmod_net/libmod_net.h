@@ -31,6 +31,7 @@
 
 /* --------------------------------------------------------------------------- */
 
+
 #include <SDL.h>
 
 #include "bgddl.h"
@@ -58,5 +59,5 @@ extern void __bgdexport( libmod_net, module_initialize )();
 extern void __bgdexport( libmod_net, module_finalize )();
 
 /* --------------------------------------------------------------------------- */
-                                                             
+
 #endif

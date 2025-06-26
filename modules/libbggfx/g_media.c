@@ -90,6 +90,7 @@ static int __media_info(void *what, REGION *bbox, int64_t *z, int64_t *drawme) {
  * @return None.
  */
 void media_init() {
+
     if (!SDL_WasInit(SDL_INIT_AUDIO)) SDL_InitSubSystem(SDL_INIT_AUDIO);
 }
 

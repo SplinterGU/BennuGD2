@@ -69,7 +69,7 @@ int shader_get_language() {
 #elif 0 // USE_SDL2
     SDL_RendererInfo info;
     if (SDL_GetRendererInfo(SDL_GetRenderer(SDL_GetWindowFromID(0)), &info) != 0) return -1;
-    
+
     if (info.name && strcmp(info.name, "opengl") == 0) {
         SDL_GLContext glContext = SDL_GL_CreateContext(SDL_GetWindowFromID(0));
         if (glContext) {
@@ -98,7 +98,7 @@ int shader_get_min_version() {
 #elif 0 // USE_SDL2
     SDL_RendererInfo info;
     if (SDL_GetRendererInfo(SDL_GetRenderer(SDL_GetWindowFromID(0)), &info) != 0) return -1;
-    
+
     if (info.name && strcmp(info.name, "opengl") == 0) {
         SDL_GLContext glContext = SDL_GL_CreateContext(SDL_GetWindowFromID(0));
         if (glContext) {
@@ -111,7 +111,7 @@ int shader_get_min_version() {
                 }
             }
         }
-    }    
+    }
 #endif
     return -1;
 }

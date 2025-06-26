@@ -28,6 +28,7 @@
 #ifndef __G_BASE_H
 #define __G_BASE_H
 
+
 #include <SDL.h>
 #ifdef USE_SDL2_GPU
     #include <SDL_gpu.h>
