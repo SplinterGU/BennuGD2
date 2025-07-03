@@ -258,6 +258,47 @@ void include_file( int bprepro ) {
 
 /* ---------------------------------------------------------------------- */
 
+void embed_file( int bprepro ) {
+    static unsigned char buffer[1024];
+    unsigned char * buffer_ptr = buffer;
+    int actual_line = line_count;
+
+    SKIP_SPACES_UNTIL_LF_AND_COUNT_LINES;
+    if ( *source_ptr == '"' ) {
+        source_ptr++;
+        buffer_ptr = buffer;
+        while ( *source_ptr && *source_ptr != '"' ) {
+            if ( buffer_ptr == buffer + 1023 ) compile_error( MSG_IDENTIFIER_TOO_LONG );
+            *buffer_ptr++ = *source_ptr++;
+        }
+        if ( *source_ptr == '"' ) source_ptr++;
+        *buffer_ptr = 0;
+        if ( bprepro ) {
+            SKIP_SPACES_UNTIL_LF_AND_COUNT_LINES;
+            if ( *source_ptr == '\n' ) line_count--;
+        } else {
+            SKIP_SPACES;
+        }
+
+        if ( *source_ptr == ';' ) {
+            if ( bprepro ) {
+                compile_warning( 0,"extra tokens at end of #include directive" );
+                SKIP_ALL_UNTIL_LF_AND_COUNT_LINES;
+                if ( *source_ptr == '\n' ) line_count--;
+            } else
+                token_next();
+        }
+
+        dcb_add_file( buffer );
+        token_next();
+        return;
+    }
+    line_count = actual_line;
+    compile_error( MSG_FILENAME_EXP );
+}
+
+/* ---------------------------------------------------------------------- */
+
 int find_define( int code ) {
     int i;
     /* Search for if already defined */
@@ -981,6 +1022,19 @@ void token_next() {
 
                 source_ptr = old_source_ptr;
             }
+			
+            if ( ISWORDFIRST( *source_ptr ) ) {
+                GET_NEXT_TOKEN_IN_TMPBUFFER;
+
+                /* #embed_file "sprite.fpg" */
+
+                if ( token.code == ( int64_t ) identifier_embed_file && !use_saved ) {
+                    embed_file( 1 );
+                    return;
+                }
+
+                source_ptr = old_source_ptr;
+            }
 
             preprocessor();
 
@@ -1251,6 +1305,14 @@ void token_next() {
                 include_file( 0 );
                 return;
             }
+			
+            /* Embed_file */
+
+            if ( !disable_prepro && token.code == ( int64_t ) identifier_embed_file && !use_saved ) {
+                embed_file( 0 );
+                return;
+            }
+
             return;
         }
 

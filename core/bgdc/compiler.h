@@ -118,7 +118,7 @@ extern int64_t
     identifier_xorequal,    identifier_andequal,    identifier_rorequal,
     identifier_rolequal,    identifier_mouse,       identifier_uint32,
     identifier_uint16,      identifier_uint8,       identifier_string,
-    identifier_float,       identifier_include,     identifier_type,
+    identifier_float,       identifier_include,     identifier_embed_file, 	identifier_type,
     identifier_import,      identifier_elseif,      identifier_question,
     identifier_function,    identifier_int32,       identifier_int16,       identifier_int8,
     identifier_char,        identifier_dollar,

@@ -303,6 +303,22 @@ DCB_VAR * read_and_arrange_varspace( file * fp, int count ) {
 
 /* ---------------------------------------------------------------------- */
 
+void remove_parent_refs(char *path) {
+    char *src = path, *dst = path;
+
+    while (*src) {
+        // If we see "../", skip it
+        if (src[0] == '.' && src[1] == '.' && (src[2] == '/' || src[2] == '\\')) {
+            src += 3;
+        } else {
+            *dst++ = *src++;
+        }
+    }
+    *dst = '\0';
+}
+
+/* ---------------------------------------------------------------------- */
+
 int dcb_load_from( file * fp, const char * filename, int offset ) {
     unsigned int n;
     uint64_t size;
@@ -439,6 +455,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
             ARRANGE_QWORD( &dcbfile.OFile );
 
             file_read( fp, &fname, dcbfile.SName );
+			remove_parent_refs(fname);
             file_add_xfile( fp, filename, offset + dcbfile.OFile, fname, dcbfile.SFile );
         }
     }
