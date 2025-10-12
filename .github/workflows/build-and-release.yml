@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up environment for ${{ matrix.env }}
         run: |
@@ -40,7 +40,7 @@ jobs:
           ./build.sh packages
 
       - name: Upload BennuGD2 artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: BennuGD2-${{ matrix.env }}
           path: packages/bgd2-*.tgz
@@ -52,7 +52,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up environment
         run: |
@@ -119,7 +119,7 @@ jobs:
           fi
 
       - name: Upload BennuGD2 artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: BennuGD2-windows
           path: packages/bgd2-x86_64-w64-mingw32-*.rar
@@ -131,7 +131,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up environment
         run: |
@@ -199,7 +199,7 @@ jobs:
           fi
 
       - name: Upload BennuGD2 artifacts for 32-bit
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: BennuGD2-windows32
           path: packages/bgd2-i686-w64-mingw32-*.rar
@@ -211,7 +211,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up osxcross
         run: |
@@ -249,7 +249,7 @@ jobs:
           ./build.sh packages
 
       - name: Upload BennuGD2 artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: BennuGD2-macosx
           path: packages/x86_64-apple-darwin14-*.tgz
@@ -270,10 +270,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download BennuGD2 Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: BennuGD2-${{ matrix.platform }}
           path: ./dist/${{ matrix.platform }}
