@@ -1,3 +1,5 @@
+[![Build and Release BennuGD2 Packages](https://github.com/SplinterGU/BennuGD2/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/SplinterGU/BennuGD2/actions/workflows/build-and-release.yml)
+
 # BennuGD2
 
 Welcome to BennuGD2! BennuGD2 is a game development system focused on ease of use and portability.
