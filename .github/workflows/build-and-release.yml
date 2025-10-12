@@ -6,45 +6,65 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  build-linux32:
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
-
-    strategy:
-      matrix:
-        env: [linux, linux32]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up environment for ${{ matrix.env }}
+      - name: Set up environment for linux32
         run: |
           sudo apt update
-          if [ "${{ matrix.env }}" == "linux32" ]; then
-            sudo dpkg --add-architecture i386
-            sudo apt update
-            sudo apt install -y gcc-multilib g++-multilib binutils git cmake build-essential zlib1g-dev:i386 libsdl2-dev:i386 libglu1-mesa-dev:i386 libsdl2-image-dev:i386 libsdl2-mixer-dev:i386 libtheora-dev:i386 libogg-dev:i386 libvorbis-dev:i386
-          else
-            sudo apt install -y binutils git cmake build-essential zlib1g-dev libsdl2-dev libglu1-mesa-dev libsdl2-image-dev libsdl2-mixer-dev libtheora-dev libogg-dev libvorbis-dev
-          fi
+          sudo dpkg --add-architecture i386
+          sudo apt update
+          sudo apt install -y gcc-multilib g++-multilib binutils git cmake build-essential zlib1g-dev:i386 libsdl2-dev:i386 libglu1-mesa-dev:i386 libsdl2-image-dev:i386 libsdl2-mixer-dev:i386 libtheora-dev:i386 libogg-dev:i386 libvorbis-dev:i386
 
       - name: Update submodules and Build
         run: |
           git submodule update --init --recursive
           cd vendor
-          ./build-sdl-gpu.sh ${{ matrix.env }}
+          ./build-sdl-gpu.sh linux32
           cd ..
-          ./build.sh ${{ matrix.env }}
+          ./build.sh linux32
           ./build.sh packages
 
       - name: Upload BennuGD2 artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: BennuGD2-${{ matrix.env }}
+          name: BennuGD2-linux32
           path: packages/bgd2-*.tgz
 
+  build-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up environment for linux
+        run: |
+          sudo apt update
+          sudo apt install -y binutils git cmake build-essential zlib1g-dev libsdl2-dev libglu1-mesa-dev libsdl2-image-dev libsdl2-mixer-dev libtheora-dev libogg-dev libvorbis-dev
+
+      - name: Update submodules and Build
+        run: |
+          git submodule update --init --recursive
+          cd vendor
+          ./build-sdl-gpu.sh linux
+          cd ..
+          ./build.sh linux
+          ./build.sh packages
+
+      - name: Upload BennuGD2 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BennuGD2-linux
+          path: packages/bgd2-*.tgz          
   build-windows:
     runs-on: ubuntu-latest
     permissions:
@@ -255,7 +275,7 @@ jobs:
           path: packages/x86_64-apple-darwin14-*.tgz
 
   create-release:
-    needs: [build, build-windows, build-windows-32bit, build-macosx]
+    needs: [build-linux32, build-linux, build-windows, build-windows-32bit, build-macosx]
     runs-on: ubuntu-latest
     if: success()
 
