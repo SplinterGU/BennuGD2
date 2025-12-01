@@ -1,4 +1,6 @@
 [![Build and Release BennuGD2 Packages](https://github.com/SplinterGU/BennuGD2/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/SplinterGU/BennuGD2/actions/workflows/build-and-release.yml)
+[![Wiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/SplinterGU/BennuGD2)
+![GitHub all releases](https://img.shields.io/github/downloads/SplinterGU/BennuGD2/total)
 
 # BennuGD2
 
