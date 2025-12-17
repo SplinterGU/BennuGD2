@@ -1002,7 +1002,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 req = ActivityInfo.SCREEN_ORIENTATION_FULL_USER;
             } else {
                 /* Fixed window and nothing specified. Get orientation from w/h of created window */
-                req = (w > h ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                // req = (w > h ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                // Forcing Landscape for BennuGD as default behavior
+                req = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
             }
         } else {
             /* At least one orientation is allowed */

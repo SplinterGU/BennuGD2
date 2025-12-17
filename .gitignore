@@ -2,3 +2,29 @@ build/*
 *.dcb
 save.dat
 *.tar*
+
+# Gradle
+.gradle/
+*/.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# Android
+*.apk
+*.ap_
+*.aab
+local.properties
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
+*.iml
+.idea/
+
+# Android build outputs
+android_template/build/
+android_template/.gradle/
+android_projects/*/build/
+android_projects/*/.gradle/
+android_projects/*/app/build/
+android_projects/*/app/.cxx/

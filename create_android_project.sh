@@ -32,12 +32,36 @@ mkdir -p "$GAMEJAVA"
 mkdir -p "$TARGET_DIR"
 cp -r "$BASE/"* "$TARGET_DIR"
 
+# Crear directorio para org.libsdl.app
+mkdir -p "$TARGET_DIR/app/src/main/java/org/libsdl/app"
+
+# Copiar AdsModule.java
+cp "$PWD/modules/libmod_ads/AdsModule.java" "$TARGET_DIR/app/src/main/java/org/libsdl/app/"
+# Copiar IAPModule.java
+cp "$PWD/modules/libmod_iap/IAPModule.java" "$TARGET_DIR/app/src/main/java/org/libsdl/app/"
+
 cat > "$GAMEJAVA/${ACTIVITY_CLASSNAME}.java" <<EOF
 package $GAMEPACKAGE;
 
 import org.libsdl.app.SDLActivity;
+import org.libsdl.app.AdsModule;
+import org.libsdl.app.IAPModule;
+import android.os.Bundle;
 
-public class ${ACTIVITY_CLASSNAME} extends SDLActivity { }
+public class ${ACTIVITY_CLASSNAME} extends SDLActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        AdsModule.initialize(this);
+        IAPModule.initialize(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AdsModule.hideBanner();
+    }
+}
 EOF
 
 sed -i "s/org.libsdl.app/${GAMEPACKAGE}/g" "${TARGET_DIR}/app/build.gradle"
