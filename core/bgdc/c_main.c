@@ -106,7 +106,8 @@ int64_t identifier_uint64,      identifier_int64,       identifier_double,
         identifier_modequal,    identifier_orequal,     identifier_xorequal,    identifier_andequal,
         identifier_rorequal,    identifier_rolequal,
         identifier_mouse,
-        identifier_include,     identifier_import;
+        identifier_include,     identifier_embed_file,  identifier_import;
+
 
 int64_t reserved_words;
 int64_t debug = 0;
@@ -156,6 +157,7 @@ void compile_init() {
     identifier_declare      = identifier_add( "DECLARE" );
 
     identifier_include      = identifier_add( "INCLUDE" );
+    identifier_embed_file   = identifier_add( "EMBED_FILE" );
 
     identifier_program      = identifier_add( "PROGRAM" );
     identifier_debug        = identifier_add( "DEBUG" );
