@@ -264,6 +264,8 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "WINDOW_RESTORE"      , ""                , TYPE_INT        , libmod_gfx_restore_window       ),
 
     FUNC( "DISPLAY_GET_ORIENTATION", ""             , TYPE_INT        , libmod_gfx_get_display_orientation  ),
+    FUNC( "WINDOW_SET_DPI_AWARE", ""                , TYPE_INT        , libmod_gfx_set_dpi_aware            ),
+
 
     /* Texts */
     FUNC( "WRITE"               , "IIIIS"           , TYPE_INT        , libmod_gfx_text_write           ),

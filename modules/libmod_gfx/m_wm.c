@@ -32,6 +32,11 @@
 #include <SDL.h>
 #include <SDL_syswm.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+
 #include <stdlib.h>
 
 #include "bgdrtm.h"
@@ -175,3 +180,12 @@ int64_t libmod_gfx_get_display_orientation( INSTANCE *my, int64_t *params ) {
 }
 
 /* --------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------- */
+
+int64_t libmod_gfx_set_dpi_aware( INSTANCE * my, int64_t * params ) {
+#ifdef _WIN32
+    SetProcessDPIAware();
+#endif
+    return 1;
+}

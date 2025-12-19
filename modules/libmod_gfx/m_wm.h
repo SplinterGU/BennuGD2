@@ -46,5 +46,6 @@ extern int64_t libmod_gfx_get_window_pos( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_window_size( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_desktop_size( INSTANCE * my, int64_t * params );
 extern int64_t libmod_gfx_get_display_orientation( INSTANCE * my, int64_t * params );
+extern int64_t libmod_gfx_set_dpi_aware( INSTANCE * my, int64_t * params );
 
 #endif
