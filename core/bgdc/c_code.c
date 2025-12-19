@@ -1539,6 +1539,13 @@ expresion_result compile_cast() {
                 res.lvalue = 0;
             }
             codeblock_add( code, MN_INT2DOUBLE | mntype( res.type, 0 ), 0 );
+            if ( res.constant ) {
+                if ( typedef_is_unsigned( res.type ) ) {
+                    res.fvalue = ( double )( uint64_t )res.value;
+                } else {
+                    res.fvalue = ( double )res.value;
+                }
+            }
             res.type = type;
         } else if ( typedef_is_float( res.type ) ) {
             /* ( pointer ) <float> */
@@ -1561,6 +1568,13 @@ expresion_result compile_cast() {
                 res.lvalue = 0;
             }
             codeblock_add( code, MN_INT2FLOAT | mntype( res.type, 0 ), 0 );
+            if ( res.constant ) {
+                if ( typedef_is_unsigned( res.type ) ) {
+                    res.fvalue = ( float )( uint64_t )res.value;
+                } else {
+                    res.fvalue = ( float )res.value;
+                }
+            }
             res.type = type;
         } else if ( typedef_is_double( res.type ) ) {
             /* ( pointer ) <double> */
@@ -1609,6 +1623,13 @@ expresion_result compile_cast() {
                 res.lvalue = 0;
             }
             codeblock_add( code, MN_DOUBLE2INT | mntype( type, 0 ), 0 );
+            if ( res.constant ) {
+                if ( typedef_is_unsigned( type ) ) {
+                    res.value = ( int64_t )( double )res.fvalue;
+                } else {
+                    res.value = ( int64_t )res.fvalue;
+                }
+            }
             res.type = typedef_new( TYPE_INT );
         } else if ( typedef_is_float( res.type ) ) {
             /* ( any integer ) <float> */
@@ -1617,6 +1638,13 @@ expresion_result compile_cast() {
                 res.lvalue = 0;
             }
             codeblock_add( code, MN_FLOAT2INT | mntype( type, 0 ), 0 );
+            if ( res.constant ) {
+                if ( typedef_is_unsigned( type ) ) {
+                    res.value = ( int64_t )( float )res.fvalue;
+                } else {
+                    res.value = ( int64_t )res.fvalue;
+                }
+            }
             res.type = typedef_new( TYPE_INT );
         } else if ( typedef_is_string( res.type ) ) {
             /* ( any integer ) <string> */

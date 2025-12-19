@@ -175,16 +175,58 @@ char* get_base_directory(const char* full_path) {
 }
 
 
-char* remove_extension(const char* exe_name) {
-    char *executable_name = strdup( exe_name );
+char* remove_extension(const char* path) {
+    char *result = strdup( path );
+    char *last_dot = strrchr(result, '.');
+    char *last_slash = strrchr(result, '/');
 
-    // Find the last occurrence of the dot
-    char* last_dot = strrchr(executable_name, '.');
+    if ( last_dot && ( !last_slash || last_dot > last_slash ) ) {
+        *last_dot = '\0';
+    }
 
-    // If dot is found, cut there
-    if ( last_dot ) *last_dot = '\0';
+    return result;
+}
 
-    return executable_name;
+char* remove_app_extension(const char* path) {
+    char *result = strdup( path );
+    char *last_dot = strrchr(result, '.');
+    char *last_slash = strrchr(result, '/');
+
+    if ( last_dot && ( !last_slash || last_dot > last_slash ) ) {
+        const char *ext = last_dot + 1;
+        
+        // Check if extension is .exe
+        if ( strcasecmp(ext, "exe") == 0 ) {
+            *last_dot = '\0';
+            return result;
+        }
+        
+        // Check if extension matches any dcb_exts
+        char **dcbext = dcb_exts;
+        while ( dcbext && *dcbext ) {
+            // Skip the leading dot in dcb_exts for comparison
+            if ( strcasecmp(ext, (*dcbext) + 1) == 0 ) {
+                *last_dot = '\0';
+                return result;
+            }
+            dcbext++;
+        }
+    }
+
+    return result;
+}
+
+
+int file_has_extension(const char *path) {
+    const char *last_dot = strrchr(path, '.');
+    const char *last_slash = strrchr(path, '/');
+
+    if ( !last_dot ) return 0;
+    if ( last_slash && last_dot < last_slash ) return 0;
+    
+    int len = strlen(last_dot + 1);
+    if ( len >= 1 && len <= 4 ) return 1;
+    return 0;
 }
 
 /*
@@ -327,7 +369,7 @@ int main( int argc, char *argv[] ) {
     strcpy( dcbname, filename );
 
     char * en = get_executable_name( filename );
-    appname = remove_extension( en );
+    appname = remove_app_extension( en );
     free( en );
 
 #if !defined ( __SWITCH__ ) && !defined ( PS3_PPU ) && !defined( __ANDROID__ )
@@ -335,14 +377,25 @@ int main( int argc, char *argv[] ) {
 #endif
         /* First try to load directly (we expect myfile.dcb) */
         if ( !dcb_load( dcbname ) ) {
-            char ** dcbext = dcb_exts;
             int dcbloaded = 0;
 
-            while ( dcbext && *dcbext ) {
-                strcpy( dcbname, appname ) ;
-                strcat( dcbname, *dcbext ) ;
-                if (( dcbloaded = dcb_load( dcbname ) ) ) break;
-                dcbext++;
+            /* Check if we should try to add an extension */
+#if !defined( __SWITCH__ ) && !defined( PS3_PPU ) && !defined( __ANDROID__ )
+            if ( standalone || !file_has_extension( filename ) || filename[strlen(filename)-1] == '.' ) {
+#else
+            if ( !file_has_extension( filename ) || filename[strlen(filename)-1] == '.' ) {
+#endif
+                char ** dcbext = dcb_exts;
+                char * base = strdup( filename );
+                if ( base[strlen(base)-1] == '.' ) base[strlen(base)-1] = '\0';
+
+                while ( dcbext && *dcbext ) {
+                    strcpy( dcbname, base ) ;
+                    strcat( dcbname, *dcbext ) ;
+                    if (( dcbloaded = dcb_load( dcbname ) ) ) break;
+                    dcbext++;
+                }
+                free( base );
             }
 
             if ( !dcbloaded ) {

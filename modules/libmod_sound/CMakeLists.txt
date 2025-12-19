@@ -10,7 +10,7 @@ find_package(SDL2_mixer REQUIRED)
 
 add_definitions(${EXTRA_CFLAGS})
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDLMIXER_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/core/include ${CMAKE_SOURCE_DIR}/core/bgdrtm ${CMAKE_SOURCE_DIR}/modules/libmod_sound ${CMAKE_SOURCE_DIR}/modules/libbgload ${INCLUDE_DIRECTORIES})
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${SDLMIXER_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/core/include ${CMAKE_SOURCE_DIR}/core/bgdrtm ${CMAKE_SOURCE_DIR}/modules/libmod_sound ${CMAKE_SOURCE_DIR}/modules/libbgsound ${CMAKE_SOURCE_DIR}/modules/libbgload ${INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES_LIBMOD_SOUND
      "${CMAKE_SOURCE_DIR}/modules/libmod_sound/*.c"
@@ -24,4 +24,4 @@ if(ANDROID)
     set(ANDROID_PATH_LIB -L/usr/src/SDL2_mixer/lib)
 endif()
 
-target_link_libraries(mod_sound ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} -L${CMAKE_SOURCE_DIR}/bin bgdrtm bgload)
+target_link_libraries(mod_sound ${SDL2_LIBRARY} ${SDL2_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDL2_mixer_LIBRARIES} -L${CMAKE_SOURCE_DIR}/bin bgdrtm bgsound bgload)
