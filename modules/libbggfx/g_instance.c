@@ -45,6 +45,18 @@
 #include "dlvaracc.h"
 
 /* --------------------------------------------------------------------------- */
+/* Instance ctype hook registry                                                */
+
+#define MAX_INSTANCE_CTYPE_HOOKS 16
+
+static INSTANCE_CTYPE_HOOK ctype_hooks[ MAX_INSTANCE_CTYPE_HOOKS ] = { NULL };
+
+void gr_register_instance_ctype_hook( int64_t ctype, INSTANCE_CTYPE_HOOK hook ) {
+    if ( ctype >= 0 && ctype < MAX_INSTANCE_CTYPE_HOOKS )
+        ctype_hooks[ ctype ] = hook;
+}
+
+/* --------------------------------------------------------------------------- */
 /*
  *  FUNCTION : instance_graph
  *
@@ -304,20 +316,28 @@ void draw_instance( void * what, REGION * clip ) {
 
 int draw_instance_info( void * what, REGION * region, int64_t * z, int64_t * drawme ) {
     INSTANCE * i = ( INSTANCE * ) what;
-    GRAPH * graph;
 
     if ( drawme ) * drawme = 0;
 
-//    LOCQWORD( libbggfx, i, GRAPHPTR ) = ( int64_t ) ( intptr_t ) ( graph = instance_graph( i ) );
-    graph = instance_graph( i );
+    /* Update z key from DOUBLE z (truncated to int64 for ordering) */
+    * z = ( int64_t ) LOCDOUBLE( libbggfx, i, COORDZ );
+
+    int64_t ctype = LOCQWORD( libbggfx, i, CTYPE );
+
+    /* Non-screen ctypes: call registered hook (e.g. 3D entity sync) and skip 2D draw */
+    if ( ctype != C_SCREEN ) {
+        if ( ctype >= 0 && ctype < MAX_INSTANCE_CTYPE_HOOKS && ctype_hooks[ ctype ] )
+            ctype_hooks[ ctype ]( i );
+        /* drawme stays 0 — no 2D rendering for non-screen instances */
+        return 1;
+    }
+
+    /* 2D path: need a graph to be visible */
+    GRAPH * graph = instance_graph( i );
     if ( !graph ) return 0;
 
-    /* Update key */
-    * z = LOCINT64( libbggfx, i, COORDZ );
-
     /* Si tiene grafico o xgraph o (ctype == 0 y esta corriendo o congelado) */
-
-    if ( drawme && LOCQWORD( libbggfx, i, CTYPE ) == C_SCREEN && ( LOCQWORD( libbggfx, i, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) ) ) * drawme = 1;
+    if ( drawme && ( LOCQWORD( libbggfx, i, STATUS ) & ( STATUS_RUNNING | STATUS_FROZEN ) ) ) * drawme = 1;
 
     return 1;
 }

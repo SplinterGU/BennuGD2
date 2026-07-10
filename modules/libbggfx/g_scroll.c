@@ -253,7 +253,7 @@ static int compare_instances( const void * ptr1, const void * ptr2 ) {
     const INSTANCE * i1 = *( const INSTANCE ** )ptr1;
     const INSTANCE * i2 = *( const INSTANCE ** )ptr2;
 
-    int64_t ret = LOCQWORD( libbggfx, i2, COORDZ ) - LOCQWORD( libbggfx, i1, COORDZ );
+    int64_t ret = (int64_t)LOCDOUBLE( libbggfx, i2, COORDZ ) - (int64_t)LOCDOUBLE( libbggfx, i1, COORDZ );
 
     return !ret ? LOCQWORD( libbggfx, i1, PROCESS_ID ) - LOCQWORD( libbggfx, i2, PROCESS_ID ) : ret;
 }

@@ -383,11 +383,12 @@ char * __bgdexport( libbggfx, locals_def ) =
     /* Render/Scroll */
     "INT ctype;\n"
     "INT cnumber;\n"
+    "INT csubtype;\n"
 
     /* Render */
     "DOUBLE x=0;\n"
     "DOUBLE y=0;\n"
-    "INT z;\n"
+    "DOUBLE z=0.0;\n"
     "INT file;\n"
     "INT graph;\n"
     "DOUBLE size=100.0;\n"

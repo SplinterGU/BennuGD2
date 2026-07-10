@@ -109,6 +109,7 @@ enum {
 enum {
     CTYPE = 0,
     CNUMBER,
+    CSUBTYPE,
     COORDX,
     COORDY,
     COORDZ,
@@ -181,6 +182,19 @@ enum {
 #include "g_screen.h"
 #include "g_pathfind.h"
 #include "g_media.h"
+
+#ifndef __BGDC__
+
+/* --------------------------------------------------------------------------- */
+/* Instance ctype hooks: modules can register a callback called by
+   draw_instance_info when an instance has a specific non-default ctype.
+   The hook receives the INSTANCE pointer and should update any module-specific
+   state (e.g. 3D entity transform). It must NOT do any rendering. */
+
+typedef void ( *INSTANCE_CTYPE_HOOK )( INSTANCE * i );
+extern void gr_register_instance_ctype_hook( int64_t ctype, INSTANCE_CTYPE_HOOK hook );
+
+#endif
 
 /* --------------------------------------------------------------------------- */
 

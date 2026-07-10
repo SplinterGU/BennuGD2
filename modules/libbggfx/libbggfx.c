@@ -109,6 +109,7 @@ DLVARFIXUP __bgdexport( libbggfx, globals_fixup )[] = {
 DLVARFIXUP __bgdexport( libbggfx, locals_fixup )[] = {
     { "ctype"                                           , NULL, -1, -1 },
     { "cnumber"                                         , NULL, -1, -1 },
+    { "csubtype"                                        , NULL, -1, -1 },
     { "x"                                               , NULL, -1, -1 },
     { "y"                                               , NULL, -1, -1 },
     { "z"                                               , NULL, -1, -1 },
