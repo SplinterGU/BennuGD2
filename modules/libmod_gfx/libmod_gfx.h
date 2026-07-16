@@ -40,6 +40,7 @@
 #include "m_collision.h"
 #include "m_fade.h"
 #include "m_fnt.h"
+#include "m_ttf.h"
 #include "m_fpg.h"
 #include "m_map.h"
 #include "m_mathgfx.h"

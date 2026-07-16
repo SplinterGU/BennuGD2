@@ -214,6 +214,7 @@ void __bgdexport( libbggfx, module_initialize )() {
 void __bgdexport( libbggfx, module_finalize )() {
     media_exit();
     frame_exit();
+    gr_font_ttf_shutdown();
     gr_video_exit();
 }
 
