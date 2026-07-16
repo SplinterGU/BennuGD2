@@ -241,9 +241,11 @@ static uint8_t ansi_colors_8[][3] = {
                 while ( *text ) { \
                     PARSE_ANSI() \
                     current_char = enc; \
+                    x += gr_font_ttf_get_kerning( fontid, previous_char, current_char ); \
                     fntclip = &f->glyph[current_char].fontsource; \
                     gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, 0, 0, /*POINT_UNDEFINED, POINT_UNDEFINED,*/ f->fontmap, fntclip, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
                     x += f->glyph[current_char].xadvance; \
+                    previous_char = current_char; \
                     text++; \
                 }
 
@@ -251,9 +253,11 @@ static uint8_t ansi_colors_8[][3] = {
                 while ( *text ) { \
                     PARSE_ANSI() \
                     current_char = enc; \
+                    x += gr_font_ttf_get_kerning( fontid, previous_char, current_char ); \
                     ch = f->glyph[current_char].glymap; \
                     if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, 0, 0, /*POINT_UNDEFINED, POINT_UNDEFINED,*/ ch, NULL, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
                     x += f->glyph[current_char].xadvance; \
+                    previous_char = current_char; \
                     text++; \
                 }
 
@@ -624,24 +628,31 @@ void gr_text_destroy( int64_t textid ) {
 int64_t gr_text_width( int64_t fontid, const unsigned char * text ) {
     int stop = 0, dummy;
     int64_t l = 0;
+    uint8_t previous_char = 0;
+    uint8_t current_char;
     FONT * f;
 
     if ( !text || !*text ) return 0;
-    if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
+    if ( !( f = gr_font_get( fontid ) ) ) return 0;
 
     switch ( f->charset ) {
         case CHARSET_ISO8859:
             while ( *text ) {
                 SKIP_ANSI();
-//                l += f->glyph[cp850_to_iso8859_1[*text++]].xadvance;
-                l += f->glyph[*text++].xadvance;
+                current_char = *text++;
+                l += gr_font_ttf_get_kerning( fontid, previous_char, current_char );
+                l += f->glyph[current_char].xadvance;
+                previous_char = current_char;
             }
             break;
 
         case CHARSET_CP850:
             while ( *text ) {
                 SKIP_ANSI();
-                l += f->glyph[iso8859_1_to_cp850[*text++]].xadvance;
+                current_char = iso8859_1_to_cp850[*text++];
+                l += gr_font_ttf_get_kerning( fontid, previous_char, current_char );
+                l += f->glyph[current_char].xadvance;
+                previous_char = current_char;
             }
             break;
     }
@@ -739,6 +750,7 @@ int64_t gr_text_height( int64_t fontid, const unsigned char * text ) {
 int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, int64_t x, int64_t y, const unsigned char * text ) {
     FONT * f;
     uint8_t current_char, alpha, *r, *g, *b;
+    uint8_t previous_char = 0;
     int64_t flags;
     BGD_Rect * fntclip = NULL;
     int stop = 0, idx;

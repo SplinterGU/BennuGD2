@@ -368,6 +368,11 @@ DLSYSFUNCS  __bgdexport( libmod_gfx, functions_exports )[] = {
     FUNC( "FNT_LOAD"            , "S"               , TYPE_INT        , libmod_gfx_load_fnt             ),
     FUNC( "FNT_LOAD"            , "SP"              , TYPE_INT        , libmod_gfx_bgload_fnt           ),
     FUNC( "FNT_UNLOAD"          , "I"               , TYPE_INT        , libmod_gfx_unload_fnt           ),
+
+    FUNC( "TTF_LOAD"            , "S"               , TYPE_INT        , libmod_gfx_ttf_load             ),
+    FUNC( "TTF_SET_SIZE"        , "II"              , TYPE_INT        , libmod_gfx_ttf_set_size         ),
+    FUNC( "TTF_GET_FAMILY"      , "I"               , TYPE_STRING     , libmod_gfx_ttf_get_family       ),
+    FUNC( "TTF_GET_STYLE"       , "I"               , TYPE_STRING     , libmod_gfx_ttf_get_style        ),
 //    FUNC( "FNT_SAVE"            , "IS"              , TYPE_INT        , libmod_gfx_save_fnt             ),
 //    FUNC( "BDF_LOAD"            , "S"               , TYPE_INT        , libmod_gfx_load_bdf             ),
 //    FUNC( "BDF_LOAD"            , "SP"              , TYPE_INT        , libmod_gfx_bgload_bdf           ),

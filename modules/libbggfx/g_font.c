@@ -675,6 +675,7 @@ int gr_font_systemfont() {
  */
 
 void gr_font_destroy( int64_t fontid ) {
+    gr_font_ttf_forget( fontid );
     if ( fontid < 0 || fontid >= MAX_FONTS || !fonts[ fontid ] ) return;
 
     if ( fonts[ fontid ]->fontmap )
