@@ -635,6 +635,25 @@ int64_t gr_text_width( int64_t fontid, const unsigned char * text ) {
     if ( !text || !*text ) return 0;
     if ( !( f = gr_font_get( fontid ) ) ) return 0;
 
+    /* BENNUGD2_TTF_UTF8_WIDTH */
+    if ( gr_font_ttf_is_font( fontid ) ) {
+        uint32_t previous_codepoint = 0;
+        uint32_t current_codepoint;
+        TTF_GLYPH_INFO glyph;
+
+        while ( *text ) {
+            SKIP_ANSI();
+            current_codepoint = gr_font_ttf_utf8_next( &text );
+            if ( !current_codepoint ) break;
+            l += gr_font_ttf_get_kerning( fontid, previous_codepoint, current_codepoint );
+            if ( gr_font_ttf_get_glyph( fontid, current_codepoint, &glyph ) == 0 ) {
+                l += glyph.xadvance;
+            }
+            previous_codepoint = current_codepoint;
+        }
+        return l;
+    }
+
     switch ( f->charset ) {
         case CHARSET_ISO8859:
             while ( *text ) {
@@ -669,6 +688,24 @@ int64_t gr_text_margintop( int64_t fontid, const unsigned char * text ) {
     if ( !text || !*text ) return 0;
     if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
 
+    /* BENNUGD2_TTF_UTF8_MARGIN */
+    if ( gr_font_ttf_is_font( fontid ) ) {
+        int stop = 0, dummy;
+        int64_t minimum = 0x7FFFFFFFFFFFFFFFLL;
+        uint32_t codepoint;
+        TTF_GLYPH_INFO glyph;
+
+        while ( *text ) {
+            SKIP_ANSI();
+            codepoint = gr_font_ttf_utf8_next( &text );
+            if ( !codepoint ) break;
+            if ( gr_font_ttf_get_glyph( fontid, codepoint, &glyph ) == 0 && glyph.glymap && minimum > glyph.yoffset ) {
+                minimum = glyph.yoffset;
+            }
+        }
+        return minimum == 0x7FFFFFFFFFFFFFFFLL ? 0 : minimum;
+    }
+
     switch ( f->charset ) {
         case CHARSET_ISO8859:
             while ( *text ) {
@@ -697,6 +734,26 @@ int64_t gr_text_height_no_margin( int64_t fontid, const unsigned char * text ) {
 
     if ( !text || !*text ) return 0;
     if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
+
+    /* BENNUGD2_TTF_UTF8_HEIGHT */
+    if ( gr_font_ttf_is_font( fontid ) ) {
+        int stop = 0, dummy;
+        int64_t maximum = 0;
+        int64_t bottom;
+        uint32_t codepoint;
+        TTF_GLYPH_INFO glyph;
+
+        while ( *text ) {
+            SKIP_ANSI();
+            codepoint = gr_font_ttf_utf8_next( &text );
+            if ( !codepoint ) break;
+            if ( gr_font_ttf_get_glyph( fontid, codepoint, &glyph ) == 0 && glyph.glymap ) {
+                bottom = glyph.yoffset + ( int64_t )glyph.glymap->height;
+                if ( maximum < bottom ) maximum = bottom;
+            }
+        }
+        return maximum;
+    }
 
     if ( f->fontmap ) {
         switch ( f->charset ) {
@@ -788,6 +845,30 @@ int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, 
     }
     else
         shader_deactivate();
+
+    /* BENNUGD2_TTF_UTF8_RENDER */
+    if ( gr_font_ttf_is_font( fontid ) ) {
+        uint32_t previous_codepoint = 0;
+        uint32_t current_codepoint;
+        TTF_GLYPH_INFO glyph;
+
+        while ( *text ) {
+            PARSE_ANSI()
+            current_codepoint = gr_font_ttf_utf8_next( &text );
+            if ( !current_codepoint ) break;
+
+            x += gr_font_ttf_get_kerning( fontid, previous_codepoint, current_codepoint );
+            if ( gr_font_ttf_get_glyph( fontid, current_codepoint, &glyph ) == 0 ) {
+                if ( glyph.glymap ) {
+                    gr_blit( dest, clip, x + glyph.xoffset, y + glyph.yoffset, flags, 0, 100, 100, 0, 0, glyph.glymap, NULL, alpha, *r, *g, *b, blend_mode, custom_blend_mode );
+                }
+                x += glyph.xadvance;
+            }
+            previous_codepoint = current_codepoint;
+        }
+
+        return 1;
+    }
 
     if ( f->fontmap ) {
         switch ( f->charset ) {

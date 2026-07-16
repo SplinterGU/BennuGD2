@@ -1,5 +1,5 @@
 /*
- * FreeType font support for BennuGD2.
+ * FreeType UTF-8 font support for BennuGD2.
  *
  * This is an altered/additional source file for Bennu Game Development.
  *
@@ -19,52 +19,26 @@
 
 #define TTF_DEFAULT_PIXEL_SIZE 20
 #define TTF_MAX_PIXEL_SIZE 4096
+#define TTF_CACHE_BUCKETS 257
+#define TTF_REPLACEMENT_CHARACTER 0xFFFDU
+
+typedef struct _ttf_cached_glyph {
+    uint32_t codepoint;
+    TTF_GLYPH_INFO glyph;
+    struct _ttf_cached_glyph * next;
+} TTF_CACHED_GLYPH;
 
 typedef struct {
     FT_Face face;
     FT_Byte * data;
     size_t data_size;
     int64_t pixel_size;
+    TTF_CACHED_GLYPH * cache[TTF_CACHE_BUCKETS];
 } TTF_FONT_SLOT;
 
 static FT_Library ttf_library;
 static int ttf_library_initialized = 0;
 static TTF_FONT_SLOT ttf_fonts[MAX_FONTS];
-
-static const FT_ULong cp850_to_unicode[MAX_GLYPH] = {
-    0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
-    0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F,
-    0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017,
-    0x0018, 0x0019, 0x001A, 0x001B, 0x001C, 0x001D, 0x001E, 0x001F,
-    0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
-    0x0028, 0x0029, 0x002A, 0x002B, 0x002C, 0x002D, 0x002E, 0x002F,
-    0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
-    0x0038, 0x0039, 0x003A, 0x003B, 0x003C, 0x003D, 0x003E, 0x003F,
-    0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047,
-    0x0048, 0x0049, 0x004A, 0x004B, 0x004C, 0x004D, 0x004E, 0x004F,
-    0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057,
-    0x0058, 0x0059, 0x005A, 0x005B, 0x005C, 0x005D, 0x005E, 0x005F,
-    0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067,
-    0x0068, 0x0069, 0x006A, 0x006B, 0x006C, 0x006D, 0x006E, 0x006F,
-    0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077,
-    0x0078, 0x0079, 0x007A, 0x007B, 0x007C, 0x007D, 0x007E, 0x007F,
-    0x00C7, 0x00FC, 0x00E9, 0x00E2, 0x00E4, 0x00E0, 0x00E5, 0x00E7,
-    0x00EA, 0x00EB, 0x00E8, 0x00EF, 0x00EE, 0x00EC, 0x00C4, 0x00C5,
-    0x00C9, 0x00E6, 0x00C6, 0x00F4, 0x00F6, 0x00F2, 0x00FB, 0x00F9,
-    0x00FF, 0x00D6, 0x00DC, 0x00F8, 0x00A3, 0x00D8, 0x00D7, 0x0192,
-    0x00E1, 0x00ED, 0x00F3, 0x00FA, 0x00F1, 0x00D1, 0x00AA, 0x00BA,
-    0x00BF, 0x00AE, 0x00AC, 0x00BD, 0x00BC, 0x00A1, 0x00AB, 0x00BB,
-    0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x00C1, 0x00C2, 0x00C0,
-    0x00A9, 0x2563, 0x2551, 0x2557, 0x255D, 0x00A2, 0x00A5, 0x2510,
-    0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x00E3, 0x00C3,
-    0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x00A4,
-    0x00F0, 0x00D0, 0x00CA, 0x00CB, 0x00C8, 0x0131, 0x00CD, 0x00CE,
-    0x00CF, 0x2518, 0x250C, 0x2588, 0x2584, 0x00A6, 0x00CC, 0x2580,
-    0x00D3, 0x00DF, 0x00D4, 0x00D2, 0x00F5, 0x00D5, 0x00B5, 0x00FE,
-    0x00DE, 0x00DA, 0x00DB, 0x00D9, 0x00FD, 0x00DD, 0x00AF, 0x00B4,
-    0x00AD, 0x00B1, 0x2017, 0x00BE, 0x00B6, 0x00A7, 0x00F7, 0x00B8,
-    0x00B0, 0x00A8, 0x00B7, 0x00B9, 0x00B3, 0x00B2, 0x25A0, 0x00A0,
-};
 
 static int ttf_ensure_initialized( void ) {
     if ( ttf_library_initialized ) return 0;
@@ -76,13 +50,6 @@ static int ttf_ensure_initialized( void ) {
 static int64_t ft_26_6_round( FT_Pos value ) {
     if ( value >= 0 ) return ( int64_t )( ( value + 32 ) >> 6 );
     return -( int64_t )( ( ( -value ) + 32 ) >> 6 );
-}
-
-static void destroy_graph_array( GRAPH ** maps ) {
-    int n;
-    for ( n = 0; n < MAX_GLYPH; ++n ) {
-        if ( maps[n] ) bitmap_destroy( maps[n] );
-    }
 }
 
 static uint8_t bitmap_coverage( const FT_Bitmap * bitmap, unsigned int x, unsigned int y ) {
@@ -167,6 +134,13 @@ static GRAPH * graph_from_freetype_bitmap( int64_t code, const FT_Bitmap * bitma
     return graph;
 }
 
+static void destroy_glyph_graphs( TTF_GLYPH_INFO * glyphs, size_t count ) {
+    size_t n;
+    for ( n = 0; n < count; ++n ) {
+        if ( glyphs[n].glymap ) bitmap_destroy( glyphs[n].glymap );
+    }
+}
+
 static void clear_font_glyphs( FONT * font ) {
     int n;
 
@@ -186,17 +160,85 @@ static void clear_font_glyphs( FONT * font ) {
     font->maxheight = 0;
 }
 
-static int render_font_glyphs( int64_t fontid ) {
+static void clear_dynamic_cache( TTF_FONT_SLOT * ttf ) {
+    size_t bucket;
+
+    if ( !ttf ) return;
+
+    for ( bucket = 0; bucket < TTF_CACHE_BUCKETS; ++bucket ) {
+        TTF_CACHED_GLYPH * entry = ttf->cache[bucket];
+        while ( entry ) {
+            TTF_CACHED_GLYPH * next = entry->next;
+            if ( entry->glyph.glymap ) bitmap_destroy( entry->glyph.glymap );
+            free( entry );
+            entry = next;
+        }
+        ttf->cache[bucket] = NULL;
+    }
+}
+
+static int64_t face_ascender( FT_Face face ) {
+    return ft_26_6_round( face->size->metrics.ascender );
+}
+
+static int64_t face_line_height( FT_Face face, int64_t fallback ) {
+    int64_t height = ft_26_6_round( face->size->metrics.height );
+
+    if ( height < 1 ) {
+        int64_t ascender = face_ascender( face );
+        int64_t descender = -ft_26_6_round( face->size->metrics.descender );
+        height = ascender + descender;
+    }
+
+    if ( height < 1 ) height = fallback;
+    return height;
+}
+
+static int load_unicode_glyph(
+    TTF_FONT_SLOT * ttf,
+    uint32_t codepoint,
+    int64_t graph_code,
+    TTF_GLYPH_INFO * glyph
+) {
+    FT_UInt glyph_index;
+    FT_GlyphSlot slot;
+    int64_t ascender;
+
+    if ( !ttf || !ttf->face || !glyph ) return -1;
+    memset( glyph, 0, sizeof( *glyph ) );
+
+    glyph_index = FT_Get_Char_Index( ttf->face, ( FT_ULong )codepoint );
+    if ( !glyph_index && codepoint != 0 ) {
+        glyph_index = FT_Get_Char_Index( ttf->face, TTF_REPLACEMENT_CHARACTER );
+    }
+
+    if ( FT_Load_Glyph( ttf->face, glyph_index, FT_LOAD_DEFAULT ) != 0 ) return -1;
+    if ( FT_Render_Glyph( ttf->face->glyph, FT_RENDER_MODE_LIGHT ) != 0 ) return -1;
+
+    slot = ttf->face->glyph;
+    ascender = face_ascender( ttf->face );
+
+    glyph->xoffset = slot->bitmap_left;
+    glyph->yoffset = ascender - slot->bitmap_top;
+    glyph->xadvance = ft_26_6_round( slot->advance.x );
+    glyph->yadvance = ft_26_6_round( slot->advance.y );
+
+    if ( glyph->xadvance < 0 ) glyph->xadvance = 0;
+
+    if ( slot->bitmap.width && slot->bitmap.rows ) {
+        glyph->glymap = graph_from_freetype_bitmap( graph_code, &slot->bitmap );
+        if ( !glyph->glymap ) return -1;
+    }
+
+    return 0;
+}
+
+static int render_base_glyphs( int64_t fontid ) {
     FONT * font;
     TTF_FONT_SLOT * ttf;
-    GRAPH * maps[MAX_GLYPH] = { 0 };
-    int64_t xoffset[MAX_GLYPH] = { 0 };
-    int64_t yoffset[MAX_GLYPH] = { 0 };
-    int64_t xadvance[MAX_GLYPH] = { 0 };
-    int64_t yadvance[MAX_GLYPH] = { 0 };
-    int64_t ascender;
-    int64_t line_height;
+    TTF_GLYPH_INFO glyphs[MAX_GLYPH];
     int64_t max_width = 0;
+    int64_t line_height;
     int n;
 
     font = gr_font_get( fontid );
@@ -205,61 +247,148 @@ static int render_font_glyphs( int64_t fontid ) {
     ttf = &ttf_fonts[fontid];
     if ( !ttf->face ) return -1;
 
+    memset( glyphs, 0, sizeof( glyphs ) );
+
     if ( FT_Set_Pixel_Sizes( ttf->face, 0, ( FT_UInt )ttf->pixel_size ) != 0 ) return -1;
+    line_height = face_line_height( ttf->face, ttf->pixel_size );
 
-    ascender = ft_26_6_round( ttf->face->size->metrics.ascender );
-    line_height = ft_26_6_round( ttf->face->size->metrics.height );
-    if ( line_height < 1 ) {
-        int64_t descender = -ft_26_6_round( ttf->face->size->metrics.descender );
-        line_height = ascender + descender;
-    }
-    if ( line_height < 1 ) line_height = ttf->pixel_size;
-
+    /* Keep U+0000..U+00FF in FONT.glyph for compatibility with GLYPH_GET and
+     * existing engine code. All larger Unicode characters are cached lazily. */
     for ( n = 0; n < MAX_GLYPH; ++n ) {
-        FT_UInt glyph_index = FT_Get_Char_Index( ttf->face, cp850_to_unicode[n] );
-        FT_GlyphSlot slot;
-
-        if ( FT_Load_Glyph( ttf->face, glyph_index, FT_LOAD_DEFAULT ) != 0 ) continue;
-        if ( FT_Render_Glyph( ttf->face->glyph, FT_RENDER_MODE_LIGHT ) != 0 ) continue;
-
-        slot = ttf->face->glyph;
-
-        xoffset[n] = slot->bitmap_left;
-        yoffset[n] = ascender - slot->bitmap_top;
-        xadvance[n] = ft_26_6_round( slot->advance.x );
-        yadvance[n] = ft_26_6_round( slot->advance.y );
-
-        if ( xadvance[n] < 0 ) xadvance[n] = 0;
-
-        if ( slot->bitmap.width && slot->bitmap.rows ) {
-            maps[n] = graph_from_freetype_bitmap( n, &slot->bitmap );
-            if ( !maps[n] ) {
-                destroy_graph_array( maps );
-                return -1;
-            }
+        if ( load_unicode_glyph( ttf, ( uint32_t )n, n, &glyphs[n] ) != 0 ) {
+            destroy_glyph_graphs( glyphs, MAX_GLYPH );
+            return -1;
         }
 
-        if ( max_width < xadvance[n] ) max_width = xadvance[n];
-        if ( max_width < xoffset[n] + ( int64_t )slot->bitmap.width ) {
-            max_width = xoffset[n] + ( int64_t )slot->bitmap.width;
+        if ( max_width < glyphs[n].xadvance ) max_width = glyphs[n].xadvance;
+        if ( glyphs[n].glymap && max_width < glyphs[n].xoffset + ( int64_t )glyphs[n].glymap->width ) {
+            max_width = glyphs[n].xoffset + ( int64_t )glyphs[n].glymap->width;
         }
     }
 
+    clear_dynamic_cache( ttf );
     clear_font_glyphs( font );
 
-    font->charset = CHARSET_CP850;
+    font->charset = CHARSET_UTF8;
     font->maxheight = line_height;
     font->maxwidth = max_width;
 
     for ( n = 0; n < MAX_GLYPH; ++n ) {
-        font->glyph[n].glymap = maps[n];
-        font->glyph[n].xoffset = xoffset[n];
-        font->glyph[n].yoffset = yoffset[n];
-        font->glyph[n].xadvance = xadvance[n];
-        font->glyph[n].yadvance = yadvance[n];
+        font->glyph[n].glymap = glyphs[n].glymap;
+        font->glyph[n].xoffset = glyphs[n].xoffset;
+        font->glyph[n].yoffset = glyphs[n].yoffset;
+        font->glyph[n].xadvance = glyphs[n].xadvance;
+        font->glyph[n].yadvance = glyphs[n].yadvance;
+        glyphs[n].glymap = NULL;
     }
 
     return 0;
+}
+
+static size_t glyph_hash( uint32_t codepoint ) {
+    return ( size_t )( ( codepoint * 2654435761U ) % TTF_CACHE_BUCKETS );
+}
+
+int gr_font_ttf_get_glyph( int64_t fontid, uint32_t codepoint, TTF_GLYPH_INFO * glyph ) {
+    FONT * font;
+    TTF_FONT_SLOT * ttf;
+    size_t bucket;
+    TTF_CACHED_GLYPH * entry;
+
+    if ( !glyph || !gr_font_ttf_is_font( fontid ) ) return -1;
+    memset( glyph, 0, sizeof( *glyph ) );
+
+    font = gr_font_get( fontid );
+    ttf = &ttf_fonts[fontid];
+
+    if ( codepoint < MAX_GLYPH ) {
+        glyph->glymap = font->glyph[codepoint].glymap;
+        glyph->xoffset = font->glyph[codepoint].xoffset;
+        glyph->yoffset = font->glyph[codepoint].yoffset;
+        glyph->xadvance = font->glyph[codepoint].xadvance;
+        glyph->yadvance = font->glyph[codepoint].yadvance;
+        return 0;
+    }
+
+    if ( codepoint > 0x10FFFFU || ( codepoint >= 0xD800U && codepoint <= 0xDFFFU ) ) {
+        codepoint = TTF_REPLACEMENT_CHARACTER;
+    }
+
+    bucket = glyph_hash( codepoint );
+    for ( entry = ttf->cache[bucket]; entry; entry = entry->next ) {
+        if ( entry->codepoint == codepoint ) {
+            *glyph = entry->glyph;
+            return 0;
+        }
+    }
+
+    entry = ( TTF_CACHED_GLYPH * )calloc( 1, sizeof( *entry ) );
+    if ( !entry ) return -1;
+
+    entry->codepoint = codepoint;
+    if ( load_unicode_glyph( ttf, codepoint, ( int64_t )codepoint, &entry->glyph ) != 0 ) {
+        free( entry );
+        return -1;
+    }
+
+    entry->next = ttf->cache[bucket];
+    ttf->cache[bucket] = entry;
+    *glyph = entry->glyph;
+
+    if ( font->maxwidth < glyph->xadvance ) font->maxwidth = glyph->xadvance;
+    if ( glyph->glymap && font->maxwidth < glyph->xoffset + ( int64_t )glyph->glymap->width ) {
+        font->maxwidth = glyph->xoffset + ( int64_t )glyph->glymap->width;
+    }
+
+    return 0;
+}
+
+uint32_t gr_font_ttf_utf8_next( const unsigned char ** text ) {
+    const unsigned char * s;
+    uint32_t codepoint;
+
+    if ( !text || !( s = *text ) || !*s ) return 0;
+
+    if ( s[0] < 0x80U ) {
+        *text = s + 1;
+        return s[0];
+    }
+
+    if ( s[0] >= 0xC2U && s[0] <= 0xDFU && s[1] >= 0x80U && s[1] <= 0xBFU ) {
+        codepoint = ( ( uint32_t )( s[0] & 0x1FU ) << 6 ) |
+                    ( uint32_t )( s[1] & 0x3FU );
+        *text = s + 2;
+        return codepoint;
+    }
+
+    if ( s[0] >= 0xE0U && s[0] <= 0xEFU &&
+         s[1] >= 0x80U && s[1] <= 0xBFU &&
+         s[2] >= 0x80U && s[2] <= 0xBFU &&
+         !( s[0] == 0xE0U && s[1] < 0xA0U ) &&
+         !( s[0] == 0xEDU && s[1] >= 0xA0U ) ) {
+        codepoint = ( ( uint32_t )( s[0] & 0x0FU ) << 12 ) |
+                    ( ( uint32_t )( s[1] & 0x3FU ) << 6 ) |
+                    ( uint32_t )( s[2] & 0x3FU );
+        *text = s + 3;
+        return codepoint;
+    }
+
+    if ( s[0] >= 0xF0U && s[0] <= 0xF4U &&
+         s[1] >= 0x80U && s[1] <= 0xBFU &&
+         s[2] >= 0x80U && s[2] <= 0xBFU &&
+         s[3] >= 0x80U && s[3] <= 0xBFU &&
+         !( s[0] == 0xF0U && s[1] < 0x90U ) &&
+         !( s[0] == 0xF4U && s[1] > 0x8FU ) ) {
+        codepoint = ( ( uint32_t )( s[0] & 0x07U ) << 18 ) |
+                    ( ( uint32_t )( s[1] & 0x3FU ) << 12 ) |
+                    ( ( uint32_t )( s[2] & 0x3FU ) << 6 ) |
+                    ( uint32_t )( s[3] & 0x3FU );
+        *text = s + 4;
+        return codepoint;
+    }
+
+    *text = s + 1;
+    return TTF_REPLACEMENT_CHARACTER;
 }
 
 int64_t gr_font_ttf_load_from_memory( const void * data, size_t data_size ) {
@@ -286,13 +415,13 @@ int64_t gr_font_ttf_load_from_memory( const void * data, size_t data_size ) {
         return -1;
     }
 
-    if ( !FT_IS_SCALABLE( face ) ) {
+    if ( !FT_IS_SCALABLE( face ) || FT_Select_Charmap( face, FT_ENCODING_UNICODE ) != 0 ) {
         FT_Done_Face( face );
         free( owned_data );
         return -1;
     }
 
-    fontid = gr_font_new( CHARSET_CP850 );
+    fontid = gr_font_new( CHARSET_UTF8 );
     if ( fontid < 0 ) {
         FT_Done_Face( face );
         free( owned_data );
@@ -306,7 +435,7 @@ int64_t gr_font_ttf_load_from_memory( const void * data, size_t data_size ) {
     ttf->data_size = data_size;
     ttf->pixel_size = TTF_DEFAULT_PIXEL_SIZE;
 
-    if ( render_font_glyphs( fontid ) != 0 ) {
+    if ( render_base_glyphs( fontid ) != 0 ) {
         gr_font_destroy( fontid );
         return -1;
     }
@@ -370,7 +499,7 @@ int64_t gr_font_ttf_set_size( int64_t fontid, int64_t pixels ) {
     old_size = ttf->pixel_size;
     ttf->pixel_size = pixels;
 
-    if ( render_font_glyphs( fontid ) != 0 ) {
+    if ( render_base_glyphs( fontid ) != 0 ) {
         ttf->pixel_size = old_size;
         FT_Set_Pixel_Sizes( ttf->face, 0, ( FT_UInt )old_size );
         return -1;
@@ -389,6 +518,12 @@ int64_t gr_font_ttf_get_size( int64_t fontid ) {
     return ttf_fonts[fontid].pixel_size;
 }
 
+int64_t gr_font_ttf_get_line_height( int64_t fontid ) {
+    FONT * font;
+    if ( !gr_font_ttf_is_font( fontid ) || !( font = gr_font_get( fontid ) ) ) return 0;
+    return font->maxheight;
+}
+
 const char * gr_font_ttf_get_family( int64_t fontid ) {
     if ( !gr_font_ttf_is_font( fontid ) ) return "";
     return ttf_fonts[fontid].face->family_name ? ttf_fonts[fontid].face->family_name : "";
@@ -399,7 +534,7 @@ const char * gr_font_ttf_get_style( int64_t fontid ) {
     return ttf_fonts[fontid].face->style_name ? ttf_fonts[fontid].face->style_name : "";
 }
 
-int64_t gr_font_ttf_get_kerning( int64_t fontid, uint8_t left, uint8_t right ) {
+int64_t gr_font_ttf_get_kerning( int64_t fontid, uint32_t left, uint32_t right ) {
     TTF_FONT_SLOT * ttf;
     FT_UInt left_index;
     FT_UInt right_index;
@@ -410,8 +545,8 @@ int64_t gr_font_ttf_get_kerning( int64_t fontid, uint8_t left, uint8_t right ) {
     ttf = &ttf_fonts[fontid];
     if ( !FT_HAS_KERNING( ttf->face ) ) return 0;
 
-    left_index = FT_Get_Char_Index( ttf->face, cp850_to_unicode[left] );
-    right_index = FT_Get_Char_Index( ttf->face, cp850_to_unicode[right] );
+    left_index = FT_Get_Char_Index( ttf->face, ( FT_ULong )left );
+    right_index = FT_Get_Char_Index( ttf->face, ( FT_ULong )right );
     if ( !left_index || !right_index ) return 0;
 
     if ( FT_Get_Kerning( ttf->face, left_index, right_index, FT_KERNING_DEFAULT, &delta ) != 0 ) return 0;
@@ -424,6 +559,7 @@ void gr_font_ttf_forget( int64_t fontid ) {
     if ( fontid < 0 || fontid >= MAX_FONTS ) return;
 
     ttf = &ttf_fonts[fontid];
+    clear_dynamic_cache( ttf );
     if ( ttf->face ) FT_Done_Face( ttf->face );
     free( ttf->data );
     memset( ttf, 0, sizeof( *ttf ) );
