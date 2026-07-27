@@ -194,13 +194,13 @@ char* remove_app_extension(const char* path) {
 
     if ( last_dot && ( !last_slash || last_dot > last_slash ) ) {
         const char *ext = last_dot + 1;
-        
+
         // Check if extension is .exe
         if ( strcasecmp(ext, "exe") == 0 ) {
             *last_dot = '\0';
             return result;
         }
-        
+
         // Check if extension matches any dcb_exts
         char **dcbext = dcb_exts;
         while ( dcbext && *dcbext ) {
@@ -223,7 +223,7 @@ int file_has_extension(const char *path) {
 
     if ( !last_dot ) return 0;
     if ( last_slash && last_dot < last_slash ) return 0;
-    
+
     int len = strlen(last_dot + 1);
     if ( len >= 1 && len <= 4 ) return 1;
     return 0;
@@ -381,6 +381,14 @@ int main( int argc, char *argv[] ) {
 
             /* Check if we should try to add an extension */
 #if !defined( __SWITCH__ ) && !defined( PS3_PPU ) && !defined( __ANDROID__ )
+
+#ifdef __WIN32
+            // Check if extension is .exe
+            if ( !strcasecmp(filename + strlen(filename) - 4, ".exe") ) {
+                filename[strlen(filename) - 4] = '\0';
+            }
+#endif
+
             if ( standalone || !file_has_extension( filename ) || filename[strlen(filename)-1] == '.' ) {
 #else
             if ( !file_has_extension( filename ) || filename[strlen(filename)-1] == '.' ) {
