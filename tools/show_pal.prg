@@ -27,32 +27,6 @@ struct MAP_HEADER
 end;
 
 /* --------------------------------------------------------------------------- */
-#if 0
-struct {
-    int     code;
-    int     regsize;
-    char    name[32];
-    char    fpname[12];
-    int     width;
-    int     height;
-    int     flags;
-} chunk;
-#endif
-/* --------------------------------------------------------------------------- */
-#if 0
-typedef struct _chardata {
-    int width;
-    int height;
-    int xadvance;
-    int yadvance;
-    int xoffset;
-    int yoffset;
-    int fileoffset;
-} _chardata;
-#endif
-/* --------------------------------------------------------------------------- */
-/* --------------------------------------------------------------------------- */
-/* --------------------------------------------------------------------------- */
 
 function char * gr_read_pal( int * fp )
 begin
@@ -80,22 +54,19 @@ end
 
 /* --------------------------------------------------------------------------- */
 
-/* Static convenience function */
-function gr_read_lib( int fp )
+function int gr_read_lib( int fp, int gen_aseprite )
 begin
     char header[7];
-    short px, py;
-    int bpp, ii;
-    uint32 y;
     char * colors = NULL;
-    int st = 0;
+    int out_fp;
+    int r, g, b;
 
     if ( fread( &header[0], sizeof( header ), fp ) != sizeof( header ) )
         say( "error reading" );
         return -1;
     end
 
-      if ( header == FPG_MAGIC || header == PAL_MAGIC || header == FNT_MAGIC ) 
+    if ( header == FPG_MAGIC || header == PAL_MAGIC || header == FNT_MAGIC )
     elif ( header == MAP_MAGIC )
         fseek( fp, 48, SEEK_SET );
     else
@@ -108,136 +79,55 @@ begin
     end
 
     if ( colors )
-        for ( int i = 0; i < 256; i++ )
-            say ( i + " =  0x" + substr(
-                                        ((int *)
-                                            ( ( (int)asc(colors[i*3]) << 24 ) +
-                                              ( (int)asc(colors[i*3+1]) << 16 ) +
-                                                ( (int)asc(colors[i*3+2]) << 8 ) +
-                                                255 ) ), -8 ) + " ( " + asc(colors[i*3]) + "," + asc(colors[i*3+1]) + "," + asc(colors[i*3+2]) + "," + 255 + " )" );
+        if ( gen_aseprite )
+            out_fp = fopen( "output.pal", o_write );
+            if ( out_fp )
+                fputs( out_fp, "JASC-PAL\r\n0100\r\n256\r\n" );
+                for ( int i = 0; i < 256; i++ )
+                    r = asc( colors[i * 3] );
+                    g = asc( colors[i * 3 + 1] );
+                    b = asc( colors[i * 3 + 2] );
+                    fputs( out_fp, r + " " + g + " " + b + "\r\n" );
+                end
+                fclose( out_fp );
+                say( "Aseprite palette generated: output.pal" );
+            end
+        else
+            for ( int i = 0; i < 256; i++ )
+                say ( i + " =  0x" + substr(
+                                            ((int *)
+                                                ( ( (int)asc(colors[i*3]) << 24 ) +
+                                                  ( (int)asc(colors[i*3+1]) << 16 ) +
+                                                    ( (int)asc(colors[i*3+2]) << 8 ) +
+                                                    255 ) ), -8 ) + " ( " + asc(colors[i*3]) + "," + asc(colors[i*3+1]) + "," + asc(colors[i*3+2]) + "," + 255 + " )" );
+            end
         end
         mem_free( colors );
     end
 
-
-#if 0
-    uint32_t rmask, gmask, bmask, amask;
-    getRGBA_mask( bpp, &rmask, &gmask, &bmask, &amask );
-
-    while ( !file_eof( fp ) ) {
-        if ( file_read( fp, &chunk, sizeof( chunk ) ) != sizeof( chunk ) ) break; end
-
-        ARRANGE_DWORD( &chunk.code );
-        if ( chunk.code < 0 || chunk.code > 999 ) break; end
-        ARRANGE_DWORD( &chunk.regsize );
-        ARRANGE_DWORD( &chunk.width );
-        ARRANGE_DWORD( &chunk.height );
-        ARRANGE_DWORD( &chunk.flags );
-
-        /* Graph header */
-
-        SDL_Surface* surface = SDL_CreateRGBSurface(0, chunk.width, chunk.height, bpp, rmask, gmask, bmask, amask );
-        if ( !surface ) {
-            if ( pal ) SDL_FreePalette( pal );
-            grlib_destroy( libid );
-            return -1;
-        }
-
-        if ( pal ) SDL_SetSurfacePalette( surface, pal );
-
-        // Set transparent color
-        if ( bpp != 32 ) {
-            if ( bpp == 1 ) SDL_SetColorKey( surface, SDL_TRUE, 1 );
-            else            SDL_SetColorKey( surface, SDL_TRUE, 0 );
-        }
-
-        int ncpoints = chunk.flags;
-        CPOINT * cpoints = NULL;
-
-        if ( ncpoints )
-            cpoints = ( CPOINT * ) malloc( ncpoints * sizeof( CPOINT ) );
-            if ( !cpoints )
-                return -1;
-            end
-
-            for ( int c = 0; c < ncpoints; c++ )
-                fread( fp, px );
-                fread( fp, py );
-                if ( px == -1 && py == -1 )
-                    cpoints[c].x = CPOINT_UNDEFINED;
-                    cpoints[c].y = CPOINT_UNDEFINED;
-                else
-                    cpoints[c].x = px;
-                    cpoints[c].y = py;
-                end
-            end
-        end
-
-        /* Graphic data */
-
-        int widthb = chunk.width * bpp / 8;
-        if (( widthb * 8 / bpp ) < chunk.width ) widthb++;
-
-        for ( y = 0; y < chunk.height; y++ ) {
-            uint8_t * line = ( uint8_t * ) surface->pixels + surface->pitch * y;
-
-            switch ( bpp ) {
-                case    32:
-                    st = file_readUint32A( fp, ( uint32_t * ) line, chunk.width );
-                    break;
-
-                case    16:
-                    st = file_readUint16A( fp, ( uint16_t * ) line, chunk.width );
-                    break;
-
-                case    8:
-                    st = file_read( fp, line, widthb );
-                    break;
-
-                case    1:
-                    st = file_read( fp, line, widthb );
-                    for ( ii = 0; ii < widthb; ii++ ) line[ii] = ~line[ii];
-                    break;
-
-            }
-
-            if ( !st ) {
-                free( cpoints );
-                SDL_FreeSurface( surface );
-                if ( pal ) SDL_FreePalette( pal );
-                grlib_destroy( libid );
-                return -1;
-            }
-        }
-
-        GRAPH *gr = bitmap_new( chunk.code, 0, 0, surface );
-        if ( !gr ) {
-            free( cpoints );
-            SDL_FreeSurface( surface );
-            if ( pal ) SDL_FreePalette( pal );
-            grlib_destroy( libid );
-            return -1;
-        }
-        SDL_FreeSurface( surface );
-
-        memcpy( gr->name, chunk.name, sizeof( chunk.name ) );
-        gr->name[31] = 0;
-        gr->ncpoints = ncpoints;
-        gr->cpoints = cpoints;
-
-        grlib_add_map( libid, gr );
-    }
-#endif
     return 0;
 end
 
-
+/* --------------------------------------------------------------------------- */
 
 process int main()
 begin
-say(argv[1]);
-    int f = fopen(argv[1], o_read);
-    gr_read_lib( f );
-    fclose( f );
+    int gen_aseprite = 0;
+    int arg_index = 1;
 
+    if ( argc > 2 && argv[1] == "--aseprite" )
+        gen_aseprite = 1;
+        arg_index = 2;
+    elif ( argc > 2 && argv[2] == "--aseprite" )
+        gen_aseprite = 1;
+    end
+
+    say( argv[arg_index] );
+    int f = fopen( argv[arg_index], o_zread );
+    if ( f )
+        gr_read_lib( f, gen_aseprite );
+        fclose( f );
+    else
+        say( "Error opening input file" );
+    end
 end
