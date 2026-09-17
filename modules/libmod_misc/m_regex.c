@@ -82,9 +82,9 @@ int64_t libmod_misc_regex_regex (INSTANCE * my, int64_t * params) {
         if (result != -1) {
             /* Fill the regex_reg global variables */
             int64_t * regex_reg = (int64_t *) &GLOQWORD( libmod_misc, REGEX_REG);
-            
+
             unsigned n;
-            
+
             for (n = 0; n < 16 && n <= pb.re_nsub; n++) {
                 string_discard (regex_reg[n]);
                 regex_reg[n] = string_newa (str + re.start[n], re.end[n] - re.start[n]);
@@ -190,7 +190,7 @@ int64_t libmod_misc_regex_regex_replace (INSTANCE * my, int64_t * params) {
 
                 /* Count the size */
 
-                ptr = strchr(rep, '\\');
+                ptr = (char *) strchr(rep, '\\');
                 while (ptr) {
                     if (ptr[1] >= '0' && ptr[1] <= '9')
                         total_length += re.end[ptr[1]-'0'] - re.start[ptr[1]-'0'] - 2;
@@ -202,7 +202,7 @@ int64_t libmod_misc_regex_regex_replace (INSTANCE * my, int64_t * params) {
                 replacement = calloc (total_length+1, 1);
 
                 bptr = rep;
-                ptr = strchr(rep, '\\');
+                ptr = (char *) strchr(rep, '\\');
                 while (ptr) {
                     if (ptr[1] >= '0' && ptr[1] <= '9') {
                         strncpy (replacement+strlen(replacement), bptr, ptr-bptr);

@@ -14,8 +14,8 @@
 #include <stdint.h>
 #ifndef __BGDC__
 #include <SDL.h>
-#include <SDL_mixer.h>
 #endif
+#include <SDL_mixer.h>
 #include "files.h" // For file* support
 
 #ifdef __cplusplus

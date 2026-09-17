@@ -144,7 +144,7 @@ char* get_executable_full_path(const char* path) {
 // non destructive basename
 // fullpath already have a separator
 char* get_executable_name(const char* full_path) {
-    char * separator = strrchr(full_path, '/');
+    char * separator = (char *) strrchr(full_path, '/');
     if ( !separator ) return strdup( full_path );
     return strdup( separator + 1);
 }
