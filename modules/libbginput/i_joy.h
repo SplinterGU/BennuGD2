@@ -65,12 +65,14 @@
     #define JOY_BUTTON_DPAD_DOWN            ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_DPAD_DOWN )
     #define JOY_BUTTON_DPAD_LEFT            ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_DPAD_LEFT )
     #define JOY_BUTTON_DPAD_RIGHT           ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_DPAD_RIGHT )
+#ifndef PS3_PPU
     #define JOY_BUTTON_MISC1                ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_MISC1 )    /* Xbox Series X share button PS5 microphone button Nintendo Switch Pro capture button Amazon Luna microphone button */
     #define JOY_BUTTON_PADDLE1              ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_PADDLE1 )  /* Xbox Elite paddle P1 (upper left facing the back) */
     #define JOY_BUTTON_PADDLE2              ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_PADDLE2 )  /* Xbox Elite paddle P3 (upper right facing the back) */
     #define JOY_BUTTON_PADDLE3              ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_PADDLE3 )  /* Xbox Elite paddle P2 (lower left facing the back) */
     #define JOY_BUTTON_PADDLE4              ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_PADDLE4 )  /* Xbox Elite paddle P4 (lower right facing the back) */
     #define JOY_BUTTON_TOUCHPAD             ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_TOUCHPAD ) /* PS4/PS5 touchpad button */
+#endif
     #define JOY_BUTTON_MAX                  ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_MAX )
 
     #define JOY_AXIS_LEFTX                  ( JOY_MAPPING_BASE + SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_LEFTX )

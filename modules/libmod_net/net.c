@@ -46,6 +46,12 @@
 
 #include "net.h"
 
+#ifdef PS3_PPU
+
+#include "net_ps3.inc"
+
+#else
+
 #ifndef _WIN32
     #define closesocket(x)    close(x)
 #endif
@@ -453,3 +459,5 @@ int net_is_message_incoming(_net *neth) {
 }
 
 /* --------------------------------------------------------------------------- */
+
+#endif

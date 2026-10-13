@@ -17,6 +17,13 @@ file(GLOB SOURCES_LIBMOD_net
 
 add_library(mod_net ${LIBRARY_BUILD_TYPE} ${SOURCES_LIBMOD_net})
 
+# PSL1GHT: network header for PS3
+if(PS3_PPU)
+    target_include_directories(mod_net PRIVATE
+        "$ENV{PSL1GHT}/ppu/include"
+    )
+endif()
+
 target_link_libraries(mod_net ${SDL2_LIBRARY} ${SDL2_LIBRARIES} -L${CMAKE_SOURCE_DIR}/bin bgdrtm)
 if (WIN32)
     add_definitions(-D_WIN32_WINNT=0x0600)

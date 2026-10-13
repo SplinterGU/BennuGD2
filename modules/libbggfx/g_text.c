@@ -66,9 +66,6 @@ typedef struct _text {
     int64_t _x;
     int64_t _y;
 
-    /* Internals for ANSI/VT100 */
-    watch * watch_colors;
-
 } TEXT;
 
 /* --------------------------------------------------------------------------- */
@@ -77,8 +74,6 @@ TEXT texts[MAX_TEXTS];
 
 int64_t text_nextid = 1;
 int64_t text_count  = 0;
-
-static watch * system_text_color_watch = NULL;
 
 /* --------------------------------------------------------------------------- */
 
@@ -160,8 +155,8 @@ static uint8_t ansi_colors_8[][3] = {
 
 #define ANSI_END()          { stop = 1; break; }
 
-#define RESET_COLOR()       { watch_reset( working_watch, current_color ); *r = current_color[0]; *g = current_color[1]; *b = current_color[2]; }
-#define SET_COLOR(value)    { watch_set( working_watch, current_color, value ); *r = current_color[0]; *g = current_color[1]; *b = current_color[2]; }
+#define RESET_COLOR()       { current_color[ 0 ] = original_color[ 0 ]; current_color[ 1 ] = original_color[ 1 ]; current_color[ 2 ] = original_color[ 2 ]; }
+#define SET_COLOR(value)    { current_color[ 0 ] = value[ 0 ]; current_color[ 1 ] = value[ 1 ]; current_color[ 2 ] = value[ 2 ]; }
 
 #define PARSE_ANSI() \
     if ( *text == '\e' && *( text + 1 ) == '[' ) { /* Ansi secuence */ \
@@ -242,7 +237,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     fntclip = &f->glyph[current_char].fontsource; \
-                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, 0, 0, /*POINT_UNDEFINED, POINT_UNDEFINED,*/ f->fontmap, fntclip, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
+                    gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, 0, 0, /*POINT_UNDEFINED, POINT_UNDEFINED,*/ f->fontmap, fntclip, alpha, current_color[ 0 ], current_color[ 1 ], current_color[ 2 ], blend_mode, custom_blend_mode ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -252,7 +247,7 @@ static uint8_t ansi_colors_8[][3] = {
                     PARSE_ANSI() \
                     current_char = enc; \
                     ch = f->glyph[current_char].glymap; \
-                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, 0, 0, /*POINT_UNDEFINED, POINT_UNDEFINED,*/ ch, NULL, alpha, *r, *g, *b, blend_mode, custom_blend_mode ); \
+                    if ( ch ) gr_blit( dest, clip, x + f->glyph[current_char].xoffset, y + f->glyph[current_char].yoffset, flags, 0, 100, 100, 0, 0, /*POINT_UNDEFINED, POINT_UNDEFINED,*/ ch, NULL, alpha, current_color[ 0 ], current_color[ 1 ], current_color[ 2 ], blend_mode, custom_blend_mode ); \
                     x += f->glyph[current_char].xadvance; \
                     text++; \
                 }
@@ -524,8 +519,6 @@ int64_t gr_text_new2( int64_t fontid, int64_t x, int64_t y, int64_t z, int64_t a
     texts[textid].color_g = GLOBYTE( libbggfx, TEXT_COLORG );
     texts[textid].color_b = GLOBYTE( libbggfx, TEXT_COLORB );
 
-    texts[textid].watch_colors = watch_create( &texts[textid].color_r, 3 );
-
     texts[textid].objectid = gr_new_object( texts[textid].z, info_text, draw_text, &texts[textid] );
 
     return textid;
@@ -738,32 +731,27 @@ int64_t gr_text_height( int64_t fontid, const unsigned char * text ) {
 
 int64_t gr_text_put( GRAPH * dest, void * ptext, REGION * clip, int64_t fontid, int64_t x, int64_t y, const unsigned char * text ) {
     FONT * f;
-    uint8_t current_char, alpha, *r, *g, *b;
+    uint8_t current_char, alpha;
     int64_t flags;
     BGD_Rect * fntclip = NULL;
     int stop = 0, idx;
-    watch * working_watch = NULL;
     int8_t current_color[3] = { 0, 0, 0 };
+    int8_t original_color[3] = { 0, 0, 0 };
 
     if ( !text || !*text ) return -1;
     if ( !( f = gr_font_get( fontid ) ) ) return 0; // Incorrect font type
 
     if ( ptext ) {
         alpha = ( ( TEXT * ) ptext )->alpha;
-        current_color[ 0 ] = * ( r = &( ( TEXT * ) ptext )->color_r );
-        current_color[ 1 ] = * ( g = &( ( TEXT * ) ptext )->color_g );
-        current_color[ 2 ] = * ( b = &( ( TEXT * ) ptext )->color_b );
-        working_watch = ( ( TEXT * ) ptext )->watch_colors;
+        original_color[ 0 ] = current_color[ 0 ] = ( ( TEXT * ) ptext )->color_r;
+        original_color[ 1 ] = current_color[ 1 ] = ( ( TEXT * ) ptext )->color_g;
+        original_color[ 2 ] = current_color[ 2 ] = ( ( TEXT * ) ptext )->color_b;
     } else {
         alpha = GLOBYTE( libbggfx, TEXT_ALPHA );
-        current_color[ 0 ] = * ( r = GLOADDR( libbggfx, TEXT_COLORR ) );
-        current_color[ 1 ] = * ( g = GLOADDR( libbggfx, TEXT_COLORG ) );
-        current_color[ 2 ] = * ( b = GLOADDR( libbggfx, TEXT_COLORB ) );
-        if ( !system_text_color_watch ) system_text_color_watch = watch_create( current_color, sizeof(current_color) );
-        working_watch = system_text_color_watch;
+        original_color[ 0 ] = current_color[ 0 ] = GLOBYTE( libbggfx, TEXT_COLORR );
+        original_color[ 1 ] = current_color[ 1 ] = GLOBYTE( libbggfx, TEXT_COLORG );
+        original_color[ 2 ] = current_color[ 2 ] = GLOBYTE( libbggfx, TEXT_COLORB );
     }
-
-    watch_test( working_watch, current_color );
 
     flags = GLOQWORD( libbggfx, TEXT_FLAGS );
     int64_t blend_mode = GLOQWORD( libbggfx, TEXT_BLEND_MODE );
@@ -964,8 +952,6 @@ void * gr_text_alloc() {
     t->color_r = GLOBYTE( libbggfx, TEXT_COLORR );
     t->color_g = GLOBYTE( libbggfx, TEXT_COLORG );
     t->color_b = GLOBYTE( libbggfx, TEXT_COLORB );
-
-    t->watch_colors = watch_create( &t->color_r, 3 );
 
     return ( void * ) t;
 }

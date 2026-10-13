@@ -40,7 +40,6 @@
 #include "dcb.h"
 #include "xctype.h"
 #include "instance.h"
-#include "watch.h"
 #include "list.h"
 
 /* --------------------------------------------------------------------------- */

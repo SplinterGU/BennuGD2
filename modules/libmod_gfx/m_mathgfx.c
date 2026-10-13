@@ -51,14 +51,9 @@ static inline int64_t __get_angle( INSTANCE * a, INSTANCE * b ) {
 
     double dx = LOCDOUBLE( libmod_gfx, b, COORDX ) - LOCDOUBLE( libmod_gfx, a, COORDX );
     double dy = LOCDOUBLE( libmod_gfx, b, COORDY ) - LOCDOUBLE( libmod_gfx, a, COORDY );
-
-    int64_t angle ;
-
-    if ( dx == 0 ) return ( dy > 0 ) ? 270000L : 90000L ;
-
-    angle = ( int64_t )( atan( dy / dx ) * 180000.0 / M_PI ) ;
-
-    return ( dx > 0 ) ? -angle : -angle + 180000L ;
+    double angle = atan2( -dy, dx ) * ( 180000.0 / M_PI );
+    if ( angle < 0.0 ) angle += 360000.0;
+    return ( int64_t ) angle;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -74,10 +69,10 @@ static inline int64_t __get_distance( INSTANCE * a, INSTANCE * b ) {
     RESOLXY( libmod_gfx, a, x1, y1 );
     RESOLXY( libmod_gfx, b, x2, y2 );
 
-    double dx = ( x2 - x1 ) * ( x2 - x1 ) ;
-    double dy = ( y2 - y1 ) * ( y2 - y1 ) ;
+    double dx = ( x2 - x1 ) ;
+    double dy = ( y2 - y1 ) ;
 
-    double ret = sqrt( dx + dy ) ;
+    double ret = sqrt( dx*dx + dy*dy ) ;
 
          if ( res > 0 ) ret *= res ;
     else if ( res < 0 ) ret /= -res ;
