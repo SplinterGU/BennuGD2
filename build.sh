@@ -2,7 +2,7 @@
 
 show_help() {
     echo "usage:"
-    echo "    $0 [windows|windows32|linux|linux32|switch|macosx] [debug] [clean] [packages] [use_sdl2|use_sdl2_gpu] [verbose] [static] [one-job]"
+    echo "    $0 [windows|windows32|linux|linux32|switch|macosx|ps3] [debug] [clean] [packages] [use_sdl2|use_sdl2_gpu] [verbose] [static] [one-job]"
     exit 1
 }
 
@@ -176,29 +176,29 @@ build_target() {
                 TARGET=linux-gnu
                 ;;
 
-    #        ps3)
-    #            TARGET=powerpc64-ps3-elf
-    #            STATIC_ENABLED=1
-    #            USE_SDL2=1
-    #            USE_SDL2_GPU=0
-    #            COMPILER="-mcpu=cell"
-    #            CMAKE_EXTRA="-DPS3_PPU=1 -DSDL2_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2.a -DSDL2_IMAGE_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_IMAGE_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_image.a -DSDL2_MIXER_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDLMIXER_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_mixer.a -DZLIB_LIBRARY=-lz -DZLIB_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include -DCMAKE_INCLUDE_PATH=${PS3DEV}/portlibs/ppu/include
-    #                -DBUILD_TARGET=interpreter"
-    #            export AS=ppu-as
-    #            export CC=ppu-gcc
-    #            export CXX=ppu-g++
-    #            export AR=ppu-ar
-    #            export LD=ppu-gcc
-    #            export STRIP=ppu-strip
-    #            export OBJCOPY=ppu-objcopy
-    #            export PATH=$PS3DEV/bin:$PS3DEV/ppu/bin:$PATH
-    #            export PORTLIBS=$PS3DEV/portlibs/ppu
-    #            CFLAGS_INIT=""
-    #            CXXFLAGS_INIT="-D_GLIBCX11_USE_C99_STDIO"
-    #            CMAKE_INCLUDE_DIRECTORIES=$PS3DEV/ppu/include:$PS3DEV/ppu/include/simdmath
-    #            CMAKE_LIBRARY_DIRECTORIES=$PS3DEV/ppu/lib
-    #            CMAKE_PREFIX_PATH=$PS3DEV/ppu
-    #            ;;
+            ps3)
+                TARGET=powerpc64-ps3-elf
+                STATIC_ENABLED=1
+                USE_SDL2=1
+                USE_SDL2_GPU=0
+                COMPILER="-mcpu=cell"
+                CMAKE_EXTRA="-DPS3_PPU=1 -DSDL2_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2.a -DSDL2_IMAGE_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDL2_IMAGE_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_image.a -DSDL2_MIXER_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include/SDL2 -DSDLMIXER_LIBRARY=${PS3DEV}/portlibs/ppu/lib/libSDL2_mixer.a -DZLIB_LIBRARY=-lz -DZLIB_INCLUDE_DIR=${PS3DEV}/portlibs/ppu/include -DCMAKE_INCLUDE_PATH=${PS3DEV}/portlibs/ppu/include
+                    -DBUILD_TARGET=interpreter"
+                export AS=ppu-as
+                export CC=ppu-gcc
+                export CXX=ppu-g++
+                export AR=ppu-ar
+                export LD=ppu-gcc
+                export STRIP=ppu-strip
+                export OBJCOPY=ppu-objcopy
+                export PATH=$PS3DEV/bin:$PS3DEV/ppu/bin:$PATH
+                export PORTLIBS=$PS3DEV/portlibs/ppu
+                CFLAGS_INIT=""
+                CXXFLAGS_INIT="-D_GLIBCX11_USE_C99_STDIO"
+                CMAKE_INCLUDE_DIRECTORIES=$PS3DEV/ppu/include:$PS3DEV/ppu/include/simdmath
+                CMAKE_LIBRARY_DIRECTORIES=$PS3DEV/ppu/lib
+                CMAKE_PREFIX_PATH=$PS3DEV/ppu
+                ;;
 
             windows32|win32)
                 TARGET=i686-w64-mingw32

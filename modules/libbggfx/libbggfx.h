@@ -182,6 +182,7 @@ enum {
 #include "g_screen.h"
 #include "g_pathfind.h"
 #include "g_media.h"
+#include "g_blend.h"
 
 #ifndef __BGDC__
 

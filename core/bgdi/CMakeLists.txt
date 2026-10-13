@@ -39,7 +39,32 @@ if (LIBRARY_BUILD_TYPE STREQUAL "STATIC")
     endif()
 
     if(PS3_PPU)
-        set(OTHER_LIBS -L/usr/local/ps3dev/portlibs/ppu/lib -L/usr/local/ps3dev/spu/spu/lib -L/usr/local/ps3dev/ppu/powerpc64-ps3-elf/lib -L/usr/local/ps3dev/portlibs/ppu/lib -L/usr/local/ps3dev/ppu/lib -lm -lgcm_sys -lrsx -lsysutil -lrt -llv2 -lio -laudio -lpng -lpng14 -ltiff -ljpeg)
+        set(OTHER_LIBS
+            -L$ENV{PS3DEV}/portlibs/ppu/lib
+            -L$ENV{PS3DEV}/ppu/powerpc64-ps3-elf/lib
+            -L$ENV{PS3DEV}/ppu/lib
+
+            -lnet
+            -lsysmodule
+            -lvorbis
+            -logg
+            -lpthread
+            -lgcm_sys
+            -lrsx
+            -lsysutil
+            -lrt
+            -llv2
+            -lio
+            -laudio
+            -lpng
+            -lpng14
+            -ltiff
+            -ljpeg
+
+            # Volver a enlazar SDL2 después de sus bibliotecas consumidoras.
+            ${SDL2_LIBRARY}
+            -lm
+        )
     endif()
 
     if(LIBVLC_ENABLED)

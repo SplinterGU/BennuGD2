@@ -67,12 +67,16 @@ TODO: PS3
         #endif
 
         #ifndef PS3_PPU
-            #include <sys/ioctl.h>  
+            #include <sys/ioctl.h>
         #endif
 
         #define SOCKET_ERROR    -1
 
         typedef int SOCKET;
+    #endif
+
+    #ifdef PS3_PPU
+        #include <net/net.h>
     #endif
 
     #ifndef MSG_NOSIGNAL
@@ -96,7 +100,9 @@ TODO: PS3
         enum net_mode mode;
         enum net_proto proto;
         SOCKET sock;
-#ifndef PS3_PPU
+#ifdef PS3_PPU
+        struct sockaddr_in srcaddr;
+#else
         struct sockaddr_storage srcaddr;
 #endif
         socklen_t srcaddrlen;

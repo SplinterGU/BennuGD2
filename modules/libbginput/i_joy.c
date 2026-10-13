@@ -775,9 +775,11 @@ SDL_JoystickType joy_type(void) {
 /* --------------------------------------------------------------------------- */
 
 SDL_bool joy_has_led_specific(int64_t joy) {
+#ifndef PS3_PPU
     if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
         return SDL_JoystickHasLED(_joystickList[joy].joystick);
     }
+#endif
     return 0;
 }
 
@@ -797,8 +799,10 @@ SDL_bool joy_has_led(void) {
 
 SDL_bool joy_has_rumble_specific(int64_t joy) {
     if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
-#ifdef __SWITCH__
-    return 1;
+#ifdef PS3_PPU
+        return 1;
+#elif defined( __SWITCH__ )
+        return 1;
 #else
         return SDL_JoystickHasRumble(_joystickList[joy].joystick);
 #endif
@@ -822,7 +826,9 @@ SDL_bool joy_has_rumble(void) {
 
 SDL_bool joy_has_rumble_triggers_specific(int64_t joy) {
     if (joy >= 0 && joy < MAX_JOYS && _joystickList[joy].joystick) {
-#ifdef __SWITCH__
+#ifdef PS3_PPU
+        return 0;
+#elif defined( __SWITCH__ )
         return 1;
 #else
         return SDL_JoystickHasRumbleTriggers(_joystickList[joy].joystick);
@@ -852,10 +858,17 @@ int64_t joy_set_specific(int64_t joy, int64_t element, int64_t arg1, int64_t arg
                 return SDL_JoystickRumble(_joystickList[joy].joystick, (Uint16)arg1 /*low_frequency_rumble*/, (Uint16)arg2 /*high_frequency_rumble*/, (Uint32)arg3 /*duration_ms*/);
 
             case JOY_SET_RUMBLE_TRIGGERS:
+#ifdef PS3_PPU
+                return 0;
+#else
                 return SDL_JoystickRumbleTriggers(_joystickList[joy].joystick, (Uint16)arg1 /*left_rumble*/, (Uint16)arg2 /*right_rumble*/, (Uint32)arg3 /*duration_ms*/);
-
+#endif
             case JOY_SET_LED:
+#ifdef PS3_PPU
+                return 0;
+#else
                 return SDL_JoystickSetLED(_joystickList[joy].joystick, (Uint8)arg1 /*red*/, (Uint8)arg2 /*green*/, (Uint8)arg3 /*blue*/);
+#endif
 
 #ifdef JOY_SEND_EFFECT_ENABLED
             case JOY_SET_SEND_EFFECT:
@@ -923,12 +936,14 @@ int64_t joy_query_specific( int64_t joy, int64_t element, int64_t arg1 ) {
             case JOY_BUTTON_DPAD_DOWN:
             case JOY_BUTTON_DPAD_LEFT:
             case JOY_BUTTON_DPAD_RIGHT:
+#ifndef PS3_PPU
             case JOY_BUTTON_MISC1:
             case JOY_BUTTON_PADDLE1:
             case JOY_BUTTON_PADDLE2:
             case JOY_BUTTON_PADDLE3:
             case JOY_BUTTON_PADDLE4:
             case JOY_BUTTON_TOUCHPAD:
+#endif
                 return _joy_query_button( joy, element );
 
             case JOY_AXIS_LEFTX:

@@ -28,12 +28,14 @@
 #ifndef __G_SHADERS_H
 #define __G_SHADERS_H
 
+#ifndef PS3_PPU
 #if USE_SDL2
 #ifndef __ANDROID__
 #include <GL/glew.h>
 #endif
 #include <SDL_opengl.h>
 #endif
+#endif // !PS3_PPU
 
 #ifdef USE_SDL2_GPU
 #define SHADER_LANGUAGE_NONE            GPU_LANGUAGE_NONE
