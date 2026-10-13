@@ -99,7 +99,7 @@ begin
 end
 
 
-Function int zlDrawz( double x, double y, int z, int i_sprite )
+Function int zlDrawz( double x, double y, double z, int i_sprite )
 begin
     i_procId[ i_sp ].x = x + screenoffsetx;
     i_procId[ i_sp ].y = y + screenoffsety;

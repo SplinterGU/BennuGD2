@@ -198,14 +198,14 @@ local
 declare process Final_boss( double x, y );
 declare process zombie( double x, y, int zombie_type, AI, speed, starting_way );
 declare process player( double x, y );
-declare process shot( double x, y, int z, shot_type, tangle, dmg );
-declare process zombie_shot( double x, y, int z, shot_type, tangle, dmg );
-declare process morter_shot( double x, y, int z, shot_type, tangle, dmg );
+declare process shot( double x, y, double z, int shot_type, tangle, dmg );
+declare process zombie_shot( double x, y, double z, int shot_type, tangle, dmg );
+declare process morter_shot( double x, y, double z, int shot_type, tangle, dmg );
 declare process gilza( double x, y, int tangle, speed, gilza_type );
 declare process blood( double x, y, size );
 declare process after_flame( double x, y, size );
-declare process muzzle( double x, y, size, int z, angle, dir );
-declare process death_menu_gfx( double x, y, int z, double size, int alpha, graph );
+declare process muzzle( double x, y, size, double z, int angle, dir );
+declare process death_menu_gfx( double x, y, double z, double size, int alpha, graph );
 declare process fake_flame_scroll( double x, y, int tangle, speed );
 declare process letters( double x, y, int graph, double size );
 
@@ -1733,7 +1733,7 @@ process pause_hand()
         int id6;
         g_pointf oldmouse;
         int timer_key;
-        double y2;        
+        double y2;
 begin
     music_pause();
     first_sound = sound_play( menu_sound, -1, 2 );
@@ -2984,7 +2984,7 @@ begin
 end
 
 
-process shot( double x, y, int z, shot_type, tangle, dmg )
+process shot( double x, y, double z, int shot_type, tangle, dmg )
     private
         int pid;
 begin
@@ -3029,7 +3029,7 @@ begin
 end
 
 
-process zombie_shot( double x, y, int z, shot_type, tangle, dmg )
+process zombie_shot( double x, y, double z, int shot_type, tangle, dmg )
     private
         int pid;
 begin
@@ -3060,7 +3060,7 @@ begin
 end
 
 
-process morter_shot( double x, y, int z, shot_type, tangle, dmg )
+process morter_shot( double x, y, double z, int shot_type, tangle, dmg )
     private
         int pid;
 begin
@@ -3487,7 +3487,7 @@ begin
 end
 
 
-process muzzle( double x, y, size, int z, angle, dir );
+process muzzle( double x, y, size, double z, int angle, dir );
 begin
     ctype = c_scroll;
     graph = 365 + dir;
@@ -3496,7 +3496,7 @@ begin
 end
 
 
-process death_menu_gfx( double x, y, int z, double size, int alpha, graph );
+process death_menu_gfx( double x, y, double z, double size, int alpha, graph );
 begin
     loop
         frame;

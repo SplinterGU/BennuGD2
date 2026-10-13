@@ -16,7 +16,7 @@ import "mod_debug";
 
 #define FADE_TIME 1000
 
-declare Process  Objeto_extra(double x,y, int file,graph,z,objeto,pantalla)
+declare Process  Objeto_extra(double x,y, int file,graph, double z, int objeto,pantalla)
     Private
        int Prota;
        int eruct;
@@ -26,92 +26,92 @@ end
 #define put_screen(f,g) background.file = f; background.graph = g
 
 declare process s_window(double x,y, int file,graph);
-declare process op_win(double x,y, int file,graph,op5,z);
-declare Process opciones(double x,y,int graph, double size, int z,opcion,_on);
-declare Process Menu_opciones(double x,y,int graph,z,opcion);
-declare Process menu_opc(double x,y,int graph,z);
-declare process Manoselec(double x,y, int file,graph,z);
-declare Process Configurar(double x,y,int graph,z);
-declare Process Options2(double x,y, int graph,z,opt);
-declare Process Options(double x,y, int z,opt);
-declare Process goody_menu(double x,y, int file,graph,z,flags);
-declare Process Enemi_menu(double x,y, int file,z);
-declare Process Ayuda(double x,y, int file,graph,z,double size,int game);
-declare process cortina(double x,y, int file,graph,z,double size, int vel,cor);
+declare process op_win(double x,y, int file,graph,op5, double z);
+declare Process opciones(double x,y,int graph, double size, double z, int opcion,_on);
+declare Process Menu_opciones(double x,y,int graph, double z, int opcion);
+declare Process menu_opc(double x,y,int graph, double z);
+declare process Manoselec(double x,y, int file,graph, double z);
+declare Process Configurar(double x,y,int graph, double z);
+declare Process Options2(double x,y, int graph, double z, int opt);
+declare Process Options(double x,y, double z, int opt);
+declare Process goody_menu(double x,y, int file,graph, double z, int flags);
+declare Process Enemi_menu(double x,y, int file, double z);
+declare Process Ayuda(double x,y, int file,graph, double z, size,int game);
+declare process cortina(double x,y, int file,graph, double z, size, int vel,cor);
 declare Process Game_over2(double x,y, double size);
 declare process Banner(double x,y, int graph);
-declare Process Continuar(double x,y, int z);
-declare Process Abandona(double x,y, int z);
-declare Process scanlines(double x,y, int file,graph,z);
-declare Process Score(double x,y, int file,z,tipo);
-declare process Lingo(lim,file,graph,z,double size);
-declare Process score_herram(double x,y, int file,graph,z,pieza);
-declare Process Herramientas (double x,y, int file,graph,z,herramienta);
-declare Process Selector(double x,y, int file,graph,z);
-declare Process selector2(double x,y, int file,graph,z);
+declare Process Continuar(double x,y, double z);
+declare Process Abandona(double x,y, double z);
+declare Process scanlines(double x,y, int file,graph, double z);
+declare Process Score(double x,y, int file, double z, int tipo);
+declare process Lingo(lim,file,graph, double z, size);
+declare Process score_herram(double x,y, int file,graph, double z, int pieza);
+declare Process Herramientas (double x,y, int file,graph, double z, int herramienta);
+declare Process Selector(double x,y, int file,graph, double z);
+declare Process selector2(double x,y, int file,graph, double z);
 declare Process Combos(double x,y, int file,graph,num);
 declare Process sombraje(file,gfx,sombras);
-declare Process GOODY(double x,y, int file,graph,flags,z,action) end
+declare Process GOODY(double x,y, int file,graph,flags, double z, int action);
 declare Process renace(double x,y, int re);
 declare Process Llegada(x,y);
-declare Process Ladrillo(double x,y, int file,graph,z,poder,flags);
-declare Process rompeladrillo(file,graph,double x,y, int z, double size);
-declare Process Escala(double x,y, int file,graph,z);
-declare Process Goody_golpe(double x,y, int file,graph,z,porrazo);
-declare Process Paredes_Proc(double x,y, int file,graph,z,muro);
-declare Process cabinas(double x,y, int file,graph,z,abrir,herra);
-declare Process Herracabina(double x,y, int file,graph,z);
-declare process subepunt(double x,y, int file,graph,z);
-declare Process Cubo_basura(double x,y, int file,graph,z,ratas);
-declare Process Escenario(double x,y, int file,graph,z,alpha);
-declare Process Ascensores(double x,y, int file,graph,z,tope_up,tope_down);
-declare Process Barcas(double x,y, int file,graph,z);
-declare Process Metro (double x,y, int file,graph,z,vagon);
-declare Process Metro2 (double x,y, int file,graph,z,vagon);
-declare Process Puerta_metro1(double x,y, int file,graph,z,activa,estac);
-declare Process Puerta_metro2(double x,y, int file,graph,z,activa,estac);
+declare Process Ladrillo(double x,y, int file,graph,double z, int poder,flags);
+declare Process rompeladrillo(file,graph,double x,y, double z, size);
+declare Process Escala(double x,y, int file,graph, double z);
+declare Process Goody_golpe(double x,y, int file,graph, double z, int porrazo);
+declare Process Paredes_Proc(double x,y, int file,graph, double z, int muro);
+declare Process cabinas(double x,y, int file,graph, double z, int abrir,herra);
+declare Process Herracabina(double x,y, int file,graph, double z);
+declare process subepunt(double x,y, int file,graph, double z);
+declare Process Cubo_basura(double x,y, int file,graph, double z, int ratas);
+declare Process Escenario(double x,y, int file,graph, double z, int alpha);
+declare Process Ascensores(double x,y, int file,graph, double z, int tope_up,tope_down);
+declare Process Barcas(double x,y, int file,graph, double z);
+declare Process Metro (double x,y, int file,graph, double z, int vagon);
+declare Process Metro2 (double x,y, int file,graph, double z, int vagon);
+declare Process Puerta_metro1(double x,y, int file,graph, double z, int activa,estac);
+declare Process Puerta_metro2(double x,y, int file,graph, double z, int activa,estac);
 declare Process Goody_tren(double x, int estacion);
-declare Process caja_fuerte(double x,y, int file,graph,z);
-declare Process Buitre(double x,y, int file,graph,z,salida,flags);
-declare Process huevo(double x,y, int file,graph,z);
-declare Process Gotas(double x,y, int file,graph,z,goteo);
-declare Process Peces(double x,y, int file,graph,z,double size);
-declare Process Chapuzon(double x,y, int file,graph,z);
-declare Process rata(double x,y, int file,graph,z,flags,zona1,zona2);
-declare Process Serpiente(double x,y, int file,graph,z,flags,zona1,zona2);
-declare Process Ladron(double x,y, int file,graph,z,flags,zona1,zona2);
-declare Process Karateka(double x,y, int file,graph,z,flags,zona1,zona2);
-declare Process Gorila(double x,y, int file,graph,z,flags,zona1,zona2);
-declare Process Policia(double x,y, int file,graph,z,flags,zona1,zona2);
-declare Process Fantasmas(file,graph,z,alpha,xrelativa,yrelativa,incx,incy,distx,disty);
-declare Process Limpiadora(double x,y, int file,graph,z);
-declare Process Polvos(double x,y, int file,graph,z);
-declare process Polvos2(double x,y) end
-declare Process Banquero(double x,y, int file,graph,z);
-declare Process Lingotes(double x,y, int file,graph,z);
-declare Process Obrero_pala(double x,y, int file,graph,z);
-declare Process Arena(double x,y, int file,graph,z);
-declare Process Obrero_pico(double x,y, int file,graph,z);
-declare Process Piedra(double x,y, int file,graph,z);
-declare Process Secretario(double x,y, int file,graph,z);
-declare Process Avion_papel(double x,y, int file,graph,z);
-declare Process Luna(double x,y, int file,graph,z);
-declare Process Agualuna(double x,y,int file,graph,z,angulo);
-declare Process Agualuna2(double x,y, int file,graph,z);
-declare Process Prostituta(double x,y, int file,graph,z,flags);
-declare Process corazon(double x,y, int file,graph,z);
-declare Process Panal(double x,y, int file,graph,z) end
-declare Process Abejas(double x,y, int file,graph,z);
-declare Process Helicoptero(double x,y, int file,graph,z,zona1,zona2);
-declare Process Cohete(double x,y, int file,graph,z);
-declare Process camara(double x,y, int file,graph,z,flags,lasers);
-declare Process Laser(double x,y, int file,graph,z,flags);
-declare Process opciones_menu1(double x,y,int file,graph,z,control);
+declare Process caja_fuerte(double x,y, int file,graph, double z);
+declare Process Buitre(double x,y, int file,graph, double z, int salida,flags);
+declare Process huevo(double x,y, int file,graph, double z);
+declare Process Gotas(double x,y, int file,graph, double z, int goteo);
+declare Process Peces(double x,y, int file,graph, double z, size);
+declare Process Chapuzon(double x,y, int file,graph, double z);
+declare Process rata(double x,y, int file,graph, double z, int flags,zona1,zona2);
+declare Process Serpiente(double x,y, int file,graph, double z, int flags,zona1,zona2);
+declare Process Ladron(double x,y, int file,graph, double z, int flags,zona1,zona2);
+declare Process Karateka(double x,y, int file,graph, double z, int flags,zona1,zona2);
+declare Process Gorila(double x,y, int file,graph, double z, int flags,zona1,zona2);
+declare Process Policia(double x,y, int file,graph, double z, int flags,zona1,zona2);
+declare Process Fantasmas(file,graph, double z, byte alpha, int xrelativa,yrelativa,incx,incy,distx,disty);
+declare Process Limpiadora(double x,y, int file,graph, double z);
+declare Process Polvos(double x,y, int file,graph, double z);
+declare process Polvos2(double x,y);
+declare Process Banquero(double x,y, int file,graph, double z);
+declare Process Lingotes(double x,y, int file,graph, double z);
+declare Process Obrero_pala(double x,y, int file,graph, double z);
+declare Process Arena(double x,y, int file,graph, double z);
+declare Process Obrero_pico(double x,y, int file,graph, double z);
+declare Process Piedra(double x,y, int file,graph, double z);
+declare Process Secretario(double x,y, int file,graph, double z);
+declare Process Avion_papel(double x,y, int file,graph, double z);
+declare Process Luna(double x,y, int file,graph, double z);
+declare Process Agualuna(double x,y,int file,graph, double z,int angulo);
+declare Process Agualuna2(double x,y, int file,graph, double z);
+declare Process Prostituta(double x,y, int file,graph, double z,int flags);
+declare Process corazon(double x,y, int file,graph, double z);
+declare Process Panal(double x,y, int file,graph, double z);
+declare Process Abejas(double x,y, int file,graph, double z);
+declare Process Helicoptero(double x,y, int file,graph, double z, int zona1,zona2);
+declare Process Cohete(double x,y, int file,graph, double z);
+declare Process camara(double x,y, int file,graph, double z, int flags,lasers);
+declare Process Laser(double x,y, int file,graph, double z, int flags);
+declare Process opciones_menu1(double x,y,int file,graph, double z, int control);
 declare Process OPERA(double x,y,int file,graph);
-declare Process Redefine(double x,y, int file,graph,z);
-declare process Tex_credit(double x,y, int file,graph,z);
-declare process creditos2(double x,y, int file,graph,z);
-declare process credits(double x,y, int file,graph,z);
+declare Process Redefine(double x,y, int file,graph, double z);
+declare process Tex_credit(double x,y, int file,graph, double z);
+declare process creditos2(double x,y, int file,graph, double z);
+declare process credits(double x,y, int file,graph, double z);
 
 Global
     //-- Goody --//
@@ -155,7 +155,7 @@ Global
     int Cabina;       int Scanline;
     int G_fondo;      int Cortin=false;
     int Abejillas;    int Helices;
-    int mapa_dureza;  
+    int mapa_dureza;
 
 //    int Color_dureza1=90;
 //    int Paredes=30;
@@ -168,7 +168,7 @@ Global
     int Techos=0xe8e8fcff;
     int paredescala=0x006c00ff;
     int color_lingote=0xfcfc28ff;
-    
+
     int p_completa;
     int sombras;
     int li;
@@ -347,7 +347,7 @@ begin
     end
 end
 
-process op_win(double x,y, int file,graph,op5,z)
+process op_win(double x,y, int file,graph,op5, double z)
 private
     int Wraton;
 begin
@@ -554,7 +554,7 @@ begin
        End
 End
 
-Process opciones(double x,y,int graph, double size, int z,opcion,_on)
+Process opciones(double x,y,int graph, double size, double z, int opcion,_on)
 begin
     Loop
      file=gmenu;
@@ -643,13 +643,13 @@ End
 
 //-- Menu OPCIONES --//
 //#Section: MENU OPCIONES
-Process Menu_opciones(double x,y,int graph,z,opcion)
+Process Menu_opciones(double x,y,int graph, double z, int opcion)
 begin
     file=gmenu;
     size=0;
     Repeat  size+=10; Frame; Until(size>90);
     size=100;
-    Menu_opc(432,272,5,z);
+    Menu_opc(432,272,5, z);
     Repeat
        file=gmenu;
        Frame;
@@ -663,7 +663,7 @@ begin
 End
 
 
-Process menu_opc(double x,y,int graph,z)
+Process menu_opc(double x,y,int graph, double z)
 Private
    int manosel;
 begin
@@ -703,7 +703,7 @@ begin
     End
 End
 
-process Manoselec(double x,y, int file,graph,z)
+process Manoselec(double x,y, int file,graph, double z)
 begin
    repeat
      file=gmenu;
@@ -712,7 +712,7 @@ begin
 end
 
 //#Section: Configuracion
-Process Configurar(double x,y,int graph,z)
+Process Configurar(double x,y,int graph, double z)
 begin
     file=gmenu;
     Opcion3=1;
@@ -747,7 +747,7 @@ End
 
 
 //--OPCIONES de configuracion--//
-Process Options2(double x,y, int graph,z,opt)
+Process Options2(double x,y, int graph, double z, int opt)
 begin
     file=gmenu;
     switch(opt)
@@ -831,7 +831,7 @@ begin
 End
 
 //--OPCIONES principales--//
-Process Options(double x,y, int z,opt)
+Process Options(double x,y, double z, int opt)
 begin
     Loop
      file=gmenu;
@@ -854,7 +854,7 @@ begin
 End
 
 
-Process goody_menu(double x,y, int file,graph,z,flags)
+Process goody_menu(double x,y, int file,graph, double z, int flags)
 Private
   int veloc;
   int mueve1;
@@ -873,7 +873,7 @@ begin
 End
 
 
-Process Enemi_menu(double x,y, int file,z)
+Process Enemi_menu(double x,y, int file, double z)
 Private
   int veloc;
   int mueve1;
@@ -910,7 +910,7 @@ End
 
 //-- Ayuda/Info --//
 //#Section: AYUDA
-Process Ayuda(double x,y, int file,graph,z,double size, int game)
+Process Ayuda(double x,y, int file,graph, double z, size, int game)
 begin
      signal(father,s_sleep);
      write_delete(all_text);
@@ -2019,7 +2019,7 @@ End
 
 
 //--Cortinillas--//
-process cortina(double x,y, int file,graph,z,double size, int vel,cor)
+process cortina(double x,y, int file,graph, double z, size, int vel,cor)
 begin
   graph=98;
   set_fps(35,0);
@@ -2289,7 +2289,7 @@ begin
                     nivel(stage); Break;
                  End
                  If (goodi.y>scroll[0].y0+295 AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13, z);
                     signal(Type goody, s_sleep); goodi.no_sombra=1;
                     While(get_id(Type chapuzon)<>0) Frame; End
                     cerveza=186;
@@ -2322,7 +2322,7 @@ begin
                     nivel(stage); Break;
                  End
                  If (goodi.y>scroll[0].y0+295 AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13, z);
                     goodi.no_sombra=1;
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
@@ -2375,7 +2375,7 @@ begin
                     nivel(stage); Break;
                  End
                  If (goodi.y>scroll[0].y0+295 AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13, z);
                     goodi.no_sombra=1;
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
@@ -2457,7 +2457,7 @@ begin
             End
             Case 9:
                  If (goodi.y>scroll[0].y0+295 AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13, z);
                     goodi.no_sombra=1;
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
@@ -2495,7 +2495,7 @@ begin
             End
             Case 10:
                  If (goodi.y>scroll[0].y0+295 AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13, z);
                     goodi.no_sombra=1;
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
@@ -2533,7 +2533,7 @@ begin
             End
             Case 11:
                  If (goodi.y>scroll[0].y0+295 AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13, z);
                     goodi.no_sombra=1;
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
@@ -2626,11 +2626,11 @@ begin
                  End
                  If (goodi.x>1665 AND goodi.x<1708 AND goodi.y>132 AND goodi.y<150)
                      goodi.no_sombra=1;
-                     Chapuzon(1686,119,genemigos,76,z); chap=1;
+                     Chapuzon(1686,119,genemigos,76, z); chap=1;
                    Else
                     If (goodi.x>935 AND goodi.x<965 AND goodi.y>560 AND goodi.y<600)
                         goodi.no_sombra=1;
-                        Chapuzon(952,553,genemigos,76,z); chap=1;
+                        Chapuzon(952,553,genemigos,76, z); chap=1;
                     End
                  End
                  If (chap)
@@ -2665,19 +2665,19 @@ begin
                     nivel(stage); Break;
                  End
                  If (goodi.x>170 AND goodi.x<200 AND goodi.y>560 AND goodi.y<600)
-                     Chapuzon(183,553,genemigos,76,z); chap=1;
+                     Chapuzon(183,553,genemigos,76, z); chap=1;
                    Else
                      If (goodi.x>205 AND goodi.x<235 AND goodi.y>510 AND goodi.y<550)
-                         Chapuzon(215,504,genemigos,76,z); chap=1;
+                         Chapuzon(215,504,genemigos,76, z); chap=1;
                        Else
                          If (goodi.x>240 AND goodi.x<270 AND goodi.y>560 AND goodi.y<600)
-                             Chapuzon(247,553,genemigos,76,z); chap=1;
+                             Chapuzon(247,553,genemigos,76, z); chap=1;
                            Else
                              If (goodi.x>850 AND goodi.x<875 AND goodi.y>560 AND goodi.y<600)
-                                 Chapuzon(861,553,genemigos,76,z); chap=1;
+                                 Chapuzon(861,553,genemigos,76, z); chap=1;
                                Else
                                  If (goodi.x>880 AND goodi.x<950 AND goodi.y>560 AND goodi.y<600)
-                                     Chapuzon(909,553,genemigos,76,z); chap=1;
+                                     Chapuzon(909,553,genemigos,76, z); chap=1;
                                  End
                              End
                          End
@@ -2724,10 +2724,10 @@ begin
                     Helices=sound_play(s_helicoptero,-1);
                  End
                  If (goodi.x>1550 AND goodi.x<1590 AND goodi.y>238 AND goodi.y<285)
-                      Chapuzon(1574,233,genemigos,76,z); chap=1;
+                      Chapuzon(1574,233,genemigos,76, z); chap=1;
                    Else
                      If (goodi.y>scroll[0].y0+280 AND goodi.x<1220)
-                         Chapuzon(goodi.x,285,genemigos,13,z); chap=1;
+                         Chapuzon(goodi.x,285,genemigos,13, z); chap=1;
                      End
                  End
                  If (chap)
@@ -2842,7 +2842,7 @@ begin
 
                  If (goodi.y>scroll[0].y0+305 AND !exists(Type renace))
                     goodi.no_sombra=1;
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,285,genemigos,13, z);
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
                     cerveza=186;
@@ -2993,7 +2993,7 @@ begin
 //                 scroll_start (0,gnivel,13,g_fondo,1,4);
 
                  If (goodi.y>scroll[0].y0+295 AND goodi.x<950 AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,goodi.y-15,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,goodi.y-15,genemigos,13, z);
                     goodi.no_sombra=1;
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
@@ -3047,7 +3047,7 @@ begin
                  End
                  If (((goodi.y>285 AND goodi.y<300 AND goodi.x<230 AND goodi.x>167) OR
                       (goodi.y>920 AND goodi.x<450)) AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,goodi.y-7,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,goodi.y-7,genemigos,13, z);
                     goodi.no_sombra=1;
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
@@ -3068,7 +3068,7 @@ begin
             End
             Case 31:
                  If (goodi.y>scroll[0].y0+295 AND !exists(Type renace))
-                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,goodi.y-15,genemigos,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(goodi.x,goodi.y-15,genemigos,13, z);
                     goodi.no_sombra=1;
                     signal(Type goody, s_sleep);
                     While(get_id(Type chapuzon)<>0) Frame; End
@@ -3143,7 +3143,7 @@ begin
             end
             Ayuda(320,240,gmenu,29,-100,0,1);
         End
-        
+
         //-- Activa/desactiva la PANTALLA COMPLETA--//
         If (key_down(_f3))
             If(p_completa)
@@ -3258,7 +3258,7 @@ end
 
 
 //---CONTINUAR JUGANDO?--//
-Process Continuar(double x,y, int z)
+Process Continuar(double x,y, double z)
 Private
    int Aban=1;
    int cor;
@@ -3355,7 +3355,7 @@ End
 
 
 //#Section: Abandonar
-Process Abandona(double x,y, int z)
+Process Abandona(double x,y, double z)
 Private
    int Aban=0;
    int cor;
@@ -3412,7 +3412,7 @@ begin
 End
 
 //-- Scanlines --//
-Process scanlines(double x,y, int file,graph,z)
+Process scanlines(double x,y, int file,graph, double z)
 begin
    alpha=60;
    Loop
@@ -3427,7 +3427,7 @@ End
 
 // -- Score en pantalla --//
 //#Section: Score
-Process Score(double x,y, int file,z,tipo)
+Process Score(double x,y, int file, double z, int tipo)
 begin
    Loop
        Switch(tipo)
@@ -3463,7 +3463,7 @@ End
 
 
 //--Brillo de Lingotes--//
-process Lingo(lim,file,graph,z,double size)
+process Lingo(lim,file,graph, double z, size)
 private
    int dir;
 begin
@@ -3516,7 +3516,7 @@ end
 
 
 // --Panel de Herramientas-- //
-Process score_herram(double x,y, int file,graph,z,pieza)
+Process score_herram(double x,y, int file,graph, double z, int pieza)
 Private
    int busca;
 begin
@@ -3552,7 +3552,7 @@ End
 
 //-- HERRAMIENTAS --//
 //#Section: Herramientas
-Process Herramientas (double x,y, int file,graph,z,herramienta)
+Process Herramientas (double x,y, int file,graph, double z, int herramienta)
 Private
   int Selec;
 begin
@@ -3564,7 +3564,7 @@ begin
 End
 
 //-- Selector --//
-Process Selector(double x,y, int file,graph,z)
+Process Selector(double x,y, int file,graph, double z)
 Private
    int Herram;
    int Busca;
@@ -3605,7 +3605,7 @@ End
 
 //#Section: SELECTOR CAJA
 //-- Selector CAJA FUERTE --//
-Process selector2(double x,y, int file,graph,z)
+Process selector2(double x,y, int file,graph, double z)
 Private
    int numero;
    int sirena;
@@ -3735,7 +3735,7 @@ end
 
 //-- Prota GOODY --//
 //#Section: GOODY
-Process GOODY(double x,y, int file,graph,flags,z,action)
+Process GOODY(double x,y, int file,graph,flags, double z, int action)
 Private
     int incx=0;
     int ultima_veloc=0;
@@ -3774,7 +3774,7 @@ begin
             End
             if(key(_7)) money=100; end
         End
-        
+
         If (ASCOP==1)
             If (key(_4))
                 objetos[0]=11; objeto[0]=11;
@@ -4095,7 +4095,7 @@ begin
                                 End
                             End
                         End
-            
+
                         //--Rutina de potencia de disparo y lanzamiento--//
                         If(potencia>0) potencia--; End
                         If (lanzar==0 AND stage<>0)
@@ -4133,7 +4133,7 @@ begin
                         End
                     End
                 End// fin accion 0:parado - andando //
-            
+
                 Case disparar:
                     muevete++; Lanzar=1;
                     If (muevete>1) graph=9; End
@@ -4260,7 +4260,7 @@ begin
                         End
                     End
                 End
-            
+
                 Case disparar:
                     muevete++;
                     If (muevete>1) graph=9; End
@@ -4396,7 +4396,7 @@ begin
 End
 
 //#Section: Ladrillo
-Process Ladrillo(double x,y, int file,graph,z,poder,flags)
+Process Ladrillo(double x,y, int file,graph, double z, int poder,flags)
 Private
    int vel_x;
    int vel_y;
@@ -4448,7 +4448,7 @@ begin
        //--Si cae al suelo y deja de rodar se rompe--//
        If (golpe>=1)
            Lanzar=0; golpe=-1; no_sombra=1;
-           rompeladrillo(file,21,x,y+10,z,size); size=0;
+           rompeladrillo(file,21,x,y+10, z, size); size=0;
            Repeat mueve++; Frame; Until (mueve>5)
            signal(id,s_kill);
        End
@@ -4456,7 +4456,7 @@ begin
     //--Si se sale del escenario se rompe--//
     If (x<scroll.x0-200 OR x>scroll.x0+840 OR y<scroll.y0-200 OR y>scroll.y0+400)
         Lanzar=0; golpe=-1;
-        rompeladrillo(file,21,x,y+10,z,size); size=0;
+        rompeladrillo(file,21,x,y+10, z,size); size=0;
         Repeat mueve++; Frame; Until (mueve>5)
         signal(id,s_kill);
     End
@@ -4465,7 +4465,7 @@ begin
 End
 
 //--------- Rompe ladrillo ---------------//
-Process rompeladrillo(file,graph,double x,y, int z, double size)
+Process rompeladrillo(file,graph,double x,y, double z, size)
 Private
     int incr_x;
     int n_estrellas;
@@ -4498,7 +4498,7 @@ End
 
 
 //#Section: Escalera
-Process Escala(double x,y, int file,graph,z)
+Process Escala(double x,y, int file,graph, double z)
 Private
   int Ascen2;
   int coger;
@@ -4576,7 +4576,7 @@ End
 
 
 //-- Atacado por un enemigo --//
-Process Goody_golpe(double x,y, int file,graph,z,porrazo)
+Process Goody_golpe(double x,y, int file,graph, double z, int porrazo)
 Private
    int vel_x;
    int frena;
@@ -4665,7 +4665,7 @@ End
 
 //#Section: Paredes
 //-- Muros para herramientas --//
-Process Paredes_proc(double x,y, int file,graph,z,muro)
+Process Paredes_proc(double x,y, int file,graph, double z, int muro)
 begin
    ctype=c_scroll;
    Loop
@@ -4679,7 +4679,7 @@ End
 
 //#Section: Cabinas
 //-- Cabina de herramientas--//
-Process cabinas(double x,y, int file,graph,z,abrir,herra)
+Process cabinas(double x,y, int file,graph, double z, int abrir,herra)
 Private
    int Goody2;
    int Ferreteria;
@@ -4738,7 +4738,7 @@ begin
 End
 
 //--Herramienta en cabina--//
-Process Herracabina(double x,y, int file,graph,z)
+Process Herracabina(double x,y, int file,graph, double z)
 begin
    ctype=c_scroll;
    Loop
@@ -4747,7 +4747,7 @@ begin
 End
 
 //#Section: Objetos EXTRA
-Process  Objeto_extra(double x,y, int file,graph,z,objeto,pantalla)
+Process  Objeto_extra(double x,y, int file,graph, double z, int objeto,pantalla)
 begin
    ctype=c_scroll;
    Loop
@@ -4820,7 +4820,7 @@ End
 
 
 //-- Puntos money --//
-process subepunt(double x,y, int file,graph,z)
+process subepunt(double x,y, int file,graph, double z)
 begin
    ctype=c_scroll;
    repeat
@@ -4834,7 +4834,7 @@ end
 //--- Decorados ---//
 //#Section: Decorados
 
-Process Cubo_basura(double x,y, int file,graph,z,ratas)
+Process Cubo_basura(double x,y, int file,graph, double z, int ratas)
 Private
   int Sale_rata;
   int cierra;
@@ -4856,7 +4856,7 @@ End
 
 //#Section: Escenario
 //----Escalera de madera , luces de vela y farolas----//
-Process Escenario(double x,y, int file,graph,z,alpha)
+Process Escenario(double x,y, int file,graph, double z, int alpha)
 Private
     int luz;
 begin
@@ -4902,7 +4902,7 @@ End
 //---- Ascensores ----//
 //#Section: Ascensores
 
-Process Ascensores(double x,y, int file,graph,z,tope_up,tope_down)
+Process Ascensores(double x,y, int file,graph, double z, int tope_up,tope_down)
 Private
    int Tocado;
    int vel_y;
@@ -4986,7 +4986,7 @@ End
 
 //--- Barcas del retiro ---//
 //#Section: Barcas RETIRO
-Process Barcas(double x,y, int file,graph,z)
+Process Barcas(double x,y, int file,graph, double z)
 Private
     int vel_x=3;
     int goodi2;
@@ -5030,7 +5030,7 @@ End
 
 //--- Vagón del METRO ---//
 //#Section: METRO
-Process Metro (double x,y, int file,graph,z,vagon)
+Process Metro (double x,y, int file,graph, double z, int vagon)
 Private
    int vel_x=35;
    int puertas;
@@ -5090,7 +5090,7 @@ End
 
 
 //#Section: METRO2
-Process Metro2 (double x,y, int file,graph,z,vagon)
+Process Metro2 (double x,y, int file,graph, double z, int vagon)
 Private
    int vel_x=35;
    int puertas;
@@ -5142,7 +5142,7 @@ begin
 End
 
 
-Process Puerta_metro1(double x,y, int file,graph,z,activa,estac)
+Process Puerta_metro1(double x,y, int file,graph, double z, int activa,estac)
 begin
    ctype=c_scroll;
    sound_play(s_metro2,0);
@@ -5178,7 +5178,7 @@ begin
 End
 
 
-Process Puerta_metro2(double x,y, int file,graph,z,activa,estac)
+Process Puerta_metro2(double x,y, int file,graph, double z, int activa,estac)
 begin
    ctype=c_scroll;
    sound_play(s_metro2,0);
@@ -5248,7 +5248,7 @@ End
 
 
 //#Section: CAJA FUERTE
-Process caja_fuerte(double x,y, int file,graph,z)
+Process caja_fuerte(double x,y, int file,graph, double z)
 begin
     ctype=c_scroll;
     Loop
@@ -5289,7 +5289,7 @@ End
 //--- Enemigos ---//
 //#Section: Enemigo: BUITRE
 
-Process Buitre(double x,y, int file,graph,z,salida,flags)
+Process Buitre(double x,y, int file,graph, double z, int salida,flags)
 Private
    int lanzars;
    int vel_y;
@@ -5332,7 +5332,7 @@ begin
 End
 
 
-Process huevo(double x,y, int file,graph,z)
+Process huevo(double x,y, int file,graph, double z)
 Private
    int goodi2;
 begin
@@ -5376,7 +5376,7 @@ End
 
 //#Section: Enemigo: GOTA AGUA
 
-Process Gotas(double x,y, int file,graph,z,goteo)
+Process Gotas(double x,y, int file,graph, double z, int goteo)
 Private
    int vel_y;
    int Goody2;
@@ -5428,7 +5428,7 @@ End
 
 //#Section: Enemigo: PIRAÑAS
 
-Process Peces(double x,y, int file,graph,z, double size)
+Process Peces(double x,y, int file,graph, double z, size)
 Private
    int vel_y;
    int Goody2;
@@ -5454,7 +5454,7 @@ begin
                 no_sombra=0; //sombraje(genemigos2,94,sombras);
                 If (x>scroll[0].x0 AND x<scroll[0].x0+620
                     AND y>scroll[0].y0 AND y<scroll[0].y0+420)
-                   sound_play(s_chapuzon,0); Chapuzon(x,y+5,file,13,z);
+                   sound_play(s_chapuzon,0); Chapuzon(x,y+5,file,13, z);
                 End
              End
          End
@@ -5470,7 +5470,7 @@ begin
                 no_sombra=1;
                 If (x>scroll[0].x0 AND x<scroll[0].x0+620
                     AND y>scroll[0].y0 AND y<scroll[0].y0+420)
-                    sound_play(s_chapuzon,0); Chapuzon(x,y,file,13,z);
+                    sound_play(s_chapuzon,0); Chapuzon(x,y,file,13, z);
                 End
                  accion=0; size=0; y=salta;
                  vel_y=rand(-9,-7);
@@ -5496,7 +5496,7 @@ begin
                       angle+=pi/7;
                       Frame;
                   Until(y>salta);
-                  sound_play(s_chapuzon,0); Chapuzon(x,y+5,file,13,z);
+                  sound_play(s_chapuzon,0); Chapuzon(x,y+5,file,13, z);
                   no_sombra=1;
                   signal(id,s_kill);
 
@@ -5507,7 +5507,7 @@ begin
    End
 End
 
-Process Chapuzon(double x,y, int file,graph,z)
+Process Chapuzon(double x,y, int file,graph, double z)
 begin
    ctype=c_scroll;
    Repeat
@@ -5520,7 +5520,7 @@ begin
 End
 
 //#Section: Enemigo: RATA
-Process rata(double x,y, int file,graph,z,flags,zona1,zona2)
+Process rata(double x,y, int file,graph, double z, int flags,zona1,zona2)
 Private
     int vel_x;
     int Goody2;
@@ -5631,7 +5631,7 @@ begin
 End
 
 //#Section: Enemigo: SERPIENTE
-Process Serpiente(double x,y, int file,graph,z,flags,zona1,zona2)
+Process Serpiente(double x,y, int file,graph, double z, int flags,zona1,zona2)
 Private
   int vel_x;
   int Goody2;
@@ -5728,7 +5728,7 @@ begin
 End
 
 //#Section: Enemigo: LADRON
-Process Ladron(double x,y, int file,graph,z,flags,zona1,zona2)
+Process Ladron(double x,y, int file,graph, double z, int flags,zona1,zona2)
 Private
   int vel_x;
   int Goody2;
@@ -5850,7 +5850,7 @@ End
 
 
 //#Section: Enemigo: KARATEKA
-Process Karateka(double x,y, int file,graph,z,flags,zona1,zona2)
+Process Karateka(double x,y, int file,graph, double z, int flags,zona1,zona2)
 Private
   int vel_x;
   int Goody2;
@@ -5959,7 +5959,7 @@ begin
 End
 
 //#Section: Enemigo: GORILA
-Process Gorila(double x,y, int file,graph,z,flags,zona1,zona2)
+Process Gorila(double x,y, int file,graph, double z, int flags,zona1,zona2)
 Private
   int vel_x;
   int Goody2;
@@ -6074,7 +6074,7 @@ End
 
 //#Section: Enemigo: POLICIA
 
-Process Policia(double x,y, int file,graph,z,flags,zona1,zona2)
+Process Policia(double x,y, int file,graph, double z, int flags,zona1,zona2)
 Private
   int vel_x;
   int Goody2;
@@ -6182,7 +6182,7 @@ begin
 End
 
 //#Section: Enemigo: FANTASMA
-Process Fantasmas(file,graph,z,byte alpha, int xrelativa,yrelativa,incx,incy,distx,disty)
+Process Fantasmas(file,graph, double z, byte alpha, int xrelativa,yrelativa,incx,incy,distx,disty)
 Private
     int angulo3;
     int angulo2;
@@ -6239,7 +6239,7 @@ begin
 End
 
 //#Section: Enemigo: LIMPIADORA
-Process Limpiadora(double x,y, int file,graph,z)
+Process Limpiadora(double x,y, int file,graph, double z)
 Private
    int Polvo;
    int Barre;
@@ -6305,7 +6305,7 @@ begin
 End
 
 
-Process Polvos(double x,y, int file,graph,z)
+Process Polvos(double x,y, int file,graph, double z)
 Private
     int Goody2;
     int Cabina2;
@@ -6357,7 +6357,7 @@ end
 
 
 //#Section: Enemigo: BANQUERO
-Process Banquero(double x,y, int file,graph,z)
+Process Banquero(double x,y, int file,graph, double z)
 Private
    int Polvo;
    int Barre;
@@ -6421,7 +6421,7 @@ begin
 End
 
 
-Process Lingotes(double x,y, int file,graph,z)
+Process Lingotes(double x,y, int file,graph, double z)
 Private
     int Goody2;
     int Cabina2;
@@ -6462,7 +6462,7 @@ begin
 End
 
 //#Section: Enemigo: OBRERO PALA
-Process Obrero_pala(double x,y, int file,graph,z)
+Process Obrero_pala(double x,y, int file,graph, double z)
 Private
    int Barre;
    int Ladrillos;
@@ -6526,7 +6526,7 @@ begin
 End
 
 
-Process Arena(double x,y, int file,graph,z)
+Process Arena(double x,y, int file,graph, double z)
 Private
     int Goody2;
     int golpe;
@@ -6561,7 +6561,7 @@ begin
 End
 
 //#Section: Enemigo: OBRERO PICO
-Process Obrero_pico(double x,y, int file,graph,z)
+Process Obrero_pico(double x,y, int file,graph, double z)
 Private
    int Barre;
    int Ladrillos;
@@ -6637,7 +6637,7 @@ begin
 End
 
 
-Process Piedra(double x,y, int file,graph,z)
+Process Piedra(double x,y, int file,graph, double z)
 Private
     int Goody2;
     int golpe;
@@ -6684,7 +6684,7 @@ begin
 End
 
 //#Section: Enemigo: SECRETARIO
-Process Secretario(double x,y, int file,graph,z)
+Process Secretario(double x,y, int file,graph, double z)
 Private
    int Avioncito;
    int Ladrillos;
@@ -6747,7 +6747,7 @@ begin
 End
 
 
-Process Avion_papel(double x,y, int file,graph,z)
+Process Avion_papel(double x,y, int file,graph, double z)
 Private
     int Goody2;
     int Cabina1;
@@ -6799,7 +6799,7 @@ End
 
 
 //#Section: Enemigo: LUNA
-Process Luna(double x,y, int file,graph,z)
+Process Luna(double x,y, int file,graph, double z)
 Private
    int Lluvia;
    int Ladrillos;
@@ -6864,7 +6864,7 @@ End
 
 //#Section: Enemigo: AGUA LUNA
 
-Process Agualuna(double x,y,int file,graph,z,angulo)
+Process Agualuna(double x,y,int file,graph, double z, int angulo)
 Private
    int vel_y;
    int cae;
@@ -6877,7 +6877,7 @@ begin
    cae=y;
    angle=angulo;
    size=0;
-   Agualuna2(x,y,file,graph,z);
+   Agualuna2(x,y,file,graph, z);
 
    Loop
       //--Pausa PROCESO--//
@@ -6896,7 +6896,7 @@ begin
    End
 End
 
-Process Agualuna2(double x,y, int file,graph,z)
+Process Agualuna2(double x,y, int file,graph, double z)
 Private
    int Goody2;
    int golpe;
@@ -6944,7 +6944,7 @@ begin
 End
 
 //#Section: Enemigo: PROSTITUTA
-Process Prostituta(double x,y, int file,graph,z,flags)
+Process Prostituta(double x,y, int file,graph, double z, int flags)
 Private
    int corazones;
    int Ladrillos;
@@ -7017,7 +7017,7 @@ begin
    End
 End
 
-Process corazon(double x,y, int file,graph,z)
+Process corazon(double x,y, int file,graph, double z)
 Private
     int Goody2;
     int golpe;
@@ -7090,7 +7090,7 @@ begin
 End
 
 //#Section: ENEMIGO: ABEJAS
-Process Panal(double x,y, int file,graph,z)
+Process Panal(double x,y, int file,graph, double z)
 Private
    int salida;
 begin
@@ -7119,7 +7119,7 @@ begin
 End
 
 
-Process Abejas(double x,y, int file,graph,z)
+Process Abejas(double x,y, int file,graph, double z)
 Private
    int Goody2;
    int ataque;
@@ -7162,7 +7162,7 @@ End
 
 
 //#Section: Enemigo: HELICOPTERO
-Process Helicoptero(double x,y, int file,graph,z,zona1,zona2)
+Process Helicoptero(double x,y, int file,graph, double z, int zona1,zona2)
 Private
    int vel_x;
    int vel_y;
@@ -7220,7 +7220,7 @@ begin
                If ((stage==2 AND goodi.x<700) OR
                    (stage==5 AND goodi.x>500))
                   Else
-                   Cohete(x,y,file,55,z);
+                   Cohete(x,y,file,55, z);
                    sound_play(s_cohete1,0);
                End
             End
@@ -7258,7 +7258,7 @@ begin
 End
 
 //#Section: Enemigo: COHETE
-Process Cohete(double x,y, int file,graph,z)
+Process Cohete(double x,y, int file,graph, double z)
 Private
    int vel_y;
    int vel_x;
@@ -7330,7 +7330,7 @@ End
 
 
 //#Section: Enemigo: CAMARA
-Process camara(double x,y, int file,graph,z,flags,lasers)
+Process camara(double x,y, int file,graph, double z, int flags,lasers)
 Private
    int Giro;
    int disparo;
@@ -7400,7 +7400,7 @@ begin
    End
 End
 
-Process Laser(double x,y, int file,graph,z,flags)
+Process Laser(double x,y, int file,graph, double z, int flags)
 Private
    int power;
    int cabina2;
@@ -7491,7 +7491,7 @@ begin
 End
 
 //----- Posicionamiento de graficos con el mouse ---//
-Process opciones_menu1(double x,y,int file,graph,z,control)
+Process opciones_menu1(double x,y,int file,graph, double z, int control)
 begin
     write_var(0,30,30,3,x);
     write_var(0,30,50,3,y);
@@ -7592,7 +7592,7 @@ End
 // Redefine el Teclado de Juego//
 //#Section: Redefinir
 
-Process Redefine(double x,y, int file,graph,z)
+Process Redefine(double x,y, int file,graph, double z)
 Private
     String Push;
     String ver_tecla;
@@ -7729,9 +7729,9 @@ End
 process banda_sonora()
    begin
    loop
-      if (music_is_playing()<>1) 
+      if (music_is_playing()<>1)
           music_set_volume(volumen);
-          music_play(musica1,0); 
+          music_play(musica1,0);
           music_set_volume(volumen);
       end
    frame; end
@@ -7819,7 +7819,7 @@ begin
     end
 end
 
-process Tex_credit(double x,y, int file,graph,z)
+process Tex_credit(double x,y, int file,graph, double z)
 begin
    set_fps(40,0);
    loop
@@ -7830,7 +7830,7 @@ begin
 end
 
 //--Tele CREDITOS--//
-process creditos2(double x,y, int file,graph,z)
+process creditos2(double x,y, int file,graph, double z)
 begin
    region_define(5,100,160,410,160);
    loop
@@ -7851,7 +7851,7 @@ begin
    end
 end
 
-process credits(double x,y, int file,graph,z)
+process credits(double x,y, int file,graph, double z)
 private
    int sal;
 begin
