@@ -40,7 +40,7 @@ declare PROCESS PUNTERO();
 declare PROCESS LEVEL_QUOTA(NIVEL);
 declare PROCESS LEVEL_GLASS(GLASS_NIVEL);
 declare PROCESS LEVEL_RUSH();
-declare PROCESS HIT(double X,Y, int Z);
+declare PROCESS HIT(double X,Y, double Z);
 declare PROCESS PAUSA();
 declare PROCESS sound(SFX);
 declare PROCESS GAMEOVER(modojuego);
@@ -48,10 +48,10 @@ declare PROCESS CHECK();
 declare PROCESS CHECK_GLASS();
 declare PROCESS combo(grafico,TIPO,INCREMENTO);
 declare PROCESS comboRUSH(grafico,TIPO);
-declare PROCESS FLY(double X,Y,int Z,FLY_NUM,LOL);
+declare PROCESS FLY(double X,Y,double Z,FLY_NUM,LOL);
 declare PROCESS SPEAKER(NAME);
-declare PROCESS FLYS(double X,Y,int Z,FLYSCORE);
-declare PROCESS FLYT(double X,Y,int Z,FLYTIME);
+declare PROCESS FLYS(double X,Y,double Z,FLYSCORE);
+declare PROCESS FLYT(double X,Y,double Z,FLYTIME);
 declare PROCESS mergerhighscore();
 declare PROCESS mergeqhighscore();
 declare PROCESS mergeghighscore();
@@ -2728,7 +2728,7 @@ END
 //****************************************************************
 
 
-PROCESS HIT(double X,Y, int Z);
+PROCESS HIT(double X,Y, double Z);
 private
 int contador=0;
 BEGIN
@@ -3383,7 +3383,7 @@ end
 //***               PROCESS FLY(X,Y,Z,FLY_NUM,LOL)             ***
 //****************************************************************
 
-PROCESS FLY(double X,Y,int Z,FLY_NUM,LOL);
+PROCESS FLY(double X,Y,double Z,FLY_NUM,LOL);
 //process FLY(X,Y,Z,FLY_NUM,LOL);
 PRIVATE
 int CONTADOR=0,ID_PUNTUACION;
@@ -3642,7 +3642,7 @@ END // PROCESS
 //***               PROCESS FLYS(X,Y,Z,FLYSCORE)               ***
 //****************************************************************
 
-PROCESS FLYS(double X,Y,int Z,FLYSCORE);
+PROCESS FLYS(double X,Y,double Z,FLYSCORE);
 PRIVATE
 int CONTADOR=0,ID_FLYSCORE,contador2=0;
 BEGIN
@@ -3670,7 +3670,7 @@ END
 //***               PROCESS FLYT(X,Y,Z,FLYTIME)                ***
 //****************************************************************
 
-PROCESS FLYT(double X,Y,int Z,FLYTIME);
+PROCESS FLYT(double X,Y,double Z,FLYTIME);
 PRIVATE
 int CONTADOR=0,ID_FLYTIME,contador2=0;
 BEGIN
