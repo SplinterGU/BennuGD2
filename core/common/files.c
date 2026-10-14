@@ -674,18 +674,27 @@ file * file_open( const char * filename, char * mode ) {
         }
     }
 
-    p = name = work;
-    while (( c = *filename ) ) {
+    /* Keep the complete relative path and also calculate its basename. */
+    strcpy( work, filename );
+
+    name = work;
+    for ( p = work; ( c = *p ); p++ ) {
         if ( c == '\\' || c == '/' ) {
-            c = 0;
             name = p + 1;
         }
-        *p++ = c;
-        filename++;
     }
-    *p = '\0';
 
-    /* Use file extension for search in a directory named as it (for example: FPG dir for .FPG files) */
+    /* 1. Try the complete relative path in every search path. */
+    for ( i = 0; possible_paths[i]; i++ ) {
+        strcpy( here, possible_paths[i] );
+        strcat( here, work );
+        if ( open_raw( f, here, mode ) ) {
+            opened_files++;
+            return f;
+        }
+    }
+
+    /* 2. Legacy fallback: search the basename in extension directories. */
     if ( strchr( name, '.' ) ) {
         strcpy( here, strrchr( name, '.' ) + 1 );
         strcat( here, PATH_SEP );
@@ -696,6 +705,7 @@ file * file_open( const char * filename, char * mode ) {
         }
     }
 
+    /* 3. Legacy fallback: search the basename in every search path. */
     for ( i = 0; possible_paths[i]; i++ ) {
         strcpy( here, possible_paths[i] );
         strcat( here, name );
