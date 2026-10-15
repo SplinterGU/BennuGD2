@@ -1,0 +1,55 @@
+--- src/render/psl1ght/SDL_PSL1GHTrender.c	2020-07-18 11:42:37.000000000 +0200
++++ ../sdl2src/src/render/psl1ght/SDL_PSL1GHTrender.c	2026-10-09 22:37:09.425722072 +0200
+@@ -780,6 +780,34 @@
+                              format, pixels, pitch);
+ }
+ 
++/* Calls the command buffer callback of a context, which flushes it and moves
++   to the next half of the buffer. librsx has the same thing internally, but
++   its copy lets the compiler keep using the old context->current afterwards,
++   which wrote past the end of the buffer. */
++static int
++PSL1GHT_ContextCallback(gcmContextData *ctx, u32 count)
++{
++    register u64 r3 asm("r3") = (u64) ctx;
++    register u64 r4 asm("r4") = count;
++    u64 cb = (u64) ctx->callback;
++
++    __asm__ __volatile__ (
++        "stdu   1,-128(1)\n"
++        "mr     31,2\n"
++        "lwz    0,0(%2)\n"
++        "lwz    2,4(%2)\n"
++        "mtctr  0\n"
++        "bctrl\n"
++        "mr     2,31\n"
++        "addi   1,1,128\n"
++        : "+r"(r3), "+r"(r4)
++        : "b"(cb)
++        : "r31", "r0", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12",
++          "lr", "ctr", "cr0", "cr1", "cr5", "cr6", "cr7", "xer", "memory");
++
++    return (int) r3;
++}
++
+ static void
+ PSL1GHT_RenderPresent(SDL_Renderer * renderer)
+ {
+@@ -790,6 +818,17 @@
+         gcmResetFlipStatus();
+     }
+ 
++    /* gcmSetFlip() does not check for command buffer space (unlike the rsx*
++       functions), so it can write past the end of the buffer and stall the
++       RSX after ~256 frames. Force the context callback to recycle the buffer
++       while there is still plenty of room. */
++    /* gcmSetFlip() does not check for command buffer space (unlike the rsx*
++       functions), so it can write past the end of the buffer and stall the
++       RSX after ~256 frames. Recycle the buffer ourselves, while there is
++       still plenty of room, through the context callback. */
++    if ((data->context->end - data->context->current) < 0x800)
++        PSL1GHT_ContextCallback(data->context, 0x800);
++
+     gcmSetFlip(data->context, data->current_screen);
+     rsxFlushBuffer(data->context);
+ 

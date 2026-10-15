@@ -1053,6 +1053,7 @@ void process_joy_events() {
 
     while (SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_JOYDEVICEADDED, SDL_JOYDEVICEREMOVED) > 0) {
         if (e.type == SDL_JOYDEVICEADDED) {
+            printf("SDL_JOYDEVICEADDED\n");
             int64_t device_index = e.jdevice.which;
             for (int j = 0; j < MAX_JOYS; j++) {
                 // Add joy to list
@@ -1066,6 +1067,7 @@ void process_joy_events() {
                 }
             }
         } else if (e.type == SDL_JOYDEVICEREMOVED) {
+            printf("SDL_JOYDEVICEREMOVED\n");
             int64_t instanceID = e.jdevice.which;
             for (int j = 0; j < MAX_JOYS; j++) {
                 // Remove joy from list
