@@ -47,6 +47,41 @@
 #include <unistd.h>
 
 #include "files.h"
+#ifdef PS3_PPU
+#include <errno.h>
+#endif
+
+#ifdef PS3_PPU
+/* Modified: resolve relative filesystem paths against bgd_working_directory. */
+extern char * bgd_working_directory;
+
+int ps3_resolve_path( const char * path, char * buffer, size_t size ) {
+    size_t base_len = 0;
+    size_t path_len = strlen( path );
+    size_t sep = 0;
+    const char * base = bgd_working_directory;
+
+    if ( path[0] != '/' && path[0] != '\\' && base && *base ) {
+        base_len = strlen( base );
+        sep = ( base[base_len - 1] != '/' && base[base_len - 1] != '\\' );
+    }
+
+    if ( base_len >= size || sep >= size - base_len ||
+         path_len >= size - base_len - sep ) {
+        errno = ENAMETOOLONG;
+        return 0;
+    }
+
+    if ( base_len ) memcpy( buffer, base, base_len );
+    if ( sep ) buffer[base_len] = '/';
+    memcpy( buffer + base_len + sep, path, path_len + 1 );
+
+    for ( char * p = buffer; *p; p++ ) {
+        if ( *p == '\\' ) *p = '/';
+    }
+    return 1;
+}
+#endif
 
 #define MAX_POSSIBLE_PATHS  128
 
@@ -605,6 +640,12 @@ static int open_raw( file * f, const char * filename, const char * mode ) {
     char    _mode[5];
     char    *p;
 
+#ifdef PS3_PPU
+    char resolved[__MAX_PATH];
+    if ( !ps3_resolve_path( filename, resolved, sizeof( resolved ) ) ) return 0;
+    filename = resolved;
+#endif
+
     if ( !strchr( mode, '0' ) ) {
         f->type = F_GZFILE;
         f->gz = gzopen( filename, mode );
@@ -630,7 +671,6 @@ static int open_raw( file * f, const char * filename, const char * mode ) {
 }
 
 file * file_open( const char * filename, char * mode ) {
-    char work [__MAX_PATH];
     char here [__MAX_PATH];
 
     char * name = NULL;
@@ -666,7 +706,20 @@ file * file_open( const char * filename, char * mode ) {
                 f->pos  = x_file[i].offset;
                 f->type = F_XFILE;
                 f->xf   = &x_file[i];
+#ifdef PS3_PPU
+                char resolved[__MAX_PATH];
+                if ( !ps3_resolve_path( x_file[i].stubname, resolved, sizeof( resolved ) ) ) {
+                    free( f );
+                    return NULL;
+                }
+                f->gz = gzopen( resolved, "rb" );
+                if ( !f->gz ) {
+                    free( f );
+                    return NULL;
+                }
+#else
                 f->gz = gzopen( x_file[i].stubname, "rb" );
+#endif
 
                 opened_files++;
                 return f;
@@ -674,27 +727,16 @@ file * file_open( const char * filename, char * mode ) {
         }
     }
 
-    /* Keep the complete relative path and also calculate its basename. */
-    strcpy( work, filename );
+    /* Calculate basename. */
 
-    name = work;
-    for ( p = work; ( c = *p ); p++ ) {
+    name = (char *) filename;
+    for ( p = name; ( c = *p ); p++ ) {
         if ( c == '\\' || c == '/' ) {
             name = p + 1;
         }
     }
 
-    /* 1. Try the complete relative path in every search path. */
-    for ( i = 0; possible_paths[i]; i++ ) {
-        strcpy( here, possible_paths[i] );
-        strcat( here, work );
-        if ( open_raw( f, here, mode ) ) {
-            opened_files++;
-            return f;
-        }
-    }
-
-    /* 2. Legacy fallback: search the basename in extension directories. */
+    /* 1. Legacy fallback: search the basename in extension directories. */
     if ( strchr( name, '.' ) ) {
         strcpy( here, strrchr( name, '.' ) + 1 );
         strcat( here, PATH_SEP );
@@ -705,7 +747,7 @@ file * file_open( const char * filename, char * mode ) {
         }
     }
 
-    /* 3. Legacy fallback: search the basename in every search path. */
+    /* 2. Legacy fallback: search the basename in every search path. */
     for ( i = 0; possible_paths[i]; i++ ) {
         strcpy( here, possible_paths[i] );
         strcat( here, name );

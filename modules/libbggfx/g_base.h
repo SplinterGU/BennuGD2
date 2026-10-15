@@ -36,6 +36,18 @@
 
 /* --------------------------------------------------------------------------- */
 
+/* Color interno BennuGD2: 0xRRGGBBAA */
+#define BGDCOLOR_R(c) (((uint32_t)(c) >> 24) & 0xff)
+#define BGDCOLOR_G(c) (((uint32_t)(c) >> 16) & 0xff)
+#define BGDCOLOR_B(c) (((uint32_t)(c) >>  8) & 0xff)
+#define BGDCOLOR_A(c) ( (uint32_t)(c)        & 0xff)
+
+#define BGDCOLOR(r,g,b,a) \
+    ((((uint32_t)(r)) << 24) | (((uint32_t)(g)) << 16) | \
+     (((uint32_t)(b)) <<  8) |  ((uint32_t)(a)))
+
+/* --------------------------------------------------------------------------- */
+
 #ifdef USE_SDL2
     typedef SDL_Rect    BGD_Rect;
 #endif

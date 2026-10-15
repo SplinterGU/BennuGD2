@@ -52,6 +52,8 @@
 #include <glob.h>
 #endif
 
+#include "bgdrtm.h"
+
 #include "bgddl.h"
 #include "dlvaracc.h"
 #include "files.h"
@@ -230,7 +232,7 @@ int64_t libmod_misc_dir_get_basepath( INSTANCE *my, int64_t *params ) {
 #ifdef __SWITCH__
         code = string_new( "romfs:/" );
 #else
-        code = string_new( "" );
+        code = string_new( appexepath );
 #endif
     }
     string_use( code );

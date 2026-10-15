@@ -270,7 +270,8 @@ static int64_t gr_read_lib( file * fp ) {
 /* --------------------------------------------------------------------------- */
 
 static int64_t gr_font_loadfrom( file * fp ) {
-    char header[8];
+
+    char header[ 8 ];
     int bpp;
     int types, i, ii;
     int64_t id;
@@ -283,9 +284,9 @@ static int64_t gr_font_loadfrom( file * fp ) {
         int height;
         int yoffset;
         int fileoffset;
-    } oldchardata[256];
+    } oldchardata[ 256 ];
 
-    _chardata chardata[256];
+    _chardata chardata[ 256 ];
 
     /* Read the file header */
 
@@ -296,7 +297,7 @@ static int64_t gr_font_loadfrom( file * fp ) {
         return -1;
     }
 
-    bpp = header[7];
+    bpp = header[ 7 ];
     if ( bpp == 0 ) bpp = 8;
 
     /* Read or ignore the palette */
@@ -319,64 +320,71 @@ static int64_t gr_font_loadfrom( file * fp ) {
         }
 
         for ( i = 0; i < 256; i++ ) {
-            cl[i].r = colors[i*3];
-            cl[i].g = colors[i*3+1];
-            cl[i].b = colors[i*3+2];
-            cl[i].a = 255;
+            cl[ i ].r = colors[ i * 3 + 0 ];
+            cl[ i ].g = colors[ i * 3 + 1 ];
+            cl[ i ].b = colors[ i * 3 + 2 ];
+            cl[ i ].a = 255;
         }
+
         free( colors );
-        SDL_SetPaletteColors( pal, (const SDL_Color *)cl, 0, 256 );
+        colors = NULL;
+
+        SDL_SetPaletteColors( pal, ( const SDL_Color * ) cl, 0, 256 );
         free( cl );
     }
 
     /* Read the character data (detect old format) */
 
-    if ( header[2] == 'x' ) {
+    if ( header[ 2 ] == 'x' ) {
         if ( !file_readSint32( fp, &types ) ) {
             if ( pal ) SDL_FreePalette( pal );
             return -1;
         }
+
         if ( file_read( fp, chardata, sizeof( chardata ) ) != sizeof( chardata ) ) {
             if ( pal ) SDL_FreePalette( pal );
             return -1;
         }
+
         for ( i = 0; i < 256; i++ ) {
-            ARRANGE_DWORD( &chardata[i].width );
-            ARRANGE_DWORD( &chardata[i].height );
-            ARRANGE_DWORD( &chardata[i].xadvance );
-            ARRANGE_DWORD( &chardata[i].yadvance );
-            ARRANGE_DWORD( &chardata[i].xoffset );
-            ARRANGE_DWORD( &chardata[i].yoffset );
-            ARRANGE_DWORD( &chardata[i].fileoffset );
+            ARRANGE_DWORD( &chardata[ i ].width );
+            ARRANGE_DWORD( &chardata[ i ].height );
+            ARRANGE_DWORD( &chardata[ i ].xadvance );
+            ARRANGE_DWORD( &chardata[ i ].yadvance );
+            ARRANGE_DWORD( &chardata[ i ].xoffset );
+            ARRANGE_DWORD( &chardata[ i ].yoffset );
+            ARRANGE_DWORD( &chardata[ i ].fileoffset );
         }
     } else {
         if ( !file_readSint32( fp, &types ) ) {
             if ( pal ) SDL_FreePalette( pal );
             return -1;
         }
+
         if ( file_read( fp, oldchardata, sizeof( oldchardata ) ) != sizeof( oldchardata ) ) {
             if ( pal ) SDL_FreePalette( pal );
             return -1;
         }
-        for ( i = 0; i < 256; i++ ) {
-            ARRANGE_DWORD( &oldchardata[i].width );
-            ARRANGE_DWORD( &oldchardata[i].height );
-            ARRANGE_DWORD( &oldchardata[i].yoffset );
-            ARRANGE_DWORD( &oldchardata[i].fileoffset );
 
-            chardata[i].width      = oldchardata[i].width;
-            chardata[i].height     = oldchardata[i].height;
-            chardata[i].xoffset    = 0;
-            chardata[i].yoffset    = oldchardata[i].yoffset;
-            chardata[i].xadvance   = oldchardata[i].width;
-            chardata[i].yadvance   = oldchardata[i].height + oldchardata[i].yoffset;
-            chardata[i].fileoffset = oldchardata[i].fileoffset;
+        for ( i = 0; i < 256; i++ ) {
+            ARRANGE_DWORD( &oldchardata[ i ].width );
+            ARRANGE_DWORD( &oldchardata[ i ].height );
+            ARRANGE_DWORD( &oldchardata[ i ].yoffset );
+            ARRANGE_DWORD( &oldchardata[ i ].fileoffset );
+
+            chardata[ i ].width      = oldchardata[ i ].width;
+            chardata[ i ].height     = oldchardata[ i ].height;
+            chardata[ i ].xoffset    = 0;
+            chardata[ i ].yoffset    = oldchardata[ i ].yoffset;
+            chardata[ i ].xadvance   = oldchardata[ i ].width;
+            chardata[ i ].yadvance   = oldchardata[ i ].height + oldchardata[ i ].yoffset;
+            chardata[ i ].fileoffset = oldchardata[ i ].fileoffset;
         }
     }
 
     /* Create the font */
 
-    if ( header[2] == 'x' )
+    if ( header[ 2 ] == 'x' )
         id = gr_font_new( types );
     else
         id = gr_font_new( CHARSET_CP850 );
@@ -386,101 +394,224 @@ static int64_t gr_font_loadfrom( file * fp ) {
         return -1;
     }
 
-    f = fonts[id];
+    f = fonts[ id ];
     if ( !f ) {
         gr_font_destroy( id );
         if ( pal ) SDL_FreePalette( pal );
         return -1;
     }
 
-    uint32_t rmask, gmask, bmask, amask;
-    getRGBA_mask( bpp, &rmask, &gmask, &bmask, &amask );
+    uint32_t rmask = 0, gmask = 0, bmask = 0, amask = 0;
+    int surface_bpp = bpp;
+
+    /* A 1-bpp source glyph will be expanded to an 8-bpp indexed surface */
+
+    if ( bpp == 1 ) {
+        surface_bpp = 8;
+    } else {
+        getRGBA_mask( bpp, &rmask, &gmask, &bmask, &amask );
+    }
 
     int min_xadvance = 0;
+
+    /* Calculate the maximum packed row size */
+
+    int max_widthb = 0;
+
+    for ( i = 0; i < 256; i++ ) {
+        int widthb;
+
+        if ( bpp == 1 )
+            widthb = ( chardata[ i ].width + 7 ) >> 3;
+        else
+            widthb = chardata[ i ].width * ( bpp >> 3 );
+
+        if ( widthb > max_widthb )
+            max_widthb = widthb;
+    }
+
+    /* One temporary buffer for every 1-bpp glyph row */
+
+    uint8_t * packed = NULL;
+
+    if ( bpp == 1 && max_widthb > 0 ) {
+        packed = malloc( max_widthb );
+
+        if ( !packed ) {
+            gr_font_destroy( id );
+            if ( pal ) SDL_FreePalette( pal );
+            return -1;
+        }
+    }
 
     /* Load the character bitmaps */
 
     for ( i = 0; i < 256; i++ ) {
-        f->glyph[i].xadvance = chardata[i].xadvance;
-        f->glyph[i].yadvance = chardata[i].yadvance;
 
-        if ( !min_xadvance ) min_xadvance = chardata[i].xadvance;
-        else if ( chardata[i].xadvance > 0 && chardata[i].xadvance < min_xadvance ) min_xadvance = chardata[i].xadvance;
+        f->glyph[ i ].xadvance = chardata[ i ].xadvance;
+        f->glyph[ i ].yadvance = chardata[ i ].yadvance;
 
-        if ( chardata[i].fileoffset == 0 || chardata[i].width == 0 || chardata[i].height == 0 ) continue;
+        if ( !min_xadvance )
+            min_xadvance = chardata[ i ].xadvance;
+        else if ( chardata[ i ].xadvance > 0 && chardata[ i ].xadvance < min_xadvance )
+            min_xadvance = chardata[ i ].xadvance;
 
-        f->glyph[i].xoffset = chardata[i].xoffset;
-        f->glyph[i].yoffset = chardata[i].yoffset;
+        if ( chardata[ i ].fileoffset == 0 ||
+             chardata[ i ].width == 0 ||
+             chardata[ i ].height == 0 ) {
+            continue;
+        }
 
-        file_seek( fp, chardata[i].fileoffset, SEEK_SET );
+        f->glyph[ i ].xoffset = chardata[ i ].xoffset;
+        f->glyph[ i ].yoffset = chardata[ i ].yoffset;
 
-        SDL_Surface* surface = SDL_CreateRGBSurface(0, chardata[i].width, chardata[i].height, bpp, rmask, gmask, bmask, amask );
+        file_seek( fp, chardata[ i ].fileoffset, SEEK_SET );
+
+        SDL_Surface * surface = SDL_CreateRGBSurface(
+            0,
+            chardata[ i ].width,
+            chardata[ i ].height,
+            surface_bpp,
+            rmask, gmask, bmask, amask
+        );
+
         if ( !surface ) {
+            if ( packed ) free( packed );
             gr_font_destroy( id );
             if ( pal ) SDL_FreePalette( pal );
             return -1;
         }
 
-        if ( pal ) SDL_SetSurfacePalette( surface, pal );
+        if ( bpp == 1 ) {
 
-        // Set transparent color
-        if ( bpp != 32 ) {
-            if ( bpp == 1 ) SDL_SetColorKey( surface, SDL_TRUE, 1 );
-            else            SDL_SetColorKey( surface, SDL_TRUE, 0 );
+            /* Minimal palette for a monochrome glyph */
+
+            SDL_Color font_palette[ 2 ] = {
+                {   0,   0,   0, 255 }, /* index 0: transparent */
+                { 255, 255, 255, 255 }  /* index 1: glyph */
+            };
+
+            SDL_Palette * font_pal = SDL_AllocPalette( 2 );
+
+            if ( !font_pal ) {
+                SDL_FreeSurface( surface );
+                if ( packed ) free( packed );
+                gr_font_destroy( id );
+                if ( pal ) SDL_FreePalette( pal );
+                return -1;
+            }
+
+            if ( SDL_SetPaletteColors( font_pal, font_palette, 0, 2 ) < 0 ) {
+                SDL_FreePalette( font_pal );
+                SDL_FreeSurface( surface );
+                if ( packed ) free( packed );
+                gr_font_destroy( id );
+                if ( pal ) SDL_FreePalette( pal );
+                return -1;
+            }
+
+            SDL_SetSurfacePalette( surface, font_pal );
+            SDL_FreePalette( font_pal );
+
+            /* Index 0 is the transparent background */
+
+            SDL_SetColorKey( surface, SDL_TRUE, 0 );
+
+        } else {
+
+            if ( pal )
+                SDL_SetSurfacePalette( surface, pal );
+
+            if ( bpp != 32 )
+                SDL_SetColorKey( surface, SDL_TRUE, 0 );
         }
 
-        /* Graphic data */
+        /* Packed row size in the source file */
 
-        int widthb = chardata[i].width * bpp / 8;
-        if (( widthb * 8 / bpp ) < chardata[i].width ) widthb++;
+        int widthb;
 
-        for ( y = 0; y < chardata[i].height; y++ ) {
-            uint8_t * line = ( uint8_t * ) surface->pixels + surface->pitch * y;
-            int st;
+        if ( bpp == 1 )
+            widthb = ( chardata[ i ].width + 7 ) >> 3;
+        else
+            widthb = chardata[ i ].width * ( bpp >> 3 );
+
+        for ( y = 0; y < ( uint32_t ) chardata[ i ].height; y++ ) {
+
+            uint8_t * line =
+                ( uint8_t * ) surface->pixels + surface->pitch * y;
+
+            int st = 0;
 
             switch ( bpp ) {
-                case    32:
-                    st = file_readUint32A( fp, ( uint32_t * ) line, chardata[i].width );
+
+                case 32:
+                    st = file_readUint32A(
+                        fp,
+                        ( uint32_t * ) line,
+                        chardata[ i ].width
+                    );
                     break;
 
-                case    16:
-                    st = file_readUint16A( fp, ( uint16_t * ) line, chardata[i].width );
+                case 16:
+                    st = file_readUint16A(
+                        fp,
+                        ( uint16_t * ) line,
+                        chardata[ i ].width
+                    );
                     break;
 
-                case    8:
-                    if ( ( st = file_read( fp, line, widthb ) ) != widthb ) st = 0;
+                case 8:
+                    if ( ( st = file_read( fp, line, widthb ) ) != widthb )
+                        st = 0;
                     break;
 
-                case    1:
-                    if ( ( st = file_read( fp, line, widthb ) ) != widthb ) st = 0;
-                    else
-                        for ( ii = 0; ii < widthb; ii++ ) line[ii] = ~line[ii];
+                case 1:
+                    if ( ( st = file_read( fp, packed, widthb ) ) != widthb ) {
+                        st = 0;
+                    } else {
+                        /* Expand 1 bpp to 8 bpp, MSB first */
+
+                        for ( ii = 0; ii < chardata[ i ].width; ii++ ) {
+                            int bit =
+                                ( packed[ ii >> 3 ] >> ( 7 - ( ii & 7 ) ) ) & 1;
+
+                            line[ ii ] = bit ? 1 : 0;
+                        }
+
+                        st = widthb;
+                    }
                     break;
             }
 
             if ( !st ) {
                 SDL_FreeSurface( surface );
+                if ( packed ) free( packed );
                 gr_font_destroy( id );
                 if ( pal ) SDL_FreePalette( pal );
                 return -1;
             }
         }
 
-        f->glyph[i].glymap = bitmap_new( i, 0, 0, surface );
+        f->glyph[ i ].glymap = bitmap_new( i, 0, 0, surface );
+
         SDL_FreeSurface( surface );
-        if ( !f->glyph[i].glymap ) {
+
+        if ( !f->glyph[ i ].glymap ) {
+            if ( packed ) free( packed );
             if ( pal ) SDL_FreePalette( pal );
             gr_font_destroy( id );
             return -1;
         }
 
-        bitmap_add_cpoint( f->glyph[i].glymap, 0, 0 );
+        bitmap_add_cpoint( f->glyph[ i ].glymap, 0, 0 );
 
-        f->glyph[i].yoffset = chardata[i].yoffset;
+        f->glyph[ i ].yoffset = chardata[ i ].yoffset;
     }
 
-    if ( f->glyph[32].xadvance == 0 ) f->glyph[32].xadvance = min_xadvance; // f->glyph['j'].xadvance;
+    if ( f->glyph[ 32 ].xadvance == 0 )
+        f->glyph[ 32 ].xadvance = min_xadvance;
 
+    if ( packed ) free( packed );
     if ( pal ) SDL_FreePalette( pal );
 
     return id;

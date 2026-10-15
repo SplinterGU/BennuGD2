@@ -165,6 +165,7 @@ TYPE Gal_Forma                                   // Estructura que guarda la for
     Byte Tipo;
 END
 
+declare PROCESS Marciano(Int Gal_Xi,Gal_Yi, byte Gal_Tipo,Gal_Fase);
 
 GLOBAL
 

@@ -105,3 +105,12 @@
             }
     #endif
 #endif
+
+/* Access a sub-64-bit typed value within an int64_t stack slot.
+   On big-endian, adjusts the pointer to point to the LOW sizeof(ctype) bytes.
+   On little-endian, this is a no-op. */
+#if __BYTEORDER == __BIG_ENDIAN
+    #define _STACK_FPTR(ctype, ptr) ((ctype *)((uint8_t *)(ptr) + (sizeof(int64_t) - sizeof(ctype))))
+#else
+    #define _STACK_FPTR(ctype, ptr) ((ctype *)(ptr))
+#endif

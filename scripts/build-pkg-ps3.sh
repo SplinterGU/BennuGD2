@@ -14,6 +14,9 @@ Usage: bash build-pkg-ps3.sh game.prg --id BNGD00001 [options]
   --content-id ID         Defaults to UP0001-<ID>_00-0000000000000000.
   --icon FILE             Optional; installed as ICON0.PNG.
   --out FILE              Defaults to <PRG-name>.pkg.
+  --force                 Overwrite an existing output file.
+  -DNAME[=VALUE]          Pass a define to bgdc; repeatable.
+  -D NAME[=VALUE]         Same as above.
   --no-finalize           Skip package_finalize.
 
 Literal includes are traversed recursively and their quoted strings collected.
@@ -52,6 +55,8 @@ SFO_TEMPLATE="${PS3DEV:-/usr/local/ps3dev}/bin/sfo.xml"
 ICON=""
 OUT="$BASE/$NAME.pkg"
 FINALIZE=1
+FORCE=0
+BGDC_DEFINES=()
 
 while (($#)); do
     case "$1" in
@@ -70,6 +75,20 @@ while (($#)); do
                 --out) OUT="$2" ;;
             esac
             shift 2
+            ;;
+        --force)
+            FORCE=1
+            shift
+            ;;
+        -D)
+            (($# >= 2)) || die "Missing value for -D."
+            [[ -n "$2" && "$2" != -* ]] || die "Invalid define: $2"
+            BGDC_DEFINES+=("-D$2")
+            shift 2
+            ;;
+        -D?*)
+            BGDC_DEFINES+=("$1")
+            shift
             ;;
         --no-finalize)
             FINALIZE=0
@@ -116,7 +135,10 @@ if ((FINALIZE)); then
         die "package_finalize is missing; use --no-finalize if you do not need it."
 fi
 
-[[ ! -e "$OUT" && ! -L "$OUT" ]] || die "Output already exists: $OUT"
+[[ ! -d "$OUT" ]] || die "Output is a directory: $OUT"
+if [[ -e "$OUT" || -L "$OUT" ]]; then
+    ((FORCE)) || die "Output already exists: $OUT (use --force to overwrite)."
+fi
 
 mkdir -p -- "$(dirname -- "$OUT")"
 WORK="$(mktemp -d)"
@@ -278,7 +300,7 @@ except (OSError, ValueError, RecursionError) as exc:
     sys.exit(f'Error collecting resources: {exc}')
 PY
 
-"$BGDC" "$PRG" -o "$ROOT/USRDIR/game.dcb"
+"$BGDC" "${BGDC_DEFINES[@]}" "$PRG" -o "$ROOT/USRDIR/game.dcb"
 [[ -s "$ROOT/USRDIR/game.dcb" ]] || die "bgdc did not generate game.dcb."
 
 ppu-strip "$ELF" -o "$WORK/bgdi.elf"
@@ -302,6 +324,12 @@ if ((FINALIZE)); then
 fi
 
 [[ -s "$WORK/result.pkg" ]] || die "PKG was not generated."
+if ((FORCE)); then
+    rm -f -- "$OUT"
+else
+    [[ ! -e "$OUT" && ! -L "$OUT" ]] ||
+        die "Output already exists: $OUT (use --force to overwrite)."
+fi
 cp -- "$WORK/result.pkg" "$OUT"
 
 printf '\nPKG: %s\nTITLE_ID: %s\nCONTENT_ID: %s\n' \

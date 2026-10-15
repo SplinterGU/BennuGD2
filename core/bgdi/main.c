@@ -291,6 +291,16 @@ int main( int argc, char *argv[] ) {
     /* add binary path */
     file_addp( appexepath );
 
+#ifdef PS3_PPU
+    bgd_working_directory = strdup(appexepath); // alloc as big as necessary
+#else
+    char * path = malloc(__MAX_PATH+1);
+    path[0] = '\0';
+    getcwd( path, __MAX_PATH );
+    bgd_working_directory = strdup(path); // alloc as big as necessary
+    free(path);
+#endif
+
 #if !defined( __SWITCH__ ) && !defined( PS3_PPU ) && !defined( __ANDROID__ )
     standalone = strncmpi( appexename, "bgdi", 4 );
     if ( standalone ) {
@@ -448,10 +458,11 @@ int main( int argc, char *argv[] ) {
 
     bgdrtm_exit();
 
-    free( appexename        );
-    free( appexepath        );
-    free( appexefullpath    );
-    free( appname           );
+    free( bgd_working_directory );
+    free( appexename            );
+    free( appexepath            );
+    free( appexefullpath        );
+    free( appname               );
 
 #ifdef __SWITCH__
     romfsExit();

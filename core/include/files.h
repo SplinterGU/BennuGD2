@@ -35,6 +35,10 @@
 
 #include "files_st.h"
 
+#ifdef PS3_PPU
+extern int ps3_resolve_path( const char * path, char * buffer, size_t size );
+#endif
+
 /* ---------------------------------------------------------------------- */
 /* File Access Functions                                                  */
 /* ---------------------------------------------------------------------- */

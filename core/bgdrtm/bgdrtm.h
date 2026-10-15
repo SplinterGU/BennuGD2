@@ -58,6 +58,7 @@ extern char *appname;
 extern char *appexename;
 extern char *appexepath;
 extern char *appexefullpath;
+extern char * bgd_working_directory;
 
 extern int64_t debug;          /* 1 if running in debug mode                    */
 extern int64_t system_paused;

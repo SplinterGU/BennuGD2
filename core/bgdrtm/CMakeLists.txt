@@ -20,6 +20,10 @@ if(NOT PS3_PPU)
     set(APPEND extra_libs m)
 endif()
 
+if(PS3_PPU)
+    set(extra_cflags -DUSE_OPENDIR=1)
+endif()
+
 if(ANDROID)
     list(APPEND extra_libs log)
 

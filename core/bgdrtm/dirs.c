@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include <ctype.h>
+#include <unistd.h>
 
 /* ------------------------------------------------------------------------------------ */
 /*
@@ -130,7 +130,10 @@ char * dir_path_convert( const char * dir )
 
 char * dir_current( void )
 {
-    return ( getcwd( NULL, 0 ) ) ;
+    char * path = malloc(__MAX_PATH+1);
+    path[0] = '\0';
+    getcwd( path, __MAX_PATH );
+    return path;
 }
 
 /* ------------------------------------------------------------------------------------ */
@@ -238,14 +241,28 @@ int dir_deletefile( const char * filename )
 __DIR_ST * dir_open( const char * path )
 {
     __DIR_ST * hDir = malloc( sizeof( __DIR_ST ) );
+
     if ( !hDir ) return NULL;
 
+    /* Conserva el patron/path original para dir_glob() */
     hDir->path = strdup( path );
-    if ( !hDir->path )
-    {
-        free ( hDir );
+
+    if ( !hDir->path ) {
+        free( hDir );
         return NULL;
     }
+
+#ifdef PS3_PPU
+    char resolved[ __MAX_PATH ];
+
+    if ( !ps3_resolve_path( path, resolved, sizeof( resolved ) ) ) {
+        free( hDir->path );
+        free( hDir );
+        return NULL;
+    }
+
+    path = resolved;
+#endif
 
 #ifdef _WIN32
     hDir->handle = FindFirstFile( hDir->path, &hDir->data );
@@ -267,15 +284,13 @@ __DIR_ST * dir_open( const char * path )
     }
 
     char * fptr = hDir->dirname;
-    while ( fptr = strchr( fptr, '\\') ) *fptr++ == '/';
+    while ( ( fptr = strchr( fptr, '\\' ) ) ) *fptr++ = '/';
 
     int is_dir = 0;
 
     if ( *hDir->dirname ) {
         struct stat s;
-        stat( hDir->dirname, &s );
-
-        is_dir = S_ISDIR( s.st_mode );
+        is_dir = ( stat( hDir->dirname, &s ) == 0 && S_ISDIR( s.st_mode ) );
     }
 
     if ( is_dir || !*hDir->dirname ) {
@@ -498,7 +513,7 @@ __DIR_FILEINFO_ST * dir_read( __DIR_ST * hDir )
 #elif defined USE_OPENDIR
     struct stat s;
     struct dirent *entry;
-    
+
     while( ( entry = readdir( hDir->hdir ) ) && !match( hDir->pattern, entry->d_name, 1 ) );
 
     if ( !entry ) return NULL;

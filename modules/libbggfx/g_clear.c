@@ -75,22 +75,25 @@ void gr_clear( GRAPH * dest ) {
  */
 
 void gr_clear_as( GRAPH * dest, int color ) {
+
     if ( !dest ) return;
     if ( gr_create_image_for_graph( dest ) ) return;
 
+    uint8_t r = BGDCOLOR_R( color );
+    uint8_t g = BGDCOLOR_G( color );
+    uint8_t b = BGDCOLOR_B( color );
+    uint8_t a = BGDCOLOR_A( color );
+
 #ifdef USE_SDL2
-    Uint8 r, g, b, a;
     SDL_SetRenderTarget( gRenderer, dest->tex );
-    SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
     SDL_SetRenderDrawColor( gRenderer, r, g, b, a );
     SDL_Rect eraseRect = { 0, 0, dest->width, dest->height };
     SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_NONE );
     SDL_RenderFillRect( gRenderer, &eraseRect );
     SDL_SetRenderTarget( gRenderer, NULL );
 #endif
+
 #ifdef USE_SDL2_GPU
-    Uint8 r, g, b, a;
-    SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
     GPU_ClearRGBA( dest->tex->target, r, g, b, a );
 #endif
 }
@@ -117,26 +120,35 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     if ( !dest ) return;
 
     if ( !region ) {
-        x = 0 ;
-        y = 0 ;
+        x = 0;
+        y = 0;
         w = dest->width;
         h = dest->height;
     } else {
-        x = MAX( MIN( region->x, region->x2 ), 0 ) ;
-        y = MAX( MIN( region->y, region->y2 ), 0 ) ;
-        w = MIN( MAX( region->x, region->x2 ) + 1, dest->width ) - x ;
-        h = MIN( MAX( region->y, region->y2 ) + 1, dest->height ) - y ;
+        int rx1 = MIN( region->x, region->x2 );
+        int ry1 = MIN( region->y, region->y2 );
+        int rx2 = MAX( region->x, region->x2 );
+        int ry2 = MAX( region->y, region->y2 );
+
+        x = MAX( rx1, 0 );
+        y = MAX( ry1, 0 );
+
+        w = MIN( rx2 + 1, dest->width ) - x;
+        h = MIN( ry2 + 1, dest->height ) - y;
     }
 
     if ( x > dest->width || y > dest->height ) return;
-    if ( ( x + w ) < 0 || ( y + h ) < 0 ) return;
+    if ( w < 0 || h < 0 ) return;
 
     if ( gr_create_image_for_graph( dest ) ) return;
 
+    uint8_t r = BGDCOLOR_R( color );
+    uint8_t g = BGDCOLOR_G( color );
+    uint8_t b = BGDCOLOR_B( color );
+    uint8_t a = BGDCOLOR_A( color );
+
 #ifdef USE_SDL2
-    Uint8 r, g, b, a;
     SDL_SetRenderTarget( gRenderer, dest->tex );
-    SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
     SDL_SetRenderDrawColor( gRenderer, r, g, b, a );
     SDL_Rect eraseRect = { x, y, w, h };
     SDL_SetRenderDrawBlendMode( gRenderer, SDL_BLENDMODE_NONE );
@@ -144,8 +156,6 @@ void gr_clear_region_as( GRAPH * dest, REGION * region, int color ) {
     SDL_SetRenderTarget( gRenderer, NULL );
 #endif
 #ifdef USE_SDL2_GPU
-    Uint8 r, g, b, a;
-    SDL_GetRGBA( color, gPixelFormat, &r, &g, &b, &a );
     GPU_SetClip( dest->tex->target, x, y, w, h );
     GPU_ClearRGBA( dest->tex->target, r, g, b, a );
     GPU_UnsetClip( dest->tex->target );

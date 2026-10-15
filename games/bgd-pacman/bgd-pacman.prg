@@ -51,7 +51,7 @@ begin
         CASE 0xfc5454ff/*12*/:
             return 12;
         END
-        CASE 0x5454fcff/*9*/: 
+        CASE 0x5454fcff/*9*/:
             return 9;
         END
         CASE 0x54fcfcff/*11*/:

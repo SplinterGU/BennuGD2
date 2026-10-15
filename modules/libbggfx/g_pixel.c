@@ -103,9 +103,19 @@ int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
 
     bitmap_update_surface( gr );
 
-    if ( x >= ( int64_t ) gr->surface->w || y >= ( int64_t ) gr->surface->h ) return -1;
+    if ( !gr->surface ) return -1;
 
-    return *( uint32_t * ) ( ( ( uint8_t * ) gr->surface->pixels ) + ( y * gr->surface->pitch + x * 4 ) );
+    if ( x >= ( int64_t ) gr->surface->w ||
+         y >= ( int64_t ) gr->surface->h ) return -1;
+
+    uint32_t raw =
+        *( uint32_t * ) ( ( uint8_t * ) gr->surface->pixels +
+                          y * gr->surface->pitch +
+                          x * 4 );
+
+    uint8_t r, g, b, a;
+    SDL_GetRGBA( raw, gPixelFormat, &r, &g, &b, &a );
+    return ( int64_t ) BGDCOLOR( r, g, b, a );
 }
 #endif
 
@@ -126,6 +136,7 @@ int64_t gr_get_pixel( GRAPH * gr, int64_t x, int64_t y ) {
  *
  */
 
+#if 0
 void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
 
     if ( !gr ) return;
@@ -144,7 +155,7 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
 #ifdef USE_SDL2
     SDL_Color c;
     SDL_SetRenderTarget( gRenderer, gr->tex );
-    SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a ) ;
+    SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a );
     SDL_SetRenderDrawColor( gRenderer, c.r, c.g, c.b, c.a );
     SDL_Rect rect = { x, y, 1, 1 };
     SDL_RenderFillRect( gRenderer, &rect );
@@ -152,11 +163,51 @@ void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
 #endif
 #ifdef USE_SDL2_GPU
     SDL_Color c;
-    SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a ) ;
+    SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a );
     GPU_Pixel( gr->tex->target, ( float ) x, ( float ) y, c );
 
     gr->dirty = 1;
 #endif
 }
+#else
+void gr_put_pixel( GRAPH * gr, int64_t x, int64_t y, int64_t color ) {
+
+    if ( !gr ) return;
+
+    if ( x < 0 || y < 0 ) return;
+
+    if ( gr_create_image_for_graph( gr ) ) return;
+
+    if ( !gr->surface ) return;
+
+#ifdef USE_SDL2
+    if ( x >= ( int64_t ) gr->width || y >= ( int64_t ) gr->height ) return;
+#endif
+#ifdef USE_SDL2_GPU
+    if ( x >= ( int64_t ) gr->tex->w || y >= ( int64_t ) gr->tex->h ) return;
+#endif
+
+#ifdef USE_SDL2
+    uint32_t raw = SDL_MapRGBA(
+        gPixelFormat,
+        BGDCOLOR_R( color ),
+        BGDCOLOR_G( color ),
+        BGDCOLOR_B( color ),
+        BGDCOLOR_A( color )
+    );
+
+    *( uint32_t * ) ( ( uint8_t * ) gr->surface->pixels +
+                      y * gr->surface->pitch +
+                      x * 4 ) = raw;
+#endif
+#ifdef USE_SDL2_GPU
+    SDL_Color c;
+    SDL_GetRGBA( color, gPixelFormat, &c.r, &c.g, &c.b, &c.a );
+    GPU_Pixel( gr->tex->target, ( float ) x, ( float ) y, c );
+#endif
+
+    gr->dirty = 1;
+}
+#endif
 
 /* --------------------------------------------------------------------------- */

@@ -85,7 +85,7 @@ int64_t libmod_gfx_text_write_in_map2( INSTANCE * my, int64_t * params ) {
     GRAPH * dest = bitmap_get( params[0], params[1] );
     if ( !text || !dest ) {
         string_discard( params[5] );
-        return 0; 
+        return 0;
     }
     int64_t result = gr_text_in_bitmap( dest, params[2], params[3], params[4], text, params[6] );
     string_discard( params[5] );

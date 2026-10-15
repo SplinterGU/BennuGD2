@@ -57,10 +57,11 @@
 
 /* --------------------------------------------------------------------------- */
 
-char * appname          = NULL;
-char * appexename       = NULL;
-char * appexepath       = NULL;
-char * appexefullpath   = NULL;
+char * appname                  = NULL;
+char * appexename               = NULL;
+char * appexepath               = NULL;
+char * appexefullpath           = NULL;
+char * bgd_working_directory    = NULL;
 
 /* --------------------------------------------------------------------------- */
 

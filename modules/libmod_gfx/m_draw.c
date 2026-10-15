@@ -687,7 +687,11 @@ static void _libmod_gfx_draw_object_move( int64_t id, int64_t x, int64_t y ) {
 /* --------------------------------------------------------------------------- */
 
 static void __get_rgba( int64_t color, uint8_t * r, uint8_t * g, uint8_t * b, uint8_t * a ) {
-    SDL_GetRGBA( color, gPixelFormat, r, g, b, a ) ;
+    *r = BGDCOLOR_R( color );
+    *g = BGDCOLOR_G( color );
+    *b = BGDCOLOR_B( color );
+    *a = BGDCOLOR_A( color );
+//    SDL_GetRGBA( color, gPixelFormat, r, g, b, a ) ;
 }
 
 /* --------------------------------------------------------------------------- */

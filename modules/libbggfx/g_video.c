@@ -215,11 +215,19 @@ int gr_set_mode( int width, int height, int flags ) {
     renderer_width = width;
     renderer_height = height;
 
+#ifdef PS3_PPU
+    fullscreen = 0;
+    grab_input = 0;
+    frameless = 0;
+    waitvsync = 0;
+    fullscreen = 0;
+#else
     fullscreen = ( flags & MODE_FULLSCREEN ) ? 1 : 0 ;
     grab_input = ( flags & MODE_GRAB_INPUT ) ? 1 : 0 ;
     frameless = ( flags & MODE_FRAMELESS ) ? 1 : 0 ;
     waitvsync = ( flags & MODE_WAITVSYNC ) ? 1 : 0 ;
     fullscreen |= GLOQWORD( libbggfx, fullscreen );
+#endif
 
     int64_t current_scale_resolution_aspectratio = scale_resolution_aspectratio;
 

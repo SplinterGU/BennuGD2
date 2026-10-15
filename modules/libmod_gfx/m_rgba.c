@@ -40,9 +40,14 @@
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_rgb( INSTANCE * my, int64_t * params ) {
-    Uint8 r, g, b;
+    uint32_t color = params[0];
 
-    SDL_GetRGB( params[0], gPixelFormat, &r, &g, &b ) ;
+//    SDL_GetRGB( params[0], gPixelFormat, &r, &g, &b ) ;
+
+    Uint8 r = BGDCOLOR_R( color );
+    Uint8 g = BGDCOLOR_G( color );
+    Uint8 b = BGDCOLOR_B( color );
+
     *( uint8_t * )( intptr_t )(params[1]) = ( uint8_t ) r;
     *( uint8_t * )( intptr_t )(params[2]) = ( uint8_t ) g;
     *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) b;
@@ -53,9 +58,15 @@ int64_t libmod_gfx_get_rgb( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_rgba( INSTANCE * my, int64_t * params ) {
-    Uint8 r, g, b, a;
+    uint32_t color = params[0];
 
-    SDL_GetRGBA( params[0], gPixelFormat, &r, &g, &b, &a ) ;
+//    SDL_GetRGBA( params[0], gPixelFormat, &r, &g, &b, &a ) ;
+
+    Uint8 r = BGDCOLOR_R( color );
+    Uint8 g = BGDCOLOR_G( color );
+    Uint8 b = BGDCOLOR_B( color );
+    Uint8 a = BGDCOLOR_A( color );
+
     *( uint8_t * )( intptr_t )(params[1]) = ( uint8_t ) r;
     *( uint8_t * )( intptr_t )(params[2]) = ( uint8_t ) g;
     *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) b;
@@ -67,6 +78,10 @@ int64_t libmod_gfx_get_rgba( INSTANCE * my, int64_t * params ) {
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_rgb_map( INSTANCE * my, int64_t * params ) {
+
+    return libmod_gfx_get_rgb( my, &params[2] );
+
+/*
     Uint8 r, g, b;
 #ifdef USE_SDL2
     GRAPH * map = bitmap_get( params[0], params[1] ) ;
@@ -79,13 +94,17 @@ int64_t libmod_gfx_get_rgb_map( INSTANCE * my, int64_t * params ) {
     *( uint8_t * )( intptr_t )(params[3]) = ( uint8_t ) r;
     *( uint8_t * )( intptr_t )(params[4]) = ( uint8_t ) g;
     *( uint8_t * )( intptr_t )(params[5]) = ( uint8_t ) b;
-
+*/
     return 1 ;
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_get_rgba_map( INSTANCE * my, int64_t * params ) {
+
+    return libmod_gfx_get_rgba( my, &params[2] );
+
+/*
     Uint8 r, g, b, a;
 #ifdef USE_SDL2
     GRAPH * map = bitmap_get( params[0], params[1] ) ;
@@ -100,23 +119,28 @@ int64_t libmod_gfx_get_rgba_map( INSTANCE * my, int64_t * params ) {
     *( uint8_t * )( intptr_t )(params[5]) = ( uint8_t ) b;
     *( uint8_t * )( intptr_t )(params[6]) = ( uint8_t ) a;
     return 1 ;
+*/
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_rgb( INSTANCE * my, int64_t * params ) {
-    return SDL_MapRGB( gPixelFormat, params[0], params[1], params[2] );
+    return BGDCOLOR(params[0], params[1], params[2], 255);
+    //return SDL_MapRGB( gPixelFormat, params[0], params[1], params[2] );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_rgba( INSTANCE * my, int64_t * params ) {
-    return SDL_MapRGBA( gPixelFormat, params[0], params[1], params[2], params[3] );
+    return BGDCOLOR(params[0], params[1], params[2], params[3]);
+    //return SDL_MapRGBA( gPixelFormat, params[0], params[1], params[2], params[3] );
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_rgb_map( INSTANCE * my, int64_t * params ) {
+    return libmod_gfx_rgb( my, &params[2] );
+/*
 #ifdef USE_SDL2
     GRAPH * map = bitmap_get( params[0], params[1] ) ;
     if ( !map->surface ) return 0;
@@ -125,11 +149,14 @@ int64_t libmod_gfx_rgb_map( INSTANCE * my, int64_t * params ) {
 #ifdef USE_SDL2_GPU
     return SDL_MapRGB( gPixelFormat, params[2], params[3], params[4] );
 #endif
+*/
 }
 
 /* --------------------------------------------------------------------------- */
 
 int64_t libmod_gfx_rgba_map( INSTANCE * my, int64_t * params ) {
+    return libmod_gfx_rgba( my, &params[2] );
+/*
 #ifdef USE_SDL2
     GRAPH * map = bitmap_get( params[0], params[1] ) ;
     if ( !map->surface ) return 0;
@@ -138,6 +165,7 @@ int64_t libmod_gfx_rgba_map( INSTANCE * my, int64_t * params ) {
 #ifdef USE_SDL2_GPU
     return SDL_MapRGBA( gPixelFormat, params[2], params[3], params[4], params[5] );
 #endif
+*/
 }
 
 /* --------------------------------------------------------------------------- */

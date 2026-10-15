@@ -336,8 +336,43 @@ case case_value: \
         break; \
     } \
     \
-    for ( int n = 0; n < proc->params; n++ ) \
-        PRIQWORD( i, sizeof( uint64_t ) * n ) = r->stack_ptr[-proc->params+n]; \
+    if ( __BYTEORDER == __BIG_ENDIAN ) { \
+        DCB_VAR * privars = dcb.proc[pc[1]].privar; \
+        \
+        for ( int n = 0; n < proc->params; n++ ) { \
+            int64_t val = r->stack_ptr[-proc->params+n]; \
+            uint8_t * dst = (uint8_t *)(i->pridata) + sizeof(uint64_t) * n; \
+            \
+            switch ( privars[n].Type.BaseType[0] ) { \
+                case TYPE_FLOAT: \
+                    *(float *)dst = *_STACK_FPTR(float, &val); \
+                    break; \
+                \
+                case TYPE_DWORD: \
+                case TYPE_INT32: \
+                    *(int32_t *)dst = (int32_t)val; \
+                    break; \
+                \
+                case TYPE_WORD: \
+                case TYPE_SHORT: \
+                    *(int16_t *)dst = (int16_t)val; \
+                    break; \
+                \
+                case TYPE_BYTE: \
+                case TYPE_SBYTE: \
+                case TYPE_CHAR: \
+                    *(int8_t *)dst = (int8_t)val; \
+                    break; \
+                \
+                default: \
+                    PRIQWORD( i, sizeof( uint64_t ) * n ) = val; \
+                    break; \
+            } \
+        } \
+    } else { \
+        for ( int n = 0; n < proc->params; n++ ) \
+            PRIQWORD( i, sizeof( uint64_t ) * n ) = r->stack_ptr[-proc->params+n]; \
+    } \
     \
     r->stack_ptr -= proc->params; \
     \
@@ -671,7 +706,7 @@ case case_value: \
 #define OP_EXPRF(case_value, ctype, oper) \
 case case_value: \
 { \
-    *( ctype * )&r->stack_ptr[-1] = ( ctype ) oper *(( ctype * ) &r->stack_ptr[-1] ); \
+    *_STACK_FPTR( ctype, &r->stack_ptr[-1] ) = ( ctype ) oper *_STACK_FPTR( ctype, &r->stack_ptr[-1] ); \
     ++pc; \
     break; \
 }
@@ -679,7 +714,7 @@ case case_value: \
 #define OP_EXPRF_WITH_ARG(case_value, ctype, oper) \
 case case_value: \
 { \
-    *( ctype * )&r->stack_ptr[-2] oper##= *(( ctype * ) &r->stack_ptr[-1] ); \
+    *_STACK_FPTR( ctype, &r->stack_ptr[-2] ) oper##= *_STACK_FPTR( ctype, &r->stack_ptr[-1] ); \
     --r->stack_ptr; \
     ++pc; \
     break; \
@@ -688,7 +723,7 @@ case case_value: \
 #define OP_EXPRF_WITH_ARG_MOD(case_value, ctype) \
 case case_value: \
 { \
-    *( ctype * )&r->stack_ptr[-2] = fmod( *( ctype * )&r->stack_ptr[-2], *(( ctype * ) &r->stack_ptr[-1] ) ); \
+    *_STACK_FPTR( ctype, &r->stack_ptr[-2] ) = fmod( *_STACK_FPTR( ctype, &r->stack_ptr[-2] ), *_STACK_FPTR( ctype, &r->stack_ptr[-1] ) ); \
     --r->stack_ptr; \
     ++pc; \
     break; \
@@ -919,7 +954,7 @@ case case_value: \
 #define OP_CMPF(case_value, ctype, oper) \
 case case_value: \
 { \
-    r->stack_ptr[-2] = *(( ctype * ) &r->stack_ptr[-2] ) oper *(( ctype * ) &r->stack_ptr[-1] ); \
+    r->stack_ptr[-2] = *_STACK_FPTR( ctype, &r->stack_ptr[-2] ) oper *_STACK_FPTR( ctype, &r->stack_ptr[-1] ); \
     --r->stack_ptr; \
     ++pc; \
     break; \
@@ -970,7 +1005,7 @@ case case_value: \
 #define OP_CVTF2I(case_value, ctype_from, ctype_to) \
 case case_value: \
 { \
-    r->stack_ptr[-pc[1] - 1] = ( ctype_to ) * ( ctype_from * ) &( r->stack_ptr[-pc[1] - 1] ); \
+    r->stack_ptr[-pc[1] - 1] = ( ctype_to ) *_STACK_FPTR( ctype_from, &( r->stack_ptr[-pc[1] - 1] ) ); \
     pc += 2; \
     break; \
 }
@@ -996,7 +1031,9 @@ case case_value: \
 #define OP_CVTI2F(case_value, ctype_from, ctype_to) \
 case case_value: \
 { \
-    *( ctype_to* ) &(r->stack_ptr[-pc[1] - 1]) = ( ctype_to ) ( ctype_from ) r->stack_ptr[-pc[1] - 1]; \
+    ctype_from _cvt_src = ( ctype_from ) r->stack_ptr[-pc[1] - 1]; \
+    r->stack_ptr[-pc[1] - 1] = 0; \
+    *_STACK_FPTR( ctype_to, &(r->stack_ptr[-pc[1] - 1]) ) = ( ctype_to ) _cvt_src; \
     pc += 2; \
     break; \
 }
@@ -1037,7 +1074,9 @@ case case_value: \
 #define OP_CVTF2F(case_value, ctype_from, ctype_to) \
 case case_value: \
 { \
-    *( ctype_to * )&( r->stack_ptr[-pc[1] - 1] ) = ( ctype_to ) * ( ctype_from * ) &( r->stack_ptr[-pc[1] - 1] ); \
+    ctype_from _cvt_src = *_STACK_FPTR( ctype_from, &( r->stack_ptr[-pc[1] - 1] ) ); \
+    r->stack_ptr[-pc[1] - 1] = 0; \
+    *_STACK_FPTR( ctype_to, &( r->stack_ptr[-pc[1] - 1] ) ) = ( ctype_to ) _cvt_src; \
     pc += 2; \
     break; \
 }
@@ -1069,7 +1108,7 @@ case case_value: \
 case case_value: \
 { \
     uint64_t* string_id1_ptr = &r->stack_ptr[-pc[1] - 1]; \
-    uint64_t value = string_ftoa( *( ctype_from * ) string_id1_ptr ); \
+    uint64_t value = string_ftoa( *_STACK_FPTR( ctype_from, string_id1_ptr ) ); \
     *string_id1_ptr = value; \
     string_use( value ); \
     pc += 2; \
@@ -1137,7 +1176,8 @@ case case_value: \
     uint64_t* string_id_ptr = &r->stack_ptr[-pc[1] - 1]; \
     uint64_t string_id = *string_id_ptr; \
     char* str = ( char * )string_get( string_id ); \
-    *( ctype_to * ) string_id_ptr = str ? ( ctype_to )atof( str ) : 0.0f; \
+    *string_id_ptr = 0; \
+    *_STACK_FPTR( ctype_to, string_id_ptr ) = str ? ( ctype_to )atof( str ) : 0.0f; \
     string_discard( string_id ); \
     pc += 2; \
     break; \
@@ -1192,25 +1232,25 @@ case case_value: \
 
             /* Direct variables operations */
 
-#define OP_LETNP(case_value, ctype, getvalue) \
+#define OP_LETNP(case_value, ctype) \
 case case_value: \
 { \
-    ( *( ctype* )( intptr_t )( r->stack_ptr[-2] ) ) = getvalue r->stack_ptr[-1]; \
+    ( *( ctype* )( intptr_t )( r->stack_ptr[-2] ) ) = *_STACK_FPTR( ctype, &r->stack_ptr[-1] ); \
     r->stack_ptr -= 2; \
     ++pc; \
     break; \
 }
 
-            OP_LETNP(MN_LETNP | MN_QWORD, int64_t,)
-            OP_LETNP(MN_LETNP | MN_UNSIGNED | MN_QWORD, uint64_t,)
-            OP_LETNP(MN_LETNP | MN_DWORD, int32_t,)
-            OP_LETNP(MN_LETNP | MN_UNSIGNED | MN_DWORD, uint32_t,)
-            OP_LETNP(MN_LETNP | MN_WORD, int16_t,)
-            OP_LETNP(MN_LETNP | MN_UNSIGNED | MN_WORD, uint16_t,)
-            OP_LETNP(MN_LETNP | MN_BYTE, int8_t,)
-            OP_LETNP(MN_LETNP | MN_UNSIGNED | MN_BYTE, uint8_t,)
-            OP_LETNP(MN_LETNP | MN_DOUBLE, double, *( double * ) &)
-            OP_LETNP(MN_LETNP | MN_FLOAT, float, *( float * ) &)
+            OP_LETNP(MN_LETNP | MN_QWORD, int64_t)
+            OP_LETNP(MN_LETNP | MN_UNSIGNED | MN_QWORD, uint64_t)
+            OP_LETNP(MN_LETNP | MN_DWORD, int32_t)
+            OP_LETNP(MN_LETNP | MN_UNSIGNED | MN_DWORD, uint32_t)
+            OP_LETNP(MN_LETNP | MN_WORD, int16_t)
+            OP_LETNP(MN_LETNP | MN_UNSIGNED | MN_WORD, uint16_t)
+            OP_LETNP(MN_LETNP | MN_BYTE, int8_t)
+            OP_LETNP(MN_LETNP | MN_UNSIGNED | MN_BYTE, uint8_t)
+            OP_LETNP(MN_LETNP | MN_DOUBLE, double)
+            OP_LETNP(MN_LETNP | MN_FLOAT, float)
 
             case MN_LETNP | MN_STRING:
             {
@@ -1222,25 +1262,25 @@ case case_value: \
                 break;
             }
 
-#define OP_LET(case_value, ctype, getvalue) \
+#define OP_LET(case_value, ctype) \
 case case_value: \
 { \
-    ( *( ctype* )( intptr_t )( r->stack_ptr[-2] ) ) = getvalue r->stack_ptr[-1]; \
+    ( *( ctype* )( intptr_t )( r->stack_ptr[-2] ) ) = *_STACK_FPTR( ctype, &r->stack_ptr[-1] ); \
     --r->stack_ptr; \
     ++pc; \
     break; \
 }
 
-            OP_LET(MN_LET | MN_QWORD, int64_t,)
-            OP_LET(MN_LET | MN_UNSIGNED | MN_QWORD, uint64_t,)
-            OP_LET(MN_LET | MN_DWORD, int32_t,)
-            OP_LET(MN_LET | MN_UNSIGNED | MN_DWORD, uint32_t,)
-            OP_LET(MN_LET | MN_WORD, int16_t,)
-            OP_LET(MN_LET | MN_UNSIGNED | MN_WORD, uint16_t,)
-            OP_LET(MN_LET | MN_BYTE, int8_t,)
-            OP_LET(MN_LET | MN_UNSIGNED | MN_BYTE, uint8_t,)
-            OP_LET(MN_LET | MN_DOUBLE, double, *( double * ) &)
-            OP_LET(MN_LET | MN_FLOAT, float, *( float * ) &)
+            OP_LET(MN_LET | MN_QWORD, int64_t)
+            OP_LET(MN_LET | MN_UNSIGNED | MN_QWORD, uint64_t)
+            OP_LET(MN_LET | MN_DWORD, int32_t)
+            OP_LET(MN_LET | MN_UNSIGNED | MN_DWORD, uint32_t)
+            OP_LET(MN_LET | MN_WORD, int16_t)
+            OP_LET(MN_LET | MN_UNSIGNED | MN_WORD, uint16_t)
+            OP_LET(MN_LET | MN_BYTE, int8_t)
+            OP_LET(MN_LET | MN_UNSIGNED | MN_BYTE, uint8_t)
+            OP_LET(MN_LET | MN_DOUBLE, double)
+            OP_LET(MN_LET | MN_FLOAT, float)
 
             case MN_LET | MN_STRING:
             {
@@ -1253,25 +1293,25 @@ case case_value: \
             }
 
 
-#define OP_VAR(case_value, ctype, oper, getvalue) \
+#define OP_VAR(case_value, ctype, oper) \
 case case_value: \
 { \
-    *( ctype * )( intptr_t )( r->stack_ptr[-2] ) oper##= getvalue r->stack_ptr[-1]; \
+    *( ctype * )( intptr_t )( r->stack_ptr[-2] ) oper##= *_STACK_FPTR( ctype, &r->stack_ptr[-1] ); \
     --r->stack_ptr; \
     ++pc; \
     break; \
 }
 
-            OP_VAR(MN_VARADD | MN_QWORD, int64_t, +,)
-            OP_VAR(MN_VARADD | MN_UNSIGNED | MN_QWORD, uint64_t, +,)
-            OP_VAR(MN_VARADD | MN_DWORD, int32_t, +,)
-            OP_VAR(MN_VARADD | MN_UNSIGNED | MN_DWORD, uint32_t, +,)
-            OP_VAR(MN_VARADD | MN_WORD, int16_t, +,)
-            OP_VAR(MN_VARADD | MN_UNSIGNED | MN_WORD, uint16_t, +,)
-            OP_VAR(MN_VARADD | MN_BYTE, int8_t, +,)
-            OP_VAR(MN_VARADD | MN_UNSIGNED | MN_BYTE, uint8_t, +,)
-            OP_VAR(MN_VARADD | MN_DOUBLE, double, +, *( double * ) &)
-            OP_VAR(MN_VARADD | MN_FLOAT, float, +, *( float * ) &)
+            OP_VAR(MN_VARADD | MN_QWORD, int64_t, +)
+            OP_VAR(MN_VARADD | MN_UNSIGNED | MN_QWORD, uint64_t, +)
+            OP_VAR(MN_VARADD | MN_DWORD, int32_t, +)
+            OP_VAR(MN_VARADD | MN_UNSIGNED | MN_DWORD, uint32_t, +)
+            OP_VAR(MN_VARADD | MN_WORD, int16_t, +)
+            OP_VAR(MN_VARADD | MN_UNSIGNED | MN_WORD, uint16_t, +)
+            OP_VAR(MN_VARADD | MN_BYTE, int8_t, +)
+            OP_VAR(MN_VARADD | MN_UNSIGNED | MN_BYTE, uint8_t, +)
+            OP_VAR(MN_VARADD | MN_DOUBLE, double, +)
+            OP_VAR(MN_VARADD | MN_FLOAT, float, +)
 
             case MN_VARADD | MN_STRING:
             {
@@ -1286,72 +1326,72 @@ case case_value: \
                 break;
             }
 
-            OP_VAR(MN_VARSUB | MN_QWORD, int64_t, -,)
-            OP_VAR(MN_VARSUB | MN_UNSIGNED | MN_QWORD, uint64_t, -,)
-            OP_VAR(MN_VARSUB | MN_DWORD, int32_t, -,)
-            OP_VAR(MN_VARSUB | MN_UNSIGNED | MN_DWORD, uint32_t, -,)
-            OP_VAR(MN_VARSUB | MN_WORD, int16_t, -,)
-            OP_VAR(MN_VARSUB | MN_UNSIGNED | MN_WORD, uint16_t, -,)
-            OP_VAR(MN_VARSUB | MN_BYTE, int8_t, -,)
-            OP_VAR(MN_VARSUB | MN_UNSIGNED | MN_BYTE, uint8_t, -,)
-            OP_VAR(MN_VARSUB | MN_DOUBLE, double, -, *( double * ) &)
-            OP_VAR(MN_VARSUB | MN_FLOAT, float, -, *( float * ) &)
+            OP_VAR(MN_VARSUB | MN_QWORD, int64_t, -)
+            OP_VAR(MN_VARSUB | MN_UNSIGNED | MN_QWORD, uint64_t, -)
+            OP_VAR(MN_VARSUB | MN_DWORD, int32_t, -)
+            OP_VAR(MN_VARSUB | MN_UNSIGNED | MN_DWORD, uint32_t, -)
+            OP_VAR(MN_VARSUB | MN_WORD, int16_t, -)
+            OP_VAR(MN_VARSUB | MN_UNSIGNED | MN_WORD, uint16_t, -)
+            OP_VAR(MN_VARSUB | MN_BYTE, int8_t, -)
+            OP_VAR(MN_VARSUB | MN_UNSIGNED | MN_BYTE, uint8_t, -)
+            OP_VAR(MN_VARSUB | MN_DOUBLE, double, -)
+            OP_VAR(MN_VARSUB | MN_FLOAT, float, -)
 
-            OP_VAR(MN_VARMUL | MN_QWORD, int64_t, *,)
-            OP_VAR(MN_VARMUL | MN_UNSIGNED | MN_QWORD, uint64_t, *,)
-            OP_VAR(MN_VARMUL | MN_DWORD, int32_t, *,)
-            OP_VAR(MN_VARMUL | MN_UNSIGNED | MN_DWORD, uint32_t, *,)
-            OP_VAR(MN_VARMUL | MN_WORD, int16_t, *,)
-            OP_VAR(MN_VARMUL | MN_UNSIGNED | MN_WORD, uint16_t, *,)
-            OP_VAR(MN_VARMUL | MN_BYTE, int8_t, *,)
-            OP_VAR(MN_VARMUL | MN_UNSIGNED | MN_BYTE, uint8_t, *,)
-            OP_VAR(MN_VARMUL | MN_DOUBLE, double, *, *( double * ) &)
-            OP_VAR(MN_VARMUL | MN_FLOAT, float, *, *( float * ) &)
+            OP_VAR(MN_VARMUL | MN_QWORD, int64_t, *)
+            OP_VAR(MN_VARMUL | MN_UNSIGNED | MN_QWORD, uint64_t, *)
+            OP_VAR(MN_VARMUL | MN_DWORD, int32_t, *)
+            OP_VAR(MN_VARMUL | MN_UNSIGNED | MN_DWORD, uint32_t, *)
+            OP_VAR(MN_VARMUL | MN_WORD, int16_t, *)
+            OP_VAR(MN_VARMUL | MN_UNSIGNED | MN_WORD, uint16_t, *)
+            OP_VAR(MN_VARMUL | MN_BYTE, int8_t, *)
+            OP_VAR(MN_VARMUL | MN_UNSIGNED | MN_BYTE, uint8_t, *)
+            OP_VAR(MN_VARMUL | MN_DOUBLE, double, *)
+            OP_VAR(MN_VARMUL | MN_FLOAT, float, *)
 
-            OP_VAR(MN_VAROR | MN_QWORD, int64_t, |,)
-            OP_VAR(MN_VAROR | MN_UNSIGNED | MN_QWORD, uint64_t, |,)
-            OP_VAR(MN_VAROR | MN_DWORD, int32_t, |,)
-            OP_VAR(MN_VAROR | MN_UNSIGNED | MN_DWORD, uint32_t, |,)
-            OP_VAR(MN_VAROR | MN_WORD, int16_t, |,)
-            OP_VAR(MN_VAROR | MN_UNSIGNED | MN_WORD, uint16_t, |,)
-            OP_VAR(MN_VAROR | MN_BYTE, int8_t, |,)
-            OP_VAR(MN_VAROR | MN_UNSIGNED | MN_BYTE, uint8_t, |,)
+            OP_VAR(MN_VAROR | MN_QWORD, int64_t, |)
+            OP_VAR(MN_VAROR | MN_UNSIGNED | MN_QWORD, uint64_t, |)
+            OP_VAR(MN_VAROR | MN_DWORD, int32_t, |)
+            OP_VAR(MN_VAROR | MN_UNSIGNED | MN_DWORD, uint32_t, |)
+            OP_VAR(MN_VAROR | MN_WORD, int16_t, |)
+            OP_VAR(MN_VAROR | MN_UNSIGNED | MN_WORD, uint16_t, |)
+            OP_VAR(MN_VAROR | MN_BYTE, int8_t, |)
+            OP_VAR(MN_VAROR | MN_UNSIGNED | MN_BYTE, uint8_t, |)
 
-            OP_VAR(MN_VARXOR | MN_QWORD, int64_t, ^,)
-            OP_VAR(MN_VARXOR | MN_UNSIGNED | MN_QWORD, uint64_t, ^,)
-            OP_VAR(MN_VARXOR | MN_DWORD, int32_t, ^,)
-            OP_VAR(MN_VARXOR | MN_UNSIGNED | MN_DWORD, uint32_t, ^,)
-            OP_VAR(MN_VARXOR | MN_WORD, int16_t, ^,)
-            OP_VAR(MN_VARXOR | MN_UNSIGNED | MN_WORD, uint16_t, ^,)
-            OP_VAR(MN_VARXOR | MN_BYTE, int8_t, ^,)
-            OP_VAR(MN_VARXOR | MN_UNSIGNED | MN_BYTE, uint8_t, ^,)
+            OP_VAR(MN_VARXOR | MN_QWORD, int64_t, ^)
+            OP_VAR(MN_VARXOR | MN_UNSIGNED | MN_QWORD, uint64_t, ^)
+            OP_VAR(MN_VARXOR | MN_DWORD, int32_t, ^)
+            OP_VAR(MN_VARXOR | MN_UNSIGNED | MN_DWORD, uint32_t, ^)
+            OP_VAR(MN_VARXOR | MN_WORD, int16_t, ^)
+            OP_VAR(MN_VARXOR | MN_UNSIGNED | MN_WORD, uint16_t, ^)
+            OP_VAR(MN_VARXOR | MN_BYTE, int8_t, ^)
+            OP_VAR(MN_VARXOR | MN_UNSIGNED | MN_BYTE, uint8_t, ^)
 
-            OP_VAR(MN_VARAND | MN_QWORD, int64_t, &,)
-            OP_VAR(MN_VARAND | MN_UNSIGNED | MN_QWORD, uint64_t, &,)
-            OP_VAR(MN_VARAND | MN_DWORD, int32_t, &,)
-            OP_VAR(MN_VARAND | MN_UNSIGNED | MN_DWORD, uint32_t, &,)
-            OP_VAR(MN_VARAND | MN_WORD, int16_t, &,)
-            OP_VAR(MN_VARAND | MN_UNSIGNED | MN_WORD, uint16_t, &,)
-            OP_VAR(MN_VARAND | MN_BYTE, int8_t, &,)
-            OP_VAR(MN_VARAND | MN_UNSIGNED | MN_BYTE, uint8_t, &,)
+            OP_VAR(MN_VARAND | MN_QWORD, int64_t, &)
+            OP_VAR(MN_VARAND | MN_UNSIGNED | MN_QWORD, uint64_t, &)
+            OP_VAR(MN_VARAND | MN_DWORD, int32_t, &)
+            OP_VAR(MN_VARAND | MN_UNSIGNED | MN_DWORD, uint32_t, &)
+            OP_VAR(MN_VARAND | MN_WORD, int16_t, &)
+            OP_VAR(MN_VARAND | MN_UNSIGNED | MN_WORD, uint16_t, &)
+            OP_VAR(MN_VARAND | MN_BYTE, int8_t, &)
+            OP_VAR(MN_VARAND | MN_UNSIGNED | MN_BYTE, uint8_t, &)
 
-            OP_VAR(MN_VARROR | MN_QWORD, int64_t, >>,)
-            OP_VAR(MN_VARROR | MN_UNSIGNED | MN_QWORD, uint64_t, >>,)
-            OP_VAR(MN_VARROR | MN_DWORD, int32_t, >>,)
-            OP_VAR(MN_VARROR | MN_UNSIGNED | MN_DWORD, uint32_t, >>,)
-            OP_VAR(MN_VARROR | MN_WORD, int16_t, >>,)
-            OP_VAR(MN_VARROR | MN_UNSIGNED | MN_WORD, uint16_t, >>,)
-            OP_VAR(MN_VARROR | MN_BYTE, int8_t, >>,)
-            OP_VAR(MN_VARROR | MN_UNSIGNED | MN_BYTE, uint8_t, >>,)
+            OP_VAR(MN_VARROR | MN_QWORD, int64_t, >>)
+            OP_VAR(MN_VARROR | MN_UNSIGNED | MN_QWORD, uint64_t, >>)
+            OP_VAR(MN_VARROR | MN_DWORD, int32_t, >>)
+            OP_VAR(MN_VARROR | MN_UNSIGNED | MN_DWORD, uint32_t, >>)
+            OP_VAR(MN_VARROR | MN_WORD, int16_t, >>)
+            OP_VAR(MN_VARROR | MN_UNSIGNED | MN_WORD, uint16_t, >>)
+            OP_VAR(MN_VARROR | MN_BYTE, int8_t, >>)
+            OP_VAR(MN_VARROR | MN_UNSIGNED | MN_BYTE, uint8_t, >>)
 
-            OP_VAR(MN_VARROL | MN_QWORD, int64_t, <<,)
-            OP_VAR(MN_VARROL | MN_UNSIGNED | MN_QWORD, uint64_t, <<,)
-            OP_VAR(MN_VARROL | MN_DWORD, int32_t, <<,)
-            OP_VAR(MN_VARROL | MN_UNSIGNED | MN_DWORD, uint32_t, <<,)
-            OP_VAR(MN_VARROL | MN_WORD, int16_t, <<,)
-            OP_VAR(MN_VARROL | MN_UNSIGNED | MN_WORD, uint16_t, <<,)
-            OP_VAR(MN_VARROL | MN_BYTE, int8_t, <<,)
-            OP_VAR(MN_VARROL | MN_UNSIGNED | MN_BYTE, uint8_t, <<,)
+            OP_VAR(MN_VARROL | MN_QWORD, int64_t, <<)
+            OP_VAR(MN_VARROL | MN_UNSIGNED | MN_QWORD, uint64_t, <<)
+            OP_VAR(MN_VARROL | MN_DWORD, int32_t, <<)
+            OP_VAR(MN_VARROL | MN_UNSIGNED | MN_DWORD, uint32_t, <<)
+            OP_VAR(MN_VARROL | MN_WORD, int16_t, <<)
+            OP_VAR(MN_VARROL | MN_UNSIGNED | MN_WORD, uint16_t, <<)
+            OP_VAR(MN_VARROL | MN_BYTE, int8_t, <<)
+            OP_VAR(MN_VARROL | MN_UNSIGNED | MN_BYTE, uint8_t, <<)
 
             /* VAR DIV/MOD */
 
@@ -1372,7 +1412,7 @@ case case_value: \
 #define op_VARDIVF(case_value, ctype) \
 case case_value: \
 { \
-    *( ctype * )( intptr_t )( r->stack_ptr[-2] ) /= *( ctype * ) &r->stack_ptr[-1]; \
+    *( ctype * )( intptr_t )( r->stack_ptr[-2] ) /= *_STACK_FPTR( ctype, &r->stack_ptr[-1] ); \
     --r->stack_ptr; \
     ++pc; \
     break; \
@@ -1381,7 +1421,7 @@ case case_value: \
 #define op_VARMODF(case_value, ctype) \
 case case_value: \
 { \
-    *( ctype * )( intptr_t )( r->stack_ptr[-2] ) = fmod( *( ctype * ) r->stack_ptr[-2], *( ctype * ) &r->stack_ptr[-1] ); \
+    *( ctype * )( intptr_t )( r->stack_ptr[-2] ) = fmod( *( ctype * )( intptr_t )( r->stack_ptr[-2] ), *_STACK_FPTR( ctype, &r->stack_ptr[-1] ) ); \
     --r->stack_ptr; \
     ++pc; \
     break; \
@@ -1458,38 +1498,39 @@ case case_value: \
             OP_DECINC(MN_DEC | MN_DOUBLE, double, -)
             OP_DECINC(MN_DEC | MN_FLOAT, float, -)
 
-#define OP_POSTDECINC(case_value, ctype, oper, getvalue) \
+#define OP_POSTDECINC(case_value, ctype, oper) \
 case case_value: \
 { \
     ctype* var_ptr = ( ctype * )( intptr_t ) r->stack_ptr[-1]; \
     ctype current_value = *var_ptr; \
     *var_ptr = current_value oper pc[1]; \
-    r->stack_ptr[-1] = getvalue current_value; \
+    r->stack_ptr[-1] = 0; \
+    *_STACK_FPTR( ctype, &r->stack_ptr[-1] ) = current_value; \
     pc += 2; \
     break; \
 }
 
             case MN_POSTDEC | MN_UNSIGNED | MN_QWORD:
-            OP_POSTDECINC(MN_POSTDEC | MN_QWORD, int64_t, -,)
-            OP_POSTDECINC(MN_POSTDEC | MN_DWORD, int32_t, -,)
-            OP_POSTDECINC(MN_POSTDEC | MN_UNSIGNED | MN_DWORD, uint32_t, -,)
-            OP_POSTDECINC(MN_POSTDEC | MN_WORD, int16_t, -,)
-            OP_POSTDECINC(MN_POSTDEC | MN_UNSIGNED | MN_WORD, uint16_t, -,)
-            OP_POSTDECINC(MN_POSTDEC | MN_BYTE, int8_t, -,)
-            OP_POSTDECINC(MN_POSTDEC | MN_UNSIGNED | MN_BYTE, uint8_t, -,)
-            OP_POSTDECINC(MN_POSTDEC | MN_DOUBLE, double, -, *( uint64_t * ) &)
-            OP_POSTDECINC(MN_POSTDEC | MN_FLOAT, float, -, *( uint32_t * ) &)
+            OP_POSTDECINC(MN_POSTDEC | MN_QWORD, int64_t, -)
+            OP_POSTDECINC(MN_POSTDEC | MN_DWORD, int32_t, -)
+            OP_POSTDECINC(MN_POSTDEC | MN_UNSIGNED | MN_DWORD, uint32_t, -)
+            OP_POSTDECINC(MN_POSTDEC | MN_WORD, int16_t, -)
+            OP_POSTDECINC(MN_POSTDEC | MN_UNSIGNED | MN_WORD, uint16_t, -)
+            OP_POSTDECINC(MN_POSTDEC | MN_BYTE, int8_t, -)
+            OP_POSTDECINC(MN_POSTDEC | MN_UNSIGNED | MN_BYTE, uint8_t, -)
+            OP_POSTDECINC(MN_POSTDEC | MN_DOUBLE, double, -)
+            OP_POSTDECINC(MN_POSTDEC | MN_FLOAT, float, -)
 
             case MN_POSTINC | MN_UNSIGNED | MN_QWORD:
-            OP_POSTDECINC(MN_POSTINC | MN_QWORD, int64_t, +,)
-            OP_POSTDECINC(MN_POSTINC | MN_DWORD, int32_t, +,)
-            OP_POSTDECINC(MN_POSTINC | MN_UNSIGNED | MN_DWORD, uint32_t, +,)
-            OP_POSTDECINC(MN_POSTINC | MN_WORD, int16_t, +,)
-            OP_POSTDECINC(MN_POSTINC | MN_UNSIGNED | MN_WORD, uint16_t, +,)
-            OP_POSTDECINC(MN_POSTINC | MN_BYTE, int8_t, +,)
-            OP_POSTDECINC(MN_POSTINC | MN_UNSIGNED | MN_BYTE, uint8_t, +,)
-            OP_POSTDECINC(MN_POSTINC | MN_DOUBLE, double, +, *( uint64_t * ) &)
-            OP_POSTDECINC(MN_POSTINC | MN_FLOAT, float, +, *( uint32_t * ) &)
+            OP_POSTDECINC(MN_POSTINC | MN_QWORD, int64_t, +)
+            OP_POSTDECINC(MN_POSTINC | MN_DWORD, int32_t, +)
+            OP_POSTDECINC(MN_POSTINC | MN_UNSIGNED | MN_DWORD, uint32_t, +)
+            OP_POSTDECINC(MN_POSTINC | MN_WORD, int16_t, +)
+            OP_POSTDECINC(MN_POSTINC | MN_UNSIGNED | MN_WORD, uint16_t, +)
+            OP_POSTDECINC(MN_POSTINC | MN_BYTE, int8_t, +)
+            OP_POSTDECINC(MN_POSTINC | MN_UNSIGNED | MN_BYTE, uint8_t, +)
+            OP_POSTDECINC(MN_POSTINC | MN_DOUBLE, double, +)
+            OP_POSTDECINC(MN_POSTINC | MN_FLOAT, float, +)
 
             /* Jumps */
 

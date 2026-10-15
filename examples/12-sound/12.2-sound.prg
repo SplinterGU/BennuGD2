@@ -61,7 +61,7 @@ int playing_text_width = 0;
 
 // --- Helpers ---
 
-function text_set_alpha(int tid, int alpha)
+function text_set_alpha(int tid, byte alpha)
 begin
     byte r, g, b;
     write_get_rgba(tid, &r, &g, &b, NULL);
@@ -264,6 +264,7 @@ begin
         if ( current_track != last_track )
             if ( music_handle ) music_unload(music_handle); end
             music_handle = music_load("res/songs/" + music_files[current_track]);
+
             music_play(music_handle, 0);
             music_set_volume(music_vol);
             last_track = current_track;
@@ -416,7 +417,11 @@ begin
             // Tooltip background
             drawing_map(0, graph);
             drawing_rgba(0, 0, 128, clamp((200 * ui_alpha) / 255, 0, 200));
-            draw_rectangle_round_filled(0, 0, tooltip_w, tooltip_h, 5);
+            #ifdef USE_SDL2
+                draw_rectangle_filled(0, 0, tooltip_w, tooltip_h);
+            #else
+                draw_rectangle_round_filled(0, 0, tooltip_w, tooltip_h, 5);
+            #endif
             drawing_map(0, 0);
 
             // Tooltip text
@@ -453,7 +458,11 @@ begin
         if ( draw_sfx_zone ) draw_delete(draw_sfx_zone); end
         drawing_rgba(50, 50, 80, ui_alpha);
         drawing_z(100);
-        draw_sfx_zone = draw_rectangle_round_filled(50, 50, 300, 200, 10);
+        #ifdef use_sdl2
+            draw_sfx_zone = draw_rectangle_filled(50, 50, 300, 200);
+        #else
+            draw_sfx_zone = draw_rectangle_round_filled(50, 50, 300, 200, 10);
+        #endif
 
         // Sliders background and fill
         int sx = SCR_W - 250;
@@ -583,9 +592,9 @@ begin
     drawing_map(0, 0);
     center_set(0, mouse.graph, 0, 0);
 
-    sfx_file_0 = "res/fx/footstep-sfx-6.mp3";
-    sfx_file_1 = "res/fx/human-sfx-1.mp3";
-    sfx_file_2 = "res/fx/doors-sfx-2.mp3";
+    sfx_file_0 = "res/fx/footstep-sfx-6.ogg";
+    sfx_file_1 = "res/fx/human-sfx-1.ogg";
+    sfx_file_2 = "res/fx/doors-sfx-2.ogg";
 
     // Load SFX
     sfx_handle[0] = sound_load(sfx_file_0);
