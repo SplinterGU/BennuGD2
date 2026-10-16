@@ -102,7 +102,9 @@ GRAPH * bitmap_new( int64_t code, int64_t width, int64_t height, SDL_Surface * s
             gr->surface = SDL_ConvertSurfaceFormat(surface, gPixelFormat->format, 0);
         }
  #else
-        gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
+        //gr->surface = SDL_ConvertSurface(surface, surface->format, 0);
+        gr->surface = SDL_ConvertSurfaceFormat(surface, gPixelFormat->format, 0); // Force 32bits textures
+        // !!! NOTE: Change this for support several bpp, need changes in all get_pixel and RGB/RGBA system
         if ( !gr->surface ) {
             free( gr );
             return NULL;
