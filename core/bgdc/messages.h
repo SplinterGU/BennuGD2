@@ -147,6 +147,9 @@
 #define MSG_PARAM_TYPE_ADJUSTED \
 "Parameter '%s' declared as '%s' conflicts with local variable of type '%s'; using '%s' for parameter and private storage"
 
+#define MSG_PARAM_LOCAL_TYPE_CONFLICT \
+"Parameter '%s' declared as '%s' conflicts with local variable of type '%s'"
+
 #define MSG_PARAM_CONTRACT_TYPE_CONFLICT \
 "Parameter '%s' declared as '%s', but previously declared as '%s'"
 
