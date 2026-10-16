@@ -30,6 +30,7 @@
     #define __ARRANGE_ST_H
 
     #include <stdint.h>
+    #include <string.h>
 
     #define __LIL_ENDIAN 1234
     #define __BIG_ENDIAN 4321
@@ -62,48 +63,91 @@
         #define ARRANGE_DWORDS(x,c)
         #define ARRANGE_WORDS(x,c)
     #else
-        static __inline__ void DO_Swap16(uint16_t * D) {
-            *D = (*D<<8) | (*D>>8);
+
+        static __inline__ void DO_Swap16(void *data) {
+            uint16_t value;
+
+            memcpy(&value, data, sizeof(value));
+
+            value = (uint16_t)(
+                (value << 8) |
+                (value >> 8)
+            );
+
+            memcpy(data, &value, sizeof(value));
         }
 
-        static __inline__ void DO_Swap32(uint32_t * D) {
-            *D = (*D<<24) | ((*D<<8)&0x00FF0000LL) | ((*D>>8)&0x0000FF00LL) | (*D>>24);
+        static __inline__ void DO_Swap32(void *data) {
+            uint32_t value;
+
+            memcpy(&value, data, sizeof(value));
+
+            value =
+                (value << 24) |
+                ((value << 8) & UINT32_C(0x00FF0000)) |
+                ((value >> 8) & UINT32_C(0x0000FF00)) |
+                (value >> 24);
+
+            memcpy(data, &value, sizeof(value));
         }
 
-        static __inline__ void DO_Swap64(uint64_t * D) {
-            uint32_t hi, lo;
-            uint64_t x = *D;
-            lo = (x & 0xFFFFFFFFLL);
-            x >>= 32;
-            hi = (x & 0xFFFFFFFFLL);
-            DO_Swap32(&lo);
-            DO_Swap32(&hi);
-            *D = ( ( ( uint64_t ) lo ) << 32 ) | hi;
+        static __inline__ void DO_Swap64(void *data) {
+            uint64_t value;
+
+            memcpy(&value, data, sizeof(value));
+
+            value =
+                (value << 56) |
+                ((value << 40) & UINT64_C(0x00FF000000000000)) |
+                ((value << 24) & UINT64_C(0x0000FF0000000000)) |
+                ((value << 8)  & UINT64_C(0x000000FF00000000)) |
+                ((value >> 8)  & UINT64_C(0x00000000FF000000)) |
+                ((value >> 24) & UINT64_C(0x0000000000FF0000)) |
+                ((value >> 40) & UINT64_C(0x000000000000FF00)) |
+                (value >> 56);
+
+            memcpy(data, &value, sizeof(value));
         }
 
-        #define ARRANGE_QWORD(x)    DO_Swap64((uint64_t *)(x))
-        #define ARRANGE_DWORD(x)    DO_Swap32((uint32_t *)(x))
-        #define ARRANGE_WORD(x)     DO_Swap16((uint16_t *)(x))
+        #define ARRANGE_QWORD(x) DO_Swap64((void *)(x))
+        #define ARRANGE_DWORD(x) DO_Swap32((void *)(x))
+        #define ARRANGE_WORD(x)  DO_Swap16((void *)(x))
 
-        #define ARRANGE_QWORDS(x,c) {               \
-            int __n;                                \
-            uint64_t * __p = (uint64_t *)(x);       \
-            for (__n = 0; __n < (int)(c); __n++)    \
-                ARRANGE_QWORD(&__p[__n]);           \
-            }
-        #define ARRANGE_DWORDS(x,c) {               \
-            int __n;                                \
-            uint32_t * __p = (uint32_t *)(x);       \
-            for (__n = 0; __n < (int)(c); __n++)    \
-                ARRANGE_DWORD(&__p[__n]);           \
-            }
-        #define ARRANGE_WORDS(x,c) {                \
-            int __n;                                \
-            uint16_t * __p = (uint16_t *)(x);       \
-            for (__n = 0; __n < (int)(c); __n++)    \
-                ARRANGE_WORD(&__p[__n]);            \
-            }
+        #define ARRANGE_QWORDS(x, c)                                      \
+            do {                                                         \
+                unsigned char *arrange_ptr_ = (unsigned char *)(void *)(x);\
+                int arrange_count_ = (int)(c);                            \
+                for (int arrange_i_ = 0;                                  \
+                     arrange_i_ < arrange_count_;                         \
+                     ++arrange_i_, arrange_ptr_ += sizeof(uint64_t)) {     \
+                    DO_Swap64(arrange_ptr_);                              \
+                }                                                        \
+            } while (0)
+
+        #define ARRANGE_DWORDS(x, c)                                      \
+            do {                                                         \
+                unsigned char *arrange_ptr_ = (unsigned char *)(void *)(x);\
+                int arrange_count_ = (int)(c);                            \
+                for (int arrange_i_ = 0;                                  \
+                     arrange_i_ < arrange_count_;                         \
+                     ++arrange_i_, arrange_ptr_ += sizeof(uint32_t)) {     \
+                    DO_Swap32(arrange_ptr_);                              \
+                }                                                        \
+            } while (0)
+
+        #define ARRANGE_WORDS(x, c)                                       \
+            do {                                                         \
+                unsigned char *arrange_ptr_ = (unsigned char *)(void *)(x);\
+                int arrange_count_ = (int)(c);                            \
+                for (int arrange_i_ = 0;                                  \
+                     arrange_i_ < arrange_count_;                         \
+                     ++arrange_i_, arrange_ptr_ += sizeof(uint16_t)) {     \
+                    DO_Swap16(arrange_ptr_);                              \
+                }                                                        \
+            } while (0)
+
     #endif
+
 #endif
 
 /* Access a sub-64-bit typed value within an int64_t stack slot.
