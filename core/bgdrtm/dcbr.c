@@ -366,7 +366,7 @@ int dcb_load_from( file * fp, const char * filename, int offset ) {
     ARRANGE_QWORD( &dcb.data.OSourceFiles );
     ARRANGE_QWORD( &dcb.data.OSysProcsCodes );
 
-    if ( memcmp( dcb.data.Header, DCB_MAGIC, sizeof( DCB_MAGIC ) - 1 ) != 0 || dcb.data.Version < 0x0800 ) return 0;
+    if ( memcmp( dcb.data.Header, DCB_MAGIC, sizeof( DCB_MAGIC ) - 1 ) != 0 || dcb.data.Version < DCB_VERSION ) return 0;
 
     globaldata = calloc( dcb.data.SGlobal + 8, 1 );
     localdata  = calloc( dcb.data.SLocal + 8, 1 );

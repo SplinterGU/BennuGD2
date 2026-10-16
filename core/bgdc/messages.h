@@ -144,4 +144,13 @@
 #define MSG_CANT_CREATE_PROCESS_FUNCTION        "Can't create process/function"
 #define MSG_TYPE_REDECLARE                      "Type redeclared"
 
+#define MSG_PARAM_TYPE_ADJUSTED \
+"Parameter '%s' declared as '%s' conflicts with local variable of type '%s'; using '%s' for parameter and private storage"
+
+#define MSG_PARAM_CONTRACT_TYPE_CONFLICT \
+"Parameter '%s' declared as '%s', but previously declared as '%s'"
+
+#define MSG_PARAM_CONTRACT_NAME_CONFLICT \
+"Parameter '%s' was previously declared with name '%s'"
+
 #endif

@@ -53,6 +53,6 @@
                                                 "   distribution.\n"
 
 #define MSG_DIRECTORY_MISSING                   "You must specify a directory"
-#define MSG_DCB_ERROR                           "%s: doesn't exist or isn't version %d DCB compatible"
+#define MSG_DCB_ERROR                           "%s: doesn't exist or isn't version %d.%d DCB compatible"
 
 #endif

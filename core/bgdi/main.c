@@ -417,7 +417,7 @@ int main( int argc, char *argv[] ) {
             }
 
             if ( !dcbloaded ) {
-                fprintf( stderr, MSG_DCB_ERROR "\n", filename, DCB_VERSION >> 8 ) ;
+                fprintf( stderr, MSG_DCB_ERROR "\n", filename, DCB_VERSION >> 8, DCB_VERSION & 0xff ) ;
 #ifdef __ANDROID__
                 __android_log_print(ANDROID_LOG_INFO, LOG_TAG, MSG_DCB_ERROR, filename, DCB_VERSION >> 8);
 #endif

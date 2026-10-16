@@ -328,7 +328,7 @@ int main( int argc, char *argv[] ) {
 
                     switch ( r ) {
                         case    0:
-                                fprintf( stderr, MSG_DCB_ERROR "\n", f, DCB_VERSION >> 8 ) ;
+                                fprintf( stderr, MSG_DCB_ERROR "\n", f, DCB_VERSION >> 8, DCB_VERSION & 0xff ) ;
                                 exit( -1 );
 
                         case    -1:
