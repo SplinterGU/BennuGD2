@@ -196,7 +196,9 @@ int bg_sound_set_music_volume( int volume ) {
     if ( !audio_initialized ) return ( -1 );
     if ( volume < 0 ) volume = 0;
     if ( volume > 128 ) volume = 128;
+#ifndef PS3_PPU
     Mix_VolumeMusic( volume );
+#endif
     return 0;
 }
 
