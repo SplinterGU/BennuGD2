@@ -226,7 +226,7 @@ int gr_set_mode( int width, int height, int flags ) {
     grab_input = ( flags & MODE_GRAB_INPUT ) ? 1 : 0 ;
     frameless = ( flags & MODE_FRAMELESS ) ? 1 : 0 ;
     waitvsync = ( flags & MODE_WAITVSYNC ) ? 1 : 0 ;
-    fullscreen |= GLOQWORD( libbggfx, fullscreen );
+    fullscreen |= GLOQWORD( libbggfx, FULLSCREEN );
 #endif
 
     int64_t current_scale_resolution_aspectratio = scale_resolution_aspectratio;
